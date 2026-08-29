@@ -839,8 +839,6 @@ class _AutoBackupActivationSheetState
   String? _passphraseError;
   bool _submitting = false;
 
-  static const int _minPassphraseLength = 8;
-
   @override
   void initState() {
     super.initState();
@@ -876,10 +874,10 @@ class _AutoBackupActivationSheetState
   String? _validatePassphrase() {
     final pw = _passphraseController.text;
     final confirm = _confirmController.text;
-    if (pw.length < _minPassphraseLength) {
+    if (pw.length < BackupActions.minPassphraseLength) {
       return _t(
         'auto_backup_activation_passphrase_too_short',
-        params: {'min': '$_minPassphraseLength'},
+        params: {'min': '${BackupActions.minPassphraseLength}'},
       );
     }
     if (pw != confirm) {
@@ -1147,7 +1145,7 @@ class _AutoBackupActivationSheetState
         Text(
           _t(
             'auto_backup_activation_passphrase_save_advice',
-            params: {'min': '$_minPassphraseLength'},
+            params: {'min': '${BackupActions.minPassphraseLength}'},
           ),
           style: Theme.of(context).textTheme.bodySmall,
         ),

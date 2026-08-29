@@ -7819,7 +7819,7 @@ msgstr "Dışa aktar"
 
 #. Yedekleme kilidini açma: gizli ifade ipucu
 msgid "backup_unlock_passphrase_hint"
-msgstr "Herhangi bir gizli ifade seçin. Bunu bir yere not edin: bu yedeği geri yüklemek için ona ihtiyacınız olacak."
+msgstr "En az {min} karakterden oluşan bir gizli ifade seçin. Bunu bir yere not edin: bu yedeği geri yüklemek için ona ihtiyacınız olacak."
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10484,7 +10484,7 @@ msgid "account_sync_recovery_title"
 msgstr "Kurtarma ifadeniz"
 
 msgid "account_sync_recovery_intro"
-msgstr "Bu 24 kelimeyi sırasıyla not edin ve güvenli bir yerde saklayın. Gizli ifadenizi unutursanız hesabınızı kurtarmanın tek yolu bunlardır."
+msgstr "Bu 24 kelimeyi sırasıyla not edin ve güvenli bir yerde saklayın. Sunucuda tutulan, hesap anahtarlarınızın şifreli kopyasının anahtarı bunlardır; o kopyayı başka kimse açamaz, biz bile. Kitaplığınız bu cihazda kalır, bu nedenle bu kelimeler günlük kullanımda gerekmez. Uygulama bugün bu kelimeleri geri okuyamaz: yeni bir cihaz eklemek için oturumu zaten açık olan bir cihazı kullanın."
 
 msgid "account_sync_recovery_warning"
 msgstr "Bu ifade yalnızca bir kez gösterilir ve asla saklanmaz. Onu tekrar gösteremeyiz."
@@ -11349,3 +11349,182 @@ msgstr "Bir kaynak seçin:"
 #. Shared list import: who wrote the list, shown under its title
 msgid "shared_list_by_contributor"
 msgstr "{name} tarafından"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "Düz klavye sıraları kolayca tahmin edilir."
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "Kısa klavye desenleri kolayca tahmin edilir."
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "aaa gibi tekrarlar kolayca tahmin edilir."
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "abcabcabc gibi tekrarların tahmin edilmesi abc'den yalnızca biraz daha zordur."
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "Bu, en yaygın 10 paroladan biri."
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "Bu, en yaygın 100 paroladan biri."
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "Bu çok yaygın bir parola."
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "Bu, çok kullanılan bir parolaya benziyor."
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "abc veya 6543 gibi diziler kolayca tahmin edilir."
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "Yakın yıllar kolayca tahmin edilir."
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "Tek başına bir kelime kolayca tahmin edilir."
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "Tarihler çoğu zaman kolayca tahmin edilir."
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "Tek başına adlar ve soyadlar kolayca tahmin edilir."
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "Yaygın adlar ve soyadlar kolayca tahmin edilir."
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "Birkaç kelime kullanın, yaygın kalıplardan kaçının."
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "Sembol, rakam veya büyük harf gerekmez."
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "Bir iki kelime daha ekleyin. Az kullanılan kelimeler daha iyidir."
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "Büyük harf kullanmak pek işe yaramaz."
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "Tamamı büyük harf olması, tamamı küçük harf olması kadar kolay tahmin edilir."
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "Ters yazılmış kelimelerin tahmin edilmesi pek daha zor değildir."
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "a yerine @ gibi tahmin edilebilir değişiklikler pek işe yaramaz."
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "Daha uzun ve daha çok yön değiştiren bir klavye deseni kullanın."
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "Tekrar eden kelime ve karakterlerden kaçının."
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "Dizilerden kaçının."
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "Yakın yıllardan kaçının."
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "Sizinle ilgili yıllardan kaçının."
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "Sizinle ilgili tarih ve yıllardan kaçının."
+
+# ADR-070: duplicate-book merge (maintenance screen, join warning).
+
+msgid "duplicates_title"
+msgstr "Yinelenenler"
+
+msgid "duplicates_intro"
+msgstr "İki cihaz aynı kitabı ayrı ayrı kaydettiğinde, eşitleme iki kaydı bir araya getirir ama aynı kitabı anlattıklarını anlayamaz. Bu sayfa onları tek bir kayda dönüştürür."
+
+msgid "duplicates_scanning"
+msgstr "Kitaplık taranıyor..."
+
+msgid "duplicates_none"
+msgstr "Kitaplığınızda yinelenen kayıt yok."
+
+msgid "duplicates_error"
+msgstr "Tarama tamamlanmadı."
+
+msgid "duplicates_certain_section"
+msgstr "Kesin yinelenenler"
+
+msgid "duplicates_certain_summary"
+msgstr "{groups} kitap etkileniyor, {books} fazla kayıt. Bu kayıtlar aynı ISBN'i taşıyor."
+
+msgid "duplicates_merge_all"
+msgstr "Kesin yinelenenleri birleştir"
+
+msgid "duplicates_probable_section"
+msgstr "Olası yinelenenler"
+
+msgid "duplicates_probable_hint"
+msgstr "Bu kayıtlar aynı başlığı ve aynı yazarı taşıyor, ama bunu doğrulayan bir ISBN yok. Aynı metnin iki farklı baskısı da olabilirler, bu yüzden her biri ayrı ayrı onaylanır."
+
+msgid "duplicates_merge_one"
+msgstr "Birleştir"
+
+msgid "duplicates_kept_label"
+msgstr "Korunan kayıt, oluşturulma"
+
+msgid "duplicates_removed_label"
+msgstr "Birleştirilen kayıt, oluşturulma"
+
+msgid "duplicates_confirm_title"
+msgstr "Bu kayıtlar birleştirilsin mi?"
+
+msgid "duplicates_confirm_all_body"
+msgstr "{books} kayıt, koruduklarınızla birleştirilecek. Raflar, koleksiyonlar, nüshalar ve notlar da taşınır."
+
+msgid "duplicates_confirm_one_body"
+msgstr "\"{title}\" kayıtları tek bir kayda dönüştürülecek. Raflar, koleksiyonlar, nüshalar ve notlar da taşınır."
+
+msgid "duplicates_confirm_replicates"
+msgstr "Bu işlem tüm cihazlarınız için geçerlidir: bir sonraki eşitlemede uygulanır."
+
+msgid "duplicates_confirm_backup"
+msgstr "Öncesinde alınmış bir yedek geri dönmenizi sağlar."
+
+msgid "duplicates_confirm_cta"
+msgstr "Birleştir"
+
+msgid "duplicates_report"
+msgstr "{books} kayıt birleştirildi, {copies} nüsha tek nüshaya indirildi."
+
+msgid "duplicates_banner_body"
+msgstr "Kitaplığınızda {count} yinelenen kayıt var; cihazlarınız kitaplıklarını birleştirdiğinde ortaya çıktılar."
+
+msgid "duplicates_banner_cta"
+msgstr "Yinelenenleri gör"
+
+msgid "account_join_existing_library_warning"
+msgstr "Bu cihazda zaten {count} kitap var. Hesaptakilerle birleştirilecekler: hiçbir şey kaybolmaz, ama iki tarafta da kaydedilmiş bir kitap iki kez görünür. Sonrasında bunları birleştirmek için bir araç var."

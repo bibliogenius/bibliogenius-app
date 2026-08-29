@@ -161,6 +161,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDiscoverySeriesLookup dco_decode_frb_discovery_series_lookup(dynamic raw);
 
   @protected
+  FrbDuplicateBook dco_decode_frb_duplicate_book(dynamic raw);
+
+  @protected
+  FrbDuplicateGroup dco_decode_frb_duplicate_group(dynamic raw);
+
+  @protected
+  FrbDuplicateScan dco_decode_frb_duplicate_scan(dynamic raw);
+
+  @protected
   FrbFillProgress dco_decode_frb_fill_progress(dynamic raw);
 
   @protected
@@ -234,6 +243,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbMemoryScore dco_decode_frb_memory_score(dynamic raw);
+
+  @protected
+  FrbMergeReport dco_decode_frb_merge_report(dynamic raw);
 
   @protected
   FrbNotification dco_decode_frb_notification(dynamic raw);
@@ -347,6 +359,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbDiscoverySeriesLookup> dco_decode_list_frb_discovery_series_lookup(
     dynamic raw,
   );
+
+  @protected
+  List<FrbDuplicateBook> dco_decode_list_frb_duplicate_book(dynamic raw);
+
+  @protected
+  List<FrbDuplicateGroup> dco_decode_list_frb_duplicate_group(dynamic raw);
 
   @protected
   List<FrbFilledBook> dco_decode_list_frb_filled_book(dynamic raw);
@@ -700,6 +718,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbDuplicateBook sse_decode_frb_duplicate_book(SseDeserializer deserializer);
+
+  @protected
+  FrbDuplicateGroup sse_decode_frb_duplicate_group(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbDuplicateScan sse_decode_frb_duplicate_scan(SseDeserializer deserializer);
+
+  @protected
   FrbFillProgress sse_decode_frb_fill_progress(SseDeserializer deserializer);
 
   @protected
@@ -789,6 +818,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbMemoryScore sse_decode_frb_memory_score(SseDeserializer deserializer);
+
+  @protected
+  FrbMergeReport sse_decode_frb_merge_report(SseDeserializer deserializer);
 
   @protected
   FrbNotification sse_decode_frb_notification(SseDeserializer deserializer);
@@ -930,6 +962,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbDiscoverySeriesLookup> sse_decode_list_frb_discovery_series_lookup(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbDuplicateBook> sse_decode_list_frb_duplicate_book(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbDuplicateGroup> sse_decode_list_frb_duplicate_group(
     SseDeserializer deserializer,
   );
 
@@ -1373,6 +1415,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_duplicate_book(
+    FrbDuplicateBook self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_duplicate_group(
+    FrbDuplicateGroup self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_duplicate_scan(
+    FrbDuplicateScan self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_fill_progress(
     FrbFillProgress self,
     SseSerializer serializer,
@@ -1492,6 +1552,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_memory_score(
     FrbMemoryScore self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_merge_report(
+    FrbMergeReport self,
     SseSerializer serializer,
   );
 
@@ -1681,6 +1747,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_discovery_series_lookup(
     List<FrbDiscoverySeriesLookup> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_duplicate_book(
+    List<FrbDuplicateBook> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_duplicate_group(
+    List<FrbDuplicateGroup> self,
     SseSerializer serializer,
   );
 

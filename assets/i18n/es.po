@@ -9101,7 +9101,7 @@ msgstr "Exportar"
 
 #. Copia de seguridad: ayuda para elegir una frase de contraseña
 msgid "backup_unlock_passphrase_hint"
-msgstr "Elige cualquier frase secreta. Anótala: la necesitarás para restaurar esta copia."
+msgstr "Elige una frase secreta de al menos {min} caracteres. Anótala: la necesitarás para restaurar esta copia."
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10352,7 +10352,7 @@ msgid "account_sync_recovery_title"
 msgstr "Tu frase de recuperación"
 
 msgid "account_sync_recovery_intro"
-msgstr "Anota estas 24 palabras en orden y guárdalas en un lugar seguro. Son la única forma de recuperar tu cuenta si olvidas tu frase de contraseña."
+msgstr "Anota estas 24 palabras en orden y guárdalas en un lugar seguro. Son la llave de la copia cifrada de las claves de tu cuenta que se guarda en el servidor, y nadie más puede abrirla, ni siquiera nosotros. Tu biblioteca permanece en este dispositivo, así que estas palabras no se usan en el día a día. Hoy la aplicación no puede volver a leerlas: para añadir un dispositivo, usa uno que ya haya iniciado sesión."
 
 msgid "account_sync_recovery_warning"
 msgstr "Esta frase se muestra una sola vez y nunca se almacena. No podremos volver a mostrarla."
@@ -11217,3 +11217,182 @@ msgstr "Elige una fuente:"
 #. Shared list import: who wrote the list, shown under its title
 msgid "shared_list_by_contributor"
 msgstr "Por {name}"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "Las filas rectas de teclas son fáciles de adivinar."
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "Los patrones de teclado cortos son fáciles de adivinar."
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "Las repeticiones como aaa son fáciles de adivinar."
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "Las repeticiones como abcabcabc son solo un poco más difíciles de adivinar que abc."
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "Es una de las 10 contraseñas más comunes."
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "Es una de las 100 contraseñas más comunes."
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "Es una contraseña muy común."
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "Se parece a una contraseña de uso muy extendido."
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "Las secuencias como abc o 6543 son fáciles de adivinar."
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "Los años recientes son fáciles de adivinar."
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "Una sola palabra es fácil de adivinar."
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "Las fechas suelen ser fáciles de adivinar."
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "Los nombres y apellidos por sí solos son fáciles de adivinar."
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "Los nombres y apellidos comunes son fáciles de adivinar."
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "Usa varias palabras y evita las frases hechas."
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "No hacen falta símbolos, dígitos ni mayúsculas."
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "Añade una o dos palabras más. Las palabras poco comunes son mejores."
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "Las mayúsculas no ayudan mucho."
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "Todo en mayúsculas es casi tan fácil de adivinar como todo en minúsculas."
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "Las palabras al revés no son mucho más difíciles de adivinar."
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "Las sustituciones predecibles, como @ en lugar de a, no ayudan mucho."
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "Usa un patrón de teclado más largo y con más giros."
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "Evita las palabras y los caracteres repetidos."
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "Evita las secuencias."
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "Evita los años recientes."
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "Evita los años relacionados contigo."
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "Evita las fechas y los años relacionados contigo."
+
+# ADR-070: duplicate-book merge (maintenance screen, join warning).
+
+msgid "duplicates_title"
+msgstr "Duplicados"
+
+msgid "duplicates_intro"
+msgstr "Cuando dos dispositivos registran el mismo libro por separado, la sincronización reúne las dos fichas sin poder adivinar que describen el mismo libro. Esta página las fusiona en una sola."
+
+msgid "duplicates_scanning"
+msgstr "Analizando la biblioteca..."
+
+msgid "duplicates_none"
+msgstr "No hay duplicados en tu biblioteca."
+
+msgid "duplicates_error"
+msgstr "El análisis no se completó."
+
+msgid "duplicates_certain_section"
+msgstr "Duplicados seguros"
+
+msgid "duplicates_certain_summary"
+msgstr "{groups} libros afectados, {books} fichas sobrantes. Estas fichas comparten el mismo ISBN."
+
+msgid "duplicates_merge_all"
+msgstr "Fusionar los duplicados seguros"
+
+msgid "duplicates_probable_section"
+msgstr "Duplicados probables"
+
+msgid "duplicates_probable_hint"
+msgstr "Estas fichas comparten título y autor, pero ningún ISBN lo confirma. Podrían ser igualmente dos ediciones del mismo texto, así que cada una se confirma por separado."
+
+msgid "duplicates_merge_one"
+msgstr "Fusionar"
+
+msgid "duplicates_kept_label"
+msgstr "Ficha conservada, creada el"
+
+msgid "duplicates_removed_label"
+msgstr "Ficha fusionada, creada el"
+
+msgid "duplicates_confirm_title"
+msgstr "¿Fusionar estas fichas?"
+
+msgid "duplicates_confirm_all_body"
+msgstr "{books} fichas se fusionarán con las que conservas. Estantes, colecciones, ejemplares y notas las acompañan."
+
+msgid "duplicates_confirm_one_body"
+msgstr "Las fichas de «{title}» se fusionarán en una sola. Estantes, colecciones, ejemplares y notas las acompañan."
+
+msgid "duplicates_confirm_replicates"
+msgstr "La operación vale para todos tus dispositivos: la aplicarán en su próxima sincronización."
+
+msgid "duplicates_confirm_backup"
+msgstr "Una copia de seguridad hecha antes te permite volver atrás."
+
+msgid "duplicates_confirm_cta"
+msgstr "Fusionar"
+
+msgid "duplicates_report"
+msgstr "{books} fichas fusionadas, {copies} ejemplares agrupados."
+
+msgid "duplicates_banner_body"
+msgstr "Tu biblioteca tiene {count} fichas duplicadas, heredadas del momento en que tus dispositivos reunieron sus bibliotecas."
+
+msgid "duplicates_banner_cta"
+msgstr "Ver los duplicados"
+
+msgid "account_join_existing_library_warning"
+msgstr "Este dispositivo ya contiene {count} libros. Se reunirán con los de la cuenta: no se pierde nada, pero un libro registrado en ambos lados aparecerá dos veces. Hay una herramienta para fusionarlos después."

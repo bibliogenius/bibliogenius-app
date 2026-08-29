@@ -11,6 +11,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/passphrase_strength_meter.dart';
 import '../widgets/recovery_phrase_view.dart';
 
 /// Create-a-new-account flow.
@@ -232,7 +233,7 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
           onChanged: _onPassphraseChanged,
         ),
         const SizedBox(height: AppDesign.spacingSm),
-        _StrengthMeter(strength: _strength),
+        PassphraseStrengthMeter(strength: _strength),
         const SizedBox(height: AppDesign.spacingMd),
         TextField(
           controller: _deviceNameController,
@@ -283,86 +284,6 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
           child: Text(_t('account_sync_recovery_confirm_button')),
         ),
       ],
-    );
-  }
-}
-
-/// Live passphrase strength meter: a 0..4 bar plus the textual label, warning,
-/// and suggestions. The value is also exposed to screen readers (color alone
-/// must not convey the strength, A1).
-class _StrengthMeter extends StatelessWidget {
-  final PassphraseStrength strength;
-  const _StrengthMeter({required this.strength});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final label = TranslationService.translate(
-      context,
-      'account_sync_strength_${strength.score}',
-    );
-    // Theme colors only (vetted contrast); the text label carries the meaning.
-    final Color barColor = strength.score < 2
-        ? cs.error
-        : strength.score == 2
-        ? cs.tertiary
-        : cs.primary;
-    final meterLabel = TranslationService.translate(
-      context,
-      'account_sync_strength_label',
-    );
-    // Fold the warning and actionable suggestions into the spoken label so a
-    // screen-reader user gets the same guidance as a sighted one (A1). The meter
-    // is a live region so the score is re-announced as the passphrase is typed.
-    final semanticParts = <String>[
-      '$meterLabel: $label',
-      if (strength.warning != null) strength.warning!,
-      ...strength.suggestions,
-    ];
-
-    return Semantics(
-      label: semanticParts.join('. '),
-      liveRegion: true,
-      excludeSemantics: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-            child: LinearProgressIndicator(
-              value: strength.length == 0 ? 0 : (strength.score + 1) / 5,
-              minHeight: 8,
-              backgroundColor: cs.surfaceContainerHighest,
-              color: barColor,
-            ),
-          ),
-          const SizedBox(height: AppDesign.spacingXs),
-          Text(
-            '$meterLabel: $label',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-          if (strength.warning != null) ...[
-            const SizedBox(height: AppDesign.spacingXs),
-            Text(
-              strength.warning!,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: cs.error),
-            ),
-          ],
-          if (strength.suggestions.isNotEmpty) ...[
-            const SizedBox(height: AppDesign.spacingXs),
-            Text(
-              strength.suggestions.join('\n'),
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall
-                  ?.copyWith(color: cs.onSurfaceVariant),
-            ),
-          ],
-        ],
-      ),
     );
   }
 }

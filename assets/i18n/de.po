@@ -9101,7 +9101,7 @@ msgstr "Exportieren"
 
 #. Settings - Backup: Hinweis zur Eingabe einer geheimen Phrase
 msgid "backup_unlock_passphrase_hint"
-msgstr "Wählen Sie eine beliebige geheime Phrase. Notieren Sie sie: Sie benötigen sie, um dieses Backup wiederherzustellen."
+msgstr "Wählen Sie eine geheime Phrase mit mindestens {min} Zeichen. Notieren Sie sie: Sie benötigen sie, um dieses Backup wiederherzustellen."
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10353,7 +10353,7 @@ msgid "account_sync_recovery_title"
 msgstr "Ihre Wiederherstellungsphrase"
 
 msgid "account_sync_recovery_intro"
-msgstr "Notieren Sie diese 24 Wörter in der richtigen Reihenfolge und bewahren Sie sie an einem sicheren Ort auf. Sie sind die einzige Möglichkeit, Ihr Konto wiederherzustellen, falls Sie Ihre Passphrase vergessen."
+msgstr "Notieren Sie diese 24 Wörter in der richtigen Reihenfolge und bewahren Sie sie an einem sicheren Ort auf. Sie sind der Schlüssel zur verschlüsselten Kopie Ihrer Kontoschlüssel auf dem Server, und niemand sonst kann sie öffnen, auch wir nicht. Ihre Bibliothek bleibt auf diesem Gerät, diese Wörter werden im Alltag also nicht gebraucht. Die App kann sie heute nicht wieder einlesen: Um ein Gerät hinzuzufügen, verwenden Sie ein bereits angemeldetes Gerät."
 
 msgid "account_sync_recovery_warning"
 msgstr "Diese Phrase wird nur einmal angezeigt und niemals gespeichert. Wir können sie nicht erneut anzeigen."
@@ -11218,3 +11218,182 @@ msgstr "Quelle auswählen:"
 #. Shared list import: who wrote the list, shown under its title
 msgid "shared_list_by_contributor"
 msgstr "Von {name}"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "Gerade Tastenreihen sind leicht zu erraten."
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "Kurze Tastaturmuster sind leicht zu erraten."
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "Wiederholungen wie aaa sind leicht zu erraten."
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "Wiederholungen wie abcabcabc sind nur wenig schwerer zu erraten als abc."
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "Das ist eines der 10 häufigsten Passwörter."
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "Das ist eines der 100 häufigsten Passwörter."
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "Das ist ein sehr häufiges Passwort."
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "Das ähnelt einem weit verbreiteten Passwort."
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "Folgen wie abc oder 6543 sind leicht zu erraten."
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "Aktuelle Jahreszahlen sind leicht zu erraten."
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "Ein einzelnes Wort ist leicht zu erraten."
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "Datumsangaben sind oft leicht zu erraten."
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "Vor- und Nachnamen allein sind leicht zu erraten."
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "Häufige Vor- und Nachnamen sind leicht zu erraten."
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "Verwenden Sie mehrere Wörter und vermeiden Sie gängige Redewendungen."
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "Symbole, Ziffern oder Großbuchstaben sind nicht nötig."
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "Fügen Sie ein oder zwei weitere Wörter hinzu. Seltene Wörter sind besser."
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "Großschreibung hilft nicht viel."
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "Alles in Großbuchstaben ist fast so leicht zu erraten wie alles in Kleinbuchstaben."
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "Rückwärts geschriebene Wörter sind kaum schwerer zu erraten."
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "Vorhersehbare Ersetzungen wie @ statt a helfen nicht viel."
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "Verwenden Sie ein längeres Tastaturmuster mit mehr Richtungswechseln."
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "Vermeiden Sie wiederholte Wörter und Zeichen."
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "Vermeiden Sie Folgen."
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "Vermeiden Sie aktuelle Jahreszahlen."
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "Vermeiden Sie Jahreszahlen, die mit Ihnen zu tun haben."
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "Vermeiden Sie Daten und Jahreszahlen, die mit Ihnen zu tun haben."
+
+# ADR-070: duplicate-book merge (maintenance screen, join warning).
+
+msgid "duplicates_title"
+msgstr "Duplikate"
+
+msgid "duplicates_intro"
+msgstr "Wenn zwei Geräte dasselbe Buch jeweils für sich erfasst haben, führt die Synchronisierung beide Einträge zusammen, ohne erkennen zu können, dass sie dasselbe Buch beschreiben. Diese Seite fasst sie zu einem zusammen."
+
+msgid "duplicates_scanning"
+msgstr "Bibliothek wird analysiert..."
+
+msgid "duplicates_none"
+msgstr "Keine Duplikate in Ihrer Bibliothek."
+
+msgid "duplicates_error"
+msgstr "Die Analyse wurde nicht abgeschlossen."
+
+msgid "duplicates_certain_section"
+msgstr "Sichere Duplikate"
+
+msgid "duplicates_certain_summary"
+msgstr "{groups} betroffene Bücher, {books} überzählige Einträge. Diese Einträge teilen dieselbe ISBN."
+
+msgid "duplicates_merge_all"
+msgstr "Sichere Duplikate zusammenführen"
+
+msgid "duplicates_probable_section"
+msgstr "Wahrscheinliche Duplikate"
+
+msgid "duplicates_probable_hint"
+msgstr "Diese Einträge teilen Titel und Autor, aber keine ISBN bestätigt es. Es können ebenso gut zwei Ausgaben desselben Textes sein, deshalb wird jeder Fall einzeln bestätigt."
+
+msgid "duplicates_merge_one"
+msgstr "Zusammenführen"
+
+msgid "duplicates_kept_label"
+msgstr "Behaltener Eintrag, erstellt am"
+
+msgid "duplicates_removed_label"
+msgstr "Zusammengeführter Eintrag, erstellt am"
+
+msgid "duplicates_confirm_title"
+msgstr "Diese Einträge zusammenführen?"
+
+msgid "duplicates_confirm_all_body"
+msgstr "{books} Einträge werden mit den behaltenen zusammengeführt. Regale, Sammlungen, Exemplare und Notizen kommen mit."
+
+msgid "duplicates_confirm_one_body"
+msgstr "Die Einträge zu \"{title}\" werden zu einem zusammengeführt. Regale, Sammlungen, Exemplare und Notizen kommen mit."
+
+msgid "duplicates_confirm_replicates"
+msgstr "Das gilt für alle Ihre Geräte: Sie übernehmen es bei der nächsten Synchronisierung."
+
+msgid "duplicates_confirm_backup"
+msgstr "Eine vorher angelegte Sicherung erlaubt es, zurückzugehen."
+
+msgid "duplicates_confirm_cta"
+msgstr "Zusammenführen"
+
+msgid "duplicates_report"
+msgstr "{books} Einträge zusammengeführt, {copies} Exemplare zusammengelegt."
+
+msgid "duplicates_banner_body"
+msgstr "Ihre Bibliothek enthält {count} doppelte Einträge, entstanden als Ihre Geräte ihre Bibliotheken zusammengeführt haben."
+
+msgid "duplicates_banner_cta"
+msgstr "Duplikate ansehen"
+
+msgid "account_join_existing_library_warning"
+msgstr "Dieses Gerät enthält bereits {count} Bücher. Sie werden mit denen des Kontos zusammengeführt: nichts geht verloren, aber ein auf beiden Seiten erfasstes Buch erscheint zweimal. Ein Werkzeug führt sie anschließend zusammen."

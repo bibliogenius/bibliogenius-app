@@ -2217,4 +2217,50 @@ class FfiService {
       rethrow;
     }
   }
+
+  // ── Duplicate merge (ADR-070) ───────────────────────────────────────
+
+  /// Preview the duplicate books in this library. Writes nothing.
+  Future<frb.FrbDuplicateScan> scanDuplicateBooks() async {
+    try {
+      return await frb.scanDuplicateBooks();
+    } catch (e) {
+      debugPrint('FFI scanDuplicateBooks error: $e');
+      rethrow;
+    }
+  }
+
+  /// Merge every ISBN-correlated group. Destructive, and the deletions
+  /// replicate to the account's other devices: only call behind a preview
+  /// and an explicit confirmation.
+  Future<frb.FrbMergeReport> mergeDuplicateBooks() async {
+    try {
+      return await frb.mergeDuplicateBooks();
+    } catch (e) {
+      debugPrint('FFI mergeDuplicateBooks error: $e');
+      rethrow;
+    }
+  }
+
+  /// Merge one proposed (title/author/year) group, identified by its key.
+  Future<frb.FrbMergeReport> mergeDuplicateGroup(String key) async {
+    try {
+      return await frb.mergeDuplicateGroup(key: key);
+    } catch (e) {
+      debugPrint('FFI mergeDuplicateGroup error: $e');
+      rethrow;
+    }
+  }
+
+  /// How many surplus book rows a repair would remove, and nothing else.
+  /// Far cheaper than [scanDuplicateBooks]: no schema walk, no per-row payload.
+  /// Use it to decide whether to OFFER the repair; use the scan to show it.
+  Future<int> countDuplicateSurplus() async {
+    try {
+      return await frb.countDuplicateSurplus();
+    } catch (e) {
+      debugPrint('FFI countDuplicateSurplus error: $e');
+      rethrow;
+    }
+  }
 }

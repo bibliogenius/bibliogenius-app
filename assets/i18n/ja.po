@@ -7983,7 +7983,7 @@ msgstr "エクスポート"
 
 #. Full backup dialog: hint shown under the field when passphrase mode is selected
 msgid "backup_unlock_passphrase_hint"
-msgstr "お好きな秘密のフレーズを選んでください。書き留めておいてください。このバックアップを復元する際に必要になります。"
+msgstr "{min}文字以上の秘密のフレーズを選んでください。書き留めておいてください。このバックアップを復元する際に必要になります。"
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10982,3 +10982,112 @@ msgstr "図書館の提案"
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
 msgstr "読みたい本について、図書館をつなぐことを提案します"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "キーボードの直線的な並びは推測されやすいです。"
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "短いキーボードのパターンは推測されやすいです。"
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "aaa のような繰り返しは推測されやすいです。"
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "abcabcabc のような繰り返しは abc より少し難しいだけです。"
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "これは最もよく使われるパスワード10件のひとつです。"
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "これは最もよく使われるパスワード100件のひとつです。"
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "これは非常によく使われるパスワードです。"
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "これはよく使われるパスワードに似ています。"
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "abc や 6543 のような連続は推測されやすいです。"
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "最近の年号は推測されやすいです。"
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "単語ひとつだけでは推測されやすいです。"
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "日付は推測されやすいことが多いです。"
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "名前や名字だけでは推測されやすいです。"
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "よくある名前や名字は推測されやすいです。"
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "いくつかの単語を使い、ありふれた言い回しは避けてください。"
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "記号や数字、大文字は必要ありません。"
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "単語をもう1つか2つ足してください。珍しい単語ほど効果的です。"
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "大文字にしてもあまり効果はありません。"
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "すべて大文字にしても、すべて小文字とほぼ同じくらい推測されやすいです。"
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "単語を逆さにしてもほとんど推測されにくくなりません。"
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "a を @ にするような予測しやすい置き換えはあまり効果がありません。"
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "曲がりが多く、より長いキーボードのパターンを使ってください。"
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "同じ単語や文字の繰り返しは避けてください。"
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "連続した並びは避けてください。"
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "最近の年号は避けてください。"
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "自分に関係する年は避けてください。"
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "自分に関係する日付や年は避けてください。"
+

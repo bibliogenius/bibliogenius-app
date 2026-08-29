@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/account_sync_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
@@ -44,16 +47,67 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _load());
   }
 
+  /// Surplus book rows the duplicate merge would remove (ADR-070). Zero hides
+  /// the banner entirely: nothing is said to a reader with nothing to repair.
+  int _duplicateSurplus = 0;
+
+  /// Serial of the latest count in flight. Entering the screen and finishing a
+  /// sync cycle both ask for one without awaiting it, so two can overlap; only
+  /// the newest may land, or a slow older answer would restore the count the
+  /// cycle just corrected.
+  int _duplicateCountSerial = 0;
+
   Future<void> _load() async {
     await _provider.refreshStatus();
     if (!mounted) return;
-    if (_provider.signedIn) await _provider.refreshDevices();
+    if (_provider.signedIn) {
+      await _provider.refreshDevices();
+      // Not awaited: the banner is an offer, not part of the screen's state.
+      // Blocking the first paint on a whole-library count would make the
+      // account screen slower the bigger the library, for a strip that is
+      // usually absent.
+      unawaited(_refreshDuplicates());
+    }
+  }
+
+  /// Count the duplicates a joined library carries. Writes nothing, and a
+  /// failure is swallowed: a count that cannot run must not break the account
+  /// screen, it just means no banner this time.
+  ///
+  /// Counting only, never the full preview: the number is the whole point here,
+  /// and the backend owns its definition so this screen and the repair screen
+  /// can never disagree about what a surplus is.
+  Future<void> _refreshDuplicates() async {
+    final serial = ++_duplicateCountSerial;
+    try {
+      final surplus = await FfiService().countDuplicateSurplus();
+      if (!mounted || serial != _duplicateCountSerial) return;
+      setState(() => _duplicateSurplus = surplus);
+    } catch (e) {
+      debugPrint('AccountSyncScreen duplicate count skipped: $e');
+    }
   }
 
   String _t(String key) => TranslationService.translate(context, key);
 
+  /// True while a destination pushed from this screen is still on top.
+  ///
+  /// go_router 17 derives a page's key from the route OBJECT (`match.dart`:
+  /// `ValueKey(route.hashCode.toString())`), not from the navigation that
+  /// produced it, so pushing one route twice puts two pages carrying the SAME
+  /// key into the Navigator and the framework asserts
+  /// (`!keyReservation.contains(key)`). A double tap on any button below is
+  /// enough to do it, and every one of them goes through here.
+  bool _navigating = false;
+
   Future<void> _openAndReload(String location) async {
-    await context.push<void>(location);
+    if (_navigating) return;
+    _navigating = true;
+    try {
+      await context.push<void>(location);
+    } finally {
+      _navigating = false;
+    }
     if (!mounted) return;
     await _load();
   }
@@ -127,6 +181,10 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(_t(key))));
+    // A cycle that just pulled another device's library is exactly when
+    // duplicates appear, so the banner is re-evaluated here rather than only
+    // on entry (ADR-070 D1: the repair is offered, never applied).
+    unawaited(_refreshDuplicates());
   }
 
   @override
@@ -182,11 +240,14 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
                           ? _SignedInView(
                               provider: p,
                               shareIntent: widget.shareIntent,
+                              duplicateSurplus: _duplicateSurplus,
                               onAddDevice: () =>
                                   _openAndReload('/account-sync/add-device'),
                               onLogout: _confirmLogout,
                               onSyncNow: _syncNow,
                               onRemoveDevice: _confirmRemoveDevice,
+                              onOpenDuplicates: () =>
+                                  _openAndReload('/duplicate-books'),
                             )
                           : _SignedOutView(
                               shareIntent: widget.shareIntent,
@@ -266,6 +327,63 @@ class _InfoNote extends StatelessWidget {
   }
 }
 
+/// Shown only when the joined library actually carries duplicates (ADR-070).
+///
+/// Joining an account from a device that already held its own copies leaves two
+/// rows per shared book, and nothing repairs that on its own. The banner says
+/// how many rows are in surplus and opens the repair; it never merges anything
+/// by itself.
+class _DuplicateBanner extends StatelessWidget {
+  final int surplus;
+  final VoidCallback onOpen;
+  const _DuplicateBanner({required this.surplus, required this.onOpen});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppDesign.spacingMd),
+      decoration: BoxDecoration(
+        color: cs.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ExcludeSemantics(child: Icon(Icons.copy_all_outlined, size: 20)),
+              const SizedBox(width: AppDesign.spacingSm),
+              Expanded(
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    'duplicates_banner_body',
+                    params: {'count': '$surplus'},
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDesign.spacingSm),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: FilledButton.tonal(
+              onPressed: onOpen,
+              child: Text(
+                TranslationService.translate(context, 'duplicates_banner_cta'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SignedOutView extends StatelessWidget {
   final bool shareIntent;
   final VoidCallback onCreate;
@@ -324,17 +442,23 @@ class _SignedOutView extends StatelessWidget {
 class _SignedInView extends StatelessWidget {
   final AccountSyncProvider provider;
   final bool shareIntent;
+
+  /// Surplus book rows the duplicate merge would remove. Zero means no banner.
+  final int duplicateSurplus;
   final VoidCallback onAddDevice;
   final VoidCallback onLogout;
   final VoidCallback onSyncNow;
   final void Function(AccountDevice) onRemoveDevice;
+  final VoidCallback onOpenDuplicates;
   const _SignedInView({
     required this.provider,
     required this.shareIntent,
+    required this.duplicateSurplus,
     required this.onAddDevice,
     required this.onLogout,
     required this.onSyncNow,
     required this.onRemoveDevice,
+    required this.onOpenDuplicates,
   });
 
   String _t(BuildContext c, String k) => TranslationService.translate(c, k);
@@ -345,6 +469,10 @@ class _SignedInView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _ConnectedCard(email: provider.status.email),
+        if (duplicateSurplus > 0) ...[
+          const SizedBox(height: AppDesign.spacingMd),
+          _DuplicateBanner(surplus: duplicateSurplus, onOpen: onOpenDuplicates),
+        ],
         const SizedBox(height: AppDesign.spacingMd),
         _InfoNote(
           text: _t(

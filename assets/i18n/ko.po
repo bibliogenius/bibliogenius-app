@@ -7983,7 +7983,7 @@ msgstr "내보내기"
 
 #. Full backup dialog: hint shown under the field when passphrase mode is selected
 msgid "backup_unlock_passphrase_hint"
-msgstr "원하는 암호 구문을 자유롭게 선택하세요. 이 백업을 복원할 때 필요하니 꼭 적어두세요."
+msgstr "{min}자 이상의 암호 구문을 선택하세요. 이 백업을 복원할 때 필요하니 꼭 적어두세요."
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10982,3 +10982,112 @@ msgstr "도서관 제안"
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
 msgstr "원하는 책에 대해 도서관 연결을 제안합니다"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "일직선으로 이어지는 키 배열은 쉽게 추측됩니다."
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "짧은 키보드 패턴은 쉽게 추측됩니다."
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "aaa 같은 반복은 쉽게 추측됩니다."
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "abcabcabc 같은 반복은 abc보다 아주 조금 더 어려울 뿐입니다."
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "가장 흔한 비밀번호 10개 중 하나입니다."
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "가장 흔한 비밀번호 100개 중 하나입니다."
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "매우 흔한 비밀번호입니다."
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "널리 쓰이는 비밀번호와 비슷합니다."
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "abc나 6543 같은 연속된 문자는 쉽게 추측됩니다."
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "최근 연도는 쉽게 추측됩니다."
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "단어 하나만으로는 쉽게 추측됩니다."
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "날짜는 쉽게 추측되는 경우가 많습니다."
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "이름과 성만으로는 쉽게 추측됩니다."
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "흔한 이름과 성은 쉽게 추측됩니다."
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "여러 단어를 사용하고 흔한 표현은 피하세요."
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "기호나 숫자, 대문자는 필요하지 않습니다."
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "한두 단어를 더 추가하세요. 드문 단어일수록 좋습니다."
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "대문자를 써도 큰 도움이 되지 않습니다."
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "모두 대문자로 써도 모두 소문자인 경우와 거의 같은 정도로 쉽게 추측됩니다."
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "단어를 거꾸로 써도 추측하기 크게 어려워지지 않습니다."
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "a 대신 @를 쓰는 것처럼 예측 가능한 치환은 큰 도움이 되지 않습니다."
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "방향 전환이 더 많은, 더 긴 키보드 패턴을 사용하세요."
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "반복되는 단어와 문자는 피하세요."
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "연속된 문자는 피하세요."
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "최근 연도는 피하세요."
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "본인과 관련된 연도는 피하세요."
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "본인과 관련된 날짜와 연도는 피하세요."
+

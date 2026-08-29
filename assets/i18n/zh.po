@@ -7983,7 +7983,7 @@ msgstr "导出"
 
 #. Full backup dialog: hint shown under the field when passphrase mode is selected
 msgid "backup_unlock_passphrase_hint"
-msgstr "自由设定一句密码短语。请记下来：还原此备份时需要用到。"
+msgstr "请设定一句至少 {min} 个字符的密码短语。请记下来：还原此备份时需要用到。"
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10982,3 +10982,112 @@ msgstr "图书馆建议"
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
 msgstr "对您想要的书,建议连接您的图书馆"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "键盘上连成一行的按键很容易被猜到。"
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "简短的键盘图案很容易被猜到。"
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "像 aaa 这样的重复很容易被猜到。"
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "像 abcabcabc 这样的重复只比 abc 稍难猜一点。"
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "这是最常见的 10 个密码之一。"
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "这是最常见的 100 个密码之一。"
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "这是一个非常常见的密码。"
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "这与一个被广泛使用的密码很相似。"
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "像 abc 或 6543 这样的连续字符很容易被猜到。"
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "近期的年份很容易被猜到。"
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "单独一个词很容易被猜到。"
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "日期往往很容易被猜到。"
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "只用名字或姓氏很容易被猜到。"
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "常见的名字和姓氏很容易被猜到。"
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "使用几个词，避免常见的固定说法。"
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "不需要符号、数字或大写字母。"
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "再加一两个词。越少见的词越好。"
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "使用大写字母作用不大。"
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "全部大写几乎和全部小写一样容易被猜到。"
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "把词倒着写并不会难猜多少。"
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "用 @ 代替 a 这类可预测的替换作用不大。"
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "使用更长、转折更多的键盘图案。"
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "避免重复的词和字符。"
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "避免连续的字符。"
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "避免近期的年份。"
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "避免与你相关的年份。"
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "避免与你相关的日期和年份。"
+

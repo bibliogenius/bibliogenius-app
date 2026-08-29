@@ -7825,7 +7825,7 @@ msgstr "Експортиране"
 
 #. Settings - Backup: помощен текст за паролата при отключване
 msgid "backup_unlock_passphrase_hint"
-msgstr "Изберете каквато и да е тайна фраза. Запишете я: ще ви е нужна, за да възстановите това резервно копие."
+msgstr "Изберете тайна фраза от поне {min} знака. Запишете я: ще ви е нужна, за да възстановите това резервно копие."
 
 #. Full backup export dialog - include identity checkbox
 msgid "backup_include_identity"
@@ -10484,7 +10484,7 @@ msgid "account_sync_recovery_title"
 msgstr "Вашата фраза за възстановяване"
 
 msgid "account_sync_recovery_intro"
-msgstr "Запишете тези 24 думи по ред и ги съхранявайте на сигурно място. Те са единственият начин да възстановите акаунта си, ако забравите тайната си фраза."
+msgstr "Запишете тези 24 думи по ред и ги съхранявайте на сигурно място. Те са ключът към шифрованото копие на ключовете на акаунта ви, съхранявано на сървъра, и никой друг не може да го отвори, дори ние. Библиотеката ви остава на това устройство, затова тези думи не са нужни при ежедневна употреба. Днес приложението не може да ги прочете обратно: за да добавите устройство, използвайте такова, което вече е влязло в акаунта."
 
 msgid "account_sync_recovery_warning"
 msgstr "Тази фраза се показва само веднъж и никога не се съхранява. Не можем да я покажем отново."
@@ -11349,3 +11349,182 @@ msgstr "Изберете източник:"
 #. Shared list import: who wrote the list, shown under its title
 msgid "shared_list_by_contributor"
 msgstr "От {name}"
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr "Правите редове от клавиши се отгатват лесно."
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr "Късите клавиатурни шаблони се отгатват лесно."
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr "Повторения като aaa се отгатват лесно."
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr "Повторения като abcabcabc се отгатват само малко по-трудно от abc."
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr "Това е една от 10-те най-често срещани пароли."
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr "Това е една от 100-те най-често срещани пароли."
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr "Това е много често срещана парола."
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr "Това прилича на широко използвана парола."
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr "Последователности като abc или 6543 се отгатват лесно."
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr "Скорошните години се отгатват лесно."
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr "Една отделна дума се отгатва лесно."
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr "Датите често се отгатват лесно."
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr "Само име и фамилия се отгатват лесно."
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr "Често срещаните имена и фамилии се отгатват лесно."
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr "Използвайте няколко думи и избягвайте познати изрази."
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr "Не са нужни символи, цифри или главни букви."
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr "Добавете още една или две думи. По-редките думи са по-добри."
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr "Главните букви не помагат много."
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr "Всичко с главни букви се отгатва почти толкова лесно, колкото всичко с малки."
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr "Обърнатите думи не са много по-трудни за отгатване."
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr "Предвидимите замени, като @ вместо a, не помагат много."
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr "Използвайте по-дълъг клавиатурен шаблон с повече завои."
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr "Избягвайте повтарящи се думи и знаци."
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr "Избягвайте последователности."
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr "Избягвайте скорошни години."
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr "Избягвайте години, свързани с вас."
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr "Избягвайте дати и години, свързани с вас."
+
+# ADR-070: duplicate-book merge (maintenance screen, join warning).
+
+msgid "duplicates_title"
+msgstr "Дубликати"
+
+msgid "duplicates_intro"
+msgstr "Когато две устройства са въвели една и съща книга поотделно, синхронизирането събира двата записа, без да може да разбере, че описват една и съща книга. Тази страница ги обединява в един."
+
+msgid "duplicates_scanning"
+msgstr "Анализ на библиотеката..."
+
+msgid "duplicates_none"
+msgstr "Няма дубликати във вашата библиотека."
+
+msgid "duplicates_error"
+msgstr "Анализът не приключи."
+
+msgid "duplicates_certain_section"
+msgstr "Сигурни дубликати"
+
+msgid "duplicates_certain_summary"
+msgstr "{groups} засегнати книги, {books} излишни записа. Тези записи имат един и същ ISBN."
+
+msgid "duplicates_merge_all"
+msgstr "Обединяване на сигурните дубликати"
+
+msgid "duplicates_probable_section"
+msgstr "Вероятни дубликати"
+
+msgid "duplicates_probable_hint"
+msgstr "Тези записи имат едно и също заглавие и един и същ автор, но няма ISBN, който да го потвърди. Може да са и две издания на един и същ текст, затова всеки случай се потвърждава поотделно."
+
+msgid "duplicates_merge_one"
+msgstr "Обединяване"
+
+msgid "duplicates_kept_label"
+msgstr "Запазен запис, създаден на"
+
+msgid "duplicates_removed_label"
+msgstr "Обединен запис, създаден на"
+
+msgid "duplicates_confirm_title"
+msgstr "Да се обединят ли тези записи?"
+
+msgid "duplicates_confirm_all_body"
+msgstr "{books} записа ще бъдат обединени с тези, които запазвате. Рафтовете, колекциите, екземплярите и бележките ги следват."
+
+msgid "duplicates_confirm_one_body"
+msgstr "Записите за «{title}» ще бъдат обединени в един. Рафтовете, колекциите, екземплярите и бележките ги следват."
+
+msgid "duplicates_confirm_replicates"
+msgstr "Действието важи за всички ваши устройства: те ще го приложат при следващото синхронизиране."
+
+msgid "duplicates_confirm_backup"
+msgstr "Резервно копие, направено предварително, ви позволява да се върнете назад."
+
+msgid "duplicates_confirm_cta"
+msgstr "Обединяване"
+
+msgid "duplicates_report"
+msgstr "{books} обединени записа, {copies} слети екземпляра."
+
+msgid "duplicates_banner_body"
+msgstr "Вашата библиотека съдържа {count} дублирани записа, останали от момента, в който устройствата ви обединиха библиотеките си."
+
+msgid "duplicates_banner_cta"
+msgstr "Преглед на дубликатите"
+
+msgid "account_join_existing_library_warning"
+msgstr "Това устройство вече съдържа {count} книги. Те ще бъдат обединени с тези от профила: нищо не се губи, но книга, въведена и от двете страни, ще се появи два пъти. Има инструмент, с който да ги обедините после."

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 
@@ -13,6 +14,7 @@ import 'package:universal_html/html.dart' as html;
 
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/tag_repository.dart';
+import '../providers/account_sync_provider.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/flash_message_provider.dart';
 import '../providers/notification_provider.dart';
@@ -23,6 +25,7 @@ import '../services/backup_prefs_whitelist.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as rust;
+import '../widgets/passphrase_strength_meter.dart';
 
 enum _MobileExportChoice { save, share }
 
@@ -32,6 +35,14 @@ enum _MobileExportChoice { save, share }
 /// screen (currently `SettingsScreen` and the `BackupReminderService` dialog).
 class BackupActions {
   BackupActions._();
+
+  /// Minimum length of a user-chosen archive passphrase, for every backup path
+  /// (manual full export and the auto-backup scheduler alike).
+  ///
+  /// Single source of truth: a `.bgbackup` archive holds the whole library and
+  /// leaves the device (share sheet, iCloud, AirDrop), so the floor must not
+  /// drift between the two dialogs that offer to set it.
+  static const int minPassphraseLength = 8;
 
   /// Computes a non-zero anchor [Rect] for the system share sheet.
   ///
@@ -1108,114 +1119,159 @@ class BackupActions {
     const unlockKind = 'passphrase';
     bool includeIdentity = false;
     bool obscure = true;
+    // The archive holds the whole library and leaves the device (share sheet,
+    // iCloud, AirDrop), so a passphrase shorter than the shared floor is
+    // refused. The strength meter below is ADVISORY only: the zxcvbn 4/4 bar
+    // that account creation enforces is a separate decision and is not
+    // replicated here.
+    final accountSync = context.read<AccountSyncProvider>();
+    PassphraseStrength strength = const PassphraseStrength.empty();
+    Timer? strengthDebounce;
+    bool dialogOpen = true;
 
     final result = await showDialog<_FullBackupDebugInput>(
       context: context,
       builder: (dialogCtx) {
         return StatefulBuilder(
-          builder: (ctx, setState) => AlertDialog(
-            title: Text(
-              TranslationService.translate(context, 'backup_full_title'),
-            ),
-            content: SizedBox(
-              width: 380,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextField(
-                    controller: controller,
-                    obscureText: obscure,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      labelText: TranslationService.translate(
-                        context,
-                        'backup_secret_label',
-                      ),
-                      border: const OutlineInputBorder(),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          obscure ? Icons.visibility : Icons.visibility_off,
-                        ),
-                        onPressed: () => setState(() => obscure = !obscure),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  // Legend: the passphrase is freely chosen here and cannot
-                  // be recovered later.
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        size: 15,
-                        color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          TranslationService.translate(
-                            context,
-                            'backup_unlock_passphrase_hint',
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    dense: true,
-                    title: Text(
-                      TranslationService.translate(
-                        context,
-                        'backup_include_identity',
-                      ),
-                      style: const TextStyle(fontSize: 13),
-                    ),
-                    value: includeIdentity,
-                    onChanged: (v) =>
-                        setState(() => includeIdentity = v ?? false),
-                  ),
-                ],
+          builder: (ctx, setState) {
+            final secret = controller.text;
+            final longEnough = secret.length >= minPassphraseLength;
+            return AlertDialog(
+              title: Text(
+                TranslationService.translate(context, 'backup_full_title'),
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text(TranslationService.translate(context, 'cancel')),
-              ),
-              FilledButton(
-                onPressed: () {
-                  if (controller.text.isEmpty) return;
-                  // Move secret out of the controller as bytes; the String
-                  // form remains in the controller's heap until cleared
-                  // immediately below.
-                  final bytes = Uint8List.fromList(
-                    utf8.encode(controller.text),
-                  );
-                  Navigator.of(ctx).pop(
-                    _FullBackupDebugInput(
-                      secretBytes: bytes,
-                      unlockKind: unlockKind,
-                      includeIdentity: includeIdentity,
+              content: SizedBox(
+                width: 380,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      controller: controller,
+                      obscureText: obscure,
+                      autofocus: true,
+                      onChanged: (value) {
+                        setState(() {});
+                        strengthDebounce?.cancel();
+                        strengthDebounce = Timer(
+                          const Duration(milliseconds: 300),
+                          () async {
+                            final s = await accountSync.checkPassphrase(value);
+                            // `dialogOpen` is only cleared once showDialog's
+                            // future resolves, which is a microtask AFTER the
+                            // builder is gone; `ctx.mounted` closes that gap.
+                            if (!dialogOpen || !ctx.mounted) return;
+                            setState(() => strength = s);
+                          },
+                        );
+                      },
+                      decoration: InputDecoration(
+                        labelText: TranslationService.translate(
+                          context,
+                          'backup_secret_label',
+                        ),
+                        errorText: secret.isEmpty || longEnough
+                            ? null
+                            : TranslationService.translate(
+                                context,
+                                'auto_backup_activation_passphrase_too_short',
+                                params: {'min': '$minPassphraseLength'},
+                              ),
+                        border: const OutlineInputBorder(),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscure ? Icons.visibility : Icons.visibility_off,
+                          ),
+                          onPressed: () => setState(() => obscure = !obscure),
+                        ),
+                      ),
                     ),
-                  );
-                },
-                child: Text(
-                  TranslationService.translate(context, 'backup_export_button'),
+                    const SizedBox(height: 8),
+                    PassphraseStrengthMeter(strength: strength),
+                    const SizedBox(height: 8),
+                    // Legend: the passphrase is freely chosen here and cannot
+                    // be recovered later.
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 15,
+                          color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'backup_unlock_passphrase_hint',
+                              params: {'min': '$minPassphraseLength'},
+                            ),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    CheckboxListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      title: Text(
+                        TranslationService.translate(
+                          context,
+                          'backup_include_identity',
+                        ),
+                        style: const TextStyle(fontSize: 13),
+                      ),
+                      value: includeIdentity,
+                      onChanged: (v) =>
+                          setState(() => includeIdentity = v ?? false),
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(ctx).pop(),
+                  child: Text(TranslationService.translate(context, 'cancel')),
+                ),
+                FilledButton(
+                  onPressed: !longEnough
+                      ? null
+                      : () {
+                          // Move secret out of the controller as bytes; the
+                          // String form remains in the controller's heap until
+                          // cleared immediately below.
+                          final bytes = Uint8List.fromList(
+                            utf8.encode(controller.text),
+                          );
+                          Navigator.of(ctx).pop(
+                            _FullBackupDebugInput(
+                              secretBytes: bytes,
+                              unlockKind: unlockKind,
+                              includeIdentity: includeIdentity,
+                            ),
+                          );
+                        },
+                  child: Text(
+                    TranslationService.translate(
+                      context,
+                      'backup_export_button',
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );
+    // Stop the pending strength probe before the StatefulBuilder is gone.
+    dialogOpen = false;
+    strengthDebounce?.cancel();
     // The controller still references the cleartext String. Dart Strings
     // are immutable so we cannot zero it; clearing the controller at
     // least removes our reference to it.

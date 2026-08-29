@@ -8,9 +8,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `ServerStartDecision`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -672,9 +672,20 @@ Future<void> setBookLoanDuration({required String bookId, int? days}) => RustLib
 /// This is irreversible and should be used with caution
 Future<String> resetApp() => RustLib.instance.api.crateApiFrbResetApp();
 
-/// Start the HTTP server on the specified port (FFI)
-/// This is required for P2P functionality in standalone mode
-/// If the specified port is occupied, tries the next 10 ports automatically
+/// Start the HTTP server on the specified port (FFI).
+/// This is required for P2P functionality in standalone mode.
+///
+/// Idempotent per process: called while the server is already listening, it
+/// returns the live port instead of binding a second one. Android destroys the
+/// activity without killing the process, so reopening the app replays this call
+/// against a listener that is still alive. The previous behaviour slid to the
+/// next free port, which made the app report a port conflict against itself,
+/// left peers holding an unreachable URL on the preferred port, and spawned a
+/// second copy of every background worker. A health-check driven restart
+/// (`ApiService.ensureServerRunning` on resume) fell into the same trap.
+///
+/// Only a genuinely foreign occupant moves the port, and it is searched from
+/// the port this process last held. Tries up to 10 ports.
 Future<int> startServer({required int port}) =>
     RustLib.instance.api.crateApiFrbStartServer(port: port);
 
@@ -1612,6 +1623,29 @@ Future<void> adoptFavoritesCollection({required String collectionId}) => RustLib
     .api
     .crateApiFrbAdoptFavoritesCollection(collectionId: collectionId);
 
+/// Preview the duplicates in this library. Writes nothing, so it is safe to
+/// call to decide whether to offer the repair at all.
+Future<FrbDuplicateScan> scanDuplicateBooks() =>
+    RustLib.instance.api.crateApiFrbScanDuplicateBooks();
+
+/// Merge every ISBN-correlated group. Destructive and replicated: the removed
+/// rows disappear from every device of the account on its next sync, so the
+/// caller must have shown the preview and taken a confirmation first.
+Future<FrbMergeReport> mergeDuplicateBooks() =>
+    RustLib.instance.api.crateApiFrbMergeDuplicateBooks();
+
+/// Merge the single group carrying `key`. This is how a proposed
+/// (title/author/year) group is accepted, one confirmation at a time.
+Future<FrbMergeReport> mergeDuplicateGroup({required String key}) =>
+    RustLib.instance.api.crateApiFrbMergeDuplicateGroup(key: key);
+
+/// How many surplus rows a repair would remove, and nothing else. The account
+/// screen polls this on every visit and after every sync cycle to decide whether
+/// to offer the repair at all, so it must stay far cheaper than the preview:
+/// `count_surplus` skips the schema walk and the per-row payload.
+Future<int> countDuplicateSurplus() =>
+    RustLib.instance.api.crateApiFrbCountDuplicateSurplus();
+
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
 /// Counts cross the FFI as `i64`.
@@ -2156,6 +2190,113 @@ class FrbDiscoverySeriesLookup {
           anchorIsbns == other.anchorIsbns &&
           memberIsbns == other.memberIsbns &&
           memberTitleAuthorKeys == other.memberTitleAuthorKeys;
+}
+
+/// One book row inside a duplicate group, as the preview lists it.
+class FrbDuplicateBook {
+  final String id;
+  final String title;
+  final String? isbn;
+  final String? author;
+  final String createdAt;
+  final String? coverUrl;
+
+  const FrbDuplicateBook({
+    required this.id,
+    required this.title,
+    this.isbn,
+    this.author,
+    required this.createdAt,
+    this.coverUrl,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      title.hashCode ^
+      isbn.hashCode ^
+      author.hashCode ^
+      createdAt.hashCode ^
+      coverUrl.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbDuplicateBook &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          title == other.title &&
+          isbn == other.isbn &&
+          author == other.author &&
+          createdAt == other.createdAt &&
+          coverUrl == other.coverUrl;
+}
+
+/// A set of rows describing the same book. `automatic` tells the two families
+/// apart: an ISBN group merges without asking, a title/author/year group is a
+/// proposal the reader accepts one at a time (ADR-070 D2).
+class FrbDuplicateGroup {
+  /// Opaque handle to pass back to `merge_duplicate_group`.
+  final String key;
+  final bool automatic;
+
+  /// The row that survives: the oldest (ADR-070 D3).
+  final FrbDuplicateBook canonical;
+
+  /// The rows folded into it. Never empty.
+  final List<FrbDuplicateBook> duplicates;
+
+  const FrbDuplicateGroup({
+    required this.key,
+    required this.automatic,
+    required this.canonical,
+    required this.duplicates,
+  });
+
+  @override
+  int get hashCode =>
+      key.hashCode ^
+      automatic.hashCode ^
+      canonical.hashCode ^
+      duplicates.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbDuplicateGroup &&
+          runtimeType == other.runtimeType &&
+          key == other.key &&
+          automatic == other.automatic &&
+          canonical == other.canonical &&
+          duplicates == other.duplicates;
+}
+
+/// What a repair would do. Computed without writing anything.
+class FrbDuplicateScan {
+  final List<FrbDuplicateGroup> automatic;
+  final List<FrbDuplicateGroup> proposed;
+
+  /// Book rows `merge_duplicate_books` would remove.
+  final int booksRemovedByAutomatic;
+
+  const FrbDuplicateScan({
+    required this.automatic,
+    required this.proposed,
+    required this.booksRemovedByAutomatic,
+  });
+
+  @override
+  int get hashCode =>
+      automatic.hashCode ^ proposed.hashCode ^ booksRemovedByAutomatic.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbDuplicateScan &&
+          runtimeType == other.runtimeType &&
+          automatic == other.automatic &&
+          proposed == other.proposed &&
+          booksRemovedByAutomatic == other.booksRemovedByAutomatic;
 }
 
 /// Live/last progress of a bulk fill run.
@@ -2809,6 +2950,38 @@ class FrbMemoryScore {
           normalizedScore == other.normalizedScore &&
           playedAt == other.playedAt &&
           newAchievements == other.newAchievements;
+}
+
+/// What a repair actually did.
+class FrbMergeReport {
+  final int groupsMerged;
+  final int booksRemoved;
+  final int copiesCollapsed;
+  final int coversRecovered;
+
+  const FrbMergeReport({
+    required this.groupsMerged,
+    required this.booksRemoved,
+    required this.copiesCollapsed,
+    required this.coversRecovered,
+  });
+
+  @override
+  int get hashCode =>
+      groupsMerged.hashCode ^
+      booksRemoved.hashCode ^
+      copiesCollapsed.hashCode ^
+      coversRecovered.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbMergeReport &&
+          runtimeType == other.runtimeType &&
+          groupsMerged == other.groupsMerged &&
+          booksRemoved == other.booksRemoved &&
+          copiesCollapsed == other.copiesCollapsed &&
+          coversRecovered == other.coversRecovered;
 }
 
 class FrbNotification {

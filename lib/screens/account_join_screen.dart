@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/account_sync_provider.dart';
 import '../providers/theme_provider.dart';
+import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_restart_dialog.dart';
@@ -31,10 +32,22 @@ class _AccountJoinScreenState extends State<AccountJoinScreen> {
   bool _obscure = true;
   bool _submitting = false;
 
+  /// Books already on this device. Joining an account merges the two libraries
+  /// by id, so anything held here that the account also holds ends up listed
+  /// twice (ADR-070). Warned about before the passphrase, not after the sync.
+  int _localBooks = 0;
+
   @override
   void initState() {
     super.initState();
     _emailController = TextEditingController(text: widget.initialEmail ?? '');
+    WidgetsBinding.instance.addPostFrameCallback((_) => _countLocalBooks());
+  }
+
+  Future<void> _countLocalBooks() async {
+    final count = await FfiService().countBooks();
+    if (!mounted) return;
+    setState(() => _localBooks = count);
   }
 
   @override
@@ -106,6 +119,10 @@ class _AccountJoinScreenState extends State<AccountJoinScreen> {
                   _t('account_sync_join_intro'),
                   style: Theme.of(context).textTheme.bodyLarge,
                 ),
+                if (_localBooks > 0) ...[
+                  const SizedBox(height: AppDesign.spacingMd),
+                  _ExistingLibraryWarning(bookCount: _localBooks),
+                ],
                 const SizedBox(height: AppDesign.spacingLg),
                 TextField(
                   controller: _emailController,
@@ -165,6 +182,48 @@ class _AccountJoinScreenState extends State<AccountJoinScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Shown before the passphrase when this device already holds books.
+///
+/// Joining merges the two libraries by row identity, and a book both sides
+/// entered separately has two identities, so it survives twice. Nothing is
+/// lost and nothing is refused: the warning exists so the reader recognizes
+/// the duplicates afterwards instead of thinking the sync misfired, and knows
+/// there is a repair for them (ADR-070).
+class _ExistingLibraryWarning extends StatelessWidget {
+  final int bookCount;
+  const _ExistingLibraryWarning({required this.bookCount});
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppDesign.spacingMd),
+      decoration: BoxDecoration(
+        color: cs.tertiaryContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+        border: Border.all(color: cs.tertiary.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const ExcludeSemantics(child: Icon(Icons.merge_type, size: 20)),
+          const SizedBox(width: AppDesign.spacingSm),
+          Expanded(
+            child: Text(
+              TranslationService.translate(
+                context,
+                'account_join_existing_library_warning',
+                params: {'count': '$bookCount'},
+              ),
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ),
+        ],
       ),
     );
   }

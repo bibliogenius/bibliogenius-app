@@ -5329,6 +5329,10 @@ msgstr ""
 msgid "account_sync_signup_passphrase_note"
 msgstr ""
 
+#. Recovery kit screen - what the 24 words actually do today (ADR-042 section 16)
+msgid "account_sync_recovery_intro"
+msgstr ""
+
 #. Account screen - contextual caption, default (encrypted account) entry
 msgid "account_sync_intro_note"
 msgstr ""
@@ -8922,4 +8926,187 @@ msgid "help_desc_contact_card"
 msgstr ""
 
 msgid "help_cta_open_sharing"
+msgstr ""
+
+#. zxcvbn warning: keyboard row pattern
+msgid "zxcvbn_warning_straight_rows_of_keys"
+msgstr ""
+
+#. zxcvbn warning: short keyboard pattern
+msgid "zxcvbn_warning_short_keyboard_patterns"
+msgstr ""
+
+#. zxcvbn warning: single-character repeat
+msgid "zxcvbn_warning_repeats_like_aaa"
+msgstr ""
+
+#. zxcvbn warning: repeated block
+msgid "zxcvbn_warning_repeats_like_abcabc"
+msgstr ""
+
+#. zxcvbn warning: top-10 password
+msgid "zxcvbn_warning_top10_password"
+msgstr ""
+
+#. zxcvbn warning: top-100 password
+msgid "zxcvbn_warning_top100_password"
+msgstr ""
+
+#. zxcvbn warning: very common password
+msgid "zxcvbn_warning_common_password"
+msgstr ""
+
+#. zxcvbn warning: close to a common password
+msgid "zxcvbn_warning_similar_to_common_password"
+msgstr ""
+
+#. zxcvbn warning: character sequence
+msgid "zxcvbn_warning_sequences_like_abc"
+msgstr ""
+
+#. zxcvbn warning: recent year
+msgid "zxcvbn_warning_recent_years"
+msgstr ""
+
+#. zxcvbn warning: single dictionary word
+msgid "zxcvbn_warning_a_word_by_itself"
+msgstr ""
+
+#. zxcvbn warning: date
+msgid "zxcvbn_warning_dates"
+msgstr ""
+
+#. zxcvbn warning: bare first or last name
+msgid "zxcvbn_warning_names_by_themselves"
+msgstr ""
+
+#. zxcvbn warning: common first or last name
+msgid "zxcvbn_warning_common_names"
+msgstr ""
+
+#. zxcvbn suggestion: use several words
+msgid "zxcvbn_suggestion_use_a_few_words"
+msgstr ""
+
+#. zxcvbn suggestion: symbols are not required
+msgid "zxcvbn_suggestion_no_need_for_symbols"
+msgstr ""
+
+#. zxcvbn suggestion: add more words
+msgid "zxcvbn_suggestion_add_another_word"
+msgstr ""
+
+#. zxcvbn suggestion: capitalization
+msgid "zxcvbn_suggestion_capitalization_doesnt_help"
+msgstr ""
+
+#. zxcvbn suggestion: all-uppercase
+msgid "zxcvbn_suggestion_all_uppercase"
+msgstr ""
+
+#. zxcvbn suggestion: reversed words
+msgid "zxcvbn_suggestion_reversed_words"
+msgstr ""
+
+#. zxcvbn suggestion: leetspeak substitutions
+msgid "zxcvbn_suggestion_predictable_substitutions"
+msgstr ""
+
+#. zxcvbn suggestion: longer keyboard pattern
+msgid "zxcvbn_suggestion_longer_keyboard_pattern"
+msgstr ""
+
+#. zxcvbn suggestion: avoid repeats
+msgid "zxcvbn_suggestion_avoid_repeats"
+msgstr ""
+
+#. zxcvbn suggestion: avoid sequences
+msgid "zxcvbn_suggestion_avoid_sequences"
+msgstr ""
+
+#. zxcvbn suggestion: avoid recent years
+msgid "zxcvbn_suggestion_avoid_recent_years"
+msgstr ""
+
+#. zxcvbn suggestion: avoid personal years
+msgid "zxcvbn_suggestion_avoid_personal_years"
+msgstr ""
+
+#. zxcvbn suggestion: avoid personal dates
+msgid "zxcvbn_suggestion_avoid_personal_dates"
+msgstr ""
+
+#. Manual full backup: legend under the passphrase field
+msgid "backup_unlock_passphrase_hint"
+msgstr ""
+
+# ADR-070: duplicate-book merge (maintenance screen, join warning).
+
+msgid "duplicates_title"
+msgstr ""
+
+msgid "duplicates_intro"
+msgstr ""
+
+msgid "duplicates_scanning"
+msgstr ""
+
+msgid "duplicates_none"
+msgstr ""
+
+msgid "duplicates_error"
+msgstr ""
+
+msgid "duplicates_certain_section"
+msgstr ""
+
+msgid "duplicates_certain_summary"
+msgstr ""
+
+msgid "duplicates_merge_all"
+msgstr ""
+
+msgid "duplicates_probable_section"
+msgstr ""
+
+msgid "duplicates_probable_hint"
+msgstr ""
+
+msgid "duplicates_merge_one"
+msgstr ""
+
+msgid "duplicates_kept_label"
+msgstr ""
+
+msgid "duplicates_removed_label"
+msgstr ""
+
+msgid "duplicates_confirm_title"
+msgstr ""
+
+msgid "duplicates_confirm_all_body"
+msgstr ""
+
+msgid "duplicates_confirm_one_body"
+msgstr ""
+
+msgid "duplicates_confirm_replicates"
+msgstr ""
+
+msgid "duplicates_confirm_backup"
+msgstr ""
+
+msgid "duplicates_confirm_cta"
+msgstr ""
+
+msgid "duplicates_report"
+msgstr ""
+
+msgid "duplicates_banner_body"
+msgstr ""
+
+msgid "duplicates_banner_cta"
+msgstr ""
+
+msgid "account_join_existing_library_warning"
 msgstr ""

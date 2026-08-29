@@ -79,6 +79,7 @@ import 'models/library_relation.dart';
 import 'screens/shelf_management_screen.dart';
 import 'screens/search_peer_screen.dart';
 import 'screens/memory_game_screen.dart';
+import 'screens/duplicate_books_screen.dart';
 import 'screens/metadata_fill_screen.dart';
 import 'screens/operation_log_screen.dart';
 import 'screens/peer_view_screen.dart';
@@ -1152,6 +1153,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             GoRoute(
               path: '/library-completeness',
               builder: (context, state) => const MetadataFillScreen(),
+            ),
+            // Duplicate merge (ADR-070): the repair for a library that joined
+            // an account from a device that already held its own copies.
+            GoRoute(
+              path: '/duplicate-books',
+              builder: (context, state) => const DuplicateBooksScreen(),
             ),
             GoRoute(
               path: '/peer-view',
