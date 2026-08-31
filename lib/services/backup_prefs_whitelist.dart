@@ -194,7 +194,7 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // promoted once the feature's ADR arbitrates it; the two dismissal
   // flags are bools, which the restorer does not re-apply anyway.
   'bookshop_finder_dismissed', // ThemeProvider.setShowBookshopFinder
-  'library_intro_dismissed', // ThemeProvider.setShowLibraryIntro
+  'library_intro_dismissed', // ThemeProvider.setShowLibraryLinks
   'my_bookshop_ids', // ThemeProvider my registry portal selection
   'my_custom_bookshops', // ThemeProvider hand-added bookshops
   'my_library_portals', // ThemeProvider connected library catalogues

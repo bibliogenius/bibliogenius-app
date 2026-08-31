@@ -9,7 +9,7 @@ import '../src/rust/api/frb.dart' show FrbWishlistSeeker;
 
 /// "Wanted by" card shown on the details page of an OWNED book: the peers
 /// and followed libraries whose wishlist contains it (inverse of
-/// WishlistAvailabilityCard). Renders nothing when the Rust inverse join
+/// the acquisition sheet). Renders nothing when the Rust inverse join
 /// returns no seeker.
 ///
 /// UX principle (non-negotiable): lending stays a free, unilateral act.

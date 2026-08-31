@@ -9243,6 +9243,27 @@ msgstr "Kitap istek listenizden çıkacak."
 msgid "book_ownership_release_blocked"
 msgstr "Bir kopya dışarıda. Önce geri alın ya da iade edin."
 
+msgid "acquire_book_title"
+msgstr "Bu kitabı edin"
+
+msgid "acquire_nobody_has_it"
+msgstr "Şu anda ağınızda kimsede yok."
+
+msgid "acquire_once_obtained"
+msgstr "Edindikten sonra"
+
+msgid "acquire_i_borrowed_it"
+msgstr "Ödünç aldım"
+
+msgid "acquire_i_bought_it"
+msgstr "Satın aldım"
+
+msgid "acquire_add_to_wishlist"
+msgstr "İstek listeme ekle"
+
+msgid "book_links_configure"
+msgstr "Bağlantılarımı yapılandır"
+
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"
 msgstr "Bu kitabı ağdan gizle"
@@ -11370,7 +11391,7 @@ msgstr "Kütüphane önerisi"
 
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
-msgstr "İstediğiniz bir kitap için kütüphanenizi bağlamayı öner"
+msgstr "İstediğiniz bir kitapta kütüphane kataloglarını öner"
 
 #. Shared list import: the step where the reader picks a file or pastes
 msgid "import_choose_source"

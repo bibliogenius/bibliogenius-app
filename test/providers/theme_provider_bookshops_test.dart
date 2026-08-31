@@ -66,7 +66,7 @@ void main() {
       SharedPreferences.setMockInitialValues({});
       final provider = await load();
       expect(provider.showBookshopFinder, isTrue);
-      expect(provider.showLibraryIntro, isTrue);
+      expect(provider.showLibraryLinks, isTrue);
       expect(provider.myBookshopIds, isEmpty);
       expect(provider.myCustomBookshops, isEmpty);
       expect(provider.myLibraryPortals, isEmpty);

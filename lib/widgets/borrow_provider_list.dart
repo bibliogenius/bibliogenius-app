@@ -237,16 +237,18 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
           button: true,
           label:
               '${TranslationService.translate(context, 'contact_cta')} : ${p.sourceName}',
-          child: OutlinedButton(
+          // Same pair as the peer's book page (`peer_book_list_screen`):
+          // filled for the request, tonal for the message. The same two
+          // actions were rendering a notch weaker here, and Contact in a
+          // different family altogether. Compact density is gone with it: it
+          // subtracted from the height and took the control under 44.
+          child: FilledButton.tonal(
             onPressed: () => showContactActionsSheet(
               context,
               card: contactCard,
               bookTitle: widget.bookTitle,
               // A paired peer: the loan can go both ways.
               reciprocal: p.peerUrl != null,
-            ),
-            style: OutlinedButton.styleFrom(
-              visualDensity: VisualDensity.compact,
             ),
             child: Text(TranslationService.translate(context, 'contact_cta')),
           ),
@@ -258,7 +260,7 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
           button: true,
           label:
               '${TranslationService.translate(context, 'borrow')} : ${p.sourceName}',
-          child: FilledButton.tonal(
+          child: FilledButton(
             onPressed: () => _request(p),
             child: Text(TranslationService.translate(context, 'borrow')),
           ),

@@ -9402,6 +9402,27 @@ msgstr "O livro sairá da sua lista de desejos."
 msgid "book_ownership_release_blocked"
 msgstr "Há um exemplar em circulação. Recupere-o ou devolva-o primeiro."
 
+msgid "acquire_book_title"
+msgstr "Conseguir este livro"
+
+msgid "acquire_nobody_has_it"
+msgstr "Ninguém da sua rede o tem no momento."
+
+msgid "acquire_once_obtained"
+msgstr "Depois de obtê-lo"
+
+msgid "acquire_i_borrowed_it"
+msgstr "Peguei emprestado"
+
+msgid "acquire_i_bought_it"
+msgstr "Comprei"
+
+msgid "acquire_add_to_wishlist"
+msgstr "Adicionar aos meus desejos"
+
+msgid "book_links_configure"
+msgstr "Configurar meus links"
+
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"
 msgstr "Ocultar este livro da rede"
@@ -11378,7 +11399,7 @@ msgstr "Sugestão de biblioteca"
 
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
-msgstr "Em um livro que você quer, oferecer conectar sua biblioteca"
+msgstr "Em um livro que você quer, oferecer catálogos de bibliotecas"
 
 #. Shared list import: the step where the reader picks a file or pastes
 msgid "import_choose_source"

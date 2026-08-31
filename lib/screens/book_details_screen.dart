@@ -32,6 +32,7 @@ import '../providers/book_note_provider.dart'
     show BookNoteProvider, maxNoteContentLength;
 import '../providers/book_refresh_notifier.dart';
 import '../providers/favorites_provider.dart';
+import '../widgets/acquisition_sheet.dart';
 import '../widgets/app_snack_bar.dart';
 import '../widgets/favorite_ribbon.dart';
 import '../widgets/reading_completion_suggestions.dart';
@@ -56,9 +57,6 @@ import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
 import '../widgets/book_rating_row.dart';
-import '../widgets/bookshop_finder_card.dart';
-import '../widgets/local_library_card.dart';
-import '../widgets/wishlist_availability_card.dart';
 import '../widgets/wishlist_seeker_card.dart';
 import 'record_sale_screen.dart';
 
@@ -1007,29 +1005,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         key: ValueKey('continue-with-${book.id}'),
                         book: book,
                       ),
-                    // "Available from" card for wanted books. Renders nothing
-                    // when the shared wishlist join returns no provider.
-                    if (book.readingStatus == 'wanting')
-                      WishlistAvailabilityCard(
-                        key: ValueKey('wishlist-availability-${book.isbn}'),
-                        book: book,
-                      ),
-                    // Local public library catalogues the reader
-                    // connected: borrowing there outranks buying, so this
-                    // card sits above the bookshop one.
-                    if (book.readingStatus == 'wanting')
-                      LocalLibraryCard(
-                        key: ValueKey('local-library-${book.isbn}'),
-                        book: book,
-                      ),
-                    // The buy-it-nearby counterpart (POC): outbound deep
-                    // link to an independent-bookshop portal, below the
-                    // borrow card so borrowing stays the primary path.
-                    if (book.readingStatus == 'wanting')
-                      BookshopFinderCard(
-                        key: ValueKey('bookshop-finder-${book.isbn}'),
-                        book: book,
-                      ),
                     // Inverse direction, for owned books: who wants this
                     // one? Renders nothing when no peer broadcast a wish.
                     if (book.owned)
@@ -1746,13 +1721,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Widget _buildActionButtons(BuildContext context, Book book) {
     final modules = Provider.of<ThemeProvider>(context);
     final canLend = modules.canLendBooks;
-    final canBorrow = modules.canBorrowBooks;
 
     final primary = primaryActionForBook(
       readingStatus: book.readingStatus,
       owned: book.owned,
       hasBorrowedCopies: _hasBorrowedCopies,
-      canBorrow: canBorrow,
     );
 
     return Column(
@@ -1767,7 +1740,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           book,
           primary: primary,
           canLend: canLend,
-          canBorrow: canBorrow,
           isBookseller: modules.isBookseller,
         ),
         _buildCopiesLine(context),
@@ -1800,13 +1772,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           fallback: 'Mark as Finished',
           onPressed: () => _markAsFinished(context),
         );
-      case BookPrimaryAction.borrowFromContact:
+      case BookPrimaryAction.acquire:
         return _primaryButton(
           context,
-          icon: Icons.arrow_downward,
-          labelKey: 'borrow_from_contact_btn',
-          fallback: 'Borrow from a contact',
-          onPressed: () => _borrowBook(context),
+          icon: Icons.shopping_bag_outlined,
+          labelKey: 'acquire_book_title',
+          fallback: 'Get hold of this book',
+          onPressed: () => _showAcquisitionSheet(context),
         );
       case BookPrimaryAction.startReading:
         return _primaryButton(
@@ -1860,7 +1832,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     Book book, {
     required BookPrimaryAction primary,
     required bool canLend,
-    required bool canBorrow,
     required bool isBookseller,
   }) {
     final actions = <Widget>[
@@ -1889,17 +1860,18 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           fallback: 'Return',
           onPressed: () => _returnBook(context),
         ),
-      // Only when the primary button did not already carry the offer.
+      // The same door, quieter, when the reader has not declared the wish:
+      // available without being shouted. Reaching it used to require guessing
+      // that marking a book wished turned another surface on.
       if (!book.owned &&
           !_hasBorrowedCopies &&
-          canBorrow &&
-          primary != BookPrimaryAction.borrowFromContact)
+          primary != BookPrimaryAction.acquire)
         _secondaryChip(
           context,
-          icon: Icons.arrow_downward,
-          labelKey: 'borrow',
-          fallback: 'Borrow',
-          onPressed: () => _borrowBook(context),
+          icon: Icons.shopping_bag_outlined,
+          labelKey: 'acquire_book_title',
+          fallback: 'Get hold of this book',
+          onPressed: () => _showAcquisitionSheet(context),
         ),
       if (isBookseller && _hasAvailableCopies && book.owned)
         _secondaryChip(
@@ -2308,6 +2280,28 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final wantsPrivate = selected == 'private';
     if (wantsPrivate == book.private) return;
     await _togglePrivate(wantsPrivate);
+  }
+
+  /// The acquisition sheet, which replaces the three cards that used to stack
+  /// on a wished book's page and render nothing when they had nothing to say.
+  ///
+  /// The page keeps the actions: recording a hand-arranged loan is the contact
+  /// picker it already owns, and "I bought it" is the ownership change it just
+  /// gained. The sheet only decides what is offered and in which order.
+  Future<void> _showAcquisitionSheet(BuildContext context) async {
+    final book = _book;
+    if (book == null) return;
+    final wasWished = book.readingStatus == 'wanting';
+
+    await AcquisitionSheet.show(
+      context,
+      book: book,
+      onBorrowed: () => _borrowBook(context),
+      onBought: () => _setOwned(true, clearWish: wasWished),
+      onAddToWishlist: wasWished
+          ? null
+          : () => _updateStatusDirectly(context, 'wanting'),
+    );
   }
 
   /// Possession, as a sheet rather than a one-tap switch.

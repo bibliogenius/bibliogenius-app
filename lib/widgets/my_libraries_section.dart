@@ -28,8 +28,8 @@ class MyLibrariesSection extends StatelessWidget {
           dense: true,
           title: Text(t('settings_libraries_show_intro')),
           subtitle: Text(t('settings_libraries_show_intro_desc')),
-          value: themeProvider.showLibraryIntro,
-          onChanged: (value) => themeProvider.setShowLibraryIntro(value),
+          value: themeProvider.showLibraryLinks,
+          onChanged: (value) => themeProvider.setShowLibraryLinks(value),
         ),
         if (themeProvider.myLibraryPortals.isEmpty)
           Padding(

@@ -111,8 +111,15 @@ class ThemeProvider with ChangeNotifier {
 
   // Discoverability card for the library connection, shown on wanted
   // books until a catalogue is connected or the reader dismisses it.
-  bool _showLibraryIntro = true;
-  bool get showLibraryIntro => _showLibraryIntro;
+  /// Whether book pages offer library catalogues at all.
+  ///
+  /// Named for the intro card it used to gate; that card is gone and the flag
+  /// now governs the whole library block of the acquisition sheet, which is
+  /// what a reader switching off "library suggestions" was asking for. The
+  /// stored key stays `library_intro_dismissed`: it is in the backup
+  /// whitelist, and its existing values mean exactly this.
+  bool _showLibraryLinks = true;
+  bool get showLibraryLinks => _showLibraryLinks;
 
   // Inventory-style book statuses (available, checked_out, reference_only,
   // missing, damaged, on_order) instead of personal-reading statuses
@@ -371,7 +378,7 @@ class ThemeProvider with ChangeNotifier {
     // the card or settings toggle).
     _showBookshopFinder = prefs.getBool('bookshop_finder_dismissed') != true;
 
-    _showLibraryIntro = prefs.getBool('library_intro_dismissed') != true;
+    _showLibraryLinks = prefs.getBool('library_intro_dismissed') != true;
 
     final storedBookshops = prefs.getString('my_bookshop_ids');
     if (storedBookshops != null) {
@@ -624,8 +631,8 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> setShowLibraryIntro(bool enabled) async {
-    _showLibraryIntro = enabled;
+  Future<void> setShowLibraryLinks(bool enabled) async {
+    _showLibraryLinks = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('library_intro_dismissed', !enabled);
     notifyListeners();

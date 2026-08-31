@@ -14,13 +14,11 @@ void main() {
     String? readingStatus,
     bool owned = true,
     bool hasBorrowedCopies = false,
-    bool canBorrow = true,
   }) {
     return primaryActionForBook(
       readingStatus: readingStatus,
       owned: owned,
       hasBorrowedCopies: hasBorrowedCopies,
-      canBorrow: canBorrow,
     );
   }
 
@@ -64,15 +62,25 @@ void main() {
       }
     });
 
-    test('a book that is not owned offers to borrow it from a contact', () {
+    test('a wished book leads with getting hold of it', () {
       expect(
         action(readingStatus: 'wanting', owned: false),
-        BookPrimaryAction.borrowFromContact,
+        BookPrimaryAction.acquire,
       );
+    });
+
+    test('the wish, not the absence of a copy, promotes acquisition', () {
+      // A book read years ago and never owned is not a book one wants.
+      // Deducing the intent from `owned == false` is the amalgam the peer
+      // model forbids, and it would put a filled button on a large part of
+      // the library. The path stays reachable, as a chip, on the page.
+      expect(action(readingStatus: 'read', owned: false), BookPrimaryAction.none);
       expect(
         action(readingStatus: null, owned: false),
-        BookPrimaryAction.borrowFromContact,
+        BookPrimaryAction.startReading,
       );
+      // Owned and still wished (a second copy) is not an acquisition either.
+      expect(action(readingStatus: 'wanting'), BookPrimaryAction.none);
     });
 
     test('reading a book you do not own still offers to finish it', () {
@@ -83,23 +91,21 @@ void main() {
       );
     });
 
-    test('the borrow offer disappears when the module is off', () {
+    test('acquisition does not depend on the borrow module', () {
+      // The sheet behind it also carries library and bookshop searches and
+      // the "I got it" pair, none of which is borrowing, so the ranking takes
+      // no module flag at all.
       expect(
-        action(readingStatus: 'wanting', owned: false, canBorrow: false),
-        BookPrimaryAction.none,
-        reason: 'a wanted book with borrowing off has no reading step either',
-      );
-      expect(
-        action(readingStatus: 'to_read', owned: false, canBorrow: false),
-        BookPrimaryAction.startReading,
+        action(readingStatus: 'wanting', owned: false),
+        BookPrimaryAction.acquire,
       );
     });
 
-    test('giving back does not depend on the borrow module being on', () {
-      // The copy is already on the shelf: hiding the way to return it would
-      // strand it, exactly as the standalone button did not gate on the module.
+    test('giving back outranks a wish on the same book', () {
+      // Wished, and a borrowed copy on the shelf while waiting: returning what
+      // is owed comes first.
       expect(
-        action(hasBorrowedCopies: true, canBorrow: false),
+        action(readingStatus: 'wanting', owned: false, hasBorrowedCopies: true),
         BookPrimaryAction.giveBack,
       );
     });

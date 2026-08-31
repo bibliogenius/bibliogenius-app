@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:provider/provider.dart';
+
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import 'my_bookshops_picker.dart';
 import 'my_libraries_section.dart';
@@ -35,7 +38,29 @@ Future<void> showBookLinksConfigSheet(BuildContext context) {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
-            const SizedBox(height: 4),
+            // One switch per block, on both sides: the library section
+            // already carried its own, the bookshops had theirs in the
+            // settings screen only.
+            Consumer<ThemeProvider>(
+              builder: (context, theme, _) => SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                dense: true,
+                title: Text(
+                  TranslationService.translate(
+                    sheetContext,
+                    'settings_bookshops_show_finder',
+                  ),
+                ),
+                subtitle: Text(
+                  TranslationService.translate(
+                    sheetContext,
+                    'settings_bookshops_show_finder_desc',
+                  ),
+                ),
+                value: theme.showBookshopFinder,
+                onChanged: theme.setShowBookshopFinder,
+              ),
+            ),
             const MyBookshopsPicker(),
             const SizedBox(height: 16),
             const Divider(height: 1),

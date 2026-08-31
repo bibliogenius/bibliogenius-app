@@ -9243,6 +9243,27 @@ msgstr "Книгата ще излезе от списъка ви с желан�
 msgid "book_ownership_release_blocked"
 msgstr "Един екземпляр е в обращение. Първо си го приберете или го върнете."
 
+msgid "acquire_book_title"
+msgstr "Сдобиване с тази книга"
+
+msgid "acquire_nobody_has_it"
+msgstr "Засега никой от вашата мрежа не я притежава."
+
+msgid "acquire_once_obtained"
+msgstr "След като я получите"
+
+msgid "acquire_i_borrowed_it"
+msgstr "Взех я назаем"
+
+msgid "acquire_i_bought_it"
+msgstr "Купих я"
+
+msgid "acquire_add_to_wishlist"
+msgstr "Добавяне към желанията"
+
+msgid "book_links_configure"
+msgstr "Настройка на моите връзки"
+
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"
 msgstr "Скриване на тази книга от мрежата"
@@ -11370,7 +11391,7 @@ msgstr "Предложение за библиотека"
 
 #. Settings: subtitle of the library suggestion toggle
 msgid "settings_libraries_show_intro_desc"
-msgstr "За желана книга — предложение да свържете вашата библиотека"
+msgstr "За книга, която искате, да се предлагат библиотечни каталози"
 
 #. Shared list import: the step where the reader picks a file or pastes
 msgid "import_choose_source"
