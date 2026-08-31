@@ -1856,28 +1856,95 @@ class ApiService {
     );
   }
 
-  /// Import a JSON backup file to restore library data
-  Future<Response> importBackup(List<int> jsonBytes) async {
-    // Parse the JSON to send as structured data
-    try {
-      final jsonString = utf8.decode(jsonBytes);
-      final jsonData = jsonDecode(jsonString);
+  /// Strips what a failed import quotes back from the payload.
+  ///
+  /// A refused backup is the user's own library, and both failure paths name
+  /// what they choked on: `FormatException` prints the offending source line
+  /// under its message, and the core's parser quotes the offending value
+  /// (`invalid type: string "someone@example.com"`). Where the payload went
+  /// wrong is worth keeping, its content is not: this string ends up in the
+  /// device log, which travels further than the app itself.
+  @visibleForTesting
+  static String redactImportDetail(String detail) {
+    const maxLength = 300;
+    final redacted = detail
+        .split('\n')
+        .first
+        .replaceAll(RegExp('"[^"]*"'), '"..."')
+        .replaceAll(RegExp('`[^`]*`'), '`...`');
+    return redacted.length <= maxLength
+        ? redacted
+        : '${redacted.substring(0, maxLength)}...';
+  }
 
+  /// Import a JSON backup file to restore library data.
+  ///
+  /// Failures are reported as a stable code in `data['error']`, with the
+  /// technical reason in `data['detail']`; the caller turns the code into a
+  /// message. Reading the file and sending it are caught apart on purpose: a
+  /// single catch used to report both as "Failed to parse backup file", so a
+  /// catalogue the core had refused looked like a file it could not read, and
+  /// the reason the core gave was thrown away.
+  Future<Response> importBackup(List<int> jsonBytes) async {
+    const path = '/api/import';
+
+    final dynamic jsonData;
+    try {
+      jsonData = jsonDecode(utf8.decode(jsonBytes));
+    } catch (e) {
+      debugPrint('Import backup: unreadable file: $e');
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        statusCode: 400,
+        data: {
+          'error': 'unreadable_file',
+          'detail': redactImportDetail('$e'),
+        },
+      );
+    }
+
+    try {
       if (useFfi) {
         // In FFI mode, POST to local HTTP server
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
         );
-        return await localDio.post('/api/import', data: jsonData);
+        return await localDio.post(path, data: jsonData);
       }
 
-      return await _dio.post('/api/import', data: jsonData);
+      return await _dio.post(path, data: jsonData);
+    } on DioException catch (e) {
+      final status = e.response?.statusCode;
+      debugPrint('Import backup failed (status: $status): $e');
+
+      if (status == null) {
+        return Response(
+          requestOptions: RequestOptions(path: path),
+          statusCode: 503,
+          data: {
+            'error': 'network_error',
+            'detail': redactImportDetail('${e.message ?? e.error}'),
+          },
+        );
+      }
+
+      // 422 is how the core reports a payload whose shape it cannot read: a
+      // catalogue exported before the uuid primary keys carries integer ids
+      // where strings are now expected. Its body names the offending field.
+      return Response(
+        requestOptions: RequestOptions(path: path),
+        statusCode: status,
+        data: {
+          'error': status == 422 ? 'incompatible_backup' : 'server_error',
+          'detail': redactImportDetail('${e.response?.data ?? e.message}'),
+        },
+      );
     } catch (e) {
       debugPrint('Import backup error: $e');
       return Response(
-        requestOptions: RequestOptions(path: '/api/import'),
+        requestOptions: RequestOptions(path: path),
         statusCode: 500,
-        data: {'error': 'Failed to parse backup file: $e'},
+        data: {'error': 'server_error', 'detail': redactImportDetail('$e')},
       );
     }
   }

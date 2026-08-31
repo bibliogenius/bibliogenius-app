@@ -7799,6 +7799,22 @@ msgstr "Restores a catalog export. Replaces all your current data."
 msgid "backup_restore_help"
 msgstr "Restores a catalog export file. Warning: this replaces all of your current data. For a complete, reversible restore, prefer \"Restore a full backup\"."
 
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "This file is not a readable BiblioGenius backup."
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "This backup was created by an earlier version of BiblioGenius and its format is no longer compatible. Keep the file: it can be converted."
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "Could not reach your local library. Try again in a moment."
+
+msgid "backup_restore_error_generic"
+msgstr "Restore failed ({error})"
+
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
 msgstr "System"

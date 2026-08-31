@@ -682,9 +682,38 @@ class BackupActions {
     );
   }
 
+  /// Message for a failed restore, keyed on the code [ApiService.importBackup]
+  /// returns. [messages] is resolved before the request, so no lookup needs the
+  /// context back after the await; [fallback] is substituted into the generic
+  /// message when no code matches, and is the HTTP status where there is one
+  /// (these errors reach support as a screenshot, and "500" says more than
+  /// "server_error" about where to look).
+  @visibleForTesting
+  static String restoreErrorMessage(
+    Map<String, String> messages,
+    Object? data,
+    String fallback,
+  ) {
+    final code = data is Map ? data['error']?.toString() : null;
+    final detail = data is Map ? '${data['detail'] ?? ''}' : '';
+    if (detail.isNotEmpty) {
+      debugPrint('Restore failed ($code): $detail');
+    }
+    return messages[code] ??
+        messages['generic']!.replaceAll('{error}', fallback);
+  }
+
   static Future<void> _handleRestore(BuildContext context) async {
     final apiService = context.read<ApiService>();
     final messenger = ScaffoldMessenger.of(context);
+    String t(String key) => TranslationService.translate(context, key);
+    final errorMessages = {
+      'unreadable_file': t('backup_restore_error_unreadable'),
+      'incompatible_backup': t('backup_restore_error_incompatible'),
+      'network_error': t('backup_restore_error_network'),
+      'generic': t('backup_restore_error_generic'),
+    };
+    final closeLabel = t('close');
     try {
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
@@ -717,13 +746,38 @@ class BackupActions {
           ),
         );
       } else {
-        throw Exception(response.data['error'] ?? 'Échec de la restauration');
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              restoreErrorMessage(
+                errorMessages,
+                response.data,
+                '${response.statusCode}',
+              ),
+            ),
+            backgroundColor: Colors.red,
+            // The message names the cause and is the only place it appears, so
+            // it gets far longer than the 4s default to be read. `persist` is
+            // set explicitly: it defaults to true as soon as an action is
+            // present, which would make this duration inert and leave the bar
+            // up across navigation, blocking every later message behind it.
+            persist: false,
+            duration: const Duration(seconds: 25),
+            action: SnackBarAction(
+              label: closeLabel,
+              textColor: Colors.white,
+              // Pressing the action dismisses the bar on its own.
+              onPressed: () {},
+            ),
+          ),
+        );
       }
     } catch (e) {
       _hideLoading();
+      debugPrint('Restore failed before reaching the core: $e');
       messenger.showSnackBar(
         SnackBar(
-          content: Text('Erreur de restauration : $e'),
+          content: Text(restoreErrorMessage(errorMessages, null, '$e')),
           backgroundColor: Colors.red,
         ),
       );
