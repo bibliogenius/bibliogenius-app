@@ -9261,6 +9261,12 @@ msgstr "Satın aldım"
 msgid "acquire_add_to_wishlist"
 msgstr "İstek listeme ekle"
 
+msgid "read_more"
+msgstr "Devamını oku"
+
+msgid "read_less"
+msgstr "Daha az göster"
+
 msgid "book_links_configure"
 msgstr "Bağlantılarımı yapılandır"
 

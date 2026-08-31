@@ -64,6 +64,13 @@ const _catalogue = {
     'menu_edit': 'Edit',
     'menu_copies_short': 'Copies',
     'menu_manage_copies': 'Manage copies',
+    'read_more': 'Read more',
+    'read_less': 'Show less',
+    'book_summary': 'Summary',
+    'book_not_found': 'Book not found',
+    'retry': 'Retry',
+    'started_on': 'Started',
+    'finished_on': 'Finished',
     'menu_delete': 'Delete',
     'refresh_metadata_title': 'Update',
     'book_visibility': 'Visibility',
@@ -120,10 +127,7 @@ void main() {
   late MockContactRepository contacts;
   late MockLoanRepository loans;
 
-  Widget harness(Book book) {
-    // The screen re-fetches on open; without this the mock throws and the
-    // page never leaves its spinner.
-    books.mockBook = book;
+  Widget _wrap(Widget child) {
     final favorites = FavoritesProvider(collections, BookRefreshNotifier());
     final recommendations = RecommendationProvider(
       _FakeRecommendationRepository(),
@@ -162,11 +166,21 @@ void main() {
           create: (_) => HubDirectoryProvider(ffi: FfiService()),
         ),
       ],
-      child: MaterialApp(
-        home: BookDetailsScreen(book: book, bookId: book.id!),
-      ),
+      child: MaterialApp(home: child),
     );
   }
+
+  /// The page reached by id alone, as a deep link or a loan row does it.
+  Widget harnessById(String bookId) => _wrap(BookDetailsScreen(bookId: bookId));
+
+  Widget harness(Book book) {
+    // The screen re-fetches on open; without this the mock throws and the
+    // page never leaves its spinner.
+    books.mockBook = book;
+    return _wrap(BookDetailsScreen(book: book, bookId: book.id!));
+  }
+
+
 
   /// Settles without `pumpAndSettle`: the page carries lazy discovery sections
   /// whose futures never complete under test, and the header animates.
@@ -190,15 +204,24 @@ void main() {
     TranslationService.setPoTranslationsForTest({});
   });
 
-  Book book({String? readingStatus, bool owned = true, bool private = false}) =>
-      Book(
-        id: 'b1',
-        title: 'The Anomaly',
-        author: 'Herve Le Tellier',
-        readingStatus: readingStatus,
-        owned: owned,
-        private: private,
-      );
+  Book book({
+    String? readingStatus,
+    bool owned = true,
+    bool private = false,
+    String? summary,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+  }) => Book(
+    id: 'b1',
+    title: 'The Anomaly',
+    author: 'Herve Le Tellier',
+    readingStatus: readingStatus,
+    owned: owned,
+    private: private,
+    summary: summary,
+    startedReadingAt: startedAt,
+    finishedReadingAt: finishedAt,
+  );
 
   testWidgets('an unread book offers to start reading, and only that', (
     tester,
@@ -463,6 +486,106 @@ void main() {
     await openOwnership(tester);
 
     expect(find.text('The book will leave your wishlist.'), findsOneWidget);
+  });
+
+  testWidgets('a long summary is clamped until the reader asks for more', (
+    tester,
+  ) async {
+    // A fifteen-line blurb used to render in full and push the notes and the
+    // suggestions far below the fold on every book that had one.
+    copies.mockCopies = [_copy('c1', 'available')];
+    final long = List.filled(60, 'Une phrase de resume assez longue.').join(' ');
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', summary: long)),
+    );
+    await settle(tester);
+
+    final toggle = find.byKey(const Key('summaryToggleButton'));
+    expect(toggle, findsOneWidget);
+    expect(find.text('Read more'), findsOneWidget);
+
+    final clamped = tester.widget<Text>(find.text(long));
+    expect(clamped.maxLines, 4);
+
+    await tester.ensureVisible(toggle);
+    await tester.pump();
+    await tester.tap(toggle, warnIfMissed: false);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(tester.widget<Text>(find.text(long)).maxLines, isNull);
+    expect(find.text('Show less'), findsOneWidget);
+  });
+
+  testWidgets('a short summary carries no toggle at all', (tester) async {
+    copies.mockCopies = [_copy('c1', 'available')];
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', summary: 'Two words.')),
+    );
+    await settle(tester);
+
+    expect(find.byKey(const Key('summaryToggleButton')), findsNothing);
+  });
+
+  testWidgets('the two reading dates share one row', (tester) async {
+    copies.mockCopies = [_copy('c1', 'available')];
+    await tester.pumpWidget(
+      harness(
+        book(
+          readingStatus: 'read',
+          startedAt: DateTime(2026, 8, 14),
+          finishedAt: DateTime(2026, 8, 22),
+        ),
+      ),
+    );
+    await settle(tester);
+
+    expect(
+      tester.getRect(find.text('STARTED')).top,
+      closeTo(tester.getRect(find.text('FINISHED')).top, 0.5),
+      reason: 'a pair of dates costs one row, not two',
+    );
+  });
+
+  testWidgets('a book that never loads says so, and offers a way out', (
+    tester,
+  ) async {
+    // Reached from a deep link, a loan row or the statistics: the id is
+    // known, the book is not. A failed fetch used to spin for ever in a
+    // Scaffold with no app bar, so there was not even a way back.
+    books.mockBook = null;
+    await tester.pumpWidget(harnessById('missing'));
+    await settle(tester);
+
+    expect(find.text('Book not found'), findsOneWidget);
+    expect(find.byKey(const Key('bookRetryButton')), findsOneWidget);
+    expect(find.byTooltip('Back'), findsOneWidget);
+  });
+
+  testWidgets('the collapsed bar is opaque and its title is not white', (
+    tester,
+  ) async {
+    // FlexibleSpaceBar fades its background out as the bar collapses. With a
+    // transparent bar behind it the page scrolled under the toolbar and the
+    // white title sat on top of the buttons going past.
+    copies.mockCopies = [_copy('c1', 'available')];
+    await tester.pumpWidget(harness(book(readingStatus: 'to_read')));
+    await settle(tester);
+
+    final bar = tester.widget<SliverAppBar>(find.byType(SliverAppBar));
+    expect(bar.backgroundColor, isNotNull);
+    expect(
+      bar.backgroundColor!.a,
+      1.0,
+      reason: 'a see-through bar lets the page scroll under the title',
+    );
+
+    final title = tester.widget<Text>(find.text('The Anomaly').last);
+    expect(
+      title.style?.color,
+      isNot(Colors.white),
+      reason: 'the title only ever shows on the bar surface, never on a cover',
+    );
   });
 
   testWidgets('every control left in the action area clears 44px', (

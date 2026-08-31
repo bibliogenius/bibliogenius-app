@@ -9261,6 +9261,12 @@ msgstr "Купих я"
 msgid "acquire_add_to_wishlist"
 msgstr "Добавяне към желанията"
 
+msgid "read_more"
+msgstr "Прочетете повече"
+
+msgid "read_less"
+msgstr "Покажи по-малко"
+
 msgid "book_links_configure"
 msgstr "Настройка на моите връзки"
 

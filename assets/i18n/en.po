@@ -9279,6 +9279,12 @@ msgstr "I bought it"
 msgid "acquire_add_to_wishlist"
 msgstr "Add to my wishlist"
 
+msgid "read_more"
+msgstr "Read more"
+
+msgid "read_less"
+msgstr "Show less"
+
 msgid "book_links_configure"
 msgstr "Configure my links"
 

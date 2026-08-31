@@ -8078,6 +8078,12 @@ msgstr "Ich habe es gekauft"
 msgid "acquire_add_to_wishlist"
 msgstr "Zur Wunschliste hinzufügen"
 
+msgid "read_more"
+msgstr "Mehr lesen"
+
+msgid "read_less"
+msgstr "Weniger anzeigen"
+
 msgid "book_links_configure"
 msgstr "Meine Links einrichten"
 

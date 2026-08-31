@@ -9322,6 +9322,12 @@ msgstr "L'ho comprato"
 msgid "acquire_add_to_wishlist"
 msgstr "Aggiungi ai desideri"
 
+msgid "read_more"
+msgstr "Leggi di più"
+
+msgid "read_less"
+msgstr "Mostra meno"
+
 msgid "book_links_configure"
 msgstr "Configura i miei link"
 

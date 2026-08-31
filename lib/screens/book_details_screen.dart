@@ -96,6 +96,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   bool _justFinishedReading = false;
   int _coverVersion = 0;
   bool _isRefreshing = false;
+
+  /// Whether the reader asked to see the whole publisher's blurb.
+  bool _summaryExpanded = false;
   // Per-book loan duration
   bool _perBookDurationEnabled = false;
   int? _bookLoanDurationDays;
@@ -964,9 +967,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_book == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
+    if (_book == null) return _buildBookAbsent(context);
 
     // Guaranteed non-null here
     final book = _book!;
@@ -1062,13 +1063,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      Text(
-                        book.summary!,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          height: 1.6,
-                          color: Colors.grey[700],
-                        ),
-                      ),
+                      _buildSummary(context, book.summary!),
                       const SizedBox(height: 32),
                     ],
                     // Reading notes section
@@ -1096,6 +1091,139 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Lines of the publisher's blurb shown before the reader asks for more.
+  static const int _summaryCollapsedLines = 4;
+
+  /// The publisher's summary, clamped to a readable height.
+  ///
+  /// It used to render in full, so a fifteen-line blurb pushed the reading
+  /// notes and the suggestions far below the fold on every book that had one.
+  /// The toggle appears only when the text really overflows, measured at the
+  /// width and text scale in force: a two-line summary carries no pointless
+  /// link.
+  ///
+  /// The colour comes from the theme now. It was a hardcoded `grey[700]`,
+  /// which is legible on the cream background and falls under the contrast
+  /// floor on the dark one.
+  Widget _buildSummary(BuildContext context, String summary) {
+    final style = Theme.of(
+      context,
+    ).textTheme.bodyLarge?.copyWith(height: 1.6);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final painter = TextPainter(
+          text: TextSpan(text: summary, style: style),
+          maxLines: _summaryCollapsedLines,
+          textDirection: Directionality.of(context),
+          textScaler: MediaQuery.textScalerOf(context),
+        )..layout(maxWidth: constraints.maxWidth);
+        final overflows = painter.didExceedMaxLines;
+        painter.dispose();
+
+        final clamped = overflows && !_summaryExpanded;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              summary,
+              style: style,
+              maxLines: clamped ? _summaryCollapsedLines : null,
+              overflow: clamped ? TextOverflow.ellipsis : TextOverflow.clip,
+            ),
+            if (overflows)
+              TextButton(
+                key: const Key('summaryToggleButton'),
+                onPressed: () =>
+                    setState(() => _summaryExpanded = !_summaryExpanded),
+                style:
+                    TextButton.styleFrom(
+                      minimumSize: const Size(0, 44),
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                    ).copyWith(
+                      // No hover fill: this reads as a link at the end of a
+                      // paragraph, and a rectangle lighting up under the
+                      // pointer makes it look like a button that wandered in.
+                      // Pressed and focused keep theirs, the second because a
+                      // keyboard user has nothing else to go on.
+                      overlayColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.pressed) ||
+                            states.contains(WidgetState.focused)) {
+                          return Theme.of(
+                            context,
+                          ).colorScheme.primary.withValues(alpha: 0.12);
+                        }
+                        return Colors.transparent;
+                      }),
+                    ),
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    _summaryExpanded ? 'read_less' : 'read_more',
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// What the page shows before it has a book, and when it never gets one.
+  ///
+  /// This branch is reached only when the caller passed an id without the book
+  /// (a deep link, a loan row, the statistics), so there is nothing to draw
+  /// yet. What it must not do is what it did: a bare centred spinner in a
+  /// Scaffold with no app bar, hence no way back, and a fetch that failed left
+  /// it spinning for ever with nothing said. `_isLoadingBook` was already
+  /// tracked and never read; it separates the two states.
+  Widget _buildBookAbsent(BuildContext context) {
+    final failed = !_isLoadingBook;
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
+          onPressed: _navigateBack,
+        ),
+      ),
+      body: Center(
+        child: failed
+            ? Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.search_off,
+                      size: 40,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      TranslationService.translate(context, 'book_not_found'),
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton.tonal(
+                      key: const Key('bookRetryButton'),
+                      onPressed: () {
+                        setState(() => _isLoadingBook = true);
+                        _fetchBookDetails(forceRefresh: true);
+                      },
+                      child: Text(
+                        TranslationService.translate(context, 'retry'),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : const CircularProgressIndicator(),
       ),
     );
   }
@@ -1227,8 +1355,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       expandedHeight: _headerHeight,
       pinned: true,
       stretch: true,
-      backgroundColor: Colors.transparent,
+      // Opaque, and NOT transparent. `FlexibleSpaceBar` fades its background
+      // out as the bar collapses, whatever the collapse mode: with nothing
+      // behind it, the page scrolled under the toolbar and the title sat as
+      // white text on top of the buttons going past.
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
       elevation: 0,
+      // The bar is the same colour family as the page, so it needs the shadow
+      // to read as a bar once the cover is gone.
+      scrolledUnderElevation: 3,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, size: 20),
         tooltip: TranslationService.translate(context, 'back'),
@@ -1265,8 +1401,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 book.title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  color: Colors.white,
+                // Themed, not white: it only ever shows once the bar is
+                // collapsed onto its own surface, never over the cover.
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.titleLarge?.color,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                 ),
@@ -2641,12 +2779,11 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ],
           ),
           const Divider(height: 32),
+          // ISBN spans the row. It used to sit beside an empty half kept for
+          // the reading status, which moved up to the identity block: a
+          // reserved column with nothing in it reads as missing data.
           Row(
-            children: [
-              _buildMetadataItem(context, 'ISBN', book.isbn ?? '-'),
-              // Reading status now lives in the taxonomy row under the author.
-              const Expanded(child: SizedBox()),
-            ],
+            children: [_buildMetadataItem(context, 'ISBN', book.isbn ?? '-')],
           ),
           // Rating section
           const Divider(height: 32),
@@ -2703,34 +2840,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               );
             }(),
           ],
-          if ((book.readingStatus == 'reading' ||
-                  book.readingStatus == 'read') &&
-              book.startedReadingAt != null) ...[
+          // The two reading dates share a row when both are known: they are a
+          // pair, and one full-width cell each cost two rows to say what fits
+          // in one.
+          if (_readingDateCells(context, book) case final cells
+              when cells.isNotEmpty) ...[
             const Divider(height: 32),
-            Row(
-              children: [
-                _buildMetadataItem(
-                  context,
-                  TranslationService.translate(context, 'started_on') ??
-                      'Started',
-                  _formatDate(book.startedReadingAt!),
-                ),
-              ],
-            ),
-          ],
-          if (book.readingStatus == 'read' &&
-              book.finishedReadingAt != null) ...[
-            const Divider(height: 32),
-            Row(
-              children: [
-                _buildMetadataItem(
-                  context,
-                  TranslationService.translate(context, 'finished_on') ??
-                      'Finished',
-                  _formatDate(book.finishedReadingAt!),
-                ),
-              ],
-            ),
+            Row(children: cells),
           ],
         ],
       ),
@@ -2944,6 +3060,29 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  /// The reading dates the book's state actually has, as metadata cells.
+  ///
+  /// A started date only means something once reading began, and a finished
+  /// one only on a book that is read.
+  List<Widget> _readingDateCells(BuildContext context, Book book) {
+    final isReading = book.readingStatus == 'reading';
+    final isRead = book.readingStatus == 'read';
+    return [
+      if ((isReading || isRead) && book.startedReadingAt != null)
+        _buildMetadataItem(
+          context,
+          TranslationService.translate(context, 'started_on') ?? 'Started',
+          _formatDate(book.startedReadingAt!),
+        ),
+      if (isRead && book.finishedReadingAt != null)
+        _buildMetadataItem(
+          context,
+          TranslationService.translate(context, 'finished_on') ?? 'Finished',
+          _formatDate(book.finishedReadingAt!),
+        ),
+    ];
   }
 
   Widget _buildMetadataItem(BuildContext context, String label, String value) {
