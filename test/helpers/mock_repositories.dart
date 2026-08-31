@@ -224,6 +224,7 @@ class MockCopyRepository implements CopyRepository {
   List<Copy> mockCopies = [];
   Copy? mockCopy;
   final List<Map<String, dynamic>> createdCopies = [];
+  final List<String> deletedCopyIds = [];
 
   @override
   Future<List<Copy>> getBookCopies(String bookId) async => mockCopies;
@@ -248,7 +249,7 @@ class MockCopyRepository implements CopyRepository {
       mockCopy ?? Copy(id: copyId, bookId: '1', libraryId: 1);
 
   @override
-  Future<void> deleteCopy(String copyId) async {}
+  Future<void> deleteCopy(String copyId) async => deletedCopyIds.add(copyId);
 }
 
 class MockLoanRepository implements LoanRepository {

@@ -25,17 +25,24 @@ class BookRatingRow extends StatelessWidget {
   /// clears it by tapping the star already selected.
   final ValueChanged<int?> onRatingChanged;
 
-  /// Star size when the row is wide enough to render the five stars unscaled.
+  /// Star glyph size when the row is wide enough to render the five stars
+  /// unscaled. The tap target around each one is larger, see [_starsWidth].
   static const double _starSize = 32;
 
-  /// Intrinsic width of the five stars: each is a [_starSize] icon inside 2px
-  /// of horizontal padding on either side, as [StarRatingWidget] lays them out.
-  static const double _starsWidth = 5 * (_starSize + 4);
+  /// Intrinsic width of the five stars: each glyph sits at the centre of a
+  /// [StarRatingWidget.interactiveTargetSize] square, which is what the row
+  /// actually has to seat.
+  static const double _starsWidth =
+      5 * StarRatingWidget.interactiveTargetSize;
 
   /// Narrowest row width that still leaves the rating column (flex 3 of 5) the
   /// full [_starsWidth]. Below it the two columns stack rather than share the
-  /// row: shrinking the stars shrinks their tap targets with them, and at 32px
-  /// those are already under the 44pt the platform guidelines ask for.
+  /// row: shrinking the stars shrinks their tap targets with them, and those
+  /// now sit exactly on the 44pt floor with nothing to give.
+  ///
+  /// Since the targets grew to that floor, the five of them are 220px wide, so
+  /// this threshold is above any phone's card width: phones stack, tablets and
+  /// desktop keep the two columns side by side.
   @visibleForTesting
   static const double stackBelowWidth = _starsWidth * 5 / 3;
 

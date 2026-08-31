@@ -3778,7 +3778,7 @@ msgstr "Laissez vide pour ne pas avoir de mot de passe"
 
 #. Lend this book
 msgid "lend_book_btn"
-msgstr "Prêter ce livre"
+msgstr "Prêter"
 
 #. Lend Book
 msgid "lend_book_label"
@@ -5657,7 +5657,7 @@ msgstr "Réessayer"
 
 #. Return this book
 msgid "return_book_btn"
-msgstr "Récupérer ce livre"
+msgstr "Récupérer"
 
 #. Return Rate
 msgid "return_rate"
@@ -5943,7 +5943,7 @@ msgstr "Fichier sélectionné :"
 
 #. Sell this book
 msgid "sell_book_btn"
-msgstr "Vendre ce livre"
+msgstr "Vendre"
 
 #. Sending request...
 msgid "sending_request"
@@ -9225,6 +9225,36 @@ msgstr "Livre privé"
 #. This book will not be visible to your contacts on the network
 msgid "book_private_desc"
 msgstr "Ce livre ne sera pas visible par vos contacts sur le réseau"
+
+msgid "book_visibility"
+msgstr "Visibilité"
+
+msgid "book_visibility_public"
+msgstr "Public"
+
+msgid "book_visibility_public_desc"
+msgstr "Visible par vos contacts, et empruntable"
+
+msgid "book_visibility_not_lendable"
+msgstr "Public, exclu du prêt"
+
+msgid "book_visibility_not_lendable_desc"
+msgstr "Visible, mais jamais proposé au prêt"
+
+msgid "book_ownership"
+msgstr "Possession"
+
+msgid "book_ownership_not_owned"
+msgstr "Je ne possède pas ce livre"
+
+msgid "book_ownership_delete_copies"
+msgstr "Ses {count} exemplaires enregistrés seront supprimés, avec leurs prix et leurs dates."
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "Le livre quittera votre liste de souhaits."
+
+msgid "book_ownership_release_blocked"
+msgstr "Un exemplaire est en circulation. Récupérez-le ou rendez-le d'abord."
 
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"

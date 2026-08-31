@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/book_primary_action.dart';
+import '../utils/ownership_actions.dart';
 import '../utils/borrowed_copy_payload.dart';
 import '../utils/cover_camera_helper.dart';
 import '../utils/loan_return_feedback.dart';
@@ -287,54 +289,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           'Return the borrowed copy before deleting.';
     }
     return '';
-  }
-
-  Future<void> _quickAddCopy() async {
-    if (_book == null || _book!.id == null) return;
-    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-    try {
-      await copyRepo.createCopy({
-        'book_id': _book!.id,
-        'status': 'available',
-        'is_temporary': false,
-      });
-      await _fetchCopies();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error')}: $e',
-            ),
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _quickRemoveCopy() async {
-    if (_copies.length <= 1) return;
-    // Remove the last available copy (prefer removing available over loaned/borrowed)
-    final target = _copies.lastWhere(
-      (c) => c.status == 'available',
-      orElse: () => _copies.last,
-    );
-    if (target.id == null) return;
-    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-    try {
-      await copyRepo.deleteCopy(target.id!);
-      await _fetchCopies();
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error')}: $e',
-            ),
-          ),
-        );
-      }
-    }
   }
 
   Future<void> _updateRating(int? newRating) async {
@@ -1037,10 +991,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader(context, book),
-                    _buildTaxonomyRow(context, book),
-                    const SizedBox(height: 24),
+                    _buildIdentityBlock(context, book),
+                    const SizedBox(height: 20),
                     _buildActionButtons(context, book),
+                    _buildTaxonomyRow(context, book),
                     const SizedBox(height: 32),
                     // The "just finished" moment (ADR-062 R5): the page's
                     // own "You might also like" section, PROMOTED here and
@@ -1148,40 +1102,6 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                         bookId: book.id!,
                         bookTitle: book.title,
                       ),
-                    // Private book toggle - at the bottom of the page
-                    Consumer<ThemeProvider>(
-                      builder: (context, theme, _) {
-                        if (!theme.allowPrivateBooks)
-                          return const SizedBox.shrink();
-                        return Card(
-                          child: SwitchListTile(
-                            secondary: Icon(
-                              book.private
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                              color: book.private
-                                  ? Theme.of(context).colorScheme.error
-                                  : null,
-                            ),
-                            title: Text(
-                              TranslationService.translate(
-                                context,
-                                'book_private',
-                              ),
-                            ),
-                            subtitle: Text(
-                              TranslationService.translate(
-                                context,
-                                'book_private_desc',
-                              ),
-                              style: Theme.of(context).textTheme.bodySmall,
-                            ),
-                            value: book.private,
-                            onChanged: (value) => _togglePrivate(value),
-                          ),
-                        );
-                      },
-                    ),
                     // "You might also like" closes the page: local-library
                     // books similar to this one (ADR-059). Lazy,
                     // non-blocking, renders nothing below 2 suggestions.
@@ -1313,117 +1233,175 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
+  /// Expanded height of the header band.
+  ///
+  /// Back to the full-size cover: the compact banner bought vertical space and
+  /// spent it badly, leaving an empty blurred strip at the top and squeezing
+  /// the title into a column narrow enough to break words mid-word. The cover
+  /// is what the reader recognises the book by, so it keeps its room.
+  static const double _headerHeight = 400;
+
   Widget _buildSliverAppBar(BuildContext context, Book book, String? coverUrl) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    // The controls sit on an arbitrary cover, so they carry their own scrim
+    // rather than trusting the image behind them.
+    final scrim = isDark ? Colors.black54 : Colors.black45;
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return SliverAppBar(
-      expandedHeight: 400.0,
+      expandedHeight: _headerHeight,
       pinned: true,
       stretch: true,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
       leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.black45 : Colors.black26,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(Icons.arrow_back, color: Colors.white, size: 20),
-        ),
+        icon: const Icon(Icons.arrow_back, size: 20),
         tooltip: TranslationService.translate(context, 'back'),
         onPressed: _navigateBack,
+        style: IconButton.styleFrom(
+          backgroundColor: scrim,
+          foregroundColor: Colors.white,
+        ),
       ),
-      flexibleSpace: FlexibleSpaceBar(
-        background: ExcludeSemantics(
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // Layer 0: Fallback (always rendered at bottom)
-              _buildFallbackCover(book),
-
-              // Layer 1: Network Image (if available)
-              if (coverUrl != null && coverUrl.isNotEmpty)
-                CachedBookCover(
-                  key: ValueKey('bg_$_coverVersion'),
-                  imageUrl: coverUrl,
-                  fit: BoxFit.cover,
-                  placeholder: const SizedBox.shrink(),
-                  errorWidget: const SizedBox.shrink(),
-                  semanticLabel: book.title,
+      actions: [
+        _buildFavoriteAction(context, book, scrim),
+        const SizedBox(width: 8),
+        _buildOverflowMenu(context, book, scrim),
+        const SizedBox(width: 8),
+      ],
+      flexibleSpace: LayoutBuilder(
+        builder: (context, constraints) {
+          // Once the band is down to the bar itself the title takes over: a
+          // pinned bar with no title left the reader scrolling a long page
+          // with nothing but a back arrow to say which book it was.
+          final collapsed =
+              constraints.maxHeight <= kToolbarHeight + topPadding + 8;
+          return FlexibleSpaceBar(
+            collapseMode: CollapseMode.pin,
+            titlePadding: const EdgeInsetsDirectional.only(
+              start: 56,
+              end: 116,
+              bottom: 16,
+            ),
+            title: AnimatedOpacity(
+              opacity: collapsed ? 1 : 0,
+              duration: const Duration(milliseconds: 150),
+              child: Text(
+                book.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
                 ),
-
-              // Layer 2: Blur Effect (applied on top of fallback or image)
-              BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                child: Container(color: Colors.black.withValues(alpha: 0.4)),
               ),
+            ),
+            background: ExcludeSemantics(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Layer 0: Fallback (always rendered at bottom)
+                  _buildFallbackCover(book),
 
-              // Hero Image — tap to add/change cover
-              Center(
-                child: GestureDetector(
-                  onTap: () => _showCoverOptions(context, book),
-                  child: Hero(
-                    tag: 'book_cover_${book.id}',
-                    child: SizedBox(
-                      width: 200,
-                      height: 300,
-                      child: Stack(
-                        clipBehavior: Clip.none,
-                        children: [
-                          Container(
-                            width: 200,
-                            height: 300,
-                            decoration: BoxDecoration(
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.4),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                              borderRadius: BorderRadius.circular(
-                                8,
-                              ), // Book-like rounded corners
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: [
-                                  // Fallback always at bottom
-                                  _buildFallbackCover(book),
-                                  // Image on top
-                                  if (coverUrl != null && coverUrl.isNotEmpty)
-                                    CachedBookCover(
-                                      key: ValueKey('hero_$_coverVersion'),
-                                      imageUrl: coverUrl,
-                                      fit: BoxFit.cover,
-                                      placeholder: const SizedBox.shrink(),
-                                      errorWidget: const SizedBox.shrink(),
-                                      semanticLabel: book.title,
+                  // Layer 1: Network Image (if available)
+                  if (coverUrl != null && coverUrl.isNotEmpty)
+                    CachedBookCover(
+                      key: ValueKey('bg_$_coverVersion'),
+                      imageUrl: coverUrl,
+                      fit: BoxFit.cover,
+                      placeholder: const SizedBox.shrink(),
+                      errorWidget: const SizedBox.shrink(),
+                      semanticLabel: book.title,
+                    ),
+
+                  // Layer 2: Blur + scrim, dark enough for white controls and
+                  // the collapsed title to hold their contrast on any cover.
+                  BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                    child: Container(
+                      color: Colors.black.withValues(alpha: 0.4),
+                    ),
+                  ),
+
+                  // Hero Image - tap to add/change cover
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => _showCoverOptions(context, book),
+                      child: Hero(
+                        tag: 'book_cover_${book.id}',
+                        child: SizedBox(
+                          width: 200,
+                          height: 300,
+                          child: Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                width: 200,
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withValues(
+                                        alpha: 0.4,
+                                      ),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
                                     ),
-                                ],
+                                  ],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Stack(
+                                    fit: StackFit.expand,
+                                    children: [
+                                      _buildFallbackCover(book),
+                                      if (coverUrl != null &&
+                                          coverUrl.isNotEmpty)
+                                        CachedBookCover(
+                                          key: ValueKey('hero_$_coverVersion'),
+                                          imageUrl: coverUrl,
+                                          fit: BoxFit.cover,
+                                          placeholder: const SizedBox.shrink(),
+                                          errorWidget: const SizedBox.shrink(),
+                                          semanticLabel: book.title,
+                                        ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
+                              // Owner-only badge: surfaces a pending hub cover
+                              // upload failure so the user knows peers may
+                              // still see the stale cover until the next sync.
+                              if (book.hubCoverUploadFailedAt != null)
+                                _buildCoverUploadWarningBadge(context),
+                            ],
                           ),
-                          // Owner-only badge: surfaces a pending hub cover upload
-                          // failure so the user knows peers may still see the
-                          // stale / fallback cover until the next sync retries.
-                          if (book.hubCoverUploadFailedAt != null)
-                            _buildCoverUploadWarningBadge(context),
-                        ],
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, Book book) {
+  /// Title, authors and status, full width under the cover.
+  ///
+  /// Full width and not beside the cover: at a phone's width a column narrow
+  /// enough to sit next to a thumbnail broke long titles inside a word.
+  ///
+  /// No imprint line here: publisher and year are two rows of the metadata
+  /// card a little further down, and repeating them costs a line to say
+  /// nothing new.
+  Widget _buildIdentityBlock(BuildContext context, Book book) {
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1431,9 +1409,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           header: true,
           child: Text(
             book.title,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+            style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w800,
-              color: Theme.of(context).textTheme.titleLarge?.color,
+              color: theme.textTheme.titleLarge?.color,
             ),
           ),
         ),
@@ -1447,14 +1425,21 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             vocabulary: _authorVocabulary,
           ),
         ],
+        const SizedBox(height: 4),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: _buildStatusChip(context, book),
+        ),
       ],
     );
   }
 
-  /// Compact "at a glance" row under the author: reading status followed by the
-  /// book's shelves and collections as small pills. This surfaces the same data
-  /// that used to live in three separate labelled sections lower down, so the
-  /// page reads faster without duplicating information.
+  /// The book's shelves and collections as small pills.
+  ///
+  /// This surfaces the same data that used to live in three separate labelled
+  /// sections lower down. The reading status left this row for the identity
+  /// block, where it belongs with the title: it is the book's state, not one
+  /// of its shelves, and it is a control rather than a link.
   Widget _buildTaxonomyRow(BuildContext context, Book book) {
     const shelfColors = [
       Colors.blue,
@@ -1477,7 +1462,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     const maxTaxonomyPills = 6;
 
     final subjects = book.subjects ?? const <String>[];
-    final chips = <Widget>[_buildStatusChip(context, book)];
+    final chips = <Widget>[];
     var shown = 0;
 
     for (var i = 0; i < subjects.length && shown < maxTaxonomyPills; i++) {
@@ -1522,8 +1507,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       );
     }
 
+    if (chips.isEmpty) return const SizedBox.shrink();
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(top: 20),
       child: Wrap(spacing: 8, runSpacing: 8, children: chips),
     );
   }
@@ -1535,32 +1521,41 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     required MaterialColor color,
     VoidCallback? onTap,
   }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: color.withValues(alpha: 0.28)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 13, color: color),
-              const SizedBox(width: 4),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color.shade700,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
+    return SizedBox(
+      height: 44,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          child: Center(
+            widthFactor: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 5,
               ),
-            ],
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: color.withValues(alpha: 0.28)),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 13, color: color),
+                  const SizedBox(width: 4),
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: color.shade700,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -1739,360 +1734,43 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
+  /// The page's action area: one primary button, then everything else.
+  ///
+  /// It used to stack up to five filled, full-width buttons - lend, return,
+  /// borrow, give back, sell - each in its own hardcoded colour, while the
+  /// reading cycle had no button at all and lived only in the status picker.
+  /// The primary action is now ranked by [primaryActionForBook] and wears the
+  /// theme's own colour; the rest became chips, which is where they belong:
+  /// none of them answers "what do I do with this book now?" more often than
+  /// reading it does.
   Widget _buildActionButtons(BuildContext context, Book book) {
-    final isReading = book.readingStatus == 'reading';
-    final isToRead =
-        book.readingStatus == 'to_read' || book.readingStatus == null;
-    final loanModules = Provider.of<ThemeProvider>(context, listen: false);
-    final canLend = loanModules.canLendBooks;
-    final canBorrow = loanModules.canBorrowBooks;
+    final modules = Provider.of<ThemeProvider>(context);
+    final canLend = modules.canLendBooks;
+    final canBorrow = modules.canBorrowBooks;
+
+    final primary = primaryActionForBook(
+      readingStatus: book.readingStatus,
+      owned: book.owned,
+      hasBorrowedCopies: _hasBorrowedCopies,
+      canBorrow: canBorrow,
+    );
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // --- Primary loan / borrow CTAs (filled, at the top) ---
-        // Each state keeps its own accent color so the current action reads at
-        // a glance; the four states can stack when a title has mixed copies.
-        // Lend book button - available copies, owned, lending module enabled.
-        if (_hasAvailableCopies && book.owned && canLend) ...[
+        if (primary != BookPrimaryAction.none) ...[
+          _buildPrimaryAction(context, primary),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _lendBook(context),
-              icon: const Icon(Icons.handshake_outlined),
-              label: Text(
-                TranslationService.translate(context, 'lend_book_btn') ??
-                    'Lend this book',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.purple,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
         ],
-        // Return lent book button - lent copies + lending module enabled.
-        if (_hasLentCopies && canLend) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _returnBook(context),
-              icon: const Icon(Icons.assignment_return_outlined),
-              label: Text(
-                TranslationService.translate(context, 'return_book_btn') ??
-                    'Return this book',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.orange,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        // Borrow from a contact - not owned, no borrowed copy yet, module on.
-        if (!book.owned && !_hasBorrowedCopies && canBorrow) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _borrowBook(context),
-              icon: const Icon(Icons.arrow_downward),
-              label: Text(
-                TranslationService.translate(
-                      context,
-                      'borrow_from_contact_btn',
-                    ) ??
-                    'Borrow from a contact',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.teal,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        if (_hasBorrowedCopies) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _giveBackBook(context),
-              icon: const Icon(Icons.keyboard_return_outlined),
-              label: Text(
-                TranslationService.translate(context, 'give_back_book_btn'),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.teal,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        // Sell book button - only visible if bookseller profile
-        if (Provider.of<ThemeProvider>(context).isBookseller &&
-            _hasAvailableCopies &&
-            book.owned) ...[
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () => _sellBook(context),
-              icon: const Icon(Icons.sell_outlined),
-              label: Text(
-                TranslationService.translate(context, 'sell_book_btn'),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.green.shade700,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-            ),
-          ),
-        ],
-        // --- Favorite + Edit + Copies (secondary, outlined) ---
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            if (book.id != null) ...[
-              _buildFavoriteToggle(context, book),
-              const SizedBox(width: 12),
-            ],
-            Expanded(
-              child: Tooltip(
-                message:
-                    TranslationService.translate(context, 'menu_edit') ??
-                    'Edit Book',
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    if (_book == null) return;
-                    final result = await context.push(
-                      '/books/${_book!.id}/edit',
-                      extra: _book,
-                    );
-                    if (result == true && context.mounted) {
-                      // Evict old cover so refreshed data shows new image
-                      _evictCoverFromCache(_book?.coverUrl);
-                      // Refresh book data but STAY on the screen
-                      await _fetchBookDetails(forceRefresh: true);
-                      // Mark that we have changes so we can return true later
-                      setState(() {
-                        _hasChanges = true;
-                        _coverVersion++;
-                      });
-                    }
-                  },
-                  icon: const Icon(Icons.edit_outlined, size: 18),
-                  label: Text(
-                    TranslationService.translate(context, 'menu_edit') ??
-                        'Edit',
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.primary,
-                    side: BorderSide(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withValues(alpha: 0.4),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    visualDensity: VisualDensity.compact,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  key: const Key('editBookButton'),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Tooltip(
-                message:
-                    TranslationService.translate(
-                      context,
-                      'menu_manage_copies',
-                    ) ??
-                    'Manage Copies',
-                child: OutlinedButton.icon(
-                  onPressed: () async {
-                    if (_book == null) return;
-                    await context.push(
-                      '/books/${_book!.id}/copies',
-                      extra: {'bookTitle': _book!.title},
-                    );
-                    if (!mounted) return;
-                    await _fetchCopies();
-                  },
-                  icon: Badge(
-                    label: Text('${_copies.length}'),
-                    isLabelVisible: _copies.length > 1,
-                    child: const Icon(Icons.library_books_outlined, size: 18),
-                  ),
-                  label: Text(
-                    TranslationService.translate(
-                          context,
-                          'menu_copies_short',
-                        ) ??
-                        'Copies',
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Theme.of(
-                      context,
-                    ).colorScheme.onSurfaceVariant,
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    visualDensity: VisualDensity.compact,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  key: const Key('manageCopiesButton'),
-                ),
-              ),
-            ),
-          ],
+        _buildSecondaryActions(
+          context,
+          book,
+          primary: primary,
+          canLend: canLend,
+          canBorrow: canBorrow,
+          isBookseller: modules.isBookseller,
         ),
-        const SizedBox(height: 4),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            // Shown with or without an ISBN. Without one the refresh has no
-            // ISBN to look up, so it goes straight to the title-and-author
-            // search: hiding the button left a coverless, summary-less book
-            // with no way at all to fill itself in.
-            TextButton.icon(
-              onPressed: _isRefreshing
-                  ? null
-                  : () => book.isbn != null && book.isbn!.isNotEmpty
-                        ? _refreshMetadata(context)
-                        : _completeFromExternalSearch(book),
-              icon: _isRefreshing
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.refresh_outlined, size: 15),
-              label: Text(
-                TranslationService.translate(
-                      context,
-                      'refresh_metadata_title',
-                    ) ??
-                    'Update',
-              ),
-              style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).colorScheme.onSurfaceVariant,
-                textStyle: Theme.of(context).textTheme.labelSmall,
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              ),
-              key: const Key('refreshMetadataButton'),
-            ),
-            const SizedBox(width: 4),
-            Tooltip(
-              message: _deleteBlocked ? _deleteDisabledTooltip(context) : '',
-              child: TextButton.icon(
-                onPressed: _deleteBlocked
-                    ? null
-                    : () => _confirmDelete(context),
-                icon: const Icon(Icons.delete_outline, size: 15),
-                label: Text(
-                  TranslationService.translate(context, 'menu_delete') ??
-                      'Delete',
-                ),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.deepOrange,
-                  textStyle: Theme.of(context).textTheme.labelSmall,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-                key: const Key('deleteBookButton'),
-              ),
-            ),
-          ],
-        ),
-        if (_copies.length > 1) ...[
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 32,
-                height: 32,
-                child: Tooltip(
-                  message:
-                      TranslationService.translate(
-                        context,
-                        'delete_copy_title',
-                      ) ??
-                      'Remove Copy',
-                  child: IconButton.outlined(
-                    onPressed: _quickRemoveCopy,
-                    icon: const Icon(Icons.remove, size: 16),
-                    padding: EdgeInsets.zero,
-                    style: IconButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Text(
-                  '${_copies.length} ${(TranslationService.translate(context, 'menu_copies_short') ?? 'copies').toLowerCase()}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 32,
-                height: 32,
-                child: Tooltip(
-                  message:
-                      TranslationService.translate(context, 'add_copy_title') ??
-                      'Add Copy',
-                  child: IconButton.outlined(
-                    onPressed: _quickAddCopy,
-                    icon: const Icon(Icons.add, size: 16),
-                    padding: EdgeInsets.zero,
-                    style: IconButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
+        _buildCopiesLine(context),
         _buildLoanStatusSection(context),
         // Per-book loan duration - only visible when per-book customization is enabled
         if (_perBookDurationEnabled && book.owned) ...[
@@ -2103,11 +1781,256 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
-  /// The favorite toggle (ADR-064): a square outlined control carrying the
-  /// star-bookmark glyph, outline when off, filled when on. The glyph is
-  /// the marker's own drawing so the vocabulary stays strict (star
-  /// bookmark = favorite, heart = wished).
-  Widget _buildFavoriteToggle(BuildContext context, Book book) {
+  /// The one filled button, or nothing when the reading cycle has no step left.
+  Widget _buildPrimaryAction(BuildContext context, BookPrimaryAction action) {
+    switch (action) {
+      case BookPrimaryAction.giveBack:
+        return _primaryButton(
+          context,
+          icon: Icons.keyboard_return_outlined,
+          labelKey: 'give_back_book_btn',
+          fallback: 'Give this book back',
+          onPressed: () => _giveBackBook(context),
+        );
+      case BookPrimaryAction.markFinished:
+        return _primaryButton(
+          context,
+          icon: Icons.check_circle_outline,
+          labelKey: 'mark_as_finished',
+          fallback: 'Mark as Finished',
+          onPressed: () => _markAsFinished(context),
+        );
+      case BookPrimaryAction.borrowFromContact:
+        return _primaryButton(
+          context,
+          icon: Icons.arrow_downward,
+          labelKey: 'borrow_from_contact_btn',
+          fallback: 'Borrow from a contact',
+          onPressed: () => _borrowBook(context),
+        );
+      case BookPrimaryAction.startReading:
+        return _primaryButton(
+          context,
+          icon: Icons.auto_stories_outlined,
+          labelKey: 'start_reading',
+          fallback: 'Start Reading',
+          onPressed: () => _startReading(context),
+        );
+      case BookPrimaryAction.none:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _primaryButton(
+    BuildContext context, {
+    required IconData icon,
+    required String labelKey,
+    required String fallback,
+    required VoidCallback onPressed,
+  }) {
+    return FilledButton.icon(
+      key: const Key('bookPrimaryActionButton'),
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(TranslationService.translate(context, labelKey) ?? fallback),
+      style: FilledButton.styleFrom(
+        minimumSize: const Size.fromHeight(52),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+    );
+  }
+
+  /// Everything the primary button did not take, laid out two per row.
+  ///
+  /// Labels are the bare verb here, never "Lend THIS BOOK": the page is the
+  /// book, and two columns of buttons have no room for an object every one of
+  /// them shares. The primary button keeps its full sentence, where the width
+  /// is there and the phrasing carries the moment.
+  ///
+  /// Actions only: edit, lend, return, borrow, sell. Managing copies is not an
+  /// action on this book, it is a place to go, so it sits with the other
+  /// navigation in the bar menu and, when there is more than one copy, on its
+  /// own quiet line below.
+  ///
+  /// Lending sits here in every state: it depends on owning a free copy with
+  /// the module on, never on the reading status and never on the rating.
+  Widget _buildSecondaryActions(
+    BuildContext context,
+    Book book, {
+    required BookPrimaryAction primary,
+    required bool canLend,
+    required bool canBorrow,
+    required bool isBookseller,
+  }) {
+    final actions = <Widget>[
+      _secondaryChip(
+        context,
+        key: const Key('editBookButton'),
+        icon: Icons.edit_outlined,
+        labelKey: 'menu_edit',
+        fallback: 'Edit',
+        emphasised: true,
+        onPressed: _openEditScreen,
+      ),
+      if (_hasAvailableCopies && book.owned && canLend)
+        _secondaryChip(
+          context,
+          icon: Icons.handshake_outlined,
+          labelKey: 'lend_book_btn',
+          fallback: 'Lend',
+          onPressed: () => _lendBook(context),
+        ),
+      if (_hasLentCopies && canLend)
+        _secondaryChip(
+          context,
+          icon: Icons.assignment_return_outlined,
+          labelKey: 'return_book_btn',
+          fallback: 'Return',
+          onPressed: () => _returnBook(context),
+        ),
+      // Only when the primary button did not already carry the offer.
+      if (!book.owned &&
+          !_hasBorrowedCopies &&
+          canBorrow &&
+          primary != BookPrimaryAction.borrowFromContact)
+        _secondaryChip(
+          context,
+          icon: Icons.arrow_downward,
+          labelKey: 'borrow',
+          fallback: 'Borrow',
+          onPressed: () => _borrowBook(context),
+        ),
+      if (isBookseller && _hasAvailableCopies && book.owned)
+        _secondaryChip(
+          context,
+          icon: Icons.sell_outlined,
+          labelKey: 'sell_book_btn',
+          fallback: 'Sell',
+          onPressed: () => _sellBook(context),
+        ),
+    ];
+
+    // Pairs, not a Wrap: a wrap of intrinsic-width chips gave one ragged
+    // button per line at phone width, which reads as a list of leftovers
+    // rather than as the page's actions.
+    final rows = <Widget>[];
+    for (var i = 0; i < actions.length; i += 2) {
+      final pair = actions.skip(i).take(2).toList();
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 10));
+      rows.add(
+        Row(
+          children: [
+            Expanded(child: pair.first),
+            if (pair.length > 1) ...[
+              const SizedBox(width: 10),
+              Expanded(child: pair[1]),
+            ],
+          ],
+        ),
+      );
+    }
+
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: rows);
+  }
+
+  /// The copies line: a count and a way in, only once there is more than one.
+  ///
+  /// A single copy needs no management surface at all; the bar menu keeps the
+  /// entry for the rare case where it does.
+  Widget _buildCopiesLine(BuildContext context) {
+    if (_copies.length <= 1) return const SizedBox.shrink();
+    final cs = Theme.of(context).colorScheme;
+    final label = TranslationService.translate(context, 'menu_copies_short');
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          key: const Key('manageCopiesButton'),
+          onPressed: _openCopiesScreen,
+          icon: const Icon(Icons.library_books_outlined, size: 18),
+          label: Text('${_copies.length} ${label.toLowerCase()}'),
+          style: TextButton.styleFrom(
+            minimumSize: const Size(0, 44),
+            foregroundColor: cs.onSurfaceVariant,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _secondaryChip(
+    BuildContext context, {
+    Key? key,
+    required IconData icon,
+    required String labelKey,
+    required String fallback,
+    required VoidCallback onPressed,
+    bool emphasised = false,
+    int? badgeCount,
+  }) {
+    final cs = Theme.of(context).colorScheme;
+    final icons = Icon(icon, size: 18);
+
+    return OutlinedButton.icon(
+      key: key,
+      onPressed: onPressed,
+      icon: badgeCount == null
+          ? icons
+          : Badge(label: Text('$badgeCount'), child: icons),
+      label: Text(TranslationService.translate(context, labelKey) ?? fallback),
+      style: OutlinedButton.styleFrom(
+        // 44 is the floor both platforms ask for. What this replaces ended in
+        // two ~28px text buttons sitting side by side, one of which deleted
+        // the book.
+        minimumSize: const Size(0, 44),
+        foregroundColor: emphasised ? cs.primary : cs.onSurfaceVariant,
+        side: BorderSide(
+          color: emphasised
+              ? cs.primary.withValues(alpha: 0.4)
+              : cs.outlineVariant,
+        ),
+        // No compact density here: it subtracts from the height and took the
+        // chips back down to 40, under the floor `minimumSize` just set.
+        visualDensity: VisualDensity.standard,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
+
+  Future<void> _openEditScreen() async {
+    if (_book == null) return;
+    final result = await context.push('/books/${_book!.id}/edit', extra: _book);
+    if (result != true || !mounted) return;
+    // Evict old cover so refreshed data shows new image
+    _evictCoverFromCache(_book?.coverUrl);
+    // Refresh book data but STAY on the screen
+    await _fetchBookDetails(forceRefresh: true);
+    if (!mounted) return;
+    // Mark that we have changes so we can return true later
+    setState(() {
+      _hasChanges = true;
+      _coverVersion++;
+    });
+  }
+
+  Future<void> _openCopiesScreen() async {
+    if (_book == null) return;
+    await context.push(
+      '/books/${_book!.id}/copies',
+      extra: {'bookTitle': _book!.title},
+    );
+    if (!mounted) return;
+    await _fetchCopies();
+  }
+
+  /// The favorite toggle (ADR-064): the star-bookmark glyph, outline when off,
+  /// filled when on. It moved from the button row into the app bar, where it
+  /// stays reachable whatever the page shows below.
+  Widget _buildFavoriteAction(BuildContext context, Book book, Color scrim) {
+    if (book.id == null) return const SizedBox.shrink();
     return Selector<FavoritesProvider, bool>(
       selector: (_, favorites) => favorites.isFavorite(book.id),
       builder: (context, isFavorite, _) {
@@ -2118,31 +2041,423 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         return Semantics(
           button: true,
           label: label,
-          child: Tooltip(
-            message: label,
-            excludeFromSemantics: true,
-            child: OutlinedButton(
-              key: const Key('favoriteToggleButton'),
-              onPressed: () => _toggleFavorite(book),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(48, 48),
-                padding: EdgeInsets.zero,
-                side: BorderSide(
-                  color: isFavorite
-                      ? favoriteRibbonTeal
-                      : Theme.of(context).colorScheme.outlineVariant,
-                ),
-                visualDensity: VisualDensity.compact,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: FavoriteRibbonIcon(active: isFavorite, size: 26),
-            ),
+          child: IconButton(
+            key: const Key('favoriteToggleButton'),
+            tooltip: label,
+            onPressed: () => _toggleFavorite(book),
+            style: IconButton.styleFrom(backgroundColor: scrim),
+            icon: FavoriteRibbonIcon(active: isFavorite, size: 22),
           ),
         );
       },
     );
+  }
+
+  /// The app bar overflow: what used to clutter the bottom of the page.
+  ///
+  /// Delete in particular was a ~28px text button pressed against "Refresh",
+  /// with no confirmation between the two. It is now one menu entry away,
+  /// last, on its own, and still blocked while a copy is out (ADR-034).
+  Widget _buildOverflowMenu(BuildContext context, Book book, Color scrim) {
+    final cs = Theme.of(context).colorScheme;
+    final allowPrivate = context.watch<ThemeProvider>().allowPrivateBooks;
+
+    return PopupMenuButton<String>(
+      tooltip: TranslationService.translate(context, 'more_actions'),
+      icon: CircleAvatar(
+        radius: 18,
+        backgroundColor: scrim,
+        child: const Icon(Icons.more_vert, color: Colors.white, size: 20),
+      ),
+      onSelected: (value) {
+        switch (value) {
+          case 'copies':
+            _openCopiesScreen();
+          case 'refresh':
+            final isbn = book.isbn;
+            if (isbn != null && isbn.isNotEmpty) {
+              _refreshMetadata(context);
+            } else {
+              // No ISBN to look up: go straight to the title-and-author
+              // search, or a coverless book has no way to fill itself in.
+              _completeFromExternalSearch(book);
+            }
+          case 'visibility':
+            _showVisibilitySheet(context, book);
+          case 'ownership':
+            _showOwnershipSheet(context, book);
+          case 'delete':
+            _confirmDelete(context);
+        }
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem<String>(
+          value: 'copies',
+          child: _menuRow(
+            context,
+            Icons.library_books_outlined,
+            TranslationService.translate(context, 'menu_manage_copies'),
+            trailing: _copies.length > 1
+                ? Text(
+                    '${_copies.length}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  )
+                : null,
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'refresh',
+          enabled: !_isRefreshing,
+          child: _menuRow(
+            context,
+            Icons.refresh_outlined,
+            TranslationService.translate(context, 'refresh_metadata_title') ??
+                'Update',
+          ),
+        ),
+        if (allowPrivate)
+          PopupMenuItem<String>(
+            value: 'visibility',
+            child: _menuRow(
+              context,
+              book.private ? Icons.visibility_off : Icons.visibility,
+              TranslationService.translate(context, 'book_visibility'),
+              trailing: Text(
+                TranslationService.translate(
+                  context,
+                  book.private ? 'book_private' : 'book_visibility_public',
+                ),
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+          ),
+        PopupMenuItem<String>(
+          value: 'ownership',
+          child: _menuRow(
+            context,
+            book.owned
+                ? Icons.library_books_rounded
+                : Icons.bookmark_add_outlined,
+            TranslationService.translate(context, 'own_this_book'),
+            trailing: book.owned
+                ? Icon(
+                    Icons.check,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.primary,
+                  )
+                : null,
+          ),
+        ),
+        const PopupMenuDivider(),
+        PopupMenuItem<String>(
+          key: const Key('deleteBookButton'),
+          value: 'delete',
+          enabled: !_deleteBlocked,
+          child: _menuRow(
+            context,
+            Icons.delete_outline,
+            TranslationService.translate(context, 'menu_delete') ?? 'Delete',
+            color: _deleteBlocked ? null : cs.error,
+            // The reason survives the move: a disabled entry with no
+            // explanation is worse than the tooltip it replaces.
+            subtitle: _deleteBlocked ? _deleteDisabledTooltip(context) : null,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _menuRow(
+    BuildContext context,
+    IconData icon,
+    String label, {
+    Color? color,
+    String? subtitle,
+    Widget? trailing,
+  }) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        // The colour is explicit on purpose. PopupMenuButton captures the
+        // inherited themes of the button's context, and this button lives in
+        // the app bar, whose IconTheme is white: an icon left to inherit came
+        // out white on the menu's light surface, invisible.
+        Icon(
+          icon,
+          size: 20,
+          color: color ?? theme.colorScheme.onSurfaceVariant,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(label, style: TextStyle(color: color)),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodySmall,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
+        ),
+        if (trailing != null) trailing,
+      ],
+    );
+  }
+
+  /// Visibility as a ladder rather than a switch.
+  ///
+  /// The third rung - public but never offered for loan - is deliberately
+  /// present and disabled: it needs the hub catalogue to carry availability,
+  /// which it does not (see the "public but not for loan" ticket). Drawing the
+  /// control as a two-state switch would mean rebuilding it when that lands.
+  Future<void> _showVisibilitySheet(BuildContext context, Book book) async {
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12, bottom: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[400],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                TranslationService.translate(ctx, 'book_visibility'),
+                style: Theme.of(
+                  ctx,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.visibility,
+                color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+              ),
+              title: Text(
+                TranslationService.translate(ctx, 'book_visibility_public'),
+              ),
+              subtitle: Text(
+                TranslationService.translate(
+                  ctx,
+                  'book_visibility_public_desc',
+                ),
+                style: Theme.of(ctx).textTheme.bodySmall,
+              ),
+              trailing: !book.private
+                  ? Icon(Icons.check_circle, color: Theme.of(ctx).colorScheme.primary)
+                  : null,
+              onTap: () => Navigator.pop(ctx, 'public'),
+            ),
+            ListTile(
+              enabled: false,
+              leading: Icon(
+                Icons.lock_clock_outlined,
+                color: Theme.of(ctx).colorScheme.onSurfaceVariant.withValues(
+                  alpha: 0.5,
+                ),
+              ),
+              title: Text(
+                TranslationService.translate(
+                  ctx,
+                  'book_visibility_not_lendable',
+                ),
+              ),
+              subtitle: Text(
+                '${TranslationService.translate(ctx, 'book_visibility_not_lendable_desc')} '
+                '(${TranslationService.translate(ctx, 'coming_soon')})',
+                style: Theme.of(ctx).textTheme.bodySmall,
+              ),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.visibility_off,
+                color: Theme.of(ctx).colorScheme.error,
+              ),
+              title: Text(TranslationService.translate(ctx, 'book_private')),
+              subtitle: Text(
+                TranslationService.translate(ctx, 'book_private_desc'),
+                style: Theme.of(ctx).textTheme.bodySmall,
+              ),
+              trailing: book.private
+                  ? Icon(Icons.check_circle, color: Theme.of(ctx).colorScheme.primary)
+                  : null,
+              onTap: () => Navigator.pop(ctx, 'private'),
+            ),
+            const SizedBox(height: 12),
+          ],
+        ),
+      ),
+    );
+
+    if (selected == null || !mounted) return;
+    final wantsPrivate = selected == 'private';
+    if (wantsPrivate == book.private) return;
+    await _togglePrivate(wantsPrivate);
+  }
+
+  /// Possession, as a sheet rather than a one-tap switch.
+  ///
+  /// Releasing ownership DELETES every copy of the book (the rule shared with
+  /// the edit form, `utils/ownership_actions.dart`), and with them their
+  /// prices, acquisition dates and notes. That is not something a menu should
+  /// do under a thumb without saying so, which is why the consequence is
+  /// written on the option and why a copy that is out blocks it entirely:
+  /// deleting it would leave a live loan pointing at nothing.
+  Future<void> _showOwnershipSheet(BuildContext context, Book book) async {
+    final wasWished = book.readingStatus == 'wanting';
+    final blockedMessage = TranslationService.translate(
+      context,
+      'book_ownership_release_blocked',
+    );
+
+    final selected = await showModalBottomSheet<bool>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        final small = Theme.of(ctx).textTheme.bodySmall;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(top: 12, bottom: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[400],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  TranslationService.translate(ctx, 'book_ownership'),
+                  style: Theme.of(
+                    ctx,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ),
+              ListTile(
+                // A borrowed copy is on the shelf: claiming ownership would
+                // turn someone else's book into one of ours and strand the
+                // loan it came with.
+                enabled: !_hasBorrowedCopies,
+                leading: Icon(
+                  Icons.library_books_rounded,
+                  color: cs.onSurfaceVariant,
+                ),
+                title: Text(
+                  TranslationService.translate(ctx, 'own_this_book'),
+                ),
+                subtitle: _hasBorrowedCopies
+                    ? Text(blockedMessage, style: small)
+                    : (wasWished
+                          ? Text(
+                              TranslationService.translate(
+                                ctx,
+                                'book_ownership_leaves_wishlist',
+                              ),
+                              style: small,
+                            )
+                          : null),
+                trailing: book.owned
+                    ? Icon(Icons.check_circle, color: cs.primary)
+                    : null,
+                onTap: () => Navigator.pop(ctx, true),
+              ),
+              ListTile(
+                enabled: !_deleteBlocked,
+                leading: Icon(
+                  Icons.bookmark_add_outlined,
+                  color: cs.onSurfaceVariant,
+                ),
+                title: Text(
+                  TranslationService.translate(
+                    ctx,
+                    'book_ownership_not_owned',
+                  ),
+                ),
+                subtitle: Text(
+                  _deleteBlocked
+                      ? blockedMessage
+                      : TranslationService.translate(
+                          ctx,
+                          'book_ownership_delete_copies',
+                          params: {'count': '${_copies.length}'},
+                        ),
+                  style: small,
+                ),
+                trailing: !book.owned
+                    ? Icon(Icons.check_circle, color: cs.primary)
+                    : null,
+                onTap: () => Navigator.pop(ctx, false),
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (selected == null || !mounted || selected == book.owned) return;
+    await _setOwned(selected, clearWish: selected && wasWished);
+  }
+
+  /// Writes the ownership change: the copies first, then the flag.
+  ///
+  /// [clearWish] lands a book that was on the wishlist in "to read". Acquiring
+  /// it answers the wish, and a book left `wanting` keeps rendering the whole
+  /// acquisition section and keeps broadcasting `wanted` to peers, which would
+  /// have the network offer a copy already on the shelf. It is never silent:
+  /// the sheet says so before the tap.
+  Future<void> _setOwned(bool owned, {required bool clearWish}) async {
+    final book = _book;
+    if (book == null || book.id == null) return;
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    final copyRepo = Provider.of<CopyRepository>(context, listen: false);
+
+    try {
+      final result = await applyOwnershipToCopies(
+        copies: copyRepo,
+        bookId: book.id!,
+        owned: owned,
+        existingCopyId: _copies.isNotEmpty ? _copies.first.id : null,
+      );
+      await bookRepo.updateBook(book.id!, {
+        'title': book.title,
+        'owned': owned,
+        if (clearWish) 'reading_status': 'to_read',
+      });
+      _hasChanges = true;
+      await _fetchBookDetails(forceRefresh: true);
+      if (!mounted) return;
+      if (result.hadFailures) {
+        AppSnackBar.error(
+          context,
+          TranslationService.translate(context, 'error'),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error changing ownership: $e');
+    }
   }
 
   Future<void> _toggleFavorite(Book book) async {
@@ -2440,37 +2755,46 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final label =
         statusObj?.label ?? _translateStatus(context, book.readingStatus);
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => _showStatusPicker(context),
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: color.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 16, color: color),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  label,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
+    // The pill keeps its own height; the tap target around it is 44, the floor
+    // both platforms ask for. It opens the status picker, so it is a control,
+    // not a label.
+    return SizedBox(
+      height: 44,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _showStatusPicker(context),
+          borderRadius: BorderRadius.circular(20),
+          child: Center(
+            widthFactor: 1,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: color.withValues(alpha: 0.3)),
               ),
-              const SizedBox(width: 4),
-              Icon(Icons.arrow_drop_down, size: 18, color: color),
-            ],
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(icon, size: 16, color: color),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.arrow_drop_down, size: 18, color: color),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -2646,12 +2970,17 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
   }
 
+  /// Both of these, and the "just finished" block they lead to, stay on the
+  /// page: they are now reachable from the primary button, and popping back to
+  /// the list under the reader's finger would undo the whole point of putting
+  /// the reading cycle on this screen.
   Future<void> _startReading(BuildContext context) async {
     if (_book == null) return;
     await _showStatusChangeOptions(
       context,
       'reading',
       TranslationService.translate(context, 'start_reading') ?? 'Start Reading',
+      stayOnScreen: true,
     );
   }
 
@@ -2662,15 +2991,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       'read',
       TranslationService.translate(context, 'mark_as_finished') ??
           'Mark as Finished',
-    );
-  }
-
-  Future<void> _markAsRead(BuildContext context) async {
-    if (_book == null) return;
-    await _showStatusChangeOptions(
-      context,
-      'read',
-      TranslationService.translate(context, 'mark_as_read') ?? 'Mark as Read',
+      stayOnScreen: true,
     );
   }
 

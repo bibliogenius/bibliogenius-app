@@ -3329,7 +3329,7 @@ msgstr "Şifre koymamak için boş bırakın"
 
 #. Lend this book
 msgid "lend_book_btn"
-msgstr "Bu kitabı ödünç ver"
+msgstr "Ödünç ver"
 
 #. Lend Book
 msgid "lend_book_label"
@@ -4812,7 +4812,7 @@ msgstr "Tekrar Dene"
 
 #. Return this book
 msgid "return_book_btn"
-msgstr "Bu kitabı iade et"
+msgstr "İade et"
 
 #. Return Rate
 msgid "return_rate"
@@ -5066,7 +5066,7 @@ msgstr "Seçilen dosya:"
 
 #. Sell this book
 msgid "sell_book_btn"
-msgstr "Bu kitabı sat"
+msgstr "Sat"
 
 #. Sending request...
 msgid "sending_request"
@@ -9212,6 +9212,36 @@ msgstr "Özel kitap"
 #. This book will not be visible to your contacts on the network
 msgid "book_private_desc"
 msgstr "Bu kitap ağdaki kişilerinize görünmeyecek"
+
+msgid "book_visibility"
+msgstr "Görünürlük"
+
+msgid "book_visibility_public"
+msgstr "Herkese açık"
+
+msgid "book_visibility_public_desc"
+msgstr "Kişilerinize görünür ve ödünç alınabilir"
+
+msgid "book_visibility_not_lendable"
+msgstr "Herkese açık, ödünç verilmez"
+
+msgid "book_visibility_not_lendable_desc"
+msgstr "Görünür, ancak asla ödünç verilmez"
+
+msgid "book_ownership"
+msgstr "Sahiplik"
+
+msgid "book_ownership_not_owned"
+msgstr "Bu kitaba sahip değilim"
+
+msgid "book_ownership_delete_copies"
+msgstr "Kayıtlı {count} kopya, fiyat ve tarihleriyle birlikte silinecek."
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "Kitap istek listenizden çıkacak."
+
+msgid "book_ownership_release_blocked"
+msgstr "Bir kopya dışarıda. Önce geri alın ya da iade edin."
 
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"

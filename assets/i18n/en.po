@@ -3778,7 +3778,7 @@ msgstr "Leave empty for no password"
 
 #. Lend this book
 msgid "lend_book_btn"
-msgstr "Lend this book"
+msgstr "Lend"
 
 #. Lend Book
 msgid "lend_book_label"
@@ -5657,7 +5657,7 @@ msgstr "Retry"
 
 #. Return this book
 msgid "return_book_btn"
-msgstr "Return this book"
+msgstr "Return"
 
 #. Return Rate
 msgid "return_rate"
@@ -5943,7 +5943,7 @@ msgstr "Selected file:"
 
 #. Sell this book
 msgid "sell_book_btn"
-msgstr "Sell this book"
+msgstr "Sell"
 
 #. Sending request...
 msgid "sending_request"
@@ -9225,6 +9225,41 @@ msgstr "Private book"
 #. This book will not be visible to your contacts on the network
 msgid "book_private_desc"
 msgstr "This book will not be visible to your contacts on the network"
+
+#. Visibility of this book: public, or hidden from the network
+msgid "book_visibility"
+msgstr "Visibility"
+
+#. Visibility option: the book is part of the public catalogue
+msgid "book_visibility_public"
+msgstr "Public"
+
+#. Description of the public visibility option
+msgid "book_visibility_public_desc"
+msgstr "Visible to your contacts, and available to borrow"
+
+#. Visibility option: listed but never offered for loan
+msgid "book_visibility_not_lendable"
+msgstr "Public, not for loan"
+
+#. Description of the not-for-loan visibility option
+msgid "book_visibility_not_lendable_desc"
+msgstr "Visible, but never offered for loan"
+
+msgid "book_ownership"
+msgstr "Ownership"
+
+msgid "book_ownership_not_owned"
+msgstr "I do not own this book"
+
+msgid "book_ownership_delete_copies"
+msgstr "Its {count} recorded copies will be deleted, with their prices and dates."
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "The book will leave your wishlist."
+
+msgid "book_ownership_release_blocked"
+msgstr "A copy is out. Get it back, or give it back, first."
 
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"

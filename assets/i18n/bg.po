@@ -3281,7 +3281,7 @@ msgstr "Оставете празно за без парола"
 
 #. Lend this book
 msgid "lend_book_btn"
-msgstr "Даване на тази книга назаем"
+msgstr "Даване назаем"
 
 #. Lend Book
 msgid "lend_book_label"
@@ -4767,7 +4767,7 @@ msgstr "Опитване отново"
 
 #. Return this book
 msgid "return_book_btn"
-msgstr "Връщане на тази книга"
+msgstr "Връщане"
 
 #. Return Rate
 msgid "return_rate"
@@ -5021,7 +5021,7 @@ msgstr "Избран файл:"
 
 #. Sell this book
 msgid "sell_book_btn"
-msgstr "Продаване на тази книга"
+msgstr "Продаване"
 
 #. Sending request...
 msgid "sending_request"
@@ -9212,6 +9212,36 @@ msgstr "Лична книга"
 #. This book will not be visible to your contacts on the network
 msgid "book_private_desc"
 msgstr "Тази книга няма да е видима за вашите контакти в мрежата"
+
+msgid "book_visibility"
+msgstr "Видимост"
+
+msgid "book_visibility_public"
+msgstr "Публична"
+
+msgid "book_visibility_public_desc"
+msgstr "Видима за вашите контакти и достъпна за заемане"
+
+msgid "book_visibility_not_lendable"
+msgstr "Публична, но не за заемане"
+
+msgid "book_visibility_not_lendable_desc"
+msgstr "Видима, но никога предлагана за заемане"
+
+msgid "book_ownership"
+msgstr "Притежание"
+
+msgid "book_ownership_not_owned"
+msgstr "Не притежавам тази книга"
+
+msgid "book_ownership_delete_copies"
+msgstr "Записаните {count} екземпляра ще бъдат изтрити, заедно с цените и датите им."
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "Книгата ще излезе от списъка ви с желания."
+
+msgid "book_ownership_release_blocked"
+msgstr "Един екземпляр е в обращение. Първо си го приберете или го върнете."
 
 #. Tooltip for private book toggle
 msgid "tooltip_private_book"

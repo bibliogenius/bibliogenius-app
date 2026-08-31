@@ -3045,7 +3045,7 @@ msgstr "비밀번호를 사용하지 않으려면 비워 두세요"
 
 #. Lend this book
 msgid "lend_book_btn"
-msgstr "이 책 빌려주기"
+msgstr "빌려주기"
 
 #. Lend Book
 msgid "lend_book_label"
@@ -4524,7 +4524,7 @@ msgstr "다시 시도"
 
 #. Return this book
 msgid "return_book_btn"
-msgstr "이 책 반납하기"
+msgstr "반납하기"
 
 #. Return Rate
 msgid "return_rate"
@@ -4778,7 +4778,7 @@ msgstr "선택한 파일:"
 
 #. Sell this book
 msgid "sell_book_btn"
-msgstr "이 책 판매하기"
+msgstr "판매하기"
 
 #. Sending request...
 msgid "sending_request"

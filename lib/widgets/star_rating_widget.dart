@@ -31,6 +31,17 @@ class StarRatingWidget extends StatelessWidget {
   /// Show as compact (smaller, no padding)
   final bool compact;
 
+  /// Side of the tap target around each star when the widget is interactive.
+  ///
+  /// The glyph keeps its [size]; only the box around it grows. At 32 px plus
+  /// 2 px of padding each side the stars were 36x32 targets, under both the
+  /// 44pt iOS and the 48dp Material floors, on what is the page's most-used
+  /// control. Exposed because [BookRatingRow] measures its layout against the
+  /// row's real width, and that width is now the targets', not the glyphs'.
+  ///
+  /// Display-only and [compact] stars are not targets and keep their padding.
+  static const double interactiveTargetSize = 44;
+
   const StarRatingWidget({
     super.key,
     this.rating,
@@ -121,8 +132,9 @@ class StarRatingWidget extends StatelessWidget {
                       final localPos = box.globalToLocal(
                         details.globalPosition,
                       );
-                      final starWidth =
-                          (compact ? size * 0.7 : size) + (compact ? 2 : 4);
+                      final starWidth = compact
+                          ? size * 0.7 + 2
+                          : interactiveTargetSize;
                       final rawRating = (localPos.dx / starWidth).clamp(
                         0.0,
                         5.0,
@@ -133,10 +145,20 @@ class StarRatingWidget extends StatelessWidget {
                     }
                   }
                 : null,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: compact ? 1 : 2),
-              child: star,
-            ),
+            // Opaque: the box is wider than the glyph on purpose, and the
+            // margin around the star has to answer taps too or the target is
+            // back to the size of the icon.
+            behavior: HitTestBehavior.opaque,
+            child: compact
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 1),
+                    child: star,
+                  )
+                : SizedBox(
+                    width: interactiveTargetSize,
+                    height: interactiveTargetSize,
+                    child: Center(child: star),
+                  ),
           );
         }),
       ),

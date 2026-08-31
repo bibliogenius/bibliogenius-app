@@ -3045,7 +3045,7 @@ msgstr "留空则不设密码"
 
 #. Lend this book
 msgid "lend_book_btn"
-msgstr "借出这本书"
+msgstr "借出"
 
 #. Lend Book
 msgid "lend_book_label"
@@ -4524,7 +4524,7 @@ msgstr "重试"
 
 #. Return this book
 msgid "return_book_btn"
-msgstr "取回此书"
+msgstr "取回"
 
 #. Return Rate
 msgid "return_rate"
@@ -4778,7 +4778,7 @@ msgstr "已选文件："
 
 #. Sell this book
 msgid "sell_book_btn"
-msgstr "出售此书"
+msgstr "出售"
 
 #. Sending request...
 msgid "sending_request"

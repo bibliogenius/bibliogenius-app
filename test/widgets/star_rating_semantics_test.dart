@@ -97,4 +97,57 @@ void main() {
 
     expect(find.bySemanticsLabel('Note : 3,5 sur 5'), findsOneWidget);
   });
+
+  // Rule A: the tap target, not the glyph, is what has to clear the floor.
+  // These stars were 36x32 boxes, under both the 44pt iOS and the 48dp
+  // Material minimum, on the page's most-used control.
+  testWidgets('every interactive star clears the 44px tap target floor', (
+    tester,
+  ) async {
+    await _pumpStars(tester, rating: 6);
+
+    final targets = find.descendant(
+      of: find.byType(StarRatingWidget),
+      matching: find.byType(GestureDetector),
+    );
+    expect(targets, findsNWidgets(5));
+
+    for (var i = 0; i < 5; i++) {
+      final box = tester.getSize(targets.at(i));
+      expect(
+        box.width,
+        greaterThanOrEqualTo(StarRatingWidget.interactiveTargetSize),
+        reason: 'star ${i + 1} is only ${box.width}px wide',
+      );
+      expect(
+        box.height,
+        greaterThanOrEqualTo(StarRatingWidget.interactiveTargetSize),
+        reason: 'star ${i + 1} is only ${box.height}px tall',
+      );
+    }
+  });
+
+  testWidgets('the margin around a star answers taps, not just the glyph', (
+    tester,
+  ) async {
+    int? reported;
+    await _pump(
+      tester,
+      StarRatingWidget(rating: null, onRatingChanged: (v) => reported = v),
+    );
+
+    // Top-left corner of the third star's box: inside the target, outside the
+    // 32px glyph. Without an opaque hit test this tap falls through.
+    final third = find
+        .descendant(
+          of: find.byType(StarRatingWidget),
+          matching: find.byType(GestureDetector),
+        )
+        .at(2);
+    final rect = tester.getRect(third);
+    await tester.tapAt(Offset(rect.left + 2, rect.top + 2));
+    await tester.pump();
+
+    expect(reported, 6, reason: 'the third star is 3 stars, 6 on the 0-10 scale');
+  });
 }

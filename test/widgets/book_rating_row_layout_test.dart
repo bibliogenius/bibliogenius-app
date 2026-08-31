@@ -19,7 +19,11 @@ import 'package:bibliogenius/widgets/star_rating_widget.dart';
 /// The row has two branches, asserted separately below. Wide enough, the two
 /// columns sit side by side. Too narrow to hold the stars at full size, the
 /// page count moves underneath instead, because shrinking the stars shrinks
-/// the tap targets with them and they are already small.
+/// the tap targets with them and they now sit exactly on the 44pt floor.
+///
+/// Since the targets grew to that floor the five stars are 220px wide, so the
+/// side-by-side branch belongs to tablets and desktop: every phone stacks. The
+/// wide cases below therefore use a tablet width, not a phone one.
 
 /// Inner width of the metadata card on a given screen width: the detail page
 /// pads by 24 on each side and the card by another 20.
@@ -70,9 +74,11 @@ void main() {
     TranslationService.setPoTranslationsForTest({});
   });
 
-  // 393 is the iPhone 15 / 16 logical width the defect was reported on; 320 is
-  // the narrowest phone still supported. Neither branch may overflow.
-  for (final screenWidth in <double>[393, 375, 320]) {
+  // 768 is iPad portrait, the narrowest width that still seats the two columns
+  // side by side; 393 is the iPhone 15 / 16 logical width the defect was
+  // reported on; 320 is the narrowest phone still supported. No branch may
+  // overflow.
+  for (final screenWidth in <double>[768, 393, 375, 320]) {
     testWidgets(
       'the star row does not overflow its column at ${screenWidth}px',
       (tester) async {
@@ -89,14 +95,14 @@ void main() {
   }
 
   // Side-by-side branch: the two columns must not touch.
-  testWidgets('stars stay clear of the page count at 393px', (tester) async {
+  testWidgets('stars stay clear of the page count at 768px', (tester) async {
     expect(
-      _cardInnerWidth(393),
+      _cardInnerWidth(768),
       greaterThanOrEqualTo(BookRatingRow.stackBelowWidth),
       reason: 'this width must really exercise the side-by-side branch',
     );
 
-    await _pump(tester, screenWidth: 393);
+    await _pump(tester, screenWidth: 768);
 
     final stars = tester.getRect(find.byType(StarRatingWidget));
     final pageCount = tester.getRect(find.text('247'));
@@ -110,7 +116,7 @@ void main() {
 
   // Stacked branch: the page count clears the stars vertically, and the stars
   // are the reason it moved, so they must come out unshrunk.
-  for (final screenWidth in <double>[375, 320]) {
+  for (final screenWidth in <double>[393, 375, 320]) {
     testWidgets('the page count sits below the rating at ${screenWidth}px', (
       tester,
     ) async {
@@ -133,7 +139,7 @@ void main() {
     });
 
     testWidgets('the stars are not shrunk at ${screenWidth}px', (tester) async {
-      await _pump(tester, screenWidth: 393);
+      await _pump(tester, screenWidth: 768);
       final unscaled = tester.getRect(find.byType(StarRatingWidget)).width;
 
       await _pump(tester, screenWidth: screenWidth);
@@ -156,7 +162,7 @@ void main() {
     testWidgets('a x$textScale text size grows the captions, not the row', (
       tester,
     ) async {
-      await _pump(tester, screenWidth: 393, textScale: textScale);
+      await _pump(tester, screenWidth: 768, textScale: textScale);
 
       final stars = tester.getRect(find.byType(StarRatingWidget));
       final pageCount = tester.getRect(find.text('247'));
@@ -173,7 +179,7 @@ void main() {
   testWidgets('the pages column is dropped when the page count is unknown', (
     tester,
   ) async {
-    await _pump(tester, screenWidth: 393, rating: 8, pageCount: null);
+    await _pump(tester, screenWidth: 768, rating: 8, pageCount: null);
 
     expect(find.byType(StarRatingWidget), findsOneWidget);
     expect(find.text('PAGES'), findsNothing);

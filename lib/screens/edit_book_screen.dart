@@ -13,6 +13,7 @@ import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../services/milestone_celebration.dart';
+import '../utils/ownership_actions.dart';
 import '../utils/cover_camera_helper.dart';
 import '../widgets/cached_book_cover.dart';
 import '../providers/theme_provider.dart';
@@ -540,31 +541,18 @@ class _EditBookScreenState extends State<EditBookScreen> {
         MilestoneCelebration.celebrate(context, levelsBefore);
       }
 
-      // If not owned anymore, delete all copies.
-      // If owned and copy exists, update its status.
-      // If owned and no copy exists, create one.
+      // Not owned anymore: the copies go. Owned: one copy exists or is
+      // created. The rule lives in `utils/ownership_actions.dart`, shared
+      // with the book page's own ownership control.
       final copyRepo = Provider.of<CopyRepository>(context, listen: false);
-      if (!_owned) {
-        try {
-          final copies = await copyRepo.getBookCopies(widget.book.id!);
-          for (var copy in copies) {
-            if (copy.id != null) {
-              await copyRepo.deleteCopy(copy.id!);
-            }
-          }
-        } catch (e) {
-          debugPrint('Error cleaning up copies for un-owned book: $e');
-        }
-      } else if (_copyId != null) {
-        await copyRepo.updateCopy(_copyId!, {'status': _copyStatus});
-      } else {
-        // Owned but no copy exists yet - create one
-        final newCopy = await copyRepo.createCopy({
-          'book_id': widget.book.id!,
-          'status': _copyStatus,
-        });
-        _copyId = newCopy.id;
-      }
+      final ownership = await applyOwnershipToCopies(
+        copies: copyRepo,
+        bookId: widget.book.id!,
+        owned: _owned,
+        existingCopyId: _copyId,
+        copyStatus: _copyStatus,
+      );
+      _copyId = ownership.copyId;
 
       // Update collections
       if (widget.book.id != null) {
