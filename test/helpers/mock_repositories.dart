@@ -158,6 +158,9 @@ class MockCollectionRepository implements CollectionRepository {
   );
 
   @override
+  Future<void> renameCollection(String id, String name) async {}
+
+  @override
   Future<void> deleteCollection(String id) async {}
 
   @override

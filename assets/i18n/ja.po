@@ -11099,3 +11099,15 @@ msgstr "最近読み終えた本"
 #. Dashboard link under the recently finished books, opens the library filtered on read books.
 msgid "see_all_read"
 msgstr "読了した本をすべて見る"
+
+#. Short label of the rename action, on the collection quick-action sheet and its dialog button.
+msgid "rename"
+msgstr "名前を変更"
+
+#. Title of the dialog that renames a collection.
+msgid "rename_collection"
+msgstr "コレクションの名前を変更"
+
+#. Error shown when renaming a collection fails.
+msgid "error_renaming_collection"
+msgstr "コレクションの名前変更に失敗しました"

@@ -88,6 +88,8 @@ class _FakeCollectionRepository implements CollectionRepository {
   Future<Collection> createCollection(String name, {String? description}) =>
       throw UnimplementedError();
   @override
+  Future<void> renameCollection(String id, String name) async {}
+  @override
   Future<void> deleteCollection(String id) async {}
   @override
   Future<List<String>> deleteCollectionWithBooks(String id) async => const [];

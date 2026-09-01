@@ -11638,3 +11638,15 @@ msgstr "Lecturas recientes"
 #. Dashboard link under the recently finished books, opens the library filtered on read books.
 msgid "see_all_read"
 msgstr "Ver todos los libros leídos"
+
+#. Short label of the rename action, on the collection quick-action sheet and its dialog button.
+msgid "rename"
+msgstr "Renombrar"
+
+#. Title of the dialog that renames a collection.
+msgid "rename_collection"
+msgstr "Renombrar la colección"
+
+#. Error shown when renaming a collection fails.
+msgid "error_renaming_collection"
+msgstr "Error al renombrar la colección"

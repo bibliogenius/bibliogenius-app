@@ -11,6 +11,13 @@ abstract class CollectionRepository {
 
   Future<Collection> createCollection(String name, {String? description});
 
+  /// Rename a collection.
+  ///
+  /// Refused on the typed favorites collection, whose label comes from the
+  /// translations and not from the stored name (ADR-064): call sites hide
+  /// the action rather than letting it fail.
+  Future<void> renameCollection(String id, String name);
+
   /// Delete the collection only. Books are left orphaned in the library.
   Future<void> deleteCollection(String id);
 

@@ -11099,3 +11099,15 @@ msgstr "最近读完"
 #. Dashboard link under the recently finished books, opens the library filtered on read books.
 msgid "see_all_read"
 msgstr "查看所有已读书籍"
+
+#. Short label of the rename action, on the collection quick-action sheet and its dialog button.
+msgid "rename"
+msgstr "重命名"
+
+#. Title of the dialog that renames a collection.
+msgid "rename_collection"
+msgstr "重命名收藏"
+
+#. Error shown when renaming a collection fails.
+msgid "error_renaming_collection"
+msgstr "重命名收藏失败"

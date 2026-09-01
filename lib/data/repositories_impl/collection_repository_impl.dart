@@ -25,6 +25,10 @@ class CollectionRepositoryImpl implements CollectionRepository {
       _ffi.createCollection(name, description: description);
 
   @override
+  Future<void> renameCollection(String id, String name) =>
+      _ffi.renameCollection(id, name);
+
+  @override
   Future<void> deleteCollection(String id) => _ffi.deleteCollection(id);
 
   @override

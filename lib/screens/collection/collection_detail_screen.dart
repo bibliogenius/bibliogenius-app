@@ -48,8 +48,13 @@ class CollectionDetailScreen extends StatefulWidget {
 class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   late Future<List<CollectionBook>> _booksFuture;
 
+  /// The collection being displayed. Mutable copy of `widget.collection` so a
+  /// rename shows on this screen without rebuilding it from a fresh Collection
+  /// (the list screen reloads on return and picks the new name up there).
+  late Collection _collection;
+
   /// Whether this collection is a series (ordered reading list). Mutable copy of
-  /// `widget.collection.isSeries` so the toggle can flip it without rebuilding
+  /// `_collection.isSeries` so the toggle can flip it without rebuilding
   /// the whole screen from a fresh Collection.
   late bool _isSeries;
 
@@ -68,7 +73,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   @override
   void initState() {
     super.initState();
-    _isSeries = widget.collection.isSeries;
+    _collection = widget.collection;
+    _isSeries = _collection.isSeries;
     _loadSeriesHelpDismissed();
     _refreshBooks();
   }
@@ -91,7 +97,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       _booksFuture = Provider.of<CollectionRepository>(
         context,
         listen: false,
-      ).getCollectionBooks(widget.collection.id);
+      ).getCollectionBooks(_collection.id);
     });
   }
 
@@ -115,7 +121,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
     final repo = Provider.of<CollectionRepository>(context, listen: false);
     try {
-      await persistVolumeNumbers(repo, widget.collection.id, updated, books);
+      await persistVolumeNumbers(repo, _collection.id, updated, books);
     } catch (e) {
       if (mounted) {
         AppSnackBar.error(
@@ -133,7 +139,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     // Optimistic flip so the per-volume controls appear immediately.
     setState(() => _isSeries = value);
     try {
-      await repo.markCollectionAsSeries(widget.collection.id, value);
+      await repo.markCollectionAsSeries(_collection.id, value);
       // Flipping series-ness changes what external discovery derives
       // (ADR-060): stale the recommendation caches like any catalogue
       // mutation.
@@ -156,7 +162,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     final repo = Provider.of<CollectionRepository>(context, listen: false);
     try {
       await repo.setBookVolumeNumber(
-        widget.collection.id,
+        _collection.id,
         book.bookId,
         result.volumeNumber,
       );
@@ -171,28 +177,71 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     }
   }
 
+  /// Rename the collection from a small dialog.
+  ///
+  /// Never offered on the favorites collection: its label comes from the i18n
+  /// catalogue and not from the stored name (ADR-064), so the write would be
+  /// invisible on screen. The Rust side refuses it too, for the callers that
+  /// do not go through this screen.
+  Future<void> _renameCollection() async {
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (_) => _RenameCollectionDialog(initialName: _collection.name),
+    );
+    if (!mounted) return;
+    // Cancelled, emptied, or unchanged: nothing to write.
+    if (newName == null || newName.isEmpty || newName == _collection.name) {
+      return;
+    }
+
+    try {
+      await repo.renameCollection(_collection.id, newName);
+      if (!mounted) return;
+      setState(() {
+        _collection = Collection(
+          id: _collection.id,
+          name: newName,
+          description: _collection.description,
+          source: _collection.source,
+          createdAt: _collection.createdAt,
+          updatedAt: DateTime.now().toIso8601String(),
+          totalBooks: _collection.totalBooks,
+          ownedBooks: _collection.ownedBooks,
+        );
+      });
+    } catch (e) {
+      if (mounted) {
+        AppSnackBar.error(
+          context,
+          '${TranslationService.translate(context, 'error_renaming_collection')}: $e',
+        );
+      }
+    }
+  }
+
   Future<void> _deleteCollection() async {
     final repo = Provider.of<CollectionRepository>(context, listen: false);
     final refresher = context.read<BookRefreshNotifier>();
     final outcome = await confirmCollectionDeletion(
       context,
       repo,
-      widget.collection.id,
+      _collection.id,
     );
     if (outcome == CollectionDeleteOutcome.cancelled) return;
     if (!mounted) return;
 
     try {
       if (outcome == CollectionDeleteOutcome.withBooks) {
-        await repo.deleteCollectionWithBooks(widget.collection.id);
+        await repo.deleteCollectionWithBooks(_collection.id);
       } else {
-        await repo.deleteCollection(widget.collection.id);
+        await repo.deleteCollection(_collection.id);
       }
       // A deleted series collection must drop its external cards.
       refresher.refresh();
       // The reader has taken their import back; the app takes its own
       // dismissal back too, or the list can never be suggested again.
-      if (mounted) await forgetCuratedListDismissal(context, widget.collection);
+      if (mounted) await forgetCuratedListDismissal(context, _collection);
       if (mounted) {
         context.pop();
       }
@@ -293,7 +342,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
         final response = await Provider.of<ApiService>(context, listen: false)
             .importCollectionBooks(
-              widget.collection.id,
+              _collection.id,
               fileSource,
               filename: platformFile.name,
               importAsOwned: importAsOwned,
@@ -337,7 +386,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       await Provider.of<CollectionRepository>(
         context,
         listen: false,
-      ).removeBookFromCollection(widget.collection.id, book.bookId);
+      ).removeBookFromCollection(_collection.id, book.bookId);
       // Membership drives the series discovery lookups (ADR-060).
       refresher.refresh();
 
@@ -361,7 +410,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
 
       // The favorites collection stores a technical sentinel name
       // (ADR-064): export the translated display name, never the sentinel.
-      var shared = widget.collection;
+      var shared = _collection;
       if (shared.isFavorites) {
         shared = Collection(
           id: shared.id,
@@ -446,8 +495,8 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     final result = await context.push(
       '/books/add',
       extra: {
-        'collectionId': widget.collection.id,
-        'collectionName': collectionDisplayName(context, widget.collection),
+        'collectionId': _collection.id,
+        'collectionName': collectionDisplayName(context, _collection),
       },
     );
     if (result != null) {
@@ -460,15 +509,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true, // 🌟 Immersive Header
       appBar: GenieAppBar(
-        title: collectionDisplayName(context, widget.collection),
+        title: collectionDisplayName(context, _collection),
         transparent: true, // 🌟 Transparent AppBar
         showQuickActions: false,
-        preSelectedCollectionId: widget.collection.id,
-        preSelectedCollectionName: collectionDisplayName(
-          context,
-          widget.collection,
-        ),
-        destinationName: collectionDisplayName(context, widget.collection),
+        preSelectedCollectionId: _collection.id,
+        preSelectedCollectionName: collectionDisplayName(context, _collection),
+        destinationName: collectionDisplayName(context, _collection),
         thirdSlotOverride: Builder(
           builder: (sheetContext) {
             return QuickActionCard(
@@ -483,10 +529,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                 await context.push(
                   '/scan',
                   extra: {
-                    'collectionId': widget.collection.id,
+                    'collectionId': _collection.id,
                     'collectionName': collectionDisplayName(
                       context,
-                      widget.collection,
+                      _collection,
                     ),
                     'batch': true,
                   },
@@ -499,59 +545,85 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         contextualQuickActions: [
           Builder(
             builder: (sheetContext) {
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
+              // Laid out two per row: a fourth card on a single row is too
+              // narrow to read its label on a phone. The rename card is
+              // absent on the favorites collection, whose label is
+              // translated rather than stored (ADR-064).
+              final cards = <Widget>[
+                QuickActionCard(
+                  icon: Icons.upload_file,
+                  color: Colors.blue,
+                  label: TranslationService.translate(
+                    sheetContext,
+                    'import_books',
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _importBooks();
+                  },
+                ),
+                QuickActionCard(
+                  icon: Icons.share,
+                  color: Colors.green,
+                  label: TranslationService.translate(
+                    sheetContext,
+                    'action_share',
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _shareCollection();
+                  },
+                ),
+                if (!_collection.isFavorites)
+                  QuickActionCard(
+                    // shade800, not the base swatch: the card paints its icon
+                    // on a white circle, where Colors.orange sits at ~2.1:1
+                    // and misses the 3:1 that rule A2 asks of an icon.
+                    icon: Icons.drive_file_rename_outline,
+                    color: Colors.orange.shade800,
+                    label: TranslationService.translate(
+                      sheetContext,
+                      'rename',
+                    ),
+                    onTap: () {
+                      Navigator.pop(sheetContext);
+                      _renameCollection();
+                    },
+                  ),
+                QuickActionCard(
+                  icon: Icons.delete,
+                  color: Colors.red,
+                  label: TranslationService.translate(
+                    sheetContext,
+                    'delete_collection_title',
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _deleteCollection();
+                  },
+                ),
+              ];
+
+              final rows = <Widget>[];
+              for (var i = 0; i < cards.length; i += 2) {
+                final right = i + 1 < cards.length ? cards[i + 1] : null;
+                if (rows.isNotEmpty) {
+                  rows.add(const SizedBox(height: 12));
+                }
+                rows.add(
                   Row(
                     children: [
-                      Expanded(
-                        child: QuickActionCard(
-                          icon: Icons.upload_file,
-                          color: Colors.blue,
-                          label: TranslationService.translate(
-                            sheetContext,
-                            'import_books',
-                          ),
-                          onTap: () {
-                            Navigator.pop(sheetContext);
-                            _importBooks();
-                          },
-                        ),
-                      ),
+                      Expanded(child: cards[i]),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: QuickActionCard(
-                          icon: Icons.share,
-                          color: Colors.green,
-                          label: TranslationService.translate(
-                            sheetContext,
-                            'action_share',
-                          ),
-                          onTap: () {
-                            Navigator.pop(sheetContext);
-                            _shareCollection();
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: QuickActionCard(
-                          icon: Icons.delete,
-                          color: Colors.red,
-                          label: TranslationService.translate(
-                            sheetContext,
-                            'delete_collection_title',
-                          ),
-                          onTap: () {
-                            Navigator.pop(sheetContext);
-                            _deleteCollection();
-                          },
-                        ),
-                      ),
+                      // An odd count keeps the last card at half width
+                      // rather than stretching it across the row.
+                      Expanded(child: right ?? const SizedBox.shrink()),
                     ],
                   ),
-                ],
-              );
+                );
+              }
+
+              return Column(mainAxisSize: MainAxisSize.min, children: rows);
             },
           ),
         ],
@@ -631,12 +703,12 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (widget.collection.description != null &&
-                          widget.collection.description!.isNotEmpty)
+                      if (_collection.description != null &&
+                          _collection.description!.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Text(
-                            widget.collection.description!,
+                            _collection.description!,
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
                                   color: Colors.white.withValues(alpha: 0.95),
@@ -1104,7 +1176,7 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     // collection (raw sentinel name resurfaces, marker and engine signal
     // die). The typed collection simply does not offer the toggle; the
     // Rust side refuses the flip too (defense in depth for HTTP callers).
-    if (widget.collection.isFavorites) return const SizedBox.shrink();
+    if (_collection.isFavorites) return const SizedBox.shrink();
     final theme = Theme.of(context);
     final active = _isSeries;
     final accent = theme.colorScheme.primary;
@@ -1411,5 +1483,66 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         );
       }
     }
+  }
+}
+
+/// The rename dialog, a widget of its own so it owns its text controller.
+///
+/// A controller created by the caller and disposed right after `showDialog`
+/// resolves is still in use by the field while the dialog animates out, which
+/// throws "A TextEditingController was used after being disposed" and blanks
+/// the frame. Owning it here ties its life to the dialog's.
+class _RenameCollectionDialog extends StatefulWidget {
+  const _RenameCollectionDialog({required this.initialName});
+
+  final String initialName;
+
+  @override
+  State<_RenameCollectionDialog> createState() =>
+      _RenameCollectionDialogState();
+}
+
+class _RenameCollectionDialogState extends State<_RenameCollectionDialog> {
+  late final TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialName);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.pop(context, _controller.text.trim());
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(TranslationService.translate(context, 'rename_collection')),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textCapitalization: TextCapitalization.sentences,
+        textInputAction: TextInputAction.done,
+        decoration: InputDecoration(
+          labelText: TranslationService.translate(context, 'name'),
+        ),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: Text(TranslationService.translate(context, 'cancel')),
+        ),
+        FilledButton(
+          onPressed: _submit,
+          child: Text(TranslationService.translate(context, 'rename')),
+        ),
+      ],
+    );
   }
 }

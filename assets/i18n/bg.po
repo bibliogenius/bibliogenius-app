@@ -11754,3 +11754,15 @@ msgstr "Последни прочетени"
 #. Dashboard link under the recently finished books, opens the library filtered on read books.
 msgid "see_all_read"
 msgstr "Виж всички прочетени книги"
+
+#. Short label of the rename action, on the collection quick-action sheet and its dialog button.
+msgid "rename"
+msgstr "Преименуване"
+
+#. Title of the dialog that renames a collection.
+msgid "rename_collection"
+msgstr "Преименуване на колекцията"
+
+#. Error shown when renaming a collection fails.
+msgid "error_renaming_collection"
+msgstr "Грешка при преименуване на колекцията"

@@ -1186,6 +1186,17 @@ class FfiService {
     }
   }
 
+  /// Rename a collection. The Rust side trims the name and refuses a blank
+  /// one, the favorites sentinel, and the typed favorites collection.
+  Future<void> renameCollection(String id, String name) async {
+    try {
+      await frb.renameCollection(id: id, name: name);
+    } catch (e) {
+      debugPrint('FFI renameCollection error: $e');
+      rethrow;
+    }
+  }
+
   /// Delete a collection by ID.
   Future<void> deleteCollection(String id) async {
     try {
