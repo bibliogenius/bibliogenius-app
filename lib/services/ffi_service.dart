@@ -597,13 +597,29 @@ class FfiService {
   /// is the user's reading-language config, joined for summary coherence.
   /// `lotLimit` caps how many books this invocation processes before the run
   /// pauses as resumable (the "small batches" nudge); null runs to completion.
-  Future<String> metadataFillStart({List<String>? languages, int? lotLimit}) =>
-      frb.metadataFillStart(
-        languages: (languages != null && languages.isNotEmpty)
-            ? languages.join(',')
-            : null,
-        lotLimit: lotLimit,
-      );
+  /// `missingField` scopes a fresh run to the books missing that one field; a
+  /// resume reuses the scope stored on the run and ignores it.
+  Future<String> metadataFillStart({
+    List<String>? languages,
+    int? lotLimit,
+    String? missingField,
+  }) => frb.metadataFillStart(
+    languages: (languages != null && languages.isNotEmpty)
+        ? languages.join(',')
+        : null,
+    lotLimit: lotLimit,
+    missingField: missingField,
+  );
+
+  /// Coverless owned books the active sources have already been asked about
+  /// and answered empty (the startup sweep's conclusive marker).
+  Future<int> metadataFillCoversSourcesHaveNot() async =>
+      (await frb.metadataFillCoversSourcesHaveNot()).toInt();
+
+  /// How many books a run started now would process, narrowed to the books
+  /// missing `missingField` when one is given.
+  Future<int> metadataFillProcessable({String? missingField}) async =>
+      (await frb.metadataFillProcessable(missingField: missingField)).toInt();
 
   /// Poll current/last run progress (null if never started).
   Future<frb.FrbFillProgress?> metadataFillProgress() =>
@@ -622,9 +638,17 @@ class FfiService {
 
   /// All owned, incomplete books with their missing fields, closest-to-complete
   /// first, for the manual completion overview.
+  /// `missingField` / `noIsbnOnly` apply the overview's own filters backend
+  /// side, so the capped slice is drawn from the filtered set.
   Future<List<frb.FrbIncompleteBookDetail>> metadataFillIncomplete({
     int? limit,
-  }) => frb.metadataFillIncomplete(limit: limit);
+    String? missingField,
+    bool noIsbnOnly = false,
+  }) => frb.metadataFillIncomplete(
+    limit: limit,
+    missingField: missingField,
+    noIsbnOnly: noIsbnOnly,
+  );
 
   /// Undo a single filled field. Returns reverted | superseded | not_found.
   Future<String> metadataFillUndoField(int journalId) =>

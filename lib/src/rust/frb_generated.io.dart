@@ -170,6 +170,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDuplicateScan dco_decode_frb_duplicate_scan(dynamic raw);
 
   @protected
+  FrbFieldGap dco_decode_frb_field_gap(dynamic raw);
+
+  @protected
   FrbFillProgress dco_decode_frb_fill_progress(dynamic raw);
 
   @protected
@@ -365,6 +368,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbDuplicateGroup> dco_decode_list_frb_duplicate_group(dynamic raw);
+
+  @protected
+  List<FrbFieldGap> dco_decode_list_frb_field_gap(dynamic raw);
 
   @protected
   List<FrbFilledBook> dco_decode_list_frb_filled_book(dynamic raw);
@@ -729,6 +735,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbDuplicateScan sse_decode_frb_duplicate_scan(SseDeserializer deserializer);
 
   @protected
+  FrbFieldGap sse_decode_frb_field_gap(SseDeserializer deserializer);
+
+  @protected
   FrbFillProgress sse_decode_frb_fill_progress(SseDeserializer deserializer);
 
   @protected
@@ -974,6 +983,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbDuplicateGroup> sse_decode_list_frb_duplicate_group(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<FrbFieldGap> sse_decode_list_frb_field_gap(SseDeserializer deserializer);
 
   @protected
   List<FrbFilledBook> sse_decode_list_frb_filled_book(
@@ -1433,6 +1445,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_field_gap(FrbFieldGap self, SseSerializer serializer);
+
+  @protected
   void sse_encode_frb_fill_progress(
     FrbFillProgress self,
     SseSerializer serializer,
@@ -1759,6 +1774,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_duplicate_group(
     List<FrbDuplicateGroup> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_field_gap(
+    List<FrbFieldGap> self,
     SseSerializer serializer,
   );
 

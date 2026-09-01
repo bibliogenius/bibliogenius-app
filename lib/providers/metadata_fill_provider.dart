@@ -34,6 +34,22 @@ class MetadataFillProvider extends ChangeNotifier {
   /// Size of the current lot (null = "Tout" → the bar tracks the whole run).
   int? _lotSize;
 
+  /// Active filter on the "to complete" side: a gap-fill field name,
+  /// [noIsbnFilter], or null for the whole backlog. It drives three things at
+  /// once, which is why it lives here rather than in the screen: the list the
+  /// backend returns, the numbers the teaser and the start button announce, and
+  /// the scope a fresh run is started with.
+  String? _filter;
+
+  /// Coverless books the sources have already answered empty about, loaded
+  /// only while the cover filter is on (null = not loaded / not applicable).
+  int? _coversSourcesHaveNot;
+
+  /// Exact backlog for [scopeField], from the backend (null while loading).
+  /// Not derived from [incomplete]: that list is capped, so counting it would
+  /// under-announce a large scoped run.
+  int? _scopedProcessable;
+
   frb.FrbCompletenessStats? get stats => _stats;
   frb.FrbFillProgress? get progress => _progress;
   List<frb.FrbFilledBook> get recent => _recent;
@@ -62,6 +78,26 @@ class MetadataFillProvider extends ChangeNotifier {
   /// Total empty gap-fill fields across owned books (field-level progress).
   int get emptyFields => _stats?.emptyFields.toInt() ?? 0;
 
+  /// Owned books still missing each gap-fill field, exact over the whole
+  /// library (the overview list is capped, so it cannot answer this).
+  Map<String, int> get fieldGaps => {
+    for (final g in _stats?.gaps ?? const []) g.field: g.missing.toInt(),
+  };
+
+  /// Owned books still missing [field].
+  int fieldGap(String field) => fieldGaps[field] ?? 0;
+
+  /// Share of owned books that already have [field], for the teaser under a
+  /// field filter.
+  double fieldCompletionRatio(String field) {
+    final total = _stats?.ownedTotal.toInt() ?? 0;
+    if (total == 0) return 1.0;
+    return (total - fieldGap(field)) / total;
+  }
+
+  int fieldCompletionPercent(String field) =>
+      (fieldCompletionRatio(field) * 100).round();
+
   /// Number of owned books still missing at least one field, with an ISBN
   /// (the processable backlog).
   int get processableCount {
@@ -69,6 +105,85 @@ class MetadataFillProvider extends ChangeNotifier {
     if (s == null) return 0;
     final v = s.incomplete - s.noIsbn;
     return v < 0 ? 0 : v;
+  }
+
+  /// Sentinel filter for "books with no ISBN". Not a gap-fill field: those
+  /// books are precisely the ones an automatic fill can never identify, so it
+  /// filters the list but never scopes a run.
+  static const String noIsbnFilter = '__no_isbn';
+
+  /// Active filter (field name, [noIsbnFilter], or null).
+  String? get filter => _filter;
+
+  /// True while the list is narrowed to the books no fill can process.
+  bool get isNoIsbnFilter => _filter == noIsbnFilter;
+
+  /// Field the next run would be scoped to (null = the whole backlog).
+  String? get scopeField => isNoIsbnFilter ? null : _filter;
+
+  /// The gap-fill field covers are filed under.
+  static const String coverField = 'cover_url';
+
+  /// Among the coverless books, how many the active sources have already been
+  /// asked about and answered empty. Null until the cover filter loads it.
+  int? get coversSourcesHaveNot => _coversSourcesHaveNot;
+
+  /// Field the current/last run was actually scoped to, as recorded when it
+  /// started. Drives the "scope" line on the running / resume strips: a resume
+  /// keeps the run's own scope, whatever the filter now says.
+  String? get runScopeField => _progress?.missingField;
+
+  /// Books the next run would process under the active scope: the exact backlog
+  /// when unscoped, the backend's scoped count otherwise (null while it loads).
+  int? get scopedProcessableCount =>
+      scopeField == null ? processableCount : _scopedProcessable;
+
+  /// Apply a filter: reloads the list from the backend so the (capped) slice is
+  /// drawn from the filtered set, and re-reads the backlog the start button
+  /// announces. Passing null clears it.
+  Future<void> setFilter(String? filter) async {
+    if (filter == _filter) return;
+    _filter = filter;
+    _scopedProcessable = null;
+    notifyListeners();
+    await Future.wait([
+      loadIncomplete(),
+      _loadScopedProcessable(),
+      _loadCoversSourcesHaveNot(),
+    ]);
+  }
+
+  /// Refresh the scoped backlog. A late answer for a scope the user has since
+  /// changed is dropped rather than shown against the wrong filter.
+  Future<void> _loadScopedProcessable() async {
+    final field = scopeField;
+    if (field == null) return;
+    try {
+      final count = await _ffi.metadataFillProcessable(missingField: field);
+      if (_disposed || scopeField != field) return;
+      _scopedProcessable = count;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('MetadataFillProvider.loadScopedProcessable error: $e');
+    }
+  }
+
+  /// Load the "the sources have none" count, but only while the cover filter
+  /// is on: it answers a question nobody is asking anywhere else, and it is one
+  /// more query on a table join.
+  Future<void> _loadCoversSourcesHaveNot() async {
+    if (_filter != coverField) {
+      _coversSourcesHaveNot = null;
+      return;
+    }
+    try {
+      final count = await _ffi.metadataFillCoversSourcesHaveNot();
+      if (_disposed || _filter != coverField) return;
+      _coversSourcesHaveNot = count;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('MetadataFillProvider.loadCoversSourcesHaveNot error: $e');
+    }
   }
 
   double get completionRatio {
@@ -105,13 +220,23 @@ class MetadataFillProvider extends ChangeNotifier {
       refreshProgress(),
       loadRecent(),
       loadIncomplete(),
+      _loadScopedProcessable(),
+      _loadCoversSourcesHaveNot(),
     ]);
     if (isRunning) _startPolling();
   }
 
   Future<void> loadIncomplete() async {
+    final requested = _filter;
     try {
-      _incomplete = await _ffi.metadataFillIncomplete();
+      final books = await _ffi.metadataFillIncomplete(
+        missingField: scopeField,
+        noIsbnOnly: isNoIsbnFilter,
+      );
+      // A filter changed while this was in flight: its own load is already on
+      // its way, and showing this answer would flash the wrong list.
+      if (_disposed || _filter != requested) return;
+      _incomplete = books;
       notifyListeners();
     } catch (e) {
       debugPrint('MetadataFillProvider.loadIncomplete error: $e');
@@ -121,7 +246,11 @@ class MetadataFillProvider extends ChangeNotifier {
   /// Reload the data affected by a manual edit (the completeness drops as books
   /// are filled by hand).
   Future<void> refreshAfterManualEdit() async {
-    await Future.wait([loadStats(), loadIncomplete()]);
+    await Future.wait([
+      loadStats(),
+      loadIncomplete(),
+      _loadScopedProcessable(),
+    ]);
   }
 
   /// Load the completeness stat. On a cold start the FFI bridge can briefly be
@@ -146,6 +275,18 @@ class MetadataFillProvider extends ChangeNotifier {
       _loadingStats = false;
       _safeNotify();
     }
+    await _clearFilterIfEmptied();
+  }
+
+  /// Drop a filter whose slice has emptied (its books were completed, or the
+  /// last one without an ISBN got one). Its pill is gone from the bar, so the
+  /// user would be left on an empty list with no way to clear it.
+  Future<void> _clearFilterIfEmptied() async {
+    final active = _filter;
+    final stats = _stats;
+    if (active == null || stats == null) return;
+    final remaining = isNoIsbnFilter ? stats.noIsbn.toInt() : fieldGap(active);
+    if (remaining == 0) await setFilter(null);
   }
 
   void _safeNotify() {
@@ -174,6 +315,10 @@ class MetadataFillProvider extends ChangeNotifier {
   /// Start (or resume) a bulk run, forwarding reading languages for summary
   /// coherence, then begin polling progress. `lotLimit` bounds this lot (the
   /// "small batches" nudge); null processes the whole backlog.
+  ///
+  /// A fresh run takes the active scope ([setScope]); a resume keeps the scope
+  /// stored on the run it continues, since its cursor was built from that
+  /// work-list.
   Future<void> start(List<String> languages, {int? lotLimit}) async {
     // Lot baseline: a resume continues the same run's cumulative `done`, so the
     // lot starts from there; a fresh run starts the lot from zero.
@@ -183,7 +328,11 @@ class MetadataFillProvider extends ChangeNotifier {
     _error = null;
     notifyListeners();
     try {
-      await _ffi.metadataFillStart(languages: languages, lotLimit: lotLimit);
+      await _ffi.metadataFillStart(
+        languages: languages,
+        lotLimit: lotLimit,
+        missingField: scopeField,
+      );
       await refreshProgress();
       _startPolling();
     } catch (e) {
@@ -259,6 +408,8 @@ class MetadataFillProvider extends ChangeNotifier {
       loadStats(),
       loadRecent(),
       loadIncomplete(),
+      _loadScopedProcessable(),
+      _loadCoversSourcesHaveNot(),
     ]);
   }
 

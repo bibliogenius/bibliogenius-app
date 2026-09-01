@@ -1744,7 +1744,7 @@ as String?,
 /// @nodoc
 mixin _$FrbCompletenessStats {
 
- PlatformInt64 get ownedTotal; PlatformInt64 get complete; PlatformInt64 get incomplete; PlatformInt64 get noIsbn; PlatformInt64 get emptyFields;
+ PlatformInt64 get ownedTotal; PlatformInt64 get complete; PlatformInt64 get incomplete; PlatformInt64 get noIsbn; PlatformInt64 get emptyFields; List<FrbFieldGap> get gaps;
 /// Create a copy of FrbCompletenessStats
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1755,16 +1755,16 @@ $FrbCompletenessStatsCopyWith<FrbCompletenessStats> get copyWith => _$FrbComplet
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCompletenessStats&&(identical(other.ownedTotal, ownedTotal) || other.ownedTotal == ownedTotal)&&(identical(other.complete, complete) || other.complete == complete)&&(identical(other.incomplete, incomplete) || other.incomplete == incomplete)&&(identical(other.noIsbn, noIsbn) || other.noIsbn == noIsbn)&&(identical(other.emptyFields, emptyFields) || other.emptyFields == emptyFields));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbCompletenessStats&&(identical(other.ownedTotal, ownedTotal) || other.ownedTotal == ownedTotal)&&(identical(other.complete, complete) || other.complete == complete)&&(identical(other.incomplete, incomplete) || other.incomplete == incomplete)&&(identical(other.noIsbn, noIsbn) || other.noIsbn == noIsbn)&&(identical(other.emptyFields, emptyFields) || other.emptyFields == emptyFields)&&const DeepCollectionEquality().equals(other.gaps, gaps));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,ownedTotal,complete,incomplete,noIsbn,emptyFields);
+int get hashCode => Object.hash(runtimeType,ownedTotal,complete,incomplete,noIsbn,emptyFields,const DeepCollectionEquality().hash(gaps));
 
 @override
 String toString() {
-  return 'FrbCompletenessStats(ownedTotal: $ownedTotal, complete: $complete, incomplete: $incomplete, noIsbn: $noIsbn, emptyFields: $emptyFields)';
+  return 'FrbCompletenessStats(ownedTotal: $ownedTotal, complete: $complete, incomplete: $incomplete, noIsbn: $noIsbn, emptyFields: $emptyFields, gaps: $gaps)';
 }
 
 
@@ -1775,7 +1775,7 @@ abstract mixin class $FrbCompletenessStatsCopyWith<$Res>  {
   factory $FrbCompletenessStatsCopyWith(FrbCompletenessStats value, $Res Function(FrbCompletenessStats) _then) = _$FrbCompletenessStatsCopyWithImpl;
 @useResult
 $Res call({
- PlatformInt64 ownedTotal, PlatformInt64 complete, PlatformInt64 incomplete, PlatformInt64 noIsbn, PlatformInt64 emptyFields
+ PlatformInt64 ownedTotal, PlatformInt64 complete, PlatformInt64 incomplete, PlatformInt64 noIsbn, PlatformInt64 emptyFields, List<FrbFieldGap> gaps
 });
 
 
@@ -1792,14 +1792,15 @@ class _$FrbCompletenessStatsCopyWithImpl<$Res>
 
 /// Create a copy of FrbCompletenessStats
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? ownedTotal = null,Object? complete = null,Object? incomplete = null,Object? noIsbn = null,Object? emptyFields = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? ownedTotal = null,Object? complete = null,Object? incomplete = null,Object? noIsbn = null,Object? emptyFields = null,Object? gaps = null,}) {
   return _then(_self.copyWith(
 ownedTotal: null == ownedTotal ? _self.ownedTotal : ownedTotal // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,complete: null == complete ? _self.complete : complete // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,incomplete: null == incomplete ? _self.incomplete : incomplete // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,noIsbn: null == noIsbn ? _self.noIsbn : noIsbn // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,emptyFields: null == emptyFields ? _self.emptyFields : emptyFields // ignore: cast_nullable_to_non_nullable
-as PlatformInt64,
+as PlatformInt64,gaps: null == gaps ? _self.gaps : gaps // ignore: cast_nullable_to_non_nullable
+as List<FrbFieldGap>,
   ));
 }
 
@@ -1881,10 +1882,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields,  List<FrbFieldGap> gaps)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbCompletenessStats() when $default != null:
-return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields);case _:
+return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields,_that.gaps);case _:
   return orElse();
 
 }
@@ -1902,10 +1903,10 @@ return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields,  List<FrbFieldGap> gaps)  $default,) {final _that = this;
 switch (_that) {
 case _FrbCompletenessStats():
-return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields);}
+return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields,_that.gaps);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -1919,10 +1920,10 @@ return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlatformInt64 ownedTotal,  PlatformInt64 complete,  PlatformInt64 incomplete,  PlatformInt64 noIsbn,  PlatformInt64 emptyFields,  List<FrbFieldGap> gaps)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbCompletenessStats() when $default != null:
-return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields);case _:
+return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_that.emptyFields,_that.gaps);case _:
   return null;
 
 }
@@ -1934,7 +1935,7 @@ return $default(_that.ownedTotal,_that.complete,_that.incomplete,_that.noIsbn,_t
 
 
 class _FrbCompletenessStats implements FrbCompletenessStats {
-  const _FrbCompletenessStats({required this.ownedTotal, required this.complete, required this.incomplete, required this.noIsbn, required this.emptyFields});
+  const _FrbCompletenessStats({required this.ownedTotal, required this.complete, required this.incomplete, required this.noIsbn, required this.emptyFields, required final  List<FrbFieldGap> gaps}): _gaps = gaps;
   
 
 @override final  PlatformInt64 ownedTotal;
@@ -1942,6 +1943,13 @@ class _FrbCompletenessStats implements FrbCompletenessStats {
 @override final  PlatformInt64 incomplete;
 @override final  PlatformInt64 noIsbn;
 @override final  PlatformInt64 emptyFields;
+ final  List<FrbFieldGap> _gaps;
+@override List<FrbFieldGap> get gaps {
+  if (_gaps is EqualUnmodifiableListView) return _gaps;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_gaps);
+}
+
 
 /// Create a copy of FrbCompletenessStats
 /// with the given fields replaced by the non-null parameter values.
@@ -1953,16 +1961,16 @@ _$FrbCompletenessStatsCopyWith<_FrbCompletenessStats> get copyWith => __$FrbComp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCompletenessStats&&(identical(other.ownedTotal, ownedTotal) || other.ownedTotal == ownedTotal)&&(identical(other.complete, complete) || other.complete == complete)&&(identical(other.incomplete, incomplete) || other.incomplete == incomplete)&&(identical(other.noIsbn, noIsbn) || other.noIsbn == noIsbn)&&(identical(other.emptyFields, emptyFields) || other.emptyFields == emptyFields));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbCompletenessStats&&(identical(other.ownedTotal, ownedTotal) || other.ownedTotal == ownedTotal)&&(identical(other.complete, complete) || other.complete == complete)&&(identical(other.incomplete, incomplete) || other.incomplete == incomplete)&&(identical(other.noIsbn, noIsbn) || other.noIsbn == noIsbn)&&(identical(other.emptyFields, emptyFields) || other.emptyFields == emptyFields)&&const DeepCollectionEquality().equals(other._gaps, _gaps));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,ownedTotal,complete,incomplete,noIsbn,emptyFields);
+int get hashCode => Object.hash(runtimeType,ownedTotal,complete,incomplete,noIsbn,emptyFields,const DeepCollectionEquality().hash(_gaps));
 
 @override
 String toString() {
-  return 'FrbCompletenessStats(ownedTotal: $ownedTotal, complete: $complete, incomplete: $incomplete, noIsbn: $noIsbn, emptyFields: $emptyFields)';
+  return 'FrbCompletenessStats(ownedTotal: $ownedTotal, complete: $complete, incomplete: $incomplete, noIsbn: $noIsbn, emptyFields: $emptyFields, gaps: $gaps)';
 }
 
 
@@ -1973,7 +1981,7 @@ abstract mixin class _$FrbCompletenessStatsCopyWith<$Res> implements $FrbComplet
   factory _$FrbCompletenessStatsCopyWith(_FrbCompletenessStats value, $Res Function(_FrbCompletenessStats) _then) = __$FrbCompletenessStatsCopyWithImpl;
 @override @useResult
 $Res call({
- PlatformInt64 ownedTotal, PlatformInt64 complete, PlatformInt64 incomplete, PlatformInt64 noIsbn, PlatformInt64 emptyFields
+ PlatformInt64 ownedTotal, PlatformInt64 complete, PlatformInt64 incomplete, PlatformInt64 noIsbn, PlatformInt64 emptyFields, List<FrbFieldGap> gaps
 });
 
 
@@ -1990,14 +1998,15 @@ class __$FrbCompletenessStatsCopyWithImpl<$Res>
 
 /// Create a copy of FrbCompletenessStats
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? ownedTotal = null,Object? complete = null,Object? incomplete = null,Object? noIsbn = null,Object? emptyFields = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? ownedTotal = null,Object? complete = null,Object? incomplete = null,Object? noIsbn = null,Object? emptyFields = null,Object? gaps = null,}) {
   return _then(_FrbCompletenessStats(
 ownedTotal: null == ownedTotal ? _self.ownedTotal : ownedTotal // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,complete: null == complete ? _self.complete : complete // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,incomplete: null == incomplete ? _self.incomplete : incomplete // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,noIsbn: null == noIsbn ? _self.noIsbn : noIsbn // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,emptyFields: null == emptyFields ? _self.emptyFields : emptyFields // ignore: cast_nullable_to_non_nullable
-as PlatformInt64,
+as PlatformInt64,gaps: null == gaps ? _self._gaps : gaps // ignore: cast_nullable_to_non_nullable
+as List<FrbFieldGap>,
   ));
 }
 
@@ -3625,9 +3634,263 @@ as String,
 }
 
 /// @nodoc
+mixin _$FrbFieldGap {
+
+ String get field; PlatformInt64 get missing;
+/// Create a copy of FrbFieldGap
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbFieldGapCopyWith<FrbFieldGap> get copyWith => _$FrbFieldGapCopyWithImpl<FrbFieldGap>(this as FrbFieldGap, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbFieldGap&&(identical(other.field, field) || other.field == field)&&(identical(other.missing, missing) || other.missing == missing));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,field,missing);
+
+@override
+String toString() {
+  return 'FrbFieldGap(field: $field, missing: $missing)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbFieldGapCopyWith<$Res>  {
+  factory $FrbFieldGapCopyWith(FrbFieldGap value, $Res Function(FrbFieldGap) _then) = _$FrbFieldGapCopyWithImpl;
+@useResult
+$Res call({
+ String field, PlatformInt64 missing
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbFieldGapCopyWithImpl<$Res>
+    implements $FrbFieldGapCopyWith<$Res> {
+  _$FrbFieldGapCopyWithImpl(this._self, this._then);
+
+  final FrbFieldGap _self;
+  final $Res Function(FrbFieldGap) _then;
+
+/// Create a copy of FrbFieldGap
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? field = null,Object? missing = null,}) {
+  return _then(_self.copyWith(
+field: null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
+as String,missing: null == missing ? _self.missing : missing // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbFieldGap].
+extension FrbFieldGapPatterns on FrbFieldGap {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbFieldGap value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbFieldGap() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbFieldGap value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFieldGap():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbFieldGap value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbFieldGap() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String field,  PlatformInt64 missing)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbFieldGap() when $default != null:
+return $default(_that.field,_that.missing);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String field,  PlatformInt64 missing)  $default,) {final _that = this;
+switch (_that) {
+case _FrbFieldGap():
+return $default(_that.field,_that.missing);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String field,  PlatformInt64 missing)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbFieldGap() when $default != null:
+return $default(_that.field,_that.missing);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbFieldGap implements FrbFieldGap {
+  const _FrbFieldGap({required this.field, required this.missing});
+  
+
+@override final  String field;
+@override final  PlatformInt64 missing;
+
+/// Create a copy of FrbFieldGap
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbFieldGapCopyWith<_FrbFieldGap> get copyWith => __$FrbFieldGapCopyWithImpl<_FrbFieldGap>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbFieldGap&&(identical(other.field, field) || other.field == field)&&(identical(other.missing, missing) || other.missing == missing));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,field,missing);
+
+@override
+String toString() {
+  return 'FrbFieldGap(field: $field, missing: $missing)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbFieldGapCopyWith<$Res> implements $FrbFieldGapCopyWith<$Res> {
+  factory _$FrbFieldGapCopyWith(_FrbFieldGap value, $Res Function(_FrbFieldGap) _then) = __$FrbFieldGapCopyWithImpl;
+@override @useResult
+$Res call({
+ String field, PlatformInt64 missing
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbFieldGapCopyWithImpl<$Res>
+    implements _$FrbFieldGapCopyWith<$Res> {
+  __$FrbFieldGapCopyWithImpl(this._self, this._then);
+
+  final _FrbFieldGap _self;
+  final $Res Function(_FrbFieldGap) _then;
+
+/// Create a copy of FrbFieldGap
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? field = null,Object? missing = null,}) {
+  return _then(_FrbFieldGap(
+field: null == field ? _self.field : field // ignore: cast_nullable_to_non_nullable
+as String,missing: null == missing ? _self.missing : missing // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbFillProgress {
 
- String get batchId; String get status; PlatformInt64 get total; PlatformInt64 get done; PlatformInt64 get filled; PlatformInt64 get skipped; PlatformInt64 get errored; String? get currentTitle;
+ String get batchId; String get status; PlatformInt64 get total; PlatformInt64 get done; PlatformInt64 get filled; PlatformInt64 get skipped; PlatformInt64 get errored; String? get currentTitle; String? get missingField;
 /// Create a copy of FrbFillProgress
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3638,16 +3901,16 @@ $FrbFillProgressCopyWith<FrbFillProgress> get copyWith => _$FrbFillProgressCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbFillProgress&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.status, status) || other.status == status)&&(identical(other.total, total) || other.total == total)&&(identical(other.done, done) || other.done == done)&&(identical(other.filled, filled) || other.filled == filled)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.errored, errored) || other.errored == errored)&&(identical(other.currentTitle, currentTitle) || other.currentTitle == currentTitle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbFillProgress&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.status, status) || other.status == status)&&(identical(other.total, total) || other.total == total)&&(identical(other.done, done) || other.done == done)&&(identical(other.filled, filled) || other.filled == filled)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.errored, errored) || other.errored == errored)&&(identical(other.currentTitle, currentTitle) || other.currentTitle == currentTitle)&&(identical(other.missingField, missingField) || other.missingField == missingField));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,batchId,status,total,done,filled,skipped,errored,currentTitle);
+int get hashCode => Object.hash(runtimeType,batchId,status,total,done,filled,skipped,errored,currentTitle,missingField);
 
 @override
 String toString() {
-  return 'FrbFillProgress(batchId: $batchId, status: $status, total: $total, done: $done, filled: $filled, skipped: $skipped, errored: $errored, currentTitle: $currentTitle)';
+  return 'FrbFillProgress(batchId: $batchId, status: $status, total: $total, done: $done, filled: $filled, skipped: $skipped, errored: $errored, currentTitle: $currentTitle, missingField: $missingField)';
 }
 
 
@@ -3658,7 +3921,7 @@ abstract mixin class $FrbFillProgressCopyWith<$Res>  {
   factory $FrbFillProgressCopyWith(FrbFillProgress value, $Res Function(FrbFillProgress) _then) = _$FrbFillProgressCopyWithImpl;
 @useResult
 $Res call({
- String batchId, String status, PlatformInt64 total, PlatformInt64 done, PlatformInt64 filled, PlatformInt64 skipped, PlatformInt64 errored, String? currentTitle
+ String batchId, String status, PlatformInt64 total, PlatformInt64 done, PlatformInt64 filled, PlatformInt64 skipped, PlatformInt64 errored, String? currentTitle, String? missingField
 });
 
 
@@ -3675,7 +3938,7 @@ class _$FrbFillProgressCopyWithImpl<$Res>
 
 /// Create a copy of FrbFillProgress
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? batchId = null,Object? status = null,Object? total = null,Object? done = null,Object? filled = null,Object? skipped = null,Object? errored = null,Object? currentTitle = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? batchId = null,Object? status = null,Object? total = null,Object? done = null,Object? filled = null,Object? skipped = null,Object? errored = null,Object? currentTitle = freezed,Object? missingField = freezed,}) {
   return _then(_self.copyWith(
 batchId: null == batchId ? _self.batchId : batchId // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -3685,6 +3948,7 @@ as PlatformInt64,filled: null == filled ? _self.filled : filled // ignore: cast_
 as PlatformInt64,skipped: null == skipped ? _self.skipped : skipped // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,errored: null == errored ? _self.errored : errored // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,currentTitle: freezed == currentTitle ? _self.currentTitle : currentTitle // ignore: cast_nullable_to_non_nullable
+as String?,missingField: freezed == missingField ? _self.missingField : missingField // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -3767,10 +4031,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle,  String? missingField)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbFillProgress() when $default != null:
-return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle);case _:
+return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle,_that.missingField);case _:
   return orElse();
 
 }
@@ -3788,10 +4052,10 @@ return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle,  String? missingField)  $default,) {final _that = this;
 switch (_that) {
 case _FrbFillProgress():
-return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle);}
+return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle,_that.missingField);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -3805,10 +4069,10 @@ return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String batchId,  String status,  PlatformInt64 total,  PlatformInt64 done,  PlatformInt64 filled,  PlatformInt64 skipped,  PlatformInt64 errored,  String? currentTitle,  String? missingField)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbFillProgress() when $default != null:
-return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle);case _:
+return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_that.skipped,_that.errored,_that.currentTitle,_that.missingField);case _:
   return null;
 
 }
@@ -3820,7 +4084,7 @@ return $default(_that.batchId,_that.status,_that.total,_that.done,_that.filled,_
 
 
 class _FrbFillProgress implements FrbFillProgress {
-  const _FrbFillProgress({required this.batchId, required this.status, required this.total, required this.done, required this.filled, required this.skipped, required this.errored, this.currentTitle});
+  const _FrbFillProgress({required this.batchId, required this.status, required this.total, required this.done, required this.filled, required this.skipped, required this.errored, this.currentTitle, this.missingField});
   
 
 @override final  String batchId;
@@ -3831,6 +4095,7 @@ class _FrbFillProgress implements FrbFillProgress {
 @override final  PlatformInt64 skipped;
 @override final  PlatformInt64 errored;
 @override final  String? currentTitle;
+@override final  String? missingField;
 
 /// Create a copy of FrbFillProgress
 /// with the given fields replaced by the non-null parameter values.
@@ -3842,16 +4107,16 @@ _$FrbFillProgressCopyWith<_FrbFillProgress> get copyWith => __$FrbFillProgressCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbFillProgress&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.status, status) || other.status == status)&&(identical(other.total, total) || other.total == total)&&(identical(other.done, done) || other.done == done)&&(identical(other.filled, filled) || other.filled == filled)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.errored, errored) || other.errored == errored)&&(identical(other.currentTitle, currentTitle) || other.currentTitle == currentTitle));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbFillProgress&&(identical(other.batchId, batchId) || other.batchId == batchId)&&(identical(other.status, status) || other.status == status)&&(identical(other.total, total) || other.total == total)&&(identical(other.done, done) || other.done == done)&&(identical(other.filled, filled) || other.filled == filled)&&(identical(other.skipped, skipped) || other.skipped == skipped)&&(identical(other.errored, errored) || other.errored == errored)&&(identical(other.currentTitle, currentTitle) || other.currentTitle == currentTitle)&&(identical(other.missingField, missingField) || other.missingField == missingField));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,batchId,status,total,done,filled,skipped,errored,currentTitle);
+int get hashCode => Object.hash(runtimeType,batchId,status,total,done,filled,skipped,errored,currentTitle,missingField);
 
 @override
 String toString() {
-  return 'FrbFillProgress(batchId: $batchId, status: $status, total: $total, done: $done, filled: $filled, skipped: $skipped, errored: $errored, currentTitle: $currentTitle)';
+  return 'FrbFillProgress(batchId: $batchId, status: $status, total: $total, done: $done, filled: $filled, skipped: $skipped, errored: $errored, currentTitle: $currentTitle, missingField: $missingField)';
 }
 
 
@@ -3862,7 +4127,7 @@ abstract mixin class _$FrbFillProgressCopyWith<$Res> implements $FrbFillProgress
   factory _$FrbFillProgressCopyWith(_FrbFillProgress value, $Res Function(_FrbFillProgress) _then) = __$FrbFillProgressCopyWithImpl;
 @override @useResult
 $Res call({
- String batchId, String status, PlatformInt64 total, PlatformInt64 done, PlatformInt64 filled, PlatformInt64 skipped, PlatformInt64 errored, String? currentTitle
+ String batchId, String status, PlatformInt64 total, PlatformInt64 done, PlatformInt64 filled, PlatformInt64 skipped, PlatformInt64 errored, String? currentTitle, String? missingField
 });
 
 
@@ -3879,7 +4144,7 @@ class __$FrbFillProgressCopyWithImpl<$Res>
 
 /// Create a copy of FrbFillProgress
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? batchId = null,Object? status = null,Object? total = null,Object? done = null,Object? filled = null,Object? skipped = null,Object? errored = null,Object? currentTitle = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? batchId = null,Object? status = null,Object? total = null,Object? done = null,Object? filled = null,Object? skipped = null,Object? errored = null,Object? currentTitle = freezed,Object? missingField = freezed,}) {
   return _then(_FrbFillProgress(
 batchId: null == batchId ? _self.batchId : batchId // ignore: cast_nullable_to_non_nullable
 as String,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
@@ -3889,6 +4154,7 @@ as PlatformInt64,filled: null == filled ? _self.filled : filled // ignore: cast_
 as PlatformInt64,skipped: null == skipped ? _self.skipped : skipped // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,errored: null == errored ? _self.errored : errored // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,currentTitle: freezed == currentTitle ? _self.currentTitle : currentTitle // ignore: cast_nullable_to_non_nullable
+as String?,missingField: freezed == missingField ? _self.missingField : missingField // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

@@ -5788,6 +5788,10 @@ msgstr "完成"
 msgid "completeness_empty_fields"
 msgstr "未入力の項目が{n}件"
 
+msgid "completeness_empty_fields_field"
+msgstr "{field}がない本 {n} 冊"
+
+
 msgid "completeness_last_run_done"
 msgstr "前回の実行: {filled}冊を補完、{skipped}冊は新しいデータなし、{errored}件のエラー。"
 
@@ -5881,6 +5885,12 @@ msgstr "補完する本 ({n})"
 msgid "completeness_filter_all"
 msgstr "すべて ({n})"
 
+msgid "completeness_filter_clear"
+msgstr "フィルターを解除"
+
+msgid "completeness_filter_empty"
+msgstr "現在このフィルターに該当する本はありません。"
+
 msgid "completeness_todo_hint"
 msgstr "本をタップすると詳細を手動で補完できます。完成に近いものから順に表示されます。"
 
@@ -5916,6 +5926,37 @@ msgstr "すべて"
 
 msgid "completeness_start_n"
 msgstr "{n}冊を補完"
+
+msgid "completeness_start_n_filtered"
+msgstr "{n} 冊を補完（フィルター: {field}）"
+
+msgid "completeness_start_filtered"
+msgstr "フィルターした本を補完（{field}）"
+
+msgid "completeness_scope_hint"
+msgstr "このフィルターの本だけが処理され、それらの不足項目はすべて補完されます。"
+
+msgid "completeness_scope_running"
+msgstr "対象: {field}"
+
+msgid "completeness_scope_locked"
+msgstr "「{field}」の処理が進行中です。フィルターを変えるには中止してください。"
+
+msgid "completeness_scope_locked_all"
+msgstr "ライブラリ全体の処理が進行中です。フィルターを適用するには中止してください。"
+
+msgid "completeness_no_isbn_scope"
+msgstr "これらの本には ISBN がないため、自動補完では特定できません。手動で補完してください。"
+
+msgid "completeness_covers_unavailable"
+msgstr "これらの本のうち {n} 冊は、有効なソースですでに検索済みで、結果はありませんでした。どのソースも表紙を公開していません。もう一度実行しても変わりません。本のページから手動で追加するか、設定で他のソースを有効にしてください。"
+
+msgid "completeness_covers_hint"
+msgstr "表紙は、それを公開しているソースからしか取得できません。実行後も残るものは、本のページから手動で追加します。"
+
+msgid "completeness_scope_all_done"
+msgstr "このフィルター（{field}）に自動補完できる本はありません。"
+
 
 #. --- Design refinement: library view modes ---
 #. Library view mode: cover grid

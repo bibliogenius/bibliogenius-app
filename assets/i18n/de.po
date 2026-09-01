@@ -10093,6 +10093,10 @@ msgstr "vollständig"
 msgid "completeness_empty_fields"
 msgstr "{n} leere Felder auszufüllen"
 
+msgid "completeness_empty_fields_field"
+msgstr "{n} Bücher ohne {field}"
+
+
 msgid "completeness_last_run_done"
 msgstr "Letzter Durchlauf: {filled} Bücher ergänzt, {skipped} ohne neue Daten, {errored} Fehler."
 
@@ -10186,6 +10190,12 @@ msgstr "Zu vervollständigende Bücher ({n})"
 msgid "completeness_filter_all"
 msgstr "Alle ({n})"
 
+msgid "completeness_filter_clear"
+msgstr "Filter entfernen"
+
+msgid "completeness_filter_empty"
+msgstr "Derzeit passt kein Buch zu diesem Filter."
+
 msgid "completeness_todo_hint"
 msgstr "Tippen Sie auf ein Buch, um seine Angaben von Hand auszufüllen. Die fast vollständigen zuerst."
 
@@ -10222,6 +10232,37 @@ msgstr "Alle"
 
 msgid "completeness_start_n"
 msgstr "{n} Bücher vervollständigen"
+
+msgid "completeness_start_n_filtered"
+msgstr "{n} Bücher vervollständigen (Filter: {field})"
+
+msgid "completeness_start_filtered"
+msgstr "Gefilterte Bücher vervollständigen ({field})"
+
+msgid "completeness_scope_hint"
+msgstr "Es werden nur die Bücher dieses Filters verarbeitet, und alle ihre fehlenden Felder werden ergänzt."
+
+msgid "completeness_scope_running"
+msgstr "Bereich: {field}"
+
+msgid "completeness_scope_locked"
+msgstr "Ein Durchlauf für „{field}“ läuft bereits. Verwirf ihn, um den Filter zu wechseln."
+
+msgid "completeness_scope_locked_all"
+msgstr "Ein Durchlauf für die ganze Bibliothek läuft bereits. Verwirf ihn, um den Filter anzuwenden."
+
+msgid "completeness_no_isbn_scope"
+msgstr "Diese Bücher haben keine ISBN: die automatische Ergänzung kann sie nicht identifizieren. Ergänze sie von Hand."
+
+msgid "completeness_covers_unavailable"
+msgstr "{n} dieser Bücher wurden in den aktiven Quellen bereits gesucht, ohne Ergebnis: keine davon veröffentlicht ein Cover dafür. Ein weiterer Durchlauf ändert daran nichts. Ergänze es von Hand auf der Buchseite oder aktiviere weitere Quellen in den Einstellungen."
+
+msgid "completeness_covers_hint"
+msgstr "Ein Cover kann nur aus einer Quelle kommen, die eines veröffentlicht. Was nach einem Durchlauf fehlt, wird von Hand auf der Buchseite ergänzt."
+
+msgid "completeness_scope_all_done"
+msgstr "Kein Buch in diesem Filter ({field}) lässt sich automatisch vervollständigen."
+
 
 #. --- Account sync: remove/soft-revoke a device ---
 #. Label above the account email on the sync screen

@@ -10223,6 +10223,10 @@ msgstr "completa"
 msgid "completeness_empty_fields"
 msgstr "{n} campos vazios para preencher"
 
+msgid "completeness_empty_fields_field"
+msgstr "{n} livros sem {field}"
+
+
 msgid "completeness_last_run_done"
 msgstr "Última execução: {filled} livros enriquecidos, {skipped} sem novos dados, {errored} erros."
 
@@ -10316,6 +10320,12 @@ msgstr "Livros a completar ({n})"
 msgid "completeness_filter_all"
 msgstr "Todos ({n})"
 
+msgid "completeness_filter_clear"
+msgstr "Remover o filtro"
+
+msgid "completeness_filter_empty"
+msgstr "Nenhum livro corresponde a este filtro no momento."
+
 msgid "completeness_todo_hint"
 msgstr "Toque em um livro para preencher seus detalhes manualmente. Os mais próximos de completar aparecem primeiro."
 
@@ -10351,6 +10361,37 @@ msgstr "Tudo"
 
 msgid "completeness_start_n"
 msgstr "Completar {n} livros"
+
+msgid "completeness_start_n_filtered"
+msgstr "Completar {n} livros (filtro: {field})"
+
+msgid "completeness_start_filtered"
+msgstr "Completar os livros filtrados ({field})"
+
+msgid "completeness_scope_hint"
+msgstr "Somente os livros deste filtro são processados, e todos os seus campos ausentes são preenchidos."
+
+msgid "completeness_scope_running"
+msgstr "Escopo: {field}"
+
+msgid "completeness_scope_locked"
+msgstr "Há uma execução em andamento sobre “{field}”. Descarte-a para mudar de filtro."
+
+msgid "completeness_scope_locked_all"
+msgstr "Há uma execução em andamento sobre toda a biblioteca. Descarte-a para aplicar o filtro."
+
+msgid "completeness_no_isbn_scope"
+msgstr "Estes livros não têm ISBN: o preenchimento automático não consegue identificá-los. Complete-os manualmente."
+
+msgid "completeness_covers_unavailable"
+msgstr "{n} destes livros já foram procurados nas fontes ativas, sem resultado: nenhuma publica uma capa para eles. Outra execução não mudará isso. Adicione-a manualmente na página do livro, ou ative mais fontes nas configurações."
+
+msgid "completeness_covers_hint"
+msgstr "Uma capa só pode vir de uma fonte que a publique. As que continuarem faltando após uma execução são adicionadas manualmente na página do livro."
+
+msgid "completeness_scope_all_done"
+msgstr "Nenhum livro para completar automaticamente neste filtro ({field})."
+
 
 #. --- Design refinement: library view modes ---
 #. Library view mode: cover grid

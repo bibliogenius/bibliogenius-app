@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `ServerStartDecision`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -467,10 +467,30 @@ Future<FrbCompletenessStats> metadataFillStats() =>
 /// user's reading-language config (comma-joined) for summary coherence.
 /// `lot_limit` caps how many books this invocation processes before pausing the
 /// run as resumable (the "small batches" nudge); `None` runs to completion.
-Future<String> metadataFillStart({String? languages, int? lotLimit}) => RustLib
+/// `missing_field` scopes a fresh run to the books missing that one field (the
+/// completeness filter pills); a resume reuses the scope stored on the run.
+Future<String> metadataFillStart({
+  String? languages,
+  int? lotLimit,
+  String? missingField,
+}) => RustLib.instance.api.crateApiFrbMetadataFillStart(
+  languages: languages,
+  lotLimit: lotLimit,
+  missingField: missingField,
+);
+
+/// How many books a run started now would process, for the start button's
+/// count. `missing_field` narrows it to the books missing that field.
+Future<PlatformInt64> metadataFillProcessable({String? missingField}) => RustLib
     .instance
     .api
-    .crateApiFrbMetadataFillStart(languages: languages, lotLimit: lotLimit);
+    .crateApiFrbMetadataFillProcessable(missingField: missingField);
+
+/// Coverless owned books the active sources have already been asked about and
+/// answered empty (the startup sweep's conclusive marker). Explains, under the
+/// "cover" filter, why a run cannot fill them.
+Future<PlatformInt64> metadataFillCoversSourcesHaveNot() =>
+    RustLib.instance.api.crateApiFrbMetadataFillCoversSourcesHaveNot();
 
 /// Current/last run progress (None if a run has never been started).
 Future<FrbFillProgress?> metadataFillProgress() =>
@@ -489,9 +509,18 @@ Future<List<FrbIncompleteBook>> metadataFillBooksWithoutIsbn() =>
     RustLib.instance.api.crateApiFrbMetadataFillBooksWithoutIsbn();
 
 /// All owned, incomplete books with their missing fields (closest-to-complete
-/// first), for the manual completion overview.
-Future<List<FrbIncompleteBookDetail>> metadataFillIncomplete({int? limit}) =>
-    RustLib.instance.api.crateApiFrbMetadataFillIncomplete(limit: limit);
+/// first), for the manual completion overview. `missing_field` /
+/// `no_isbn_only` apply the overview's own filters, so the capped slice is
+/// drawn from the filtered set rather than from the head of the backlog.
+Future<List<FrbIncompleteBookDetail>> metadataFillIncomplete({
+  int? limit,
+  String? missingField,
+  required bool noIsbnOnly,
+}) => RustLib.instance.api.crateApiFrbMetadataFillIncomplete(
+  limit: limit,
+  missingField: missingField,
+  noIsbnOnly: noIsbnOnly,
+);
 
 /// Undo a single filled field. Returns `reverted` | `superseded` | `not_found`.
 Future<String> metadataFillUndoField({required PlatformInt64 journalId}) =>
@@ -1278,6 +1307,12 @@ Future<FrbCollection> createCollection({
   description: description,
 );
 
+/// Renames a collection. The name is trimmed; a blank one, the technical
+/// favorites sentinel, and any rename of the typed favorites collection
+/// itself are refused (see `collection_service::rename_collection`).
+Future<void> renameCollection({required String id, required String name}) =>
+    RustLib.instance.api.crateApiFrbRenameCollection(id: id, name: name);
+
 /// Deletes a collection by ID. Books are left orphaned (current behaviour).
 Future<void> deleteCollection({required String id}) =>
     RustLib.instance.api.crateApiFrbDeleteCollection(id: id);
@@ -1977,6 +2012,7 @@ sealed class FrbCompletenessStats with _$FrbCompletenessStats {
     required PlatformInt64 incomplete,
     required PlatformInt64 noIsbn,
     required PlatformInt64 emptyFields,
+    required List<FrbFieldGap> gaps,
   }) = _FrbCompletenessStats;
 }
 
@@ -2299,6 +2335,15 @@ class FrbDuplicateScan {
           booksRemovedByAutomatic == other.booksRemovedByAutomatic;
 }
 
+/// Owned books still missing one gap-fill field.
+@freezed
+sealed class FrbFieldGap with _$FrbFieldGap {
+  const factory FrbFieldGap({
+    required String field,
+    required PlatformInt64 missing,
+  }) = _FrbFieldGap;
+}
+
 /// Live/last progress of a bulk fill run.
 @freezed
 sealed class FrbFillProgress with _$FrbFillProgress {
@@ -2311,6 +2356,7 @@ sealed class FrbFillProgress with _$FrbFillProgress {
     required PlatformInt64 skipped,
     required PlatformInt64 errored,
     String? currentTitle,
+    String? missingField,
   }) = _FrbFillProgress;
 }
 

@@ -10109,6 +10109,10 @@ msgstr "completa"
 msgid "completeness_empty_fields"
 msgstr "{n} campos vacíos por rellenar"
 
+msgid "completeness_empty_fields_field"
+msgstr "{n} libros sin {field}"
+
+
 msgid "completeness_last_run_done"
 msgstr "Última ejecución: {filled} libros enriquecidos, {skipped} sin datos nuevos, {errored} errores."
 
@@ -10202,6 +10206,12 @@ msgstr "Libros por completar ({n})"
 msgid "completeness_filter_all"
 msgstr "Todos ({n})"
 
+msgid "completeness_filter_clear"
+msgstr "Quitar el filtro"
+
+msgid "completeness_filter_empty"
+msgstr "Ningún libro coincide con este filtro por ahora."
+
 msgid "completeness_todo_hint"
 msgstr "Toca un libro para rellenar sus detalles a mano. Los más cercanos a completar aparecen primero."
 
@@ -10237,6 +10247,37 @@ msgstr "Todo"
 
 msgid "completeness_start_n"
 msgstr "Completar {n} libros"
+
+msgid "completeness_start_n_filtered"
+msgstr "Completar {n} libros (filtro: {field})"
+
+msgid "completeness_start_filtered"
+msgstr "Completar los libros filtrados ({field})"
+
+msgid "completeness_scope_hint"
+msgstr "Solo se procesan los libros de este filtro, y se completan todos sus campos vacíos."
+
+msgid "completeness_scope_running"
+msgstr "Alcance: {field}"
+
+msgid "completeness_scope_locked"
+msgstr "Hay una tarea en curso sobre «{field}». Descártala para cambiar de filtro."
+
+msgid "completeness_scope_locked_all"
+msgstr "Hay una tarea en curso sobre toda la biblioteca. Descártala para aplicar el filtro."
+
+msgid "completeness_no_isbn_scope"
+msgstr "Estos libros no tienen ISBN: la completación automática no puede identificarlos. Complétalos a mano."
+
+msgid "completeness_covers_unavailable"
+msgstr "{n} de estos libros ya se han buscado en las fuentes activas, sin resultado: ninguna publica una portada para ellos. Otra tarea no lo cambiará. Añádela a mano desde la ficha del libro, o activa más fuentes en los ajustes."
+
+msgid "completeness_covers_hint"
+msgstr "Una portada solo puede venir de una fuente que la publique. Las que sigan faltando tras una tarea se añaden a mano desde la ficha del libro."
+
+msgid "completeness_scope_all_done"
+msgstr "Ningún libro que completar automáticamente en este filtro ({field})."
+
 
 #. --- Account sync: remove/soft-revoke a device ---
 #. Label above the account email on the sync screen
