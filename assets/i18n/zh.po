@@ -11091,3 +11091,11 @@ msgstr "避免与你相关的年份。"
 msgid "zxcvbn_suggestion_avoid_personal_dates"
 msgstr "避免与你相关的日期和年份。"
 
+
+#. Dashboard section listing the books most recently finished, ordered by finish date.
+msgid "recently_finished_books"
+msgstr "最近读完"
+
+#. Dashboard link under the recently finished books, opens the library filtered on read books.
+msgid "see_all_read"
+msgstr "查看所有已读书籍"

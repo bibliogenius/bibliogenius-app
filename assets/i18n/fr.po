@@ -11775,3 +11775,11 @@ msgstr "Cherchez un livre dans les catalogues en ligne et ajoutez-le en un geste
 #. Books tutorial, step on the view switch.
 msgid "wizard_books_view_title"
 msgstr "Changer de vue"
+
+#. Dashboard section listing the books most recently finished, ordered by finish date.
+msgid "recently_finished_books"
+msgstr "Dernières lectures"
+
+#. Dashboard link under the recently finished books, opens the library filtered on read books.
+msgid "see_all_read"
+msgstr "Voir tous les livres lus"

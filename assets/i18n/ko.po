@@ -11091,3 +11091,11 @@ msgstr "본인과 관련된 연도는 피하세요."
 msgid "zxcvbn_suggestion_avoid_personal_dates"
 msgstr "본인과 관련된 날짜와 연도는 피하세요."
 
+
+#. Dashboard section listing the books most recently finished, ordered by finish date.
+msgid "recently_finished_books"
+msgstr "최근 완독한 책"
+
+#. Dashboard link under the recently finished books, opens the library filtered on read books.
+msgid "see_all_read"
+msgstr "읽은 책 모두 보기"

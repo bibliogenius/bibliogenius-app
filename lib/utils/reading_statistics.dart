@@ -23,3 +23,29 @@ int totalPagesReadFromFinishedBooks(Iterable<Book> books) {
   }
   return sum;
 }
+
+/// Minimum number of books carrying a finish date before the dashboard
+/// surfaces the "recently finished" strip.
+///
+/// Below this the strip would show one or two covers and mostly repeat the
+/// recent-additions block sitting right under it, so it stays hidden until
+/// the reading history is worth its own row.
+const int kMinRecentlyFinishedBooks = 3;
+
+/// The dashboard's "recently finished" selection: books the user finished,
+/// most recent first, capped at [limit].
+///
+/// Only books with a [Book.finishedReadingAt] date take part. The strip is
+/// ordered by that date, and a book marked read without one (the "No Date"
+/// option in the status quick-action) has no place in that ordering, unlike
+/// [totalPagesReadFromFinishedBooks], which counts it.
+///
+/// Returns an empty list when fewer than [kMinRecentlyFinishedBooks] books
+/// carry a date, so the caller can render on a non-empty check alone. The
+/// threshold is measured on the whole library, before the [limit] cap.
+List<Book> recentlyFinishedBooks(Iterable<Book> books, {int limit = 10}) {
+  final finished = books.where((b) => b.finishedReadingAt != null).toList();
+  if (finished.length < kMinRecentlyFinishedBooks) return const [];
+  finished.sort((a, b) => b.finishedReadingAt!.compareTo(a.finishedReadingAt!));
+  return finished.take(limit).toList();
+}

@@ -11746,3 +11746,11 @@ msgstr "Çevrimiçi kataloglarda bir kitap arayın ve tek dokunuşla ekleyin."
 #. Books tutorial, step on the view switch.
 msgid "wizard_books_view_title"
 msgstr "Görünümü değiştir"
+
+#. Dashboard section listing the books most recently finished, ordered by finish date.
+msgid "recently_finished_books"
+msgstr "Son okunanlar"
+
+#. Dashboard link under the recently finished books, opens the library filtered on read books.
+msgid "see_all_read"
+msgstr "Okunan tüm kitapları gör"

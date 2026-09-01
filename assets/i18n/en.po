@@ -11780,3 +11780,11 @@ msgstr "Look up a book in the online catalogues and add it in one tap."
 #. Books tutorial, step on the view switch.
 msgid "wizard_books_view_title"
 msgstr "Change the view"
+
+#. Dashboard section listing the books most recently finished, ordered by finish date.
+msgid "recently_finished_books"
+msgstr "Recently finished"
+
+#. Dashboard link under the recently finished books, opens the library filtered on read books.
+msgid "see_all_read"
+msgstr "See all read books"

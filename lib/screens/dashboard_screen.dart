@@ -9,6 +9,7 @@ import '../widgets/streak_celebration.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/contact_repository.dart';
 import '../utils/network_count.dart';
+import '../utils/reading_statistics.dart';
 import '../data/repositories/loan_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -70,6 +71,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   List<Book> _readingBooks = [];
   List<Book> _toReadBooks = [];
   List<Book> _recentBooks = [];
+  List<Book> _finishedBooks = [];
   List<Book> _allBooks = [];
 
   bool _quoteExpanded = false;
@@ -427,6 +429,11 @@ class _DashboardScreenState extends State<DashboardScreen>
                 .where((b) => b.readingStatus == 'to_read')
                 .toList();
             _toReadBooks.sort((a, b) => (b.id ?? '').compareTo(a.id ?? ''));
+
+            // Recently finished: books with a known finish date, newest
+            // first. Stays empty below the minimum number of dated books, so
+            // the section simply does not render.
+            _finishedBooks = recentlyFinishedBooks(books);
           });
         }
       } catch (e) {
@@ -935,6 +942,27 @@ class _DashboardScreenState extends State<DashboardScreen>
                     // below 5 profile books or 2 suggestions.
                     const PersonalSuggestionsSection(),
 
+                    // Recently finished: books ordered by their finish
+                    // date. Hidden until enough of them carry one, see
+                    // recentlyFinishedBooks.
+                    if (_finishedBooks.isNotEmpty)
+                      _buildBookListSection(
+                        context,
+                        title: TranslationService.translate(
+                          context,
+                          'recently_finished_books',
+                        ),
+                        books: _finishedBooks,
+                        emptyMessage: '',
+                        seeAllLabel: TranslationService.translate(
+                          context,
+                          'see_all_read',
+                        ),
+                        seeAllRoute: '/books?status=read',
+                        showStatus: false,
+                        icon: Icons.check_circle_outline_rounded,
+                      ),
+
                     // 3. Livres récents (Recent Books)
                     if (_recentBooks.isNotEmpty)
                       _buildBookListSection(
@@ -1261,11 +1289,12 @@ class _DashboardScreenState extends State<DashboardScreen>
     required String seeAllLabel,
     required String seeAllRoute,
     bool showStatus = true,
+    IconData? icon,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(context, title),
+        _buildSectionTitle(context, title, icon: icon),
         const SizedBox(height: 16),
         SectionCard(
           child: Column(
@@ -1663,19 +1692,28 @@ class _DashboardScreenState extends State<DashboardScreen>
     );
   }
 
-  Widget _buildSectionTitle(BuildContext context, String title) {
-    IconData icon = Icons.auto_stories;
+  /// Section header. An explicit [icon] wins over the title sniffing below,
+  /// which reads the translated title and so picks a different icon from one
+  /// locale to the next.
+  Widget _buildSectionTitle(
+    BuildContext context,
+    String title, {
+    IconData? icon,
+  }) {
+    if (icon != null) return SectionHeader(icon: icon, title: title);
+
+    IconData resolved = Icons.auto_stories;
     if (title.toLowerCase().contains('recent') ||
         title.toLowerCase().contains('récent')) {
-      icon = Icons.history;
+      resolved = Icons.history;
     } else if (title.toLowerCase().contains('reading') ||
         title.toLowerCase().contains('lecture')) {
-      icon = Icons.bookmark;
+      resolved = Icons.bookmark;
     } else if (title.toLowerCase().contains('action')) {
-      icon = Icons.bolt;
+      resolved = Icons.bolt;
     }
 
-    return SectionHeader(icon: icon, title: title);
+    return SectionHeader(icon: resolved, title: title);
   }
 
   Widget _buildBookList(

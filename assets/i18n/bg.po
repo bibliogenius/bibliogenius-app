@@ -11746,3 +11746,11 @@ msgstr "Потърсете книга в онлайн каталозите и я
 #. Books tutorial, step on the view switch.
 msgid "wizard_books_view_title"
 msgstr "Смяна на изгледа"
+
+#. Dashboard section listing the books most recently finished, ordered by finish date.
+msgid "recently_finished_books"
+msgstr "Последни прочетени"
+
+#. Dashboard link under the recently finished books, opens the library filtered on read books.
+msgid "see_all_read"
+msgstr "Виж всички прочетени книги"
