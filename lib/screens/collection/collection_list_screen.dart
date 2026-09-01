@@ -7,6 +7,7 @@ import '../../providers/recommendation_provider.dart';
 import '../../services/translation_service.dart';
 import '../../theme/app_design.dart';
 import '../../models/collection.dart';
+import '../../utils/collection_display.dart';
 import '../../utils/recommendation_display.dart';
 import '../../widgets/curated_import_dialog.dart';
 import '../../widgets/curated_list_suggestion_card.dart';
@@ -17,6 +18,7 @@ import '../../widgets/scaffold_with_nav.dart';
 import '../../widgets/contextual_help_sheet.dart';
 import '../../widgets/collection_stack_widget.dart';
 import 'collection_delete_dialog.dart';
+import 'rename_collection_dialog.dart';
 
 class CollectionListScreen extends StatefulWidget {
   final bool isTabView;
@@ -166,6 +168,96 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
         );
       },
     );
+  }
+
+  /// Long-press menu on a collection card.
+  ///
+  /// The gesture used to delete outright, which is a lot of consequence for a
+  /// press-and-hold and left renaming with no entry point at all on this
+  /// screen. It now offers the two actions instead. Renaming is absent on the
+  /// favorites collection, whose label comes from the translations and not
+  /// from the stored name (ADR-064), exactly as on the detail screen.
+  Future<void> _showCollectionActions(Collection collection) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                dense: true,
+                title: Text(
+                  collectionDisplayName(sheetContext, collection),
+                  style: Theme.of(sheetContext).textTheme.titleSmall,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Divider(height: 1),
+              if (!collection.isFavorites)
+                ListTile(
+                  leading: const Icon(Icons.drive_file_rename_outline),
+                  title: Text(
+                    TranslationService.translate(sheetContext, 'rename'),
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _renameCollection(collection);
+                  },
+                ),
+              ListTile(
+                leading: Icon(
+                  Icons.delete_outline,
+                  color: Theme.of(sheetContext).colorScheme.error,
+                ),
+                title: Text(
+                  TranslationService.translate(
+                    sheetContext,
+                    'delete_collection',
+                  ),
+                  style: TextStyle(
+                    color: Theme.of(sheetContext).colorScheme.error,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  _deleteCollection(collection);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _renameCollection(Collection collection) async {
+    final repo = Provider.of<CollectionRepository>(context, listen: false);
+    final newName = await showRenameCollectionDialog(
+      context,
+      initialName: collection.name,
+    );
+    if (!mounted) return;
+    // Cancelled, emptied, or unchanged: nothing to write.
+    if (newName == null || newName.isEmpty || newName == collection.name) {
+      return;
+    }
+
+    try {
+      await repo.renameCollection(collection.id, newName);
+      if (mounted) _loadCollections();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${TranslationService.translate(context, 'error_renaming_collection')}: $e',
+            ),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _deleteCollection(Collection collection) async {
@@ -355,7 +447,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                           );
                           if (mounted) _loadCollections();
                         },
-                        onLongPress: () => _deleteCollection(collection),
+                        onLongPress: () => _showCollectionActions(collection),
                       );
                     },
                   ),

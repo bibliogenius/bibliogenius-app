@@ -10,7 +10,13 @@ import 'package:bibliogenius/models/collection.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/notification_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
+import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/screens/collection/collection_detail_screen.dart';
+import 'package:bibliogenius/screens/collection/collection_list_screen.dart';
+import 'package:bibliogenius/data/repositories/recommendation_repository.dart';
+import 'package:bibliogenius/models/discovery.dart';
+import 'package:bibliogenius/models/recommendation.dart';
+import 'package:bibliogenius/widgets/collection_stack_widget.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 
@@ -23,6 +29,22 @@ import '../helpers/mock_repositories.dart';
 /// from `collections.name` (ADR-064): a rename would be a silent no-op on
 /// screen, so the action is not offered at all. The Rust guard covers the
 /// callers that do not go through this screen.
+
+class _QuietRecommendationRepository implements RecommendationRepository {
+  @override
+  Future<List<Recommendation>> getBookRecommendations(
+    String bookId, {
+    int? limit,
+  }) async => const [];
+
+  @override
+  Future<PersonalRecommendations?> getPersonalRecommendations({
+    int? limit,
+  }) async => null;
+
+  @override
+  Future<DiscoveryLookupInputs?> getDiscoveryLookupInputs() async => null;
+}
 
 class _RecordingCollectionRepository extends MockCollectionRepository {
   final List<(String, String)> renames = [];
@@ -57,6 +79,10 @@ void main() {
         'import_books': 'Import books',
         'action_share': 'Share',
         'delete_collection_title': 'Delete collection',
+        'delete_collection': 'Delete the collection',
+        'collection_group_books_count': 'books',
+        'displayed_collections_count': '%d collection',
+        'displayed_collections_count_plural': '%d collections',
         'favorites_collection_name': 'Favorites',
         'quick_actions_title': 'Actions',
       },
@@ -154,5 +180,80 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(collectionRepo.renames, isEmpty);
+  });
+
+  group('from the collections home page', () {
+    // The long press used to delete outright and renaming had no entry point
+    // here at all. It now opens the two actions, minus the rename on the
+    // favorites collection.
+    Future<void> pumpList(WidgetTester tester, List<Collection> items) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      collectionRepo.mockCollections = items;
+      final theme = ThemeProvider()..setLocaleSync(const Locale('en'));
+      final recommendations = RecommendationProvider(
+        _QuietRecommendationRepository(),
+        BookRefreshNotifier(),
+        curatedCorpusLoader: () async => const [],
+        bookRepository: MockBookRepository(),
+      );
+
+      await tester.pumpWidget(
+        // Providers above MaterialApp: the action sheet is a modal route on
+        // the root navigator and would not see an inner scope.
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider<ThemeProvider>.value(value: theme),
+            ChangeNotifierProvider<BookRefreshNotifier>(
+              create: (_) => BookRefreshNotifier(),
+            ),
+            ChangeNotifierProvider<RecommendationProvider>.value(
+              value: recommendations,
+            ),
+            Provider<CollectionRepository>.value(value: collectionRepo),
+          ],
+          child: const MaterialApp(
+            home: CollectionListScreen(isTabView: true),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+    }
+
+    Future<void> longPressFirstCard(WidgetTester tester) async {
+      await tester.longPress(find.byType(CollectionCoverCard).first);
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('a long press offers renaming beside deleting', (tester) async {
+      await pumpList(tester, [_collection(source: 'manual')]);
+      await longPressFirstCard(tester);
+
+      expect(find.text('Rename'), findsOneWidget);
+      expect(find.text('Delete the collection'), findsOneWidget);
+    });
+
+    testWidgets('the favorites collection is delete-only', (tester) async {
+      await pumpList(tester, [_collection(source: 'favorites')]);
+      await longPressFirstCard(tester);
+
+      expect(find.text('Delete the collection'), findsOneWidget);
+      expect(find.text('Rename'), findsNothing);
+    });
+
+    testWidgets('renaming from the list writes the new name', (tester) async {
+      await pumpList(tester, [_collection(source: 'manual')]);
+      await longPressFirstCard(tester);
+
+      await tester.tap(find.text('Rename'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'Romans noirs');
+      await tester.tap(find.text('Rename').last);
+      await tester.pumpAndSettle();
+
+      expect(collectionRepo.renames, [('c1', 'Romans noirs')]);
+    });
   });
 }

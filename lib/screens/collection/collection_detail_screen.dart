@@ -20,6 +20,7 @@ import '../../widgets/cached_book_cover.dart';
 import '../../widgets/configurable_action_card.dart';
 import '../../widgets/premium_empty_state.dart';
 import 'collection_delete_dialog.dart';
+import 'rename_collection_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -185,9 +186,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
   /// do not go through this screen.
   Future<void> _renameCollection() async {
     final repo = Provider.of<CollectionRepository>(context, listen: false);
-    final newName = await showDialog<String>(
-      context: context,
-      builder: (_) => _RenameCollectionDialog(initialName: _collection.name),
+    final newName = await showRenameCollectionDialog(
+      context,
+      initialName: _collection.name,
     );
     if (!mounted) return;
     // Cancelled, emptied, or unchanged: nothing to write.
@@ -1483,66 +1484,5 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
         );
       }
     }
-  }
-}
-
-/// The rename dialog, a widget of its own so it owns its text controller.
-///
-/// A controller created by the caller and disposed right after `showDialog`
-/// resolves is still in use by the field while the dialog animates out, which
-/// throws "A TextEditingController was used after being disposed" and blanks
-/// the frame. Owning it here ties its life to the dialog's.
-class _RenameCollectionDialog extends StatefulWidget {
-  const _RenameCollectionDialog({required this.initialName});
-
-  final String initialName;
-
-  @override
-  State<_RenameCollectionDialog> createState() =>
-      _RenameCollectionDialogState();
-}
-
-class _RenameCollectionDialogState extends State<_RenameCollectionDialog> {
-  late final TextEditingController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = TextEditingController(text: widget.initialName);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _submit() => Navigator.pop(context, _controller.text.trim());
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(TranslationService.translate(context, 'rename_collection')),
-      content: TextField(
-        controller: _controller,
-        autofocus: true,
-        textCapitalization: TextCapitalization.sentences,
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          labelText: TranslationService.translate(context, 'name'),
-        ),
-        onSubmitted: (_) => _submit(),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(TranslationService.translate(context, 'cancel')),
-        ),
-        FilledButton(
-          onPressed: _submit,
-          child: Text(TranslationService.translate(context, 'rename')),
-        ),
-      ],
-    );
   }
 }
