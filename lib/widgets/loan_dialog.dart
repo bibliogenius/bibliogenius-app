@@ -65,6 +65,26 @@ class _LoanDialogState extends State<LoanDialog> {
     }
   }
 
+  Widget _recipientRow(LoanRecipient recipient, {required int maxLines}) {
+    final icon = switch (recipient) {
+      ContactRecipient() => Icons.person,
+      PeerRecipient() => Icons.devices,
+    };
+    return Row(
+      children: [
+        Icon(icon, size: 20),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            recipient.displayName,
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -84,6 +104,10 @@ class _LoanDialogState extends State<LoanDialog> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<LoanRecipient>(
+                  isExpanded: true,
+                  // Let menu entries grow to two lines; the closed field stays
+                  // on a single line through selectedItemBuilder below.
+                  itemHeight: null,
                   decoration: InputDecoration(
                     border: const OutlineInputBorder(),
                     labelText: TranslationService.translate(
@@ -91,20 +115,15 @@ class _LoanDialogState extends State<LoanDialog> {
                       'filter_borrowers',
                     ),
                   ),
+                  selectedItemBuilder: (context) => _recipients
+                      .map((recipient) => _recipientRow(recipient, maxLines: 1))
+                      .toList(),
                   items: _recipients.map((recipient) {
-                    final icon = switch (recipient) {
-                      ContactRecipient() => Icons.person,
-                      PeerRecipient() => Icons.devices,
-                    };
                     return DropdownMenuItem<LoanRecipient>(
                       value: recipient,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(icon, size: 20),
-                          const SizedBox(width: 8),
-                          Text(recipient.displayName),
-                        ],
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: _recipientRow(recipient, maxLines: 2),
                       ),
                     );
                   }).toList(),
