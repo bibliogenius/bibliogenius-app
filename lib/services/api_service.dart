@@ -13,6 +13,7 @@ import '../models/genie.dart';
 import '../models/tag.dart';
 import '../models/contact.dart';
 import '../models/collection.dart'; // Collection module
+import '../utils/import_columns.dart';
 import '../utils/publication_year.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../src/rust/api/frb.dart' as frb;
@@ -1949,7 +1950,25 @@ class ApiService {
     }
   }
 
-  Future<Response> importBooks(dynamic fileSource, {String? filename}) async {
+  /// Where the CSV/XLSX import hands each parsed book. Production creates it
+  /// through the FFI; tests substitute a recorder so the parsing can be
+  /// checked without a Rust backend.
+  @visibleForTesting
+  Future<void> Function(frb.FrbBook book) importBookSink = (book) =>
+      FfiService().createBook(book);
+
+  /// Error code (HTTP 400) when the file names no ISBN column and
+  /// `allowMissingIsbn` is false; `data['columns']` lists the headers read.
+  /// The caller asks the reader before importing a whole shelf without ISBN:
+  /// covers, completion and peer matching all key on it, and a library once
+  /// arrived with 2861 books and not one ISBN behind a success message.
+  static const String importErrorIsbnColumnMissing = 'isbn_column_missing';
+
+  Future<Response> importBooks(
+    dynamic fileSource, {
+    String? filename,
+    bool allowMissingIsbn = false,
+  }) async {
     // FFI mode: Parse CSV/XLSX and create books locally
     if (useFfi) {
       try {
@@ -1959,14 +1978,22 @@ class ApiService {
             (fileSource is List<int> && _isXlsxBytes(fileSource));
 
         if (isXlsx) {
-          return await _importFromXlsx(fileSource, filename);
+          return await _importFromXlsx(
+            fileSource,
+            filename,
+            allowMissingIsbn: allowMissingIsbn,
+          );
         }
 
         String csvContent;
         if (fileSource is String) {
           // Native: Check if path ends with .xlsx
           if (fileSource.toLowerCase().endsWith('.xlsx')) {
-            return await _importFromXlsx(fileSource, filename);
+            return await _importFromXlsx(
+              fileSource,
+              filename,
+              allowMissingIsbn: allowMissingIsbn,
+            );
           }
           // Native: Read file from path
           final file = File(fileSource);
@@ -1991,24 +2018,19 @@ class ApiService {
           );
         }
 
-        // First line is header
-        final header = _parseCsvLine(lines.first);
+        // First line is header. The delimiter is read off it: a
+        // semicolon-separated file split on commas puts the whole line in
+        // every field and its digits end up glued into a fake ISBN.
+        final delimiter = detectCsvDelimiter(lines.first);
+        final header = parseCsvLine(lines.first, delimiter: delimiter);
         final headerLower = header.map((h) => h.toLowerCase().trim()).toList();
 
         // Find column indices - support multiple formats including Goodreads
         final titleIdx = headerLower.indexWhere(
           (h) => h.contains('title') || h.contains('titre'),
         );
-        final authorIdx = headerLower.indexWhere(
-          (h) => h.contains('author') || h.contains('auteur'),
-        );
-        // Goodreads uses "ISBN13" column - prefer it over regular ISBN if both exist
-        int isbnIdx = headerLower.indexWhere(
-          (h) => h == 'isbn13' || h == 'isbn 13',
-        );
-        if (isbnIdx == -1) {
-          isbnIdx = headerLower.indexWhere((h) => h.contains('isbn'));
-        }
+        final authorIdx = findAuthorColumn(headerLower);
+        final isbnIdx = findIsbnColumn(headerLower);
         final publisherIdx = headerLower.indexWhere(
           (h) =>
               h.contains('publisher') ||
@@ -2039,9 +2061,15 @@ class ApiService {
           );
         }
 
+        if (isbnIdx == -1 && !allowMissingIsbn) {
+          return _isbnColumnMissing(header);
+        }
+
         int imported = 0;
+        int withIsbn = 0;
+        int rejectedIsbn = 0;
         for (int i = 1; i < lines.length; i++) {
-          final values = _parseCsvLine(lines[i]);
+          final values = parseCsvLine(lines[i], delimiter: delimiter);
           if (values.isEmpty ||
               (titleIdx < values.length && values[titleIdx].trim().isEmpty)) {
             continue;
@@ -2051,20 +2079,18 @@ class ApiService {
             // Helper to get value or null if empty
             String? getValueOrNull(int idx) {
               if (idx < 0 || idx >= values.length) return null;
-              var val = values[idx].trim();
-              // Handle Goodreads-style ="VALUE" format (prevents Excel number conversion)
-              if (val.startsWith('="') && val.endsWith('"')) {
-                val = val.substring(2, val.length - 1);
-              }
+              final val = values[idx].trim();
               return val.isEmpty ? null : val;
             }
+
+            final isbn = cleanImportedIsbn(getValueOrNull(isbnIdx));
 
             final book = frb.FrbBook(
               title: titleIdx < values.length
                   ? values[titleIdx].trim()
                   : 'Unknown',
               author: getValueOrNull(authorIdx),
-              isbn: getValueOrNull(isbnIdx),
+              isbn: isbn.isbn,
               publisher: getValueOrNull(publisherIdx),
               publicationYear: yearIdx >= 0 && yearIdx < values.length
                   ? parsePublicationYear(values[yearIdx])
@@ -2072,8 +2098,10 @@ class ApiService {
               owned: true,
               private: false,
             );
-            await FfiService().createBook(book);
+            await importBookSink(book);
             imported++;
+            if (isbn.isbn != null) withIsbn++;
+            if (isbn.rejected) rejectedIsbn++;
           } catch (e) {
             debugPrint('Error importing book at line $i: $e');
             // Continue with next book
@@ -2083,7 +2111,12 @@ class ApiService {
         return Response(
           requestOptions: RequestOptions(path: '/api/import'),
           statusCode: 200,
-          data: {'imported': imported, 'message': 'Import successful'},
+          data: {
+            'imported': imported,
+            'with_isbn': withIsbn,
+            'rejected_isbn': rejectedIsbn,
+            'message': 'Import successful',
+          },
         );
       } catch (e) {
         debugPrint('FFI import error: $e');
@@ -2113,31 +2146,27 @@ class ApiService {
     return await _dio.post('/api/import/file', data: formData);
   }
 
-  /// Parse a CSV line handling quoted fields
-  List<String> _parseCsvLine(String line) {
-    final result = <String>[];
-    bool inQuotes = false;
-    StringBuffer current = StringBuffer();
-
-    for (int i = 0; i < line.length; i++) {
-      final char = line[i];
-      if (char == '"') {
-        if (inQuotes && i + 1 < line.length && line[i + 1] == '"') {
-          // Escaped quote
-          current.write('"');
-          i++;
-        } else {
-          inQuotes = !inQuotes;
-        }
-      } else if (char == ',' && !inQuotes) {
-        result.add(current.toString());
-        current = StringBuffer();
-      } else {
-        current.write(char);
-      }
-    }
-    result.add(current.toString());
-    return result;
+  /// The file names no ISBN column: hand the headers back so the caller can
+  /// show them and ask whether to import without ISBN. Capped, because a
+  /// file that is not a spreadsheet at all yields one enormous "header".
+  Response _isbnColumnMissing(List<String> header) {
+    const maxColumns = 30;
+    const maxNameLength = 40;
+    final columns = header
+        .map((h) => h.trim())
+        .where((h) => h.isNotEmpty)
+        .take(maxColumns)
+        .map(
+          (h) => h.length <= maxNameLength
+              ? h
+              : '${h.substring(0, maxNameLength)}...',
+        )
+        .toList();
+    return Response(
+      requestOptions: RequestOptions(path: '/api/import'),
+      statusCode: 400,
+      data: {'error': importErrorIsbnColumnMissing, 'columns': columns},
+    );
   }
 
   /// Check if bytes represent an XLSX file (ZIP with PK signature)
@@ -2148,7 +2177,11 @@ class ApiService {
   }
 
   /// Import books from an XLSX file (supports Gleeph export format)
-  Future<Response> _importFromXlsx(dynamic fileSource, String? filename) async {
+  Future<Response> _importFromXlsx(
+    dynamic fileSource,
+    String? filename, {
+    bool allowMissingIsbn = false,
+  }) async {
     try {
       List<int> bytes;
       if (fileSource is String) {
@@ -2173,15 +2206,19 @@ class ApiService {
 
       // Get headers from first row
       final headerRow = sheet.rows.first;
-      final headers = headerRow
-          .map((cell) => cell?.value?.toString().toLowerCase().trim() ?? '')
+      // Raw names are what the reader sees if the file names no ISBN column;
+      // the lowercased copy is what the column lookups compare against.
+      final rawHeaders = headerRow
+          .map((cell) => cell?.value?.toString().trim() ?? '')
           .toList();
+      final headers = rawHeaders.map((h) => h.toLowerCase()).toList();
 
       // Find column indices - support Gleeph format
       final titleIdx = headers.indexWhere(
         (h) => h == 'book_title' || h.contains('title') || h.contains('titre'),
       );
-      final isbnIdx = headers.indexWhere((h) => h.contains('isbn'));
+      final authorIdx = findAuthorColumn(headers);
+      final isbnIdx = findIsbnColumn(headers);
       final wishIdx = headers.indexWhere((h) => h == 'wish');
       final ownIdx = headers.indexWhere((h) => h == 'own');
       final readingIdx = headers.indexWhere((h) => h == 'reading');
@@ -2198,6 +2235,10 @@ class ApiService {
                 'Title column not found. Expected "book_title" or "Title" column.',
           },
         );
+      }
+
+      if (isbnIdx == -1 && !allowMissingIsbn) {
+        return _isbnColumnMissing(rawHeaders);
       }
 
       // Collect unique shelf names from all rows
@@ -2253,6 +2294,8 @@ class ApiService {
 
       int imported = 0;
       int skipped = 0;
+      int withIsbn = 0;
+      int rejectedIsbn = 0;
 
       // Process data rows (skip header)
       for (int i = 1; i < sheet.rows.length; i++) {
@@ -2309,33 +2352,9 @@ class ApiService {
             continue;
           }
 
-          // Parse ISBN - may be in scientific notation (e.g., 9.782253140191E12)
-          String? isbn = getCellValue(isbnIdx);
-          if (isbn != null && isbn.isNotEmpty) {
-            var isbnValue = isbn;
-            // Handle scientific notation (e.g., 9.782253140191E12)
-            if (isbnValue.contains('E') || isbnValue.contains('e')) {
-              try {
-                final numValue = double.parse(isbnValue);
-                isbnValue = numValue.toStringAsFixed(0);
-              } catch (_) {
-                // Keep original value if parsing fails
-              }
-            }
-            // Handle decimal format (e.g., 9782253140191.0 → 9782253140191)
-            if (isbnValue.contains('.')) {
-              try {
-                final numValue = double.parse(isbnValue);
-                isbnValue = numValue.toStringAsFixed(0);
-              } catch (_) {
-                // Remove decimal part manually
-                isbnValue = isbnValue.split('.').first;
-              }
-            }
-            // Remove any non-digit characters except X (for ISBN-10)
-            isbnValue = isbnValue.replaceAll(RegExp(r'[^\dXx]'), '');
-            isbn = isbnValue.isEmpty ? null : isbnValue;
-          }
+          // A numeric cell arrives as 9.782253140191E12 or 9782253140191.0;
+          // cleanImportedIsbn reads both back into the 13 digits.
+          final isbn = cleanImportedIsbn(getCellValue(isbnIdx));
 
           // Determine reading status based on Gleeph flags
           // Priority: wish (wanting) > read > reading > to_read
@@ -2385,15 +2404,18 @@ class ApiService {
           // Create the book with shelf as subject
           final book = frb.FrbBook(
             title: title,
-            isbn: isbn,
+            author: getCellValue(authorIdx),
+            isbn: isbn.isbn,
             readingStatus: readingStatus,
             owned: owned,
             subjects: shelfName != null ? jsonEncode([shelfName]) : null,
             private: false,
           );
 
-          await FfiService().createBook(book);
+          await importBookSink(book);
           imported++;
+          if (isbn.isbn != null) withIsbn++;
+          if (isbn.rejected) rejectedIsbn++;
         } catch (e) {
           debugPrint('Error importing row $i: $e');
           skipped++;
@@ -2405,6 +2427,8 @@ class ApiService {
         statusCode: 200,
         data: {
           'imported': imported,
+          'with_isbn': withIsbn,
+          'rejected_isbn': rejectedIsbn,
           'skipped': skipped,
           'shelves_created': shelvesCreated,
           'message': shelvesCreated > 0

@@ -7875,6 +7875,30 @@ msgstr "Renommer ou organiser vos étagères virtuelles."
 msgid "migration_import_success"
 msgstr "Succès : {count} livres importés !"
 
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "Aucune colonne ISBN reconnue"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "Colonnes lues : {columns}. Sans ISBN, les couvertures, la complétion et l'appariement avec les autres bibliothèques ne fonctionneront pas pour ces livres. Importer quand même ?"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "Importer sans ISBN"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "{count} livres importés, dont {with_isbn} avec ISBN."
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "{count} livres importés, aucun avec ISBN."
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "{count} ISBN ignorés (ni 10 ni 13 caractères)."
+
 #. Migration Wizard - CSV import failure (no specific error returned)
 msgid "migration_import_failed"
 msgstr "Échec de l'importation"
