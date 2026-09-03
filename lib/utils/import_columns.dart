@@ -80,6 +80,91 @@ String detectCsvDelimiter(String headerLine) {
   return ',';
 }
 
+/// Split a CSV payload into records, honouring fields that span several lines.
+///
+/// A quoted field may contain line breaks: a title copied out of a web page
+/// arrives with its newlines and its indentation, and the exporter quotes it
+/// faithfully. Splitting the payload on `\n` before looking at the quotes tore
+/// such a record in two, and the second half was imported as a book of its own,
+/// titled with the whole remainder of the line, ISBN included. Blank records
+/// are dropped, as the line-based reader did.
+List<String> splitCsvRecords(String content) {
+  final records = <String>[];
+  final current = StringBuffer();
+  bool inQuotes = false;
+  int spannedLines = 0;
+
+  for (int i = 0; i < content.length; i++) {
+    final char = content[i];
+    if (char == '"') {
+      // A doubled quote inside a quoted field toggles twice, which is a no-op
+      // here: only the parity matters for deciding what a line break means.
+      inQuotes = !inQuotes;
+      current.write(char);
+    } else if (char == '\n') {
+      if (inQuotes && spannedLines < maxLinesPerCsvRecord) {
+        spannedLines++;
+        current.write(char);
+      } else {
+        // Either an ordinary end of record, or a quote nobody closed. A stray
+        // `"` in a title, or a truncated download, would otherwise swallow the
+        // whole rest of the file into one record: the file would import as a
+        // single book carrying every remaining line in its title. Giving up on
+        // the quote here damages the broken record alone.
+        records.add(current.toString());
+        current.clear();
+        inQuotes = false;
+        spannedLines = 0;
+      }
+    } else {
+      current.write(char);
+    }
+  }
+  records.add(current.toString());
+  return records.where((r) => r.trim().isNotEmpty).toList();
+}
+
+/// How many line breaks one quoted field may carry before the quote is treated
+/// as unclosed. A title copied off a web page arrives with two or three; a
+/// field that swallows more is a broken file, not a title.
+const int maxLinesPerCsvRecord = 8;
+
+/// Longest title an import will store. Measured on a real 567-book library:
+/// the longest title is 120 characters, the median 20. Nothing legitimate comes
+/// near this, and a field that does is a malformed file, not a book.
+const int maxImportedTitleLength = 255;
+
+/// Longest author cell. Deliberately wider than a title: exports join every
+/// co-author into one cell, and the same library already carries a 212
+/// character one. A truncated author no longer matches the untruncated value a
+/// previous import stored, which would break exactly the multi-author books.
+const int maxImportedAuthorLength = 500;
+
+/// Longest publisher name. Same reasoning as the title.
+const int maxImportedPublisherLength = 255;
+
+/// Every run of whitespace, including line breaks and tabs, as a single space,
+/// and at most [maxChars] characters when one is given.
+///
+/// Imported text is not typed by hand: it comes from an export, a scraper or a
+/// spreadsheet, and it carries whatever those left in it. A title holding a
+/// newline and twenty spaces of indentation is unreadable in a list, breaks in
+/// a CSV round trip and matches nothing.
+String cleanImportedText(String? raw, {int? maxChars}) {
+  final collapsed = (raw ?? '').replaceAll(RegExp(r'\s+'), ' ').trim();
+  if (maxChars == null || collapsed.length <= maxChars) return collapsed;
+  // Cut on a rune boundary: slicing UTF-16 in the middle of a surrogate pair
+  // leaves a broken character behind.
+  return String.fromCharCodes(collapsed.runes.take(maxChars)).trimRight();
+}
+
+/// [cleanImportedText] for an optional cell: null in, null out, and a cell that
+/// held nothing but whitespace comes back null rather than empty.
+String? cleanImportedTextOrNull(String? raw, {int? maxChars}) {
+  final cleaned = cleanImportedText(raw, maxChars: maxChars);
+  return cleaned.isEmpty ? null : cleaned;
+}
+
 /// Split one CSV line on [delimiter], honouring double quotes and the `""`
 /// escape inside a quoted field.
 List<String> parseCsvLine(String line, {String delimiter = ','}) {

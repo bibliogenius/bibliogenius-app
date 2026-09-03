@@ -11865,3 +11865,89 @@ msgstr "Rename collection"
 #. Error shown when renaming a collection fails.
 msgid "error_renaming_collection"
 msgstr "Error renaming the collection"
+
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "Complete from the file"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "Complete"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "{count} books were added on the same day and none of them has an ISBN. If they came from a file, its ISBN column was not recognised: read that file again to complete them."
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "Which column holds the ISBN?"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "No column name was recognised. Pick the one carrying the ISBN in this file; the choice applies to this reading only."
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "Completion summary"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows} rows read, {completed} books completed, {no_match} without a match, {ambiguous} ambiguous."
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "Rows left aside"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "No book matches this row"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "This row appears twice in the file"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "Several books match this row"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "Undo this completion"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "{count} fields restored to their previous state"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "No row could be read from this file."
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "and {count} more rows, not listed here"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "Last completion: {n} books"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "Undo all"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "Undo this completion?"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n} books go back to the state they were in before. Any field you edited yourself since is left untouched."
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "Choose the column"

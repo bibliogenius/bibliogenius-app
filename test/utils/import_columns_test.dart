@@ -176,4 +176,89 @@ void main() {
       expect(cleanImportedIsbn('12345'), (isbn: null, rejected: true));
     });
   });
+
+  group('splitting a payload into records', () {
+    test('a quoted title carrying line breaks stays one record', () {
+      final records = splitCsvRecords(
+        'titre;isbn\n'
+        '"El Cuento\n            \n   Coleccion Popular";"9786071601933"\n'
+        'Fables;9782253010043\n',
+      );
+      expect(records.length, 3, reason: 'header plus two records');
+      expect(records[1], contains('Coleccion Popular'));
+      expect(records[2], startsWith('Fables'));
+    });
+
+    test('a quote nobody closes damages its own record, not the file', () {
+      // A stray double quote in a title, or a truncated download. Without a
+      // bound, the rest of the file lands in one record and imports as a
+      // single book whose title carries every remaining line.
+      final lines = <String>['titre;auteurs;isbn', '"Le Petit Prince;Saint-Ex;978'];
+      for (var i = 0; i < 40; i++) {
+        lines.add('Livre $i;Auteur $i;978000000000$i');
+      }
+      final records = splitCsvRecords('${lines.join('\n')}\n');
+
+      expect(
+        records.length,
+        greaterThan(30),
+        reason: 'the file is still read after the broken record',
+      );
+      expect(records.last, startsWith('Livre 39'));
+    });
+
+    test('the last record needs no trailing newline', () {
+      expect(splitCsvRecords('a;b\nc;d').length, 2);
+    });
+  });
+
+  group('cleaning imported text', () {
+    test('collapses line breaks, tabs and runs of spaces', () {
+      expect(
+        cleanImportedText('El Cuento\n            \n   Coleccion  Popular '),
+        'El Cuento Coleccion Popular',
+      );
+    });
+
+    test('a title longer than the cap is cut, a real one never is', () {
+      // Measured on a real 567-book library: longest title 120 characters,
+      // median 20. The cap exists for malformed files, not for books.
+      final long = 'A' * 400;
+      expect(
+        cleanImportedText(long, maxChars: maxImportedTitleLength).length,
+        maxImportedTitleLength,
+      );
+      const real =
+          "L'Amerique latine et l'Europe a l'heure de la mondialisation. "
+          'Dimensions des relations internationales';
+      expect(cleanImportedText(real, maxChars: maxImportedTitleLength), real);
+    });
+
+    test('an author cell joining many names survives the cap', () {
+      // Exports join every co-author into one cell; the same library carries a
+      // 212 character one. Truncating it would stop it matching the value a
+      // previous import stored whole.
+      final many = List.generate(12, (i) => 'Prenom Nom Numero XXX').join(', ');
+      expect(many.length, greaterThan(200));
+      expect(
+        cleanImportedTextOrNull(many, maxChars: maxImportedAuthorLength),
+        many,
+      );
+    });
+
+    test('the cut lands on a character boundary', () {
+      // Slicing UTF-16 in the middle of a surrogate pair leaves a broken
+      // character; the emoji here are two code units each.
+      final emoji = '\u{1F4DA}' * 400;
+      final cut = cleanImportedText(emoji, maxChars: 10);
+      expect(cut.runes.length, 10);
+      expect(cut, '\u{1F4DA}' * 10);
+    });
+
+    test('a cell holding only whitespace comes back null', () {
+      expect(cleanImportedTextOrNull('   \n  '), isNull);
+      expect(cleanImportedTextOrNull(null), isNull);
+      expect(cleanImportedTextOrNull(' Hugo '), 'Hugo');
+    });
+  });
 }

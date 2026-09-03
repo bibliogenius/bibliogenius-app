@@ -1681,6 +1681,18 @@ Future<FrbMergeReport> mergeDuplicateGroup({required String key}) =>
 Future<int> countDuplicateSurplus() =>
     RustLib.instance.api.crateApiFrbCountDuplicateSurplus();
 
+/// Match every row against the library and fill what the matched books are
+/// missing (`isbn`, `publisher`, `publication_year`), `None`-only and
+/// journalled under one batch id. Creates nothing and overwrites nothing.
+Future<FrbImportCompletionReport> importCompleteFromRows({
+  required List<FrbImportRow> rows,
+}) => RustLib.instance.api.crateApiFrbImportCompleteFromRows(rows: rows);
+
+/// Second signal behind the "your import lost its ISBNs" banner: the biggest
+/// group of ISBN-less owned books added on a single day.
+Future<FrbNoIsbnCluster?> importNoIsbnCluster() =>
+    RustLib.instance.api.crateApiFrbImportNoIsbnCluster();
+
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
 /// Counts cross the FFI as `i64`.
@@ -2743,6 +2755,33 @@ sealed class FrbHubProfile with _$FrbHubProfile {
   }) = _FrbHubProfile;
 }
 
+/// Outcome of one "reimport to complete" campaign.
+@freezed
+sealed class FrbImportCompletionReport with _$FrbImportCompletionReport {
+  const factory FrbImportCompletionReport({
+    required String batchId,
+    required PlatformInt64 rowsRead,
+    required PlatformInt64 completed,
+    required PlatformInt64 fieldsWritten,
+    required PlatformInt64 noMatch,
+    required PlatformInt64 ambiguous,
+    required List<FrbSkippedImportRow> skipped,
+  }) = _FrbImportCompletionReport;
+}
+
+/// One parsed row of the reimported file. Dart owns the parsing (the CSV/XLSX
+/// readers already exist there); this carries the result across.
+@freezed
+sealed class FrbImportRow with _$FrbImportRow {
+  const factory FrbImportRow({
+    required String title,
+    String? author,
+    String? isbn,
+    String? publisher,
+    int? publicationYear,
+  }) = _FrbImportRow;
+}
+
 /// A book that could not be processed (no ISBN), for the manual-fix list.
 @freezed
 sealed class FrbIncompleteBook with _$FrbIncompleteBook {
@@ -3028,6 +3067,15 @@ class FrbMergeReport {
           booksRemoved == other.booksRemoved &&
           copiesCollapsed == other.copiesCollapsed &&
           coversRecovered == other.coversRecovered;
+}
+
+/// The largest same-day group of owned books with no ISBN.
+@freezed
+sealed class FrbNoIsbnCluster with _$FrbNoIsbnCluster {
+  const factory FrbNoIsbnCluster({
+    required String day,
+    required PlatformInt64 count,
+  }) = _FrbNoIsbnCluster;
 }
 
 class FrbNotification {
@@ -3454,6 +3502,16 @@ class FrbSearchSettings {
           runtimeType == other.runtimeType &&
           fallbackPreferences == other.fallbackPreferences &&
           apiKeys == other.apiKeys;
+}
+
+/// A row the campaign did not use, for the two consultable lists.
+@freezed
+sealed class FrbSkippedImportRow with _$FrbSkippedImportRow {
+  const factory FrbSkippedImportRow({
+    required String title,
+    String? author,
+    required String reason,
+  }) = _FrbSkippedImportRow;
 }
 
 /// Streak info (FFI-safe)

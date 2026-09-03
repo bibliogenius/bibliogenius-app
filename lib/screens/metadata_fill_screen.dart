@@ -15,6 +15,7 @@ import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../utils/book_display.dart';
+import '../utils/import_actions.dart';
 import '../widgets/cached_book_cover.dart';
 import '../src/rust/api/frb.dart' as frb;
 
@@ -108,6 +109,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
         return _t('field_publication_year');
       case 'cover_url':
         return _t('field_cover_url');
+      // Not a gap-fill field: only a reimport writes it (ADR-071), and the
+      // recently-completed list shows whatever the journal recorded.
+      case 'isbn':
+        return _t('field_isbn');
       default:
         return field;
     }
@@ -482,17 +487,35 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
   }
 
   /// Shown in place of the start button while the "no ISBN" pill is active.
+  ///
+  /// No run can process these books, so the strip carries the one thing that
+  /// can restore them in bulk: reading the file they were imported from a
+  /// second time (ADR-071). The flash message offering the same mode is
+  /// excluded from this route so the offer never appears twice here.
   Widget _noIsbnScopeStrip() {
     final theme = Theme.of(context);
     return _stripContainer(
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.edit_note, size: 20, color: theme.colorScheme.error),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Text(
-              _t('completeness_no_isbn_scope'),
-              style: theme.textTheme.bodySmall,
+          Row(
+            children: [
+              Icon(Icons.edit_note, size: 20, color: theme.colorScheme.error),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _t('completeness_no_isbn_scope'),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: const Icon(Icons.rule_folder_outlined, size: 18),
+              onPressed: () => ImportActions.completeFromFile(context),
+              label: Text(_t('reimport_action')),
             ),
           ),
         ],
@@ -917,6 +940,11 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
           .map((b) => _buildRecentCard(provider, b))
           .toList();
     }
+    // A whole campaign must stay reversible from a durable place: the
+    // reimport's summary sheet offers this too, but it closes, and undoing
+    // hundreds of books one by one is not an option. Full width, above the
+    // grid: inside it, this warning would be laid out as one more book card.
+    final batch = isTodo ? null : provider.lastBatch;
 
     if (cards.isEmpty) {
       // Under a filter the list is a capped slice of the filtered set, so it
@@ -963,6 +991,10 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
+              if (batch != null) ...[
+                const SizedBox(height: AppDesign.spacingSm),
+                _undoRunBar(provider, batch),
+              ],
               const SizedBox(height: AppDesign.spacingMd),
               Wrap(
                 spacing: spacing,
@@ -1088,6 +1120,120 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
         ),
       ),
     );
+  }
+
+  /// Undo of the last completion as a whole, above the per-book list.
+  ///
+  /// Drawn in the error colours and confirmed before it runs: unlike the arrow
+  /// on a card, which reverts one book, this one reverts a whole campaign, and
+  /// it now sits permanently on a screen the reader visits for other reasons.
+  /// The container pair keeps its contrast in every theme.
+  Widget _undoRunBar(
+    MetadataFillProvider provider,
+    ({String batchId, int books}) batch,
+  ) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final label = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          Icons.warning_amber_rounded,
+          size: 20,
+          color: scheme.onErrorContainer,
+        ),
+        const SizedBox(width: AppDesign.spacingSm),
+        Flexible(
+          child: Text(
+            _t('completeness_undo_run_hint', params: {'n': '${batch.books}'}),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: scheme.onErrorContainer,
+            ),
+          ),
+        ),
+      ],
+    );
+    final action = TextButton.icon(
+      icon: const Icon(Icons.undo, size: 18),
+      style: TextButton.styleFrom(foregroundColor: scheme.onErrorContainer),
+      onPressed: () => _undoRun(provider, batch),
+      label: Text(_t('completeness_undo_run')),
+    );
+
+    return Card(
+      margin: EdgeInsets.zero,
+      color: scheme.errorContainer,
+      child: Padding(
+        padding: const EdgeInsets.all(AppDesign.spacingSm + 2),
+        // Side by side when there is room, stacked when there is not. A Row
+        // that keeps both on one line squeezes the button until its label
+        // wraps one letter per line, which is what a narrow window did.
+        child: LayoutBuilder(
+          builder: (context, c) {
+            if (c.maxWidth < _undoRunBarStackBelow) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  label,
+                  Align(alignment: Alignment.centerLeft, child: action),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: label),
+                const SizedBox(width: AppDesign.spacingSm),
+                action,
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  /// Below this width the sentence and its button stop sharing a line.
+  static const double _undoRunBarStackBelow = 420;
+
+  Future<void> _undoRun(
+    MetadataFillProvider provider,
+    ({String batchId, int books}) batch,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(ctx, 'completeness_undo_run_confirm'),
+        ),
+        content: Text(
+          TranslationService.translate(
+            ctx,
+            'completeness_undo_run_confirm_body',
+            params: {'n': '${batch.books}'},
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(TranslationService.translate(ctx, 'cancel')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              TranslationService.translate(ctx, 'completeness_undo_run'),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    final reverted = await provider.undoRun(batch.batchId);
+    if (!mounted) return;
+    _showSnack(_t('reimport_undone', params: {'count': '$reverted'}));
   }
 
   Widget _buildRecentCard(

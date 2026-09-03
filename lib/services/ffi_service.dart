@@ -662,6 +662,20 @@ class FfiService {
   Future<int> metadataFillUndoRun(String batchId) =>
       frb.metadataFillUndoRun(batchId: batchId);
 
+  // ============ Reimport to complete (ADR-071) ============
+
+  /// Match parsed file rows against the library and fill what the matched
+  /// books are missing (ISBN, publisher, publication year), None-only and
+  /// journalled under one batch id. Creates no book and overwrites no value.
+  Future<frb.FrbImportCompletionReport> importCompleteFromRows(
+    List<frb.FrbImportRow> rows,
+  ) => frb.importCompleteFromRows(rows: rows);
+
+  /// Largest same-day group of owned books with no ISBN, or null when the
+  /// library has none. Second signal behind the "reimport to complete" banner.
+  Future<frb.FrbNoIsbnCluster?> importNoIsbnCluster() =>
+      frb.importNoIsbnCluster();
+
   // ============ Account E2EE Sync ============
   //
   // Thin wrappers over the account-sync FFI. Each returns the raw JSON string

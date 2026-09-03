@@ -50,7 +50,13 @@ class MetadataFillProvider extends ChangeNotifier {
   /// under-announce a large scoped run.
   int? _scopedProcessable;
 
+  /// Largest same-day group of owned books with no ISBN (null = not loaded, or
+  /// the library has none). One of the two signals behind the "reimport to
+  /// complete" banner (ADR-071).
+  frb.FrbNoIsbnCluster? _noIsbnCluster;
+
   frb.FrbCompletenessStats? get stats => _stats;
+  frb.FrbNoIsbnCluster? get noIsbnCluster => _noIsbnCluster;
   frb.FrbFillProgress? get progress => _progress;
   List<frb.FrbFilledBook> get recent => _recent;
   List<frb.FrbIncompleteBookDetail> get incomplete => _incomplete;
@@ -278,6 +284,59 @@ class MetadataFillProvider extends ChangeNotifier {
     await _clearFilterIfEmptied();
   }
 
+  // ── Reimport-to-complete signals (ADR-071) ──────────────────────────────
+
+  /// A library must hold at least this many owned books before the banner can
+  /// speak: below it, a shelf without ISBNs is a handful of hand-typed books.
+  static const int importBannerMinLibrary = 50;
+
+  /// And that many of them, added on a single day, before the shape counts as
+  /// a bulk import rather than a habit.
+  static const int importBannerMinCluster = 50;
+
+  /// Share of the library that must lack an ISBN.
+  static const double importBannerMinRatio = 0.8;
+
+  /// Whether the library looks like an import that lost its ISBN column.
+  ///
+  /// Two independent signals, both required (ADR-071 D9): most of the library
+  /// has no ISBN, AND a large group of those books was added on the same day.
+  /// The ratio alone cannot tell a botched import from a shelf typed in by
+  /// hand, and accusing the wrong person is worse than staying quiet. Both can
+  /// only understate the case, since `noIsbn` counts incomplete books only.
+  bool get suggestsFailedImport {
+    final stats = _stats;
+    final cluster = _noIsbnCluster;
+    if (stats == null || cluster == null) return false;
+    final owned = stats.ownedTotal.toInt();
+    if (owned < importBannerMinLibrary) return false;
+    if (cluster.count.toInt() < importBannerMinCluster) return false;
+    return stats.noIsbn.toInt() >= owned * importBannerMinRatio;
+  }
+
+  /// Load what [suggestsFailedImport] reads: two local queries, no network.
+  /// Failures leave the banner silent.
+  ///
+  /// **Both** are re-read on every call, never only the missing one. This runs
+  /// at startup and again after an import, and at startup the library it
+  /// measured may have been empty: keeping a stale count would leave the banner
+  /// blind at the one moment it exists for, the minutes after an import that
+  /// lost its ISBNs.
+  ///
+  /// No retry: at startup the FFI bridge may not be up yet, and a retry timer
+  /// that outlives the caller is a hang in tests and a wakeup on battery. The
+  /// completeness screen and the dashboard load the same stat with their own
+  /// retries, and the banner is rebuilt when they land.
+  Future<void> loadImportSignals() async {
+    await loadStats(retriesLeft: 0);
+    try {
+      _noIsbnCluster = await _ffi.importNoIsbnCluster();
+      _safeNotify();
+    } catch (e) {
+      debugPrint('MetadataFillProvider.loadImportSignals error: $e');
+    }
+  }
+
   /// Drop a filter whose slice has emptied (its books were completed, or the
   /// last one without an ISBN got one). Its pill is gone from the bar, so the
   /// user would be left on an empty list with no way to clear it.
@@ -373,6 +432,43 @@ class MetadataFillProvider extends ChangeNotifier {
 
   /// Undo a single filled field. Returns the outcome:
   /// `reverted` | `superseded` | `not_found`.
+  /// The batch every entry of the newest completion belongs to, with how many
+  /// books it touched, or null when nothing is undoable.
+  ///
+  /// The recently-completed list is grouped by book and ordered newest first,
+  /// so the first entry names the last campaign that ran. A whole campaign has
+  /// to stay reversible from a durable screen: the reimport's own summary sheet
+  /// offers it, but that sheet closes, and undoing five hundred books one by
+  /// one is not an option.
+  ({String batchId, int books})? get lastBatch {
+    for (final book in _recent) {
+      if (book.fields.isNotEmpty) {
+        final id = book.fields.first.batchId;
+        final books = _recent
+            .where((b) => b.fields.any((f) => f.batchId == id))
+            .length;
+        return (batchId: id, books: books);
+      }
+    }
+    return null;
+  }
+
+  /// Revert every field one campaign added. Returns the number reverted.
+  Future<int> undoRun(String batchId) async {
+    int reverted = 0;
+    try {
+      reverted = await _ffi.metadataFillUndoRun(batchId);
+    } catch (e) {
+      debugPrint('MetadataFillProvider.undoRun error: $e');
+    }
+    // No `loadStats()` here: `loadImportSignals` reloads it, and the banner
+    // that offers the repair needs it fresh anyway. A campaign undone is a
+    // library back in the state that made the offer relevant.
+    await Future.wait([loadRecent(), loadIncomplete()]);
+    await loadImportSignals();
+    return reverted;
+  }
+
   Future<String> undoField(int journalId) async {
     String outcome = 'not_found';
     try {

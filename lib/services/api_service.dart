@@ -1964,10 +1964,21 @@ class ApiService {
   /// arrived with 2861 books and not one ISBN behind a success message.
   static const String importErrorIsbnColumnMissing = 'isbn_column_missing';
 
+  /// Read a CSV/XLSX/TXT library file.
+  ///
+  /// `sink` replaces the book-creating destination: passing one turns this into
+  /// a pure read, which is how "reimport to complete" (ADR-071) gets the file's
+  /// rows without duplicating the shelf. Every write the read path would
+  /// otherwise perform is suppressed with it (the XLSX shelf creation).
+  ///
+  /// `isbnColumnIndex` overrides the column lookup for this call only, for a
+  /// file whose ISBN column no name recognises: the reader points at it.
   Future<Response> importBooks(
     dynamic fileSource, {
     String? filename,
     bool allowMissingIsbn = false,
+    Future<void> Function(frb.FrbBook book)? sink,
+    int? isbnColumnIndex,
   }) async {
     // FFI mode: Parse CSV/XLSX and create books locally
     if (useFfi) {
@@ -1982,6 +1993,8 @@ class ApiService {
             fileSource,
             filename,
             allowMissingIsbn: allowMissingIsbn,
+            sink: sink,
+            isbnColumnIndex: isbnColumnIndex,
           );
         }
 
@@ -1993,6 +2006,8 @@ class ApiService {
               fileSource,
               filename,
               allowMissingIsbn: allowMissingIsbn,
+              sink: sink,
+              isbnColumnIndex: isbnColumnIndex,
             );
           }
           // Native: Read file from path
@@ -2005,11 +2020,10 @@ class ApiService {
           throw Exception("Unsupported file source type");
         }
 
-        // Parse CSV
-        final lines = csvContent
-            .split('\n')
-            .where((l) => l.trim().isNotEmpty)
-            .toList();
+        // Parse CSV. Records, not lines: a quoted title carrying a line break
+        // is one record spread over several lines, and cutting on the line
+        // breaks first turned it into two books.
+        final lines = splitCsvRecords(csvContent);
         if (lines.isEmpty) {
           return Response(
             requestOptions: RequestOptions(path: '/api/import'),
@@ -2030,7 +2044,7 @@ class ApiService {
           (h) => h.contains('title') || h.contains('titre'),
         );
         final authorIdx = findAuthorColumn(headerLower);
-        final isbnIdx = findIsbnColumn(headerLower);
+        final isbnIdx = _resolveIsbnColumn(headerLower, isbnColumnIndex);
         final publisherIdx = headerLower.indexWhere(
           (h) =>
               h.contains('publisher') ||
@@ -2065,13 +2079,16 @@ class ApiService {
           return _isbnColumnMissing(header);
         }
 
+        final send = sink ?? importBookSink;
+
         int imported = 0;
         int withIsbn = 0;
         int rejectedIsbn = 0;
         for (int i = 1; i < lines.length; i++) {
           final values = parseCsvLine(lines[i], delimiter: delimiter);
           if (values.isEmpty ||
-              (titleIdx < values.length && values[titleIdx].trim().isEmpty)) {
+              (titleIdx < values.length &&
+                  cleanImportedText(values[titleIdx]).isEmpty)) {
             continue;
           }
 
@@ -2086,19 +2103,31 @@ class ApiService {
             final isbn = cleanImportedIsbn(getValueOrNull(isbnIdx));
 
             final book = frb.FrbBook(
+              // Whitespace is collapsed on the way in: these values come from
+              // an export or a scraper, and a title with a line break in it is
+              // unreadable in a list and breaks the next CSV round trip.
               title: titleIdx < values.length
-                  ? values[titleIdx].trim()
+                  ? cleanImportedText(
+                      values[titleIdx],
+                      maxChars: maxImportedTitleLength,
+                    )
                   : 'Unknown',
-              author: getValueOrNull(authorIdx),
+              author: cleanImportedTextOrNull(
+                getValueOrNull(authorIdx),
+                maxChars: maxImportedAuthorLength,
+              ),
               isbn: isbn.isbn,
-              publisher: getValueOrNull(publisherIdx),
+              publisher: cleanImportedTextOrNull(
+                getValueOrNull(publisherIdx),
+                maxChars: maxImportedPublisherLength,
+              ),
               publicationYear: yearIdx >= 0 && yearIdx < values.length
                   ? parsePublicationYear(values[yearIdx])
                   : null,
               owned: true,
               private: false,
             );
-            await importBookSink(book);
+            await send(book);
             imported++;
             if (isbn.isbn != null) withIsbn++;
             if (isbn.rejected) rejectedIsbn++;
@@ -2146,26 +2175,48 @@ class ApiService {
     return await _dio.post('/api/import/file', data: formData);
   }
 
+  /// The ISBN column to read: the one the caller designated, else the one the
+  /// header names recognise. An out-of-range index is treated as no override,
+  /// so a stale choice degrades to the ordinary lookup instead of reading a
+  /// column that is not there.
+  int _resolveIsbnColumn(List<String> headerLower, int? chosen) {
+    if (chosen != null && chosen >= 0 && chosen < headerLower.length) {
+      return chosen;
+    }
+    return findIsbnColumn(headerLower);
+  }
+
   /// The file names no ISBN column: hand the headers back so the caller can
   /// show them and ask whether to import without ISBN. Capped, because a
   /// file that is not a spreadsheet at all yields one enormous "header".
+  ///
+  /// `column_positions` carries each listed header's index in the original row.
+  /// The list drops the empty headers and truncates the long ones for display,
+  /// so its own indices cannot be handed back as a column choice.
   Response _isbnColumnMissing(List<String> header) {
     const maxColumns = 30;
     const maxNameLength = 40;
-    final columns = header
-        .map((h) => h.trim())
-        .where((h) => h.isNotEmpty)
-        .take(maxColumns)
-        .map(
-          (h) => h.length <= maxNameLength
-              ? h
-              : '${h.substring(0, maxNameLength)}...',
-        )
-        .toList();
+    final kept = <MapEntry<int, String>>[];
+    for (var i = 0; i < header.length && kept.length < maxColumns; i++) {
+      final name = header[i].trim();
+      if (name.isEmpty) continue;
+      kept.add(
+        MapEntry(
+          i,
+          name.length <= maxNameLength
+              ? name
+              : '${name.substring(0, maxNameLength)}...',
+        ),
+      );
+    }
     return Response(
       requestOptions: RequestOptions(path: '/api/import'),
       statusCode: 400,
-      data: {'error': importErrorIsbnColumnMissing, 'columns': columns},
+      data: {
+        'error': importErrorIsbnColumnMissing,
+        'columns': kept.map((e) => e.value).toList(),
+        'column_positions': kept.map((e) => e.key).toList(),
+      },
     );
   }
 
@@ -2181,6 +2232,8 @@ class ApiService {
     dynamic fileSource,
     String? filename, {
     bool allowMissingIsbn = false,
+    Future<void> Function(frb.FrbBook book)? sink,
+    int? isbnColumnIndex,
   }) async {
     try {
       List<int> bytes;
@@ -2218,7 +2271,7 @@ class ApiService {
         (h) => h == 'book_title' || h.contains('title') || h.contains('titre'),
       );
       final authorIdx = findAuthorColumn(headers);
-      final isbnIdx = findIsbnColumn(headers);
+      final isbnIdx = _resolveIsbnColumn(headers, isbnColumnIndex);
       final wishIdx = headers.indexWhere((h) => h == 'wish');
       final ownIdx = headers.indexWhere((h) => h == 'own');
       final readingIdx = headers.indexWhere((h) => h == 'reading');
@@ -2241,9 +2294,14 @@ class ApiService {
         return _isbnColumnMissing(rawHeaders);
       }
 
+      final send = sink ?? importBookSink;
+      // A caller that only wants the rows gets no side effect: creating shelves
+      // is a write, and a read must leave the library exactly as it found it.
+      final readOnly = sink != null;
+
       // Collect unique shelf names from all rows
       final Set<String> uniqueShelves = {};
-      if (shelvesIdx >= 0) {
+      if (shelvesIdx >= 0 && !readOnly) {
         for (int i = 1; i < sheet.rows.length; i++) {
           final row = sheet.rows[i];
           if (row.isEmpty || shelvesIdx >= row.length) continue;
@@ -2346,8 +2404,11 @@ class ApiService {
                 strValue == 'oui';
           }
 
-          final title = getCellValue(titleIdx);
-          if (title == null || title.isEmpty) {
+          final title = cleanImportedText(
+            getCellValue(titleIdx),
+            maxChars: maxImportedTitleLength,
+          );
+          if (title.isEmpty) {
             skipped++;
             continue;
           }
@@ -2404,7 +2465,10 @@ class ApiService {
           // Create the book with shelf as subject
           final book = frb.FrbBook(
             title: title,
-            author: getCellValue(authorIdx),
+            author: cleanImportedTextOrNull(
+              getCellValue(authorIdx),
+              maxChars: maxImportedAuthorLength,
+            ),
             isbn: isbn.isbn,
             readingStatus: readingStatus,
             owned: owned,
@@ -2412,7 +2476,7 @@ class ApiService {
             private: false,
           );
 
-          await importBookSink(book);
+          await send(book);
           imported++;
           if (isbn.isbn != null) withIsbn++;
           if (isbn.rejected) rejectedIsbn++;

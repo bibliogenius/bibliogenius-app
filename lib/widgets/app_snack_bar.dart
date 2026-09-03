@@ -20,6 +20,7 @@ class AppSnackBar {
     String message, {
     Duration? duration,
     SnackBarAction? action,
+    bool? persist,
   }) {
     _show(
       context,
@@ -28,6 +29,7 @@ class AppSnackBar {
       backgroundColorKey: _BgColor.success,
       duration: duration ?? _defaultDuration,
       action: action,
+      persist: persist,
     );
   }
 
@@ -37,6 +39,7 @@ class AppSnackBar {
     String message, {
     Duration? duration,
     SnackBarAction? action,
+    bool? persist,
   }) {
     _show(
       context,
@@ -45,6 +48,7 @@ class AppSnackBar {
       backgroundColorKey: _BgColor.error,
       duration: duration ?? _errorDuration,
       action: action,
+      persist: persist,
     );
   }
 
@@ -54,6 +58,7 @@ class AppSnackBar {
     String message, {
     Duration? duration,
     SnackBarAction? action,
+    bool? persist,
   }) {
     _show(
       context,
@@ -62,6 +67,7 @@ class AppSnackBar {
       backgroundColorKey: _BgColor.info,
       duration: duration ?? _defaultDuration,
       action: action,
+      persist: persist,
     );
   }
 
@@ -87,6 +93,7 @@ class AppSnackBar {
     required _BgColor backgroundColorKey,
     required Duration duration,
     SnackBarAction? action,
+    bool? persist,
   }) {
     final cs = Theme.of(context).colorScheme;
 
@@ -120,6 +127,12 @@ class AppSnackBar {
       ),
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       duration: duration,
+      // Flutter defaults `persist` to `action != null` (`snack_bar.dart:303`),
+      // which makes `duration` inert: the bar then waits for a tap or a swipe,
+      // follows the reader from screen to screen because the ScaffoldMessenger
+      // sits above the Navigator, and holds up every message queued behind it.
+      // A caller that offers an action AND wants the bar to expire says so.
+      persist: persist,
       // Recolour the caller's action against OUR background. Left alone, a
       // SnackBarAction takes its colour from the Material theme, which is
       // `primary`: blue on the blue `primaryContainer` of a success bar, the

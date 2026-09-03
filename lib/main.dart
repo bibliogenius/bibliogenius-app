@@ -23,6 +23,7 @@ import 'services/avatar_sync_service.dart';
 import 'services/curated_lists_service.dart';
 import 'src/rust/api/frb.dart' as frb;
 import 'utils/app_constants.dart';
+import 'utils/import_actions.dart';
 import 'utils/invite_payload.dart';
 import 'utils/language_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1675,7 +1676,39 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         ),
       );
 
+      // Diagnostic: the library looks like an import that lost its ISBN column
+      // (ADR-071). Two signals are required, and the wording stays in the
+      // conditional: a shelf typed in by hand without ISBNs must recognise
+      // itself in the sentence and walk away, not be accused of a mistake.
+      // Excluded from the completeness screen, which offers the same action in
+      // its "no ISBN" strip.
+      flashProvider.register(
+        FlashMessageDefinition(
+          key: 'flash_reimport_to_complete',
+          textKey: 'flash_reimport_to_complete',
+          icon: Icons.rule_folder_outlined,
+          fullWidthContent: true,
+          // listen: true on purpose: the signals load asynchronously, and the
+          // flash bar only rebuilds for providers it depends on.
+          condition: (ctx) =>
+              Provider.of<MetadataFillProvider>(ctx).suggestsFailedImport,
+          excludedRoutes: [
+            '/onboarding',
+            '/settings',
+            '/library-completeness',
+          ],
+          contentBuilder: (ctx, dismiss) => const _FlashReimportToComplete(),
+        ),
+      );
+
       flashProvider.loadDismissedFlags();
+
+      // Both signals come from two local queries; loading them once here keeps
+      // the banner out of every screen's build path.
+      Provider.of<MetadataFillProvider>(
+        context,
+        listen: false,
+      ).loadImportSignals();
 
       // Wire incoming peer detection to ephemeral flashes
       final pendingProvider = Provider.of<PendingPeersProvider>(
@@ -1874,6 +1907,43 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 /// Inline library name editor for Flash A.
 /// Shows a compact TextField pre-filled with the current name.
 /// An "OK" button appears when the text differs from the current value.
+/// Content of the "your import lost its ISBNs" flash: what was observed, then
+/// the inference in the conditional, then the one action worth taking.
+class _FlashReimportToComplete extends StatelessWidget {
+  const _FlashReimportToComplete();
+
+  @override
+  Widget build(BuildContext context) {
+    final count = context
+        .watch<MetadataFillProvider>()
+        .noIsbnCluster
+        ?.count
+        .toInt();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          TranslationService.translate(
+            context,
+            'flash_reimport_to_complete',
+            params: {'count': '${count ?? 0}'},
+          ),
+          style: const TextStyle(fontSize: 13),
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton(
+            onPressed: () => ImportActions.completeFromFile(context),
+            child: Text(
+              TranslationService.translate(context, 'reimport_action'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _FlashLibraryNameEditor extends StatefulWidget {
   final VoidCallback onDismiss;
   const _FlashLibraryNameEditor({required this.onDismiss});

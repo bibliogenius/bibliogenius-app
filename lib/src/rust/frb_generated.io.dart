@@ -75,6 +75,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbFillProgress dco_decode_box_autoadd_frb_fill_progress(dynamic raw);
 
   @protected
+  FrbNoIsbnCluster dco_decode_box_autoadd_frb_no_isbn_cluster(dynamic raw);
+
+  @protected
   FrbRegisterParams dco_decode_box_autoadd_frb_register_params(dynamic raw);
 
   @protected
@@ -214,6 +217,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbHubProfile dco_decode_frb_hub_profile(dynamic raw);
 
   @protected
+  FrbImportCompletionReport dco_decode_frb_import_completion_report(
+    dynamic raw,
+  );
+
+  @protected
+  FrbImportRow dco_decode_frb_import_row(dynamic raw);
+
+  @protected
   FrbIncompleteBook dco_decode_frb_incomplete_book(dynamic raw);
 
   @protected
@@ -249,6 +260,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbMergeReport dco_decode_frb_merge_report(dynamic raw);
+
+  @protected
+  FrbNoIsbnCluster dco_decode_frb_no_isbn_cluster(dynamic raw);
 
   @protected
   FrbNotification dco_decode_frb_notification(dynamic raw);
@@ -299,6 +313,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbSearchSettings dco_decode_frb_search_settings(dynamic raw);
+
+  @protected
+  FrbSkippedImportRow dco_decode_frb_skipped_import_row(dynamic raw);
 
   @protected
   FrbStreakInfo dco_decode_frb_streak_info(dynamic raw);
@@ -398,6 +415,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbHubProfile> dco_decode_list_frb_hub_profile(dynamic raw);
 
   @protected
+  List<FrbImportRow> dco_decode_list_frb_import_row(dynamic raw);
+
+  @protected
   List<FrbIncompleteBook> dco_decode_list_frb_incomplete_book(dynamic raw);
 
   @protected
@@ -450,6 +470,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbRollbackInfo> dco_decode_list_frb_rollback_info(dynamic raw);
 
   @protected
+  List<FrbSkippedImportRow> dco_decode_list_frb_skipped_import_row(dynamic raw);
+
+  @protected
   List<FrbTag> dco_decode_list_frb_tag(dynamic raw);
 
   @protected
@@ -495,6 +518,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbFillProgress? dco_decode_opt_box_autoadd_frb_fill_progress(dynamic raw);
+
+  @protected
+  FrbNoIsbnCluster? dco_decode_opt_box_autoadd_frb_no_isbn_cluster(dynamic raw);
 
   @protected
   FrbRelayConfig? dco_decode_opt_box_autoadd_frb_relay_config(dynamic raw);
@@ -606,6 +632,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbFillProgress sse_decode_box_autoadd_frb_fill_progress(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbNoIsbnCluster sse_decode_box_autoadd_frb_no_isbn_cluster(
     SseDeserializer deserializer,
   );
 
@@ -787,6 +818,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbHubProfile sse_decode_frb_hub_profile(SseDeserializer deserializer);
 
   @protected
+  FrbImportCompletionReport sse_decode_frb_import_completion_report(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbImportRow sse_decode_frb_import_row(SseDeserializer deserializer);
+
+  @protected
   FrbIncompleteBook sse_decode_frb_incomplete_book(
     SseDeserializer deserializer,
   );
@@ -830,6 +869,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbMergeReport sse_decode_frb_merge_report(SseDeserializer deserializer);
+
+  @protected
+  FrbNoIsbnCluster sse_decode_frb_no_isbn_cluster(SseDeserializer deserializer);
 
   @protected
   FrbNotification sse_decode_frb_notification(SseDeserializer deserializer);
@@ -894,6 +936,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbSearchSettings sse_decode_frb_search_settings(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbSkippedImportRow sse_decode_frb_skipped_import_row(
     SseDeserializer deserializer,
   );
 
@@ -1027,6 +1074,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<FrbImportRow> sse_decode_list_frb_import_row(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<FrbIncompleteBook> sse_decode_list_frb_incomplete_book(
     SseDeserializer deserializer,
   );
@@ -1095,6 +1147,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<FrbSkippedImportRow> sse_decode_list_frb_skipped_import_row(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<FrbTag> sse_decode_list_frb_tag(SseDeserializer deserializer);
 
   @protected
@@ -1152,6 +1209,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbFillProgress? sse_decode_opt_box_autoadd_frb_fill_progress(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbNoIsbnCluster? sse_decode_opt_box_autoadd_frb_no_isbn_cluster(
     SseDeserializer deserializer,
   );
 
@@ -1282,6 +1344,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_frb_fill_progress(
     FrbFillProgress self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_frb_no_isbn_cluster(
+    FrbNoIsbnCluster self,
     SseSerializer serializer,
   );
 
@@ -1517,6 +1585,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_frb_hub_profile(FrbHubProfile self, SseSerializer serializer);
 
   @protected
+  void sse_encode_frb_import_completion_report(
+    FrbImportCompletionReport self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_import_row(FrbImportRow self, SseSerializer serializer);
+
+  @protected
   void sse_encode_frb_incomplete_book(
     FrbIncompleteBook self,
     SseSerializer serializer,
@@ -1573,6 +1650,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_merge_report(
     FrbMergeReport self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_no_isbn_cluster(
+    FrbNoIsbnCluster self,
     SseSerializer serializer,
   );
 
@@ -1666,6 +1749,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_search_settings(
     FrbSearchSettings self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_skipped_import_row(
+    FrbSkippedImportRow self,
     SseSerializer serializer,
   );
 
@@ -1832,6 +1921,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_frb_import_row(
+    List<FrbImportRow> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_frb_incomplete_book(
     List<FrbIncompleteBook> self,
     SseSerializer serializer,
@@ -1913,6 +2008,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_frb_skipped_import_row(
+    List<FrbSkippedImportRow> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_frb_tag(List<FrbTag> self, SseSerializer serializer);
 
   @protected
@@ -1984,6 +2085,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_frb_fill_progress(
     FrbFillProgress? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_no_isbn_cluster(
+    FrbNoIsbnCluster? self,
     SseSerializer serializer,
   );
 
