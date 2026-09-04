@@ -8,11 +8,25 @@ import 'app_drawer.dart';
 import 'flash_message_bar.dart';
 import '../utils/global_keys.dart';
 
+/// Width above which the shell always shows the side [NavigationRail].
+///
+/// At or below it, the user's bottom-bar preference decides between the bottom
+/// navigation bar and the drawer; above it the rail wins and that preference
+/// has no effect at all.
+const double navRailBreakpoint = 600;
+
+/// Whether the current layout is wide enough to force the side navigation rail.
+///
+/// Single source of truth for the rail decision: the shell uses it to pick a
+/// layout, and Settings uses it to hide the navigation-style selector rather
+/// than offer a control that silently does nothing.
+bool usesNavigationRail(BuildContext context) =>
+    MediaQuery.of(context).size.width > navRailBreakpoint;
+
 /// Returns a hamburger menu button if the drawer is available, null otherwise.
 /// Used by screens that show the drawer toggle on mobile.
 Widget? buildDrawerLeading(BuildContext context) {
-  final width = MediaQuery.of(context).size.width;
-  if (width > 600) return null;
+  if (usesNavigationRail(context)) return null;
   final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
   if (themeProvider.bottomNavEnabled) return null;
   return IconButton(
@@ -29,8 +43,7 @@ class ScaffoldWithNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final bool useRail = width > 600;
+    final bool useRail = usesNavigationRail(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final bool useBottomNav = !useRail && themeProvider.bottomNavEnabled;
 

@@ -632,6 +632,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final hasPassword = _userInfo?['has_password'] ?? false;
     final mfaEnabled = _userInfo?['mfa_enabled'] ?? false;
+    // Above the rail breakpoint the shell always shows the NavigationRail, so
+    // the navigation-style preference would be inert: hide it there.
+    final showNavStyle = !usesNavigationRail(context);
 
     return RefreshIndicator(
       onRefresh: _fetchSettings,
@@ -955,9 +958,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Theme accordion (theme + text size)
                 if (_sectionVisible([
                   'theme_title',
-                  'nav_style_label',
-                  'nav_style_side_menu',
-                  'nav_style_bottom_bar',
+                  if (showNavStyle) ...[
+                    'nav_style_label',
+                    'nav_style_side_menu',
+                    'nav_style_bottom_bar',
+                  ],
                 ]))
                   Card(
                     margin: const EdgeInsets.only(bottom: 12),
@@ -984,8 +989,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _buildThemeSelector(context, themeProvider),
                               const SizedBox(height: 24),
                               _buildTextScaleSlider(context, themeProvider),
-                              const SizedBox(height: 24),
-                              _buildNavStyleSelector(context, themeProvider),
+                              if (showNavStyle) ...[
+                                const SizedBox(height: 24),
+                                _buildNavStyleSelector(context, themeProvider),
+                              ],
                             ],
                           ),
                         ),
