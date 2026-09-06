@@ -492,6 +492,13 @@ Future<PlatformInt64> metadataFillProcessable({String? missingField}) => RustLib
 Future<PlatformInt64> metadataFillCoversSourcesHaveNot() =>
     RustLib.instance.api.crateApiFrbMetadataFillCoversSourcesHaveNot();
 
+/// Owned books with no author at all. Reported on its own, next to the "no
+/// ISBN" bucket, because the fill campaign cannot write an author: without
+/// this number they are counted as complete and nothing in the app says
+/// otherwise.
+Future<PlatformInt64> metadataFillBooksWithoutAuthor() =>
+    RustLib.instance.api.crateApiFrbMetadataFillBooksWithoutAuthor();
+
 /// Current/last run progress (None if a run has never been started).
 Future<FrbFillProgress?> metadataFillProgress() =>
     RustLib.instance.api.crateApiFrbMetadataFillProgress();

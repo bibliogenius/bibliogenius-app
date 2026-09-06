@@ -45,6 +45,19 @@ class MetadataFillProvider extends ChangeNotifier {
   /// only while the cover filter is on (null = not loaded / not applicable).
   int? _coversSourcesHaveNot;
 
+  /// Owned books with no author at all (null while loading).
+  ///
+  /// The count is library-wide, and the two halves follow from that. It is
+  /// loaded on every refresh and never reset by a filter change, unlike
+  /// [_coversSourcesHaveNot]; but the screen renders it on the *unfiltered*
+  /// overview only, because every other number in that header narrows to the
+  /// active filter and this one cannot.
+  ///
+  /// It exists because nothing else reports these books: an author is a
+  /// `book_authors` relation, so it is not a gap-fill field, and the
+  /// completeness count calls a book with no author *complete*.
+  int? _booksWithoutAuthor;
+
   /// Exact backlog for [scopeField], from the backend (null while loading).
   /// Not derived from [incomplete]: that list is capped, so counting it would
   /// under-announce a large scoped run.
@@ -134,6 +147,10 @@ class MetadataFillProvider extends ChangeNotifier {
   /// asked about and answered empty. Null until the cover filter loads it.
   int? get coversSourcesHaveNot => _coversSourcesHaveNot;
 
+  /// Owned books with no author at all. Null while loading, 0 when there are
+  /// none. The gap-fill campaign cannot close these: only a manual edit can.
+  int? get booksWithoutAuthor => _booksWithoutAuthor;
+
   /// Field the current/last run was actually scoped to, as recorded when it
   /// started. Drives the "scope" line on the running / resume strips: a resume
   /// keeps the run's own scope, whatever the filter now says.
@@ -171,6 +188,20 @@ class MetadataFillProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('MetadataFillProvider.loadScopedProcessable error: $e');
+    }
+  }
+
+  /// Load the authorless count. Deliberately its own failure domain: it is an
+  /// extra line on a card that already works, so a query that fails must leave
+  /// the card intact rather than blank it and start the stats retry loop.
+  Future<void> _loadBooksWithoutAuthor() async {
+    try {
+      final count = await _ffi.metadataFillBooksWithoutAuthor();
+      if (_disposed) return;
+      _booksWithoutAuthor = count;
+      _safeNotify();
+    } catch (e) {
+      debugPrint('MetadataFillProvider.loadBooksWithoutAuthor error: $e');
     }
   }
 
@@ -227,6 +258,7 @@ class MetadataFillProvider extends ChangeNotifier {
       loadRecent(),
       loadIncomplete(),
       _loadScopedProcessable(),
+      _loadBooksWithoutAuthor(),
       _loadCoversSourcesHaveNot(),
     ]);
     if (isRunning) _startPolling();
@@ -256,6 +288,7 @@ class MetadataFillProvider extends ChangeNotifier {
       loadStats(),
       loadIncomplete(),
       _loadScopedProcessable(),
+      _loadBooksWithoutAuthor(),
     ]);
   }
 
@@ -505,6 +538,7 @@ class MetadataFillProvider extends ChangeNotifier {
       loadRecent(),
       loadIncomplete(),
       _loadScopedProcessable(),
+      _loadBooksWithoutAuthor(),
       _loadCoversSourcesHaveNot(),
     ]);
   }

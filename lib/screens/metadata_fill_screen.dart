@@ -169,6 +169,18 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                           const SizedBox(height: AppDesign.spacingSm),
                           _coversNote(provider),
                         ],
+                        // Overview only. The count is library-wide, and every
+                        // other number in this header narrows to the active
+                        // filter, so showing it alongside them would put two
+                        // populations in one block. There is no author pill to
+                        // scope it to either: an author is not a gap-fill
+                        // field. The header is also kept above the fold, and
+                        // this strip must not eat that budget on every filter.
+                        if (filter == null &&
+                            (provider.booksWithoutAuthor ?? 0) > 0) ...[
+                          const SizedBox(height: AppDesign.spacingSm),
+                          _authorsNote(provider),
+                        ],
                       ],
                     ),
                   ),
@@ -478,6 +490,39 @@ class _MetadataFillScreenState extends State<MetadataFillScreen>
                       params: {'n': '$exhausted'},
                     )
                   : _t('completeness_covers_hint'),
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Books with no author at all. They are the one gap this screen cannot
+  /// close: an author is a `book_authors` relation, not a column, so no run
+  /// writes it and every count above reports these books as *complete*. Saying
+  /// so is the whole point of the line; it deliberately offers no action,
+  /// because the only one is editing each book by hand.
+  ///
+  /// Rendered on the unfiltered overview only (see the call site): the number
+  /// covers the whole library, which would contradict the filtered counts it
+  /// would otherwise sit next to.
+  Widget _authorsNote(MetadataFillProvider provider) {
+    final theme = Theme.of(context);
+    final n = provider.booksWithoutAuthor ?? 0;
+    return _stripContainer(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(
+            Icons.person_off_outlined,
+            size: 20,
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+          const SizedBox(width: AppDesign.spacingSm),
+          Expanded(
+            child: Text(
+              _t('completeness_books_without_author', params: {'n': '$n'}),
               style: theme.textTheme.bodySmall,
             ),
           ),

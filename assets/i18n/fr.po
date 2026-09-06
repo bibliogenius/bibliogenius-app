@@ -10443,6 +10443,9 @@ msgstr "Ces livres n'ont pas d'ISBN : la complétion automatique ne peut pas les
 msgid "completeness_covers_unavailable"
 msgstr "{n} de ces livres ont déjà été cherchés dans les sources actives, sans résultat : aucune ne publie de couverture pour eux. Une campagne n'y changera rien. Ajoutez-la à la main depuis la fiche du livre, ou activez d'autres sources dans les réglages."
 
+msgid "completeness_books_without_author"
+msgstr "{n} livres n'ont aucun auteur. Une campagne ne peut pas le renseigner : l'auteur n'est pas un champ du livre mais une fiche liée. Ces livres sont comptés comme complets ci-dessus. Ajoutez l'auteur depuis la fiche du livre."
+
 msgid "completeness_covers_hint"
 msgstr "Une couverture ne peut venir que d'une source qui en publie une. Celles qui restent après une campagne s'ajoutent à la main depuis la fiche du livre."
 

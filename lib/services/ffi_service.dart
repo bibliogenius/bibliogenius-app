@@ -616,6 +616,11 @@ class FfiService {
   Future<int> metadataFillCoversSourcesHaveNot() async =>
       (await frb.metadataFillCoversSourcesHaveNot()).toInt();
 
+  /// Owned books carrying no author at all. Its own axis: the fill campaign
+  /// cannot write an author, so these are counted as complete everywhere else.
+  Future<int> metadataFillBooksWithoutAuthor() async =>
+      (await frb.metadataFillBooksWithoutAuthor()).toInt();
+
   /// How many books a run started now would process, narrowed to the books
   /// missing `missingField` when one is given.
   Future<int> metadataFillProcessable({String? missingField}) async =>

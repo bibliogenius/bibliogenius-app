@@ -8456,6 +8456,9 @@ msgstr ""
 msgid "completeness_covers_unavailable"
 msgstr ""
 
+msgid "completeness_books_without_author"
+msgstr ""
+
 msgid "completeness_covers_hint"
 msgstr ""
 

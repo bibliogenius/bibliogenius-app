@@ -10448,6 +10448,9 @@ msgstr "These books have no ISBN: the automatic fill cannot identify them. Compl
 msgid "completeness_covers_unavailable"
 msgstr "{n} of these books have already been looked up in the active sources, with no result: none of them publishes a cover for those. Another run will not change that. Add one by hand from the book page, or enable more sources in the settings."
 
+msgid "completeness_books_without_author"
+msgstr "{n} books have no author at all. A run cannot fill it in: an author is a linked record, not a field on the book. Those books are counted as complete above. Add the author from the book page."
+
 msgid "completeness_covers_hint"
 msgstr "A cover can only come from a source that publishes one. Those still missing after a run can be added by hand from the book page."
 
