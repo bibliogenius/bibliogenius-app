@@ -1444,7 +1444,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       'Operation Log',
                                 ),
                                 trailing: const Icon(Icons.chevron_right),
-                                onTap: () => context.go('/operation-log'),
+                                // push, not go: keeps the settings page under
+                                // it so the log has a real back destination.
+                                onTap: () => context.push('/operation-log'),
                               ),
                             ),
                           ),
