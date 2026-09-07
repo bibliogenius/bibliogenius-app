@@ -756,6 +756,13 @@ class FfiService {
   /// stays fully inert on default builds, where the data leg is a no-op.
   Future<bool> accountSyncCapable() => frb.accountSyncCapableFfi();
 
+  /// Change the account passphrase from this signed-in device (ADR-042 lot B).
+  /// The old passphrase is not needed: the device re-wraps the trousseau it
+  /// already holds and the hub authenticates the change with the account key.
+  /// May fail with the routable prefix `E_WEAK_PASSPHRASE`.
+  Future<String> accountChangePassphrase(String newPassphrase) =>
+      frb.accountChangePassphraseFfi(newPassphrase: newPassphrase);
+
   /// Sign out on this device: drop the in-RAM session and delete the encrypted
   /// row. Does not revoke the device server-side. Idempotent.
   Future<String> accountLogout() => frb.accountLogoutFfi();

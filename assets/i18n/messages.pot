@@ -5325,7 +5325,7 @@ msgstr ""
 msgid "account_shared_trust_note"
 msgstr ""
 
-#. Signup screen - the passphrase cannot be reset
+#. Signup screen - the passphrase can be changed from a signed-in device, never reset for you
 msgid "account_sync_signup_passphrase_note"
 msgstr ""
 
@@ -11232,6 +11232,36 @@ msgid "account_sync_join_button"
 msgstr ""
 
 msgid "account_sync_join_failed"
+msgstr ""
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr ""
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr ""
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr ""
+
+msgid "account_sync_new_passphrase_label"
+msgstr ""
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr ""
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr ""
+
+msgid "account_sync_change_passphrase_submit"
+msgstr ""
+
+msgid "account_sync_change_passphrase_done"
+msgstr ""
+
+msgid "account_sync_change_passphrase_failed"
 msgstr ""
 
 #. Pairing flow

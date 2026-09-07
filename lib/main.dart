@@ -69,6 +69,7 @@ import 'screens/account_add_device_screen.dart';
 import 'screens/account_join_screen.dart';
 import 'screens/account_scan_qr_screen.dart';
 import 'screens/account_signup_screen.dart';
+import 'screens/account_change_passphrase_screen.dart';
 import 'screens/account_sync_screen.dart';
 import 'screens/scan_screen.dart';
 import 'screens/scan_qr_screen.dart';
@@ -1066,6 +1067,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   initialEmail: extra?['email'] as String?,
                 );
               },
+            ),
+            // Passphrase change from a signed-in device (ADR-042 lot B).
+            GoRoute(
+              path: 'change-passphrase',
+              builder: (context, state) =>
+                  const AccountChangePassphraseScreen(),
             ),
             // Authorizer role (this device is signed in, adding another).
             GoRoute(

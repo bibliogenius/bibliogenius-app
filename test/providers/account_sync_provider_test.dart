@@ -77,6 +77,16 @@ class _FakeFfiService extends FfiService {
 
   @override
   Future<String> accountLogout() async => 'Signed out';
+
+  final List<String> changedPassphrases = [];
+  Object? changePassphraseError;
+
+  @override
+  Future<String> accountChangePassphrase(String newPassphrase) async {
+    changedPassphrases.add(newPassphrase);
+    if (changePassphraseError != null) throw changePassphraseError!;
+    return '{"rotated":true}';
+  }
 }
 
 void main() {
@@ -86,6 +96,45 @@ void main() {
   setUp(() {
     ffi = _FakeFfiService();
     provider = AccountSyncProvider(ffi: ffi);
+  });
+
+  test('changePassphrase forwards the new passphrase and leaves status alone', () async {
+    ffi.statusJson =
+        '{"signed_in":true,"email":"me@lib.org","account_id":"acc-1","device_id":"dev-1"}';
+    await provider.refreshStatus();
+
+    await provider.changePassphrase('purple giraffe reading seven lanterns');
+
+    expect(ffi.changedPassphrases, ['purple giraffe reading seven lanterns']);
+    // Nothing changes locally on a rotation: same account, same device.
+    expect(provider.signedIn, isTrue);
+    expect(provider.status.accountId, 'acc-1');
+    expect(provider.busy, isFalse);
+    expect(provider.error, isNull);
+  });
+
+  test('changePassphrase routes the weak-passphrase backstop', () async {
+    ffi.changePassphraseError = Exception('E_WEAK_PASSPHRASE: below the floor');
+
+    await expectLater(
+      provider.changePassphrase('weak'),
+      throwsA(
+        isA<AccountSignupException>().having(
+          (e) => e.weakPassphrase,
+          'weakPassphrase',
+          isTrue,
+        ),
+      ),
+    );
+    expect(provider.busy, isFalse);
+  });
+
+  test('changePassphrase surfaces other failures as error and rethrows', () async {
+    ffi.changePassphraseError = Exception('Hub error: 503');
+
+    await expectLater(provider.changePassphrase('purple giraffe reading seven lanterns'), throwsException);
+    expect(provider.error, contains('503'));
+    expect(provider.busy, isFalse);
   });
 
   test('refreshStatus parses the signed-in metadata', () async {

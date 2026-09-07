@@ -10521,9 +10521,9 @@ msgstr "Hesap oluştur"
 msgid "account_sync_signup_intro"
 msgstr "Hesabınız kütüphanenizi uçtan uca şifreler. Sunucu kitaplarınızı asla görmez, yalnızca şifreli veriler görür."
 
-#. Signup screen - the passphrase cannot be reset
+#. Signup screen - the passphrase can be changed from a signed-in device, never reset for you
 msgid "account_sync_signup_passphrase_note"
-msgstr "Gizli ifadenizi iyi not edin: sıfırlanamaz."
+msgstr "Gizli ifadenizi iyi not edin. Daha sonra oturum açmış bir cihazdan değiştirebilirsiniz, ancak kimse onu sizin yerinize sıfırlayamaz."
 
 msgid "account_sync_email_label"
 msgstr "E-posta"
@@ -10611,6 +10611,36 @@ msgstr "Hesaba katıl"
 
 msgid "account_sync_join_failed"
 msgstr "Hesaba katılınamadı. E-postanızı ve gizli ifadenizi kontrol edin."
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "Gizli ifadeyi değiştir"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "Yeni bir gizli ifade seçin. Eskisine gerek yok: bu cihaz hesabınızın anahtarlarını zaten tutuyor. Diğer cihazlarınız çalışmaya devam eder ve kurtarma ifadeniz geçerli kalır."
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "Gizli ifadeyi değiştirmek, zaten bağlı cihazların oturumunu kapatmaz. Birini dışlamak için onu cihaz listesinden kaldırın."
+
+msgid "account_sync_new_passphrase_label"
+msgstr "Yeni gizli ifade"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "Yeni gizli ifadeyi onaylayın"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "İki gizli ifade eşleşmiyor."
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "Yeni gizli ifadeyi kaydet"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "Gizli ifade değiştirildi. Bu hesaba başka bir cihazdan katılmak için yenisini kullanın."
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "Gizli ifade değiştirilemedi. Bağlantınızı kontrol edip yeniden deneyin."
 
 #. Pairing flow
 msgid "account_sync_add_device_title"

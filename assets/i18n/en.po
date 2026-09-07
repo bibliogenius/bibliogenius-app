@@ -10583,9 +10583,9 @@ msgstr "Create an account"
 msgid "account_sync_signup_intro"
 msgstr "Your account encrypts your library end to end. The server never sees your books, only encrypted data."
 
-#. Signup screen - the passphrase cannot be reset
+#. Signup screen - the passphrase can be changed from a signed-in device, never reset for you
 msgid "account_sync_signup_passphrase_note"
-msgstr "Write down your secret phrase: it cannot be reset."
+msgstr "Write down your secret phrase. You can change it later from a signed-in device, but no one can reset it for you."
 
 msgid "account_sync_email_label"
 msgstr "Email"
@@ -10673,6 +10673,36 @@ msgstr "Join account"
 
 msgid "account_sync_join_failed"
 msgstr "Could not join the account. Check your email and passphrase."
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "Change passphrase"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "Choose a new passphrase. You do not need the old one: this device already holds your account keys. Your other devices keep working and your recovery phrase stays valid."
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "Changing the passphrase does not sign out devices that are already connected. To exclude one, remove it from the device list."
+
+msgid "account_sync_new_passphrase_label"
+msgstr "New passphrase"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "Confirm the new passphrase"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "The two passphrases do not match."
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "Save the new passphrase"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "Passphrase changed. Use the new one to join this account from another device."
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "Could not change the passphrase. Check your connection and try again."
 
 #. Pairing flow
 msgid "account_sync_add_device_title"

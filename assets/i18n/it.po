@@ -10514,9 +10514,9 @@ msgstr "Crea un account"
 msgid "account_sync_signup_intro"
 msgstr "Il tuo account crittografa la tua biblioteca end-to-end. Il server non vede mai i tuoi libri, solo dati crittografati."
 
-#. Signup screen - the passphrase cannot be reset
+#. Signup screen - the passphrase can be changed from a signed-in device, never reset for you
 msgid "account_sync_signup_passphrase_note"
-msgstr "Annota bene la tua passphrase: non può essere reimpostata."
+msgstr "Annota bene la tua passphrase. Potrai cambiarla in seguito da un dispositivo connesso, ma nessuno può reimpostarla al posto tuo."
 
 msgid "account_sync_email_label"
 msgstr "Email"
@@ -10604,6 +10604,36 @@ msgstr "Unisciti all'account"
 
 msgid "account_sync_join_failed"
 msgstr "Impossibile unirsi all'account. Controlla l'email e la passphrase."
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "Cambia la passphrase"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "Scegli una nuova passphrase. Quella vecchia non serve: questo dispositivo possiede già le chiavi del tuo account. Gli altri dispositivi continuano a funzionare e la tua frase di recupero resta valida."
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "Cambiare la passphrase non disconnette i dispositivi già collegati. Per escluderne uno, rimuovilo dall'elenco dei dispositivi."
+
+msgid "account_sync_new_passphrase_label"
+msgstr "Nuova passphrase"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "Conferma la nuova passphrase"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "Le due passphrase non coincidono."
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "Salva la nuova passphrase"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "Passphrase cambiata. Usa quella nuova per unirti a questo account da un altro dispositivo."
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "Impossibile cambiare la passphrase. Controlla la connessione e riprova."
 
 #. Pairing flow
 msgid "account_sync_add_device_title"

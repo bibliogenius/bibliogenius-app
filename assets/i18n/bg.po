@@ -10521,9 +10521,9 @@ msgstr "Създаване на акаунт"
 msgid "account_sync_signup_intro"
 msgstr "Акаунтът ви криптира библиотеката ви от край до край. Сървърът никога не вижда книгите ви, а само криптирани данни."
 
-#. Signup screen - the passphrase cannot be reset
+#. Signup screen - the passphrase can be changed from a signed-in device, never reset for you
 msgid "account_sync_signup_passphrase_note"
-msgstr "Запишете си добре тайната фраза: тя не може да бъде нулирана."
+msgstr "Запишете си добре тайната фраза. По-късно можете да я смените от свързано устройство, но никой не може да я нулира вместо вас."
 
 msgid "account_sync_email_label"
 msgstr "Имейл"
@@ -10611,6 +10611,36 @@ msgstr "Присъединяване към акаунта"
 
 msgid "account_sync_join_failed"
 msgstr "Присъединяването към акаунта е неуспешно. Проверете имейла и тайната си фраза."
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "Смяна на тайната фраза"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "Изберете нова тайна фраза. Старата не е нужна: това устройство вече пази ключовете на акаунта ви. Другите ви устройства продължават да работят, а фразата ви за възстановяване остава валидна."
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "Смяната на тайната фраза не изключва вече свързаните устройства. За да изключите някое, премахнете го от списъка с устройства."
+
+msgid "account_sync_new_passphrase_label"
+msgstr "Нова тайна фраза"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "Потвърдете новата тайна фраза"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "Двете тайни фрази не съвпадат."
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "Запазване на новата тайна фраза"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "Тайната фраза е сменена. Използвайте новата, за да се присъедините към този акаунт от друго устройство."
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "Тайната фраза не можа да бъде сменена. Проверете връзката си и опитайте отново."
 
 #. Pairing flow
 msgid "account_sync_add_device_title"

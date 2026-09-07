@@ -111,9 +111,10 @@ class AccountSignupResult {
   });
 }
 
-/// Raised when signup fails in a way the UI can recover from. `accountExists`
-/// means the email is already registered (offer "sign in" / join-with-passphrase);
-/// `weakPassphrase` is a backstop for the local strength gate being bypassed.
+/// Raised when signup or a passphrase change fails in a way the UI can recover
+/// from. `accountExists` means the email is already registered (offer "sign in"
+/// / join-with-passphrase); `weakPassphrase` is a backstop for the local
+/// strength gate being bypassed (signup and passphrase change alike).
 class AccountSignupException implements Exception {
   final bool accountExists;
   final bool weakPassphrase;
@@ -449,6 +450,31 @@ class AccountSyncProvider extends ChangeNotifier {
       return false;
     } finally {
       _autoSyncInFlight = false;
+    }
+  }
+
+  /// Change the account passphrase from this device (ADR-042 lot B). The old
+  /// passphrase is never asked for: the device already holds the account keys
+  /// and the hub authenticates the change with them. Nothing changes locally,
+  /// so [status] and [devices] are left as they are. Throws
+  /// [AccountSignupException] with `weakPassphrase` when the backend refuses
+  /// the new passphrase (backstop to the live meter); rethrows anything else.
+  Future<void> changePassphrase(String newPassphrase) async {
+    _busy = true;
+    _error = null;
+    notifyListeners();
+    try {
+      await _ffi.accountChangePassphrase(newPassphrase);
+    } catch (e) {
+      final msg = e.toString();
+      if (msg.contains('E_WEAK_PASSPHRASE')) {
+        throw AccountSignupException(msg, weakPassphrase: true);
+      }
+      _error = msg;
+      rethrow;
+    } finally {
+      _busy = false;
+      notifyListeners();
     }
   }
 

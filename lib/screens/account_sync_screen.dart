@@ -248,6 +248,9 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
                               duplicateSurplus: _duplicateSurplus,
                               onAddDevice: () =>
                                   _openAndReload('/account-sync/add-device'),
+                              onChangePassphrase: () => _openAndReload(
+                                '/account-sync/change-passphrase',
+                              ),
                               onLogout: _confirmLogout,
                               onSyncNow: _syncNow,
                               onRemoveDevice: _confirmRemoveDevice,
@@ -451,6 +454,7 @@ class _SignedInView extends StatelessWidget {
   /// Surplus book rows the duplicate merge would remove. Zero means no banner.
   final int duplicateSurplus;
   final VoidCallback onAddDevice;
+  final VoidCallback onChangePassphrase;
   final VoidCallback onLogout;
   final VoidCallback onSyncNow;
   final void Function(AccountDevice) onRemoveDevice;
@@ -460,6 +464,7 @@ class _SignedInView extends StatelessWidget {
     required this.shareIntent,
     required this.duplicateSurplus,
     required this.onAddDevice,
+    required this.onChangePassphrase,
     required this.onLogout,
     required this.onSyncNow,
     required this.onRemoveDevice,
@@ -517,6 +522,13 @@ class _SignedInView extends StatelessWidget {
           icon: const Icon(Icons.add_to_queue),
           onPressed: onAddDevice,
           label: Text(_t(context, 'account_sync_add_device')),
+          style: accountSyncSecondaryActionStyle(context),
+        ),
+        const SizedBox(height: AppDesign.spacingSm),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.password),
+          onPressed: provider.busy ? null : onChangePassphrase,
+          label: Text(_t(context, 'account_sync_change_passphrase')),
           style: accountSyncSecondaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),

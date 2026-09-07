@@ -10529,9 +10529,9 @@ msgstr "Criar uma conta"
 msgid "account_sync_signup_intro"
 msgstr "Sua conta criptografa sua biblioteca de ponta a ponta. O servidor nunca vê seus livros, apenas dados criptografados."
 
-#. Signup screen - the passphrase cannot be reset
+#. Signup screen - the passphrase can be changed from a signed-in device, never reset for you
 msgid "account_sync_signup_passphrase_note"
-msgstr "Anote bem sua frase secreta: ela não pode ser redefinida."
+msgstr "Anote bem sua frase secreta. Você poderá alterá-la depois a partir de um dispositivo conectado, mas ninguém pode redefini-la por você."
 
 msgid "account_sync_email_label"
 msgstr "E-mail"
@@ -10619,6 +10619,36 @@ msgstr "Entrar na conta"
 
 msgid "account_sync_join_failed"
 msgstr "Não foi possível entrar na conta. Verifique seu e-mail e sua frase secreta."
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "Alterar a frase secreta"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "Escolha uma nova frase secreta. A antiga não é necessária: este dispositivo já guarda as chaves da sua conta. Seus outros dispositivos continuam funcionando e sua frase de recuperação continua válida."
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "Alterar a frase secreta não desconecta os dispositivos já vinculados. Para excluir um deles, remova-o da lista de dispositivos."
+
+msgid "account_sync_new_passphrase_label"
+msgstr "Nova frase secreta"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "Confirme a nova frase secreta"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "As duas frases secretas não coincidem."
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "Salvar a nova frase secreta"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "Frase secreta alterada. Use a nova para entrar nesta conta a partir de outro dispositivo."
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "Não foi possível alterar a frase secreta. Verifique sua conexão e tente novamente."
 
 #. Pairing flow
 msgid "account_sync_add_device_title"
