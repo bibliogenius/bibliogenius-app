@@ -244,6 +244,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbLeaderboardResponse dco_decode_frb_leaderboard_response(dynamic raw);
 
   @protected
+  FrbLibraryIsbnStatus dco_decode_frb_library_isbn_status(dynamic raw);
+
+  @protected
   FrbLoan dco_decode_frb_loan(dynamic raw);
 
   @protected
@@ -291,6 +294,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbPuzzleScore dco_decode_frb_puzzle_score(dynamic raw);
+
+  @protected
+  FrbReadRecord dco_decode_frb_read_record(dynamic raw);
 
   @protected
   FrbRecommendation dco_decode_frb_recommendation(dynamic raw);
@@ -429,6 +435,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbLeaderboardEntry> dco_decode_list_frb_leaderboard_entry(dynamic raw);
+
+  @protected
+  List<FrbLibraryIsbnStatus> dco_decode_list_frb_library_isbn_status(
+    dynamic raw,
+  );
 
   @protected
   List<FrbLoan> dco_decode_list_frb_loan(dynamic raw);
@@ -853,6 +864,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbLibraryIsbnStatus sse_decode_frb_library_isbn_status(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbLoan sse_decode_frb_loan(SseDeserializer deserializer);
 
   @protected
@@ -906,6 +922,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbPuzzleScore sse_decode_frb_puzzle_score(SseDeserializer deserializer);
+
+  @protected
+  FrbReadRecord sse_decode_frb_read_record(SseDeserializer deserializer);
 
   @protected
   FrbRecommendation sse_decode_frb_recommendation(SseDeserializer deserializer);
@@ -1092,6 +1111,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FrbLeaderboardEntry> sse_decode_list_frb_leaderboard_entry(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FrbLibraryIsbnStatus> sse_decode_list_frb_library_isbn_status(
     SseDeserializer deserializer,
   );
 
@@ -1626,6 +1650,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_frb_library_isbn_status(
+    FrbLibraryIsbnStatus self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_frb_loan(FrbLoan self, SseSerializer serializer);
 
   @protected
@@ -1705,6 +1735,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     FrbPuzzleScore self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_frb_read_record(FrbReadRecord self, SseSerializer serializer);
 
   @protected
   void sse_encode_frb_recommendation(
@@ -1943,6 +1976,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_frb_leaderboard_entry(
     List<FrbLeaderboardEntry> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_frb_library_isbn_status(
+    List<FrbLibraryIsbnStatus> self,
     SseSerializer serializer,
   );
 

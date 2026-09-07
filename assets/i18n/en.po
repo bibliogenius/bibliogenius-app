@@ -11954,3 +11954,47 @@ msgstr "{n} books go back to the state they were in before. Any field you edited
 #. Import - third option when no ISBN column is recognised: point at it.
 msgid "import_choose_isbn_column"
 msgstr "Choose the column"
+
+#. Peer catalogue - mark on a book the reader already owns.
+msgid "library_mark_owned"
+msgstr "You already have it in your library"
+
+#. Peer catalogue - mark on a book the reader owns and has read.
+msgid "library_mark_owned_read"
+msgstr "You have it, and you have read it"
+
+#. Peer catalogue - mark on a book the reader has read without owning it.
+msgid "library_mark_read"
+msgstr "You have read it"
+
+#. Peer catalogue - mark on a book already on the reader's wishlist.
+msgid "library_mark_wanted"
+msgstr "On your wishlist"
+
+#. Peer catalogue - button recording that the reader has read this book.
+msgid "read_it_cta"
+msgstr "I have read it"
+
+#. Peer catalogue - the same button once the reading is recorded.
+msgid "read_it_done"
+msgstr "Marked as read"
+
+#. Confirmation - the book entered the library, read and not owned.
+msgid "read_it_added"
+msgstr "Added to your library and marked as read, without counting as yours."
+
+#. Confirmation - a book already in the library is now marked read.
+msgid "read_it_marked"
+msgstr "Marked as read in your library."
+
+#. Confirmation - same, on a book the reader owns.
+msgid "read_it_marked_owned"
+msgstr "Marked as read. You already own this book."
+
+#. Confirmation - the book was already marked read, nothing changed.
+msgid "read_it_already"
+msgstr "Already marked as read in your library."
+
+#. Error - the reading could not be recorded.
+msgid "read_it_failed"
+msgstr "Could not record this reading."

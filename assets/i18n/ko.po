@@ -11152,3 +11152,47 @@ msgstr "컬렉션 이름 변경"
 #. Error shown when renaming a collection fails.
 msgid "error_renaming_collection"
 msgstr "컬렉션 이름을 변경하지 못했습니다"
+
+#. Peer catalogue - mark on a book the reader already owns.
+msgid "library_mark_owned"
+msgstr "이미 서재에 있습니다"
+
+#. Peer catalogue - mark on a book the reader owns and has read.
+msgid "library_mark_owned_read"
+msgstr "소장 중이며 읽었습니다"
+
+#. Peer catalogue - mark on a book the reader has read without owning it.
+msgid "library_mark_read"
+msgstr "읽은 책입니다"
+
+#. Peer catalogue - mark on a book already on the reader's wishlist.
+msgid "library_mark_wanted"
+msgstr "위시리스트에 있음"
+
+#. Peer catalogue - button recording that the reader has read this book.
+msgid "read_it_cta"
+msgstr "읽었습니다"
+
+#. Peer catalogue - the same button once the reading is recorded.
+msgid "read_it_done"
+msgstr "읽음으로 표시됨"
+
+#. Confirmation - the book entered the library, read and not owned.
+msgid "read_it_added"
+msgstr "서재에 추가하고 읽음으로 표시했습니다. 소장 도서로는 세지 않습니다."
+
+#. Confirmation - a book already in the library is now marked read.
+msgid "read_it_marked"
+msgstr "서재에서 읽음으로 표시했습니다."
+
+#. Confirmation - same, on a book the reader owns.
+msgid "read_it_marked_owned"
+msgstr "읽음으로 표시했습니다. 이미 소장 중인 책입니다."
+
+#. Confirmation - the book was already marked read, nothing changed.
+msgid "read_it_already"
+msgstr "서재에서 이미 읽음으로 표시되어 있습니다."
+
+#. Error - the reading could not be recorded.
+msgid "read_it_failed"
+msgstr "이 독서를 기록하지 못했습니다."

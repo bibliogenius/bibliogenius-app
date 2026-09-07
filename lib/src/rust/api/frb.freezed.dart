@@ -6850,6 +6850,263 @@ as int,
 }
 
 /// @nodoc
+mixin _$FrbLibraryIsbnStatus {
+
+ String get isbn; bool get owned; String get readingStatus;
+/// Create a copy of FrbLibraryIsbnStatus
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbLibraryIsbnStatusCopyWith<FrbLibraryIsbnStatus> get copyWith => _$FrbLibraryIsbnStatusCopyWithImpl<FrbLibraryIsbnStatus>(this as FrbLibraryIsbnStatus, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbLibraryIsbnStatus&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.owned, owned) || other.owned == owned)&&(identical(other.readingStatus, readingStatus) || other.readingStatus == readingStatus));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isbn,owned,readingStatus);
+
+@override
+String toString() {
+  return 'FrbLibraryIsbnStatus(isbn: $isbn, owned: $owned, readingStatus: $readingStatus)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbLibraryIsbnStatusCopyWith<$Res>  {
+  factory $FrbLibraryIsbnStatusCopyWith(FrbLibraryIsbnStatus value, $Res Function(FrbLibraryIsbnStatus) _then) = _$FrbLibraryIsbnStatusCopyWithImpl;
+@useResult
+$Res call({
+ String isbn, bool owned, String readingStatus
+});
+
+
+
+
+}
+/// @nodoc
+class _$FrbLibraryIsbnStatusCopyWithImpl<$Res>
+    implements $FrbLibraryIsbnStatusCopyWith<$Res> {
+  _$FrbLibraryIsbnStatusCopyWithImpl(this._self, this._then);
+
+  final FrbLibraryIsbnStatus _self;
+  final $Res Function(FrbLibraryIsbnStatus) _then;
+
+/// Create a copy of FrbLibraryIsbnStatus
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? isbn = null,Object? owned = null,Object? readingStatus = null,}) {
+  return _then(_self.copyWith(
+isbn: null == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
+as String,owned: null == owned ? _self.owned : owned // ignore: cast_nullable_to_non_nullable
+as bool,readingStatus: null == readingStatus ? _self.readingStatus : readingStatus // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+}
+
+
+/// Adds pattern-matching-related methods to [FrbLibraryIsbnStatus].
+extension FrbLibraryIsbnStatusPatterns on FrbLibraryIsbnStatus {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbLibraryIsbnStatus value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbLibraryIsbnStatus() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbLibraryIsbnStatus value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbLibraryIsbnStatus():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbLibraryIsbnStatus value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbLibraryIsbnStatus() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String isbn,  bool owned,  String readingStatus)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbLibraryIsbnStatus() when $default != null:
+return $default(_that.isbn,_that.owned,_that.readingStatus);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String isbn,  bool owned,  String readingStatus)  $default,) {final _that = this;
+switch (_that) {
+case _FrbLibraryIsbnStatus():
+return $default(_that.isbn,_that.owned,_that.readingStatus);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String isbn,  bool owned,  String readingStatus)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbLibraryIsbnStatus() when $default != null:
+return $default(_that.isbn,_that.owned,_that.readingStatus);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbLibraryIsbnStatus implements FrbLibraryIsbnStatus {
+  const _FrbLibraryIsbnStatus({required this.isbn, required this.owned, required this.readingStatus});
+  
+
+@override final  String isbn;
+@override final  bool owned;
+@override final  String readingStatus;
+
+/// Create a copy of FrbLibraryIsbnStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbLibraryIsbnStatusCopyWith<_FrbLibraryIsbnStatus> get copyWith => __$FrbLibraryIsbnStatusCopyWithImpl<_FrbLibraryIsbnStatus>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbLibraryIsbnStatus&&(identical(other.isbn, isbn) || other.isbn == isbn)&&(identical(other.owned, owned) || other.owned == owned)&&(identical(other.readingStatus, readingStatus) || other.readingStatus == readingStatus));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,isbn,owned,readingStatus);
+
+@override
+String toString() {
+  return 'FrbLibraryIsbnStatus(isbn: $isbn, owned: $owned, readingStatus: $readingStatus)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbLibraryIsbnStatusCopyWith<$Res> implements $FrbLibraryIsbnStatusCopyWith<$Res> {
+  factory _$FrbLibraryIsbnStatusCopyWith(_FrbLibraryIsbnStatus value, $Res Function(_FrbLibraryIsbnStatus) _then) = __$FrbLibraryIsbnStatusCopyWithImpl;
+@override @useResult
+$Res call({
+ String isbn, bool owned, String readingStatus
+});
+
+
+
+
+}
+/// @nodoc
+class __$FrbLibraryIsbnStatusCopyWithImpl<$Res>
+    implements _$FrbLibraryIsbnStatusCopyWith<$Res> {
+  __$FrbLibraryIsbnStatusCopyWithImpl(this._self, this._then);
+
+  final _FrbLibraryIsbnStatus _self;
+  final $Res Function(_FrbLibraryIsbnStatus) _then;
+
+/// Create a copy of FrbLibraryIsbnStatus
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? isbn = null,Object? owned = null,Object? readingStatus = null,}) {
+  return _then(_FrbLibraryIsbnStatus(
+isbn: null == isbn ? _self.isbn : isbn // ignore: cast_nullable_to_non_nullable
+as String,owned: null == owned ? _self.owned : owned // ignore: cast_nullable_to_non_nullable
+as bool,readingStatus: null == readingStatus ? _self.readingStatus : readingStatus // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+/// @nodoc
 mixin _$FrbLoan {
 
  String get id; String get copyId; String get contactId; int get libraryId; String get loanDate; String get dueDate; String? get returnDate; String get status; String? get notes; String get contactName; String get bookTitle; String? get bookId; String? get coverUrl; String? get isbn;
@@ -8697,6 +8954,281 @@ as List<String>,
 }
 
 
+}
+
+/// @nodoc
+mixin _$FrbReadRecord {
+
+ FrbBook get book; bool get created; bool get wasAlreadyRead;
+/// Create a copy of FrbReadRecord
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$FrbReadRecordCopyWith<FrbReadRecord> get copyWith => _$FrbReadRecordCopyWithImpl<FrbReadRecord>(this as FrbReadRecord, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbReadRecord&&(identical(other.book, book) || other.book == book)&&(identical(other.created, created) || other.created == created)&&(identical(other.wasAlreadyRead, wasAlreadyRead) || other.wasAlreadyRead == wasAlreadyRead));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,book,created,wasAlreadyRead);
+
+@override
+String toString() {
+  return 'FrbReadRecord(book: $book, created: $created, wasAlreadyRead: $wasAlreadyRead)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $FrbReadRecordCopyWith<$Res>  {
+  factory $FrbReadRecordCopyWith(FrbReadRecord value, $Res Function(FrbReadRecord) _then) = _$FrbReadRecordCopyWithImpl;
+@useResult
+$Res call({
+ FrbBook book, bool created, bool wasAlreadyRead
+});
+
+
+$FrbBookCopyWith<$Res> get book;
+
+}
+/// @nodoc
+class _$FrbReadRecordCopyWithImpl<$Res>
+    implements $FrbReadRecordCopyWith<$Res> {
+  _$FrbReadRecordCopyWithImpl(this._self, this._then);
+
+  final FrbReadRecord _self;
+  final $Res Function(FrbReadRecord) _then;
+
+/// Create a copy of FrbReadRecord
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? book = null,Object? created = null,Object? wasAlreadyRead = null,}) {
+  return _then(_self.copyWith(
+book: null == book ? _self.book : book // ignore: cast_nullable_to_non_nullable
+as FrbBook,created: null == created ? _self.created : created // ignore: cast_nullable_to_non_nullable
+as bool,wasAlreadyRead: null == wasAlreadyRead ? _self.wasAlreadyRead : wasAlreadyRead // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+/// Create a copy of FrbReadRecord
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FrbBookCopyWith<$Res> get book {
+  
+  return $FrbBookCopyWith<$Res>(_self.book, (value) {
+    return _then(_self.copyWith(book: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [FrbReadRecord].
+extension FrbReadRecordPatterns on FrbReadRecord {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _FrbReadRecord value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _FrbReadRecord() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _FrbReadRecord value)  $default,){
+final _that = this;
+switch (_that) {
+case _FrbReadRecord():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _FrbReadRecord value)?  $default,){
+final _that = this;
+switch (_that) {
+case _FrbReadRecord() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( FrbBook book,  bool created,  bool wasAlreadyRead)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _FrbReadRecord() when $default != null:
+return $default(_that.book,_that.created,_that.wasAlreadyRead);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( FrbBook book,  bool created,  bool wasAlreadyRead)  $default,) {final _that = this;
+switch (_that) {
+case _FrbReadRecord():
+return $default(_that.book,_that.created,_that.wasAlreadyRead);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( FrbBook book,  bool created,  bool wasAlreadyRead)?  $default,) {final _that = this;
+switch (_that) {
+case _FrbReadRecord() when $default != null:
+return $default(_that.book,_that.created,_that.wasAlreadyRead);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+
+
+class _FrbReadRecord implements FrbReadRecord {
+  const _FrbReadRecord({required this.book, required this.created, required this.wasAlreadyRead});
+  
+
+@override final  FrbBook book;
+@override final  bool created;
+@override final  bool wasAlreadyRead;
+
+/// Create a copy of FrbReadRecord
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$FrbReadRecordCopyWith<_FrbReadRecord> get copyWith => __$FrbReadRecordCopyWithImpl<_FrbReadRecord>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbReadRecord&&(identical(other.book, book) || other.book == book)&&(identical(other.created, created) || other.created == created)&&(identical(other.wasAlreadyRead, wasAlreadyRead) || other.wasAlreadyRead == wasAlreadyRead));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,book,created,wasAlreadyRead);
+
+@override
+String toString() {
+  return 'FrbReadRecord(book: $book, created: $created, wasAlreadyRead: $wasAlreadyRead)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$FrbReadRecordCopyWith<$Res> implements $FrbReadRecordCopyWith<$Res> {
+  factory _$FrbReadRecordCopyWith(_FrbReadRecord value, $Res Function(_FrbReadRecord) _then) = __$FrbReadRecordCopyWithImpl;
+@override @useResult
+$Res call({
+ FrbBook book, bool created, bool wasAlreadyRead
+});
+
+
+@override $FrbBookCopyWith<$Res> get book;
+
+}
+/// @nodoc
+class __$FrbReadRecordCopyWithImpl<$Res>
+    implements _$FrbReadRecordCopyWith<$Res> {
+  __$FrbReadRecordCopyWithImpl(this._self, this._then);
+
+  final _FrbReadRecord _self;
+  final $Res Function(_FrbReadRecord) _then;
+
+/// Create a copy of FrbReadRecord
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? book = null,Object? created = null,Object? wasAlreadyRead = null,}) {
+  return _then(_FrbReadRecord(
+book: null == book ? _self.book : book // ignore: cast_nullable_to_non_nullable
+as FrbBook,created: null == created ? _self.created : created // ignore: cast_nullable_to_non_nullable
+as bool,wasAlreadyRead: null == wasAlreadyRead ? _self.wasAlreadyRead : wasAlreadyRead // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+/// Create a copy of FrbReadRecord
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$FrbBookCopyWith<$Res> get book {
+  
+  return $FrbBookCopyWith<$Res>(_self.book, (value) {
+    return _then(_self.copyWith(book: value));
+  });
+}
 }
 
 /// @nodoc

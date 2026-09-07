@@ -1984,6 +1984,36 @@ class FfiService {
     }
   }
 
+  /// What my own library holds for these ISBNs, for the ones it holds at all.
+  ///
+  /// Reading someone else's shelves, the question is whether I already have the
+  /// book and whether I have already read it. Pass the ISBNs of the page on
+  /// display, never a whole catalogue: the backend answers in one query.
+  Future<List<frb.FrbLibraryIsbnStatus>> getLibraryIsbnStatus(
+    List<String> isbns,
+  ) async {
+    try {
+      return await frb.getLibraryIsbnStatus(isbns: isbns);
+    } catch (e) {
+      debugPrint('FFI getLibraryIsbnStatus error: $e');
+      return [];
+    }
+  }
+
+  /// Record that the reader has read this book, whoever owns it.
+  ///
+  /// Returns null on failure rather than throwing, like its neighbours, so the
+  /// caller can show one message; the record tells it whether the book was
+  /// created, already there, or already read.
+  Future<frb.FrbReadRecord?> recordReadBook(frb.FrbBook book) async {
+    try {
+      return await frb.recordReadBook(book: book);
+    } catch (e) {
+      debugPrint('FFI recordReadBook error: $e');
+      return null;
+    }
+  }
+
   /// Collapse the per-book wishlist_match notifications from a list import
   /// into one aggregated notification. Returns the matched ISBN count.
   Future<int> aggregateWishlistImportNotification({

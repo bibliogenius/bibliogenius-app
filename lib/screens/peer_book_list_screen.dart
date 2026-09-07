@@ -11,6 +11,7 @@ import '../models/avatar_config.dart';
 import '../models/book.dart';
 import '../utils/book_display.dart';
 import '../utils/borrow_eligibility.dart';
+import '../utils/library_mark.dart';
 import '../utils/cover_url_resolver.dart';
 import '../utils/isbn_validator.dart';
 import '../models/contact_card.dart';
@@ -30,11 +31,16 @@ import '../providers/theme_provider.dart';
 import '../services/mdns_service.dart';
 import '../src/rust/api/frb.dart'
     show
+        FrbBook,
         FrbCatalogChangedEvent,
+        FrbLibraryIsbnStatus,
         setPeerDeltaCursor,
         subscribeCatalogChanges,
         tryPeerCatalogDeltaDetailed,
         updatePeerLibraryUuid;
+
+/// Icon and wording for "my own library already knows this book".
+typedef _LibraryMark = ({IconData icon, String label});
 
 enum _PeerViewMode { coverGrid, shelf, list }
 
@@ -149,6 +155,24 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// ISBNs of books currently lent to this peer (accepted incoming request).
   Set<String> _lendingIsbns = {};
+
+  /// What MY library holds for the ISBNs on display, keyed by the ISBN as the
+  /// peer wrote it. An absent entry means my library does not have the book:
+  /// there is no third state, so nothing is rendered for it.
+  final Map<String, FrbLibraryIsbnStatus> _libraryStatusByIsbn = {};
+
+  /// ISBNs already asked about, so the demand-driven fetch does not re-ask on
+  /// every rebuild.
+  final Set<String> _libraryStatusAsked = {};
+
+  /// How many ISBNs one library-status query may carry.
+  static const int _libraryStatusBatchSize = 200;
+
+  /// Readings recorded during this visit, so the button and the mark settle at
+  /// once instead of waiting for the next fetch. Keyed by [_readKeyOf], not by
+  /// ISBN: a book without one is recorded on its title, exactly as the backend
+  /// matches it, and must settle like any other.
+  final Set<String> _justReadKeys = {};
 
   /// Pagination state for live P2P loading
   int _currentPage = 0;
@@ -1832,6 +1856,217 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     return book.availableCopies != null && book.availableCopies == 0;
   }
 
+  /// Ask my own library about the ISBNs currently on display.
+  ///
+  /// Demand-driven rather than wired into the dozen paths that fill `_books`:
+  /// each of them ends in a rebuild, so asking from `build` covers them all,
+  /// pagination included. Every ISBN is asked once, and the batch is capped so
+  /// a freshly synced catalogue of a thousand books does not become one query
+  /// with a thousand-value `IN` clause: the next frames pick up the rest.
+  void _ensureLibraryStatus() {
+    if (!FfiService().isInitialized) return;
+
+    final missing = <String>[];
+    for (final book in _filteredBooks) {
+      final isbn = book.isbn;
+      if (isbn == null || isbn.isEmpty) continue;
+      if (_libraryStatusAsked.contains(isbn)) continue;
+      missing.add(isbn);
+      if (missing.length >= _libraryStatusBatchSize) break;
+    }
+    if (missing.isEmpty) return;
+
+    _libraryStatusAsked.addAll(missing);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final rows = await FfiService().getLibraryIsbnStatus(missing);
+      if (!mounted || rows.isEmpty) return;
+      setState(() {
+        for (final row in rows) {
+          _libraryStatusByIsbn[row.isbn] = row;
+        }
+      });
+    });
+  }
+
+  /// How a book of the peer is remembered once its reading is recorded here.
+  ///
+  /// The ISBN when there is one, the title otherwise: the same two handles the
+  /// backend matches on, in the same order.
+  String _readKeyOf(Book book) {
+    final isbn = book.isbn;
+    return (isbn != null && isbn.isNotEmpty) ? isbn : 'title:${book.title}';
+  }
+
+  FrbLibraryIsbnStatus? _libraryStatusOf(Book book) {
+    final isbn = book.isbn;
+    if (isbn == null || isbn.isEmpty) return null;
+    return _libraryStatusByIsbn[isbn];
+  }
+
+  /// Has this book already been read, as far as my library knows?
+  ///
+  /// Counts a reading recorded during this visit, which the status map only
+  /// learns about on the next fetch.
+  bool _isReadByMe(Book book) {
+    if (_justReadKeys.contains(_readKeyOf(book))) return true;
+    return _libraryStatusOf(book)?.readingStatus == 'read';
+  }
+
+  /// Icon and wording for what my own library already knows about this book of
+  /// the peer, or null when it knows nothing about it.
+  ///
+  /// The rule itself lives in `utils/library_mark.dart`, shared with anything
+  /// that later shows someone else's books. Do not inline it back here.
+  _LibraryMark? _libraryMark(BuildContext context, Book book) {
+    final status = _libraryStatusOf(book);
+    final mark = libraryMarkFor(
+      owned: status?.owned,
+      readingStatus: status?.readingStatus,
+      recordedReadHere: _justReadKeys.contains(_readKeyOf(book)),
+    );
+    if (mark == null) return null;
+
+    final (icon, key) = switch (mark) {
+      LibraryMark.ownedAndRead => (Icons.done_all, 'library_mark_owned_read'),
+      LibraryMark.owned => (Icons.library_books_outlined, 'library_mark_owned'),
+      LibraryMark.read => (Icons.done, 'library_mark_read'),
+      LibraryMark.wanted => (Icons.favorite_border, 'library_mark_wanted'),
+    };
+    return (icon: icon, label: TranslationService.translate(context, key));
+  }
+
+  /// The mark as a list, so a caller can splat it into a row and render
+  /// nothing at all when my library has never met the book.
+  List<Widget>? _libraryMarkTrailing(BuildContext context, Book book) {
+    final mark = _libraryMark(context, book);
+    if (mark == null) return null;
+    return [
+      Tooltip(
+        message: mark.label,
+        child: Icon(
+          mark.icon,
+          size: 18,
+          color: Theme.of(context).colorScheme.primary,
+          semanticLabel: mark.label,
+        ),
+      ),
+      const SizedBox(width: 8),
+    ];
+  }
+
+  /// The same mark, spelled out, above the actions of the details sheet: the
+  /// reader is one tap from asking to borrow, which is exactly when "you
+  /// already have this one" deserves a sentence rather than an icon.
+  List<Widget>? _libraryMarkBanner(BuildContext context, Book book) {
+    final mark = _libraryMark(context, book);
+    if (mark == null) return null;
+    final theme = Theme.of(context);
+    return [
+      Row(
+        children: [
+          Icon(mark.icon, size: 18, color: theme.colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              mark.label,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.primary,
+              ),
+            ),
+          ),
+        ],
+      ),
+      // Matches the 12 the action bar pads above the line, so the sentence
+      // breathes as much below as above.
+      const SizedBox(height: 12),
+    ];
+  }
+
+  /// Record that I have read this book, whoever owns it.
+  ///
+  /// The book enters my library not owned, so it stays out of my shelf and out
+  /// of everything my own peers can see; a book I already have simply becomes
+  /// read, and its possession is left alone.
+  Future<void> _recordRead(Book book) async {
+    final ffi = FfiService();
+    if (!ffi.isInitialized) return;
+
+    // Never `BookDisplay.titleOf` here: its last fallback is a TRANSLATED
+    // placeholder, which would enter the library as a real title, in whatever
+    // language the app happened to be in, and replicate to the other devices.
+    // Stop one step earlier, on the title then the ISBN. With neither, the
+    // service refuses and the reader is told, which is the right answer for a
+    // book nothing can name.
+    final peerTitle = book.title.trim();
+    final recordedTitle = peerTitle.isNotEmpty
+        ? peerTitle
+        : (book.isbn?.trim() ?? '');
+
+    final record = await ffi.recordReadBook(
+      FrbBook(
+        title: recordedTitle,
+        author: book.author,
+        isbn: book.isbn,
+        publisher: book.publisher,
+        publicationYear: book.publicationYear,
+        // The peer's cover URL is deliberately NOT carried over. Stored on a
+        // book of mine it would be rendered as a LOCAL cover: it would eat the
+        // local cache cap that peer covers are kept out of, it would survive
+        // the "do not display peer covers" setting whose whole point is that
+        // no request reaches a peer, and it would let that host see me browse
+        // my own shelves. The cover pipeline fills it by ISBN instead.
+        coverUrl: null,
+        owned: false,
+        private: false,
+      ),
+    );
+    if (!mounted) return;
+
+    if (record == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'read_it_failed'),
+          ),
+        ),
+      );
+      return;
+    }
+
+    final isbn = book.isbn;
+    setState(() {
+      _justReadKeys.add(_readKeyOf(book));
+      // The status map only ever answers on ISBNs, so a book without one is
+      // remembered by the key above alone.
+      if (isbn != null && isbn.isNotEmpty) {
+        _libraryStatusByIsbn[isbn] = FrbLibraryIsbnStatus(
+          isbn: isbn,
+          owned: record.book.owned,
+          readingStatus: record.book.readingStatus ?? 'read',
+        );
+      }
+    });
+
+    // A book I do not own reaches no catalogue, so only the other case is worth
+    // announcing: a book I DO own leaving my wishlist changes what peers see.
+    if (!record.created && !record.wasAlreadyRead && record.book.owned) {
+      context.read<HubDirectoryProvider>()
+        ..markCatalogDirty()
+        ..syncCatalogIfDirty();
+    }
+
+    final message = record.wasAlreadyRead
+        ? 'read_it_already'
+        : record.created
+        ? 'read_it_added'
+        : record.book.owned
+        ? 'read_it_marked_owned'
+        : 'read_it_marked';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(TranslationService.translate(context, message))),
+    );
+  }
+
   bool _canBorrow(Book book) {
     // Shared rule (utils/borrow_eligibility.dart), also used by the book
     // details availability card. Do not inline it back here.
@@ -2221,6 +2456,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Does my own library already hold what is on display? Asked here because
+    // every path that fills the list ends in a rebuild.
+    _ensureLibraryStatus();
+
     // When peer covers are disabled in Settings, force the colored-spine
     // shelf view and hide the view switcher. This is the "data-saver"
     // mode: no cover URL is ever passed to CachedNetworkImage, so no
@@ -2608,8 +2847,15 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
-                                    trailing: canBorrowModule
-                                        ? ElevatedButton(
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        ...?_libraryMarkTrailing(
+                                          context,
+                                          book,
+                                        ),
+                                        if (canBorrowModule)
+                                          ElevatedButton(
                                             onPressed: _canBorrow(book)
                                                 ? () => _requestBorrow(book)
                                                 : null,
@@ -2650,8 +2896,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                                       'borrow',
                                                     ),
                                             ),
-                                          )
-                                        : null,
+                                          ),
+                                      ],
+                                    ),
                                     onTap: () => _showBookDetails(book),
                                   );
                                 },
@@ -2685,6 +2932,35 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           // affordance, not a loan one: it is not gated on the loans module
           // (ADR-067 D5). It only follows the borrow CTA in position.
           final canContact = _contactCard.isActionable;
+          // Recording a reading is a note in my own library, not a loan and not
+          // a relationship: it stands whatever the other two are worth. It does
+          // need the FFI, so it stays out on the HTTP-only platforms.
+          final canRecordRead = FfiService().isInitialized;
+          // Borrowing stays the intention this screen serves, so it keeps the
+          // filled style and the first slot. But it is unavailable in five
+          // states (no copy free, already borrowed, already lent, request
+          // pending, module off), and a greyed-out primary above a usable
+          // secondary reads backwards. When it cannot be tapped, the reachable
+          // action takes the emphasis. The ORDER never changes (ADR-067 D5).
+          final contactIsPrimary =
+              canContact && (!canBorrowModule || !_canBorrow(book));
+          void openContactSheet() {
+            final title = BookDisplay.titleOf(context, book);
+            Navigator.pop(context);
+            // The screen's context, not the sheet's: the sheet is being
+            // popped, and a defunct context cannot host the next modal.
+            showContactActionsSheet(
+              this.context,
+              card: _contactCard,
+              bookTitle: title,
+              bookAuthor: book.author,
+              reciprocal: true,
+            );
+          }
+
+          final contactLabel = Text(
+            TranslationService.translate(context, 'contact_cta'),
+          );
           return Column(
             children: [
               // Pinned header: drag handle + close button (always visible)
@@ -2794,7 +3070,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
               // Pinned bottom action bar: borrow CTA always reachable.
               // The borrow button is hidden when the loans module is disabled;
               // the Contact button stands on its own in that case.
-              if (canBorrowModule || canContact)
+              if (canBorrowModule || canContact || canRecordRead)
                 Material(
                   elevation: 8,
                   color: theme.colorScheme.surface,
@@ -2805,6 +3081,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
+                          ...?_libraryMarkBanner(context, book),
                           if (canBorrowModule)
                             SizedBox(
                               width: double.infinity,
@@ -2858,28 +3135,43 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                           if (canContact)
                             SizedBox(
                               width: double.infinity,
-                              child: FilledButton.tonal(
-                                onPressed: () {
-                                  final title = BookDisplay.titleOf(
-                                    context,
-                                    book,
-                                  );
-                                  Navigator.pop(context);
-                                  // The screen's context, not the sheet's: the
-                                  // sheet is being popped, and a defunct
-                                  // context cannot host the next modal.
-                                  showContactActionsSheet(
-                                    this.context,
-                                    card: _contactCard,
-                                    bookTitle: title,
-                                    bookAuthor: book.author,
-                                    reciprocal: true,
-                                  );
-                                },
-                                child: Text(
+                              child: contactIsPrimary
+                                  ? FilledButton(
+                                      onPressed: openContactSheet,
+                                      child: contactLabel,
+                                    )
+                                  : FilledButton.tonal(
+                                      onPressed: openContactSheet,
+                                      child: contactLabel,
+                                    ),
+                            ),
+                          // Last, and deliberately: borrowing and contacting are
+                          // addressed to the other person, this one only writes
+                          // a line in my own library. ADR-067 D5 keeps the
+                          // contact CTA right under the borrow one.
+                          if ((canBorrowModule || canContact) && canRecordRead)
+                            const SizedBox(height: 8),
+                          if (canRecordRead)
+                            SizedBox(
+                              width: double.infinity,
+                              child: FilledButton.tonalIcon(
+                                onPressed: _isReadByMe(book)
+                                    ? null
+                                    : () {
+                                        Navigator.pop(context);
+                                        _recordRead(book);
+                                      },
+                                icon: Icon(
+                                  _isReadByMe(book)
+                                      ? Icons.done_all
+                                      : Icons.done,
+                                ),
+                                label: Text(
                                   TranslationService.translate(
                                     context,
-                                    'contact_cta',
+                                    _isReadByMe(book)
+                                        ? 'read_it_done'
+                                        : 'read_it_cta',
                                   ),
                                 ),
                               ),

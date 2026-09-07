@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `ServerStartDecision`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -412,6 +412,24 @@ Future<List<FrbBook>> getAllBooks({
 /// Count total books
 Future<PlatformInt64> countBooks() =>
     RustLib.instance.api.crateApiFrbCountBooks();
+
+/// Record that the reader has read this book, whoever owns it.
+///
+/// Backs the "I have read it" button on someone else's catalogue: a book read
+/// but never bought enters the library not owned and marked read, which is the
+/// combination ADR-063 already filters and renders. Possession is never touched,
+/// so a book the reader owns simply becomes read.
+Future<FrbReadRecord> recordReadBook({required FrbBook book}) =>
+    RustLib.instance.api.crateApiFrbRecordReadBook(book: book);
+
+/// What my library holds for these ISBNs, for the ones it holds at all.
+///
+/// Reading someone else's shelves, the question is whether I already have this
+/// book and whether I have already read it. Pass the ISBNs of the page on
+/// display, never the whole catalogue: the cost is one query per call.
+Future<List<FrbLibraryIsbnStatus>> getLibraryIsbnStatus({
+  required List<String> isbns,
+}) => RustLib.instance.api.crateApiFrbGetLibraryIsbnStatus(isbns: isbns);
 
 /// Enrich books that have an ISBN but no cover by checking external sources.
 /// Runs in background, returns the count of covers found and persisted.
@@ -2896,6 +2914,16 @@ class FrbLeaderboardResponse {
           lastRefreshed == other.lastRefreshed;
 }
 
+/// What the reader's own library holds for one ISBN of someone else's shelf.
+@freezed
+sealed class FrbLibraryIsbnStatus with _$FrbLibraryIsbnStatus {
+  const factory FrbLibraryIsbnStatus({
+    required String isbn,
+    required bool owned,
+    required String readingStatus,
+  }) = _FrbLibraryIsbnStatus;
+}
+
 /// Simplified loan structure for FFI
 @freezed
 sealed class FrbLoan with _$FrbLoan {
@@ -3323,6 +3351,16 @@ class FrbPuzzleScore {
           normalizedScore == other.normalizedScore &&
           playedAt == other.playedAt &&
           newAchievements == other.newAchievements;
+}
+
+/// What recording a reading changed, so the caller can say it in one sentence.
+@freezed
+sealed class FrbReadRecord with _$FrbReadRecord {
+  const factory FrbReadRecord({
+    required FrbBook book,
+    required bool created,
+    required bool wasAlreadyRead,
+  }) = _FrbReadRecord;
 }
 
 /// One recommendation: the book, its score, and the human-readable reasons
