@@ -93,12 +93,12 @@ void main() {
     expect(find.text('Ajoutez un ou deux mots.'), findsOneWidget);
   });
 
-  testWidgets('an empty passphrase shows the label and no advice', (
-    tester,
-  ) async {
+  testWidgets('an empty passphrase renders no meter at all', (tester) async {
+    // Greeting an untouched field with "very weak" reads as a reproach; the
+    // meter only speaks once there is something to score.
     await pumpMeter(tester, const PassphraseStrength.empty());
 
-    expect(find.textContaining('Robustesse'), findsOneWidget);
-    expect(find.textContaining('zxcvbn_'), findsNothing);
+    expect(find.textContaining('Robustesse'), findsNothing);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
   });
 }

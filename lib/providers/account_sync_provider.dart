@@ -471,6 +471,10 @@ class AccountSyncProvider extends ChangeNotifier {
         throw AccountSignupException(msg, weakPassphrase: true);
       }
       _error = msg;
+      // The screen shows a generic message; the hub status and body only
+      // reach the console, where a 400 on the challenge means the hub does
+      // not know the rotate purpose yet (not deployed).
+      debugPrint('AccountSyncProvider.changePassphrase error: $e');
       rethrow;
     } finally {
       _busy = false;

@@ -38,6 +38,10 @@ class PassphraseStrengthMeter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Nothing to score yet: stay silent rather than greet an empty field with
+    // "very weak". The meter appears with the first character typed.
+    if (strength.length == 0) return const SizedBox.shrink();
+
     final cs = Theme.of(context).colorScheme;
     final label = TranslationService.translate(
       context,
@@ -76,7 +80,7 @@ class PassphraseStrengthMeter extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
             child: LinearProgressIndicator(
-              value: strength.length == 0 ? 0 : (strength.score + 1) / 5,
+              value: (strength.score + 1) / 5,
               minHeight: 8,
               backgroundColor: cs.surfaceContainerHighest,
               color: barColor,
