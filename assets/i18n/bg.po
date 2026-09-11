@@ -11881,3 +11881,24 @@ msgstr "Вече беше отбелязана като прочетена в б
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "Прочитът не можа да бъде записан."
+
+msgid "status_change_ownership_title"
+msgstr "Тази книга на вашите рафтове ли е?"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "Влиза във „Всички мои книги“."
+
+msgid "status_change_ownership_no_desc"
+msgstr "Остава видима под статуса си на четене в библиотеката."
+
+msgid "status_change_ownership_show_all"
+msgstr "Показвай всичко в моята библиотека"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "Притежавани или не, всички ваши книги заедно. Може да се промени в настройките."
+
+msgid "settings_show_not_owned_books"
+msgstr "Показвай книгите, които не притежавам"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "Желания и книги, прочетени без да са притежавани, се показват в библиотеката с останалите."

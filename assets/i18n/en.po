@@ -12028,3 +12028,24 @@ msgstr "Already marked as read in your library."
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "Could not record this reading."
+
+msgid "status_change_ownership_title"
+msgstr "Is this book on your shelves?"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "It joins \"All my books\"."
+
+msgid "status_change_ownership_no_desc"
+msgstr "It stays visible under its reading status in the library."
+
+msgid "status_change_ownership_show_all"
+msgstr "Show everything in my library"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "Owned or not, all your books together. Adjustable in the settings."
+
+msgid "settings_show_not_owned_books"
+msgstr "Show books I do not own"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "Wishes and books read without owning them appear in the library alongside the others."

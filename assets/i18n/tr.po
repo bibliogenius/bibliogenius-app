@@ -11881,3 +11881,24 @@ msgstr "Kitaplığınızda zaten okundu olarak işaretliydi."
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "Bu okuma kaydedilemedi."
+
+msgid "status_change_ownership_title"
+msgstr "Bu kitap raflarınızda mı?"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "\"Tüm kitaplarım\" içine girer."
+
+msgid "status_change_ownership_no_desc"
+msgstr "Kütüphanede okuma durumunun altında görünür kalır."
+
+msgid "status_change_ownership_show_all"
+msgstr "Kütüphanemde her şeyi göster"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "Sahip olunan ya da olunmayan, tüm kitaplarınız bir arada. Ayarlardan değiştirilebilir."
+
+msgid "settings_show_not_owned_books"
+msgstr "Sahip olmadığım kitapları göster"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "Dilekler ve sahip olunmadan okunan kitaplar kütüphanede diğerleriyle birlikte görünür."

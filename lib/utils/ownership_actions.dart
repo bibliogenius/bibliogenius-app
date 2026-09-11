@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 import '../data/repositories/copy_repository.dart';
+import '../models/book.dart';
+import 'book_filters.dart';
 
 /// What applying an ownership change did to the book's copies.
 class OwnershipChangeResult {
@@ -85,5 +87,48 @@ Future<OwnershipChangeResult> applyOwnershipToCopies({
     copyId: created.id,
     copiesDeleted: 0,
     hadFailures: false,
+  );
+}
+
+/// Whether giving [book] the reading status [newStatus] should ask the reader
+/// about possession.
+///
+/// The default library view shows what the reader physically has (ADR-063),
+/// and a reading status never changes `owned`. So a wish marked "read" from
+/// the status picker stayed `owned = false`, reachable under "Read" but gone
+/// from "All my books", and the reader saw a book vanish. Acquisition already
+/// asks the mirror question ("I bought it" clears the wish); this is the
+/// other direction.
+///
+/// A book on loan is not asked: a borrowed copy is someone else's, and the
+/// return flow owns that answer. A wish stays a wish, unasked. And when the
+/// remembered [viewScope] already shows everything, nothing can disappear,
+/// so there is nothing to ask.
+bool statusChangeAsksAboutOwnership(
+  Book book,
+  String newStatus, {
+  String? viewScope,
+}) {
+  if (viewScope == OwnershipScope.all) return false;
+  if (book.owned || book.isOnLoan) return false;
+  return newStatus != 'wanting';
+}
+
+/// Possession claimed while changing a reading status.
+///
+/// The book had no copy on record (neither owned nor on loan), so one is
+/// created. A stray row is reused rather than doubled, the same way the book
+/// page does it when it knows its copies already.
+Future<OwnershipChangeResult> claimOwnershipCopies({
+  required CopyRepository copies,
+  required String bookId,
+}) async {
+  final existing = await copies.getBookCopies(bookId);
+  final stray = existing.isNotEmpty ? existing.first.id : null;
+  return applyOwnershipToCopies(
+    copies: copies,
+    bookId: bookId,
+    owned: true,
+    existingCopyId: stray,
   );
 }

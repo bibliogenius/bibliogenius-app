@@ -26,12 +26,14 @@ import '../widgets/my_bookshops_picker.dart';
 import '../widgets/my_libraries_section.dart';
 import '../widgets/city_picker_sheet.dart';
 import '../providers/theme_provider.dart';
+import '../providers/ownership_preference_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/auth_service.dart';
 import '../services/ffi_service.dart';
 import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
+import '../utils/book_filters.dart';
 import '../utils/backup_actions.dart';
 import '../utils/import_actions.dart';
 import '../widgets/account_sync_summary_sheet.dart';
@@ -1056,6 +1058,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'collections_module_desc',
                   'group_by_collections_title',
                   'group_by_collections_desc',
+                  'settings_show_not_owned_books',
+                  'settings_show_not_owned_books_desc',
                   'commerce_module',
                   'commerce_module_desc',
                   'audio_module',
@@ -1233,6 +1237,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 themeProvider.setGroupByCollections(value),
                             helpTopicId: 'group_by_collections',
                           ),
+                        // The ownership axis of the library filter, as a
+                        // switch (ADR-063). On = "everything", off = the
+                        // possession default; the menu's third value, "not
+                        // owned", reads as off here and turning the switch
+                        // on from it lands on "everything", which is the
+                        // only value the switch promises.
+                        Consumer<OwnershipPreferenceProvider>(
+                          builder: (context, prefs, _) => _buildModuleToggle(
+                            context,
+                            'settings_show_not_owned_books',
+                            'settings_show_not_owned_books_desc',
+                            Icons.visibility_outlined,
+                            prefs.scope == OwnershipScope.all,
+                            (value) => prefs.setScope(
+                              value ? OwnershipScope.all : null,
+                            ),
+                          ),
+                        ),
                         _buildModuleToggle(
                           context,
                           'carousel_own_lib_title',

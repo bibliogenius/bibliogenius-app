@@ -33,6 +33,7 @@ import '../providers/book_note_provider.dart'
 import '../providers/book_refresh_notifier.dart';
 import '../providers/favorites_provider.dart';
 import '../widgets/acquisition_sheet.dart';
+import '../utils/ownership_status_flow.dart';
 import '../widgets/app_snack_bar.dart';
 import '../widgets/favorite_ribbon.dart';
 import '../widgets/reading_completion_suggestions.dart';
@@ -2996,6 +2997,22 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
+  /// The possession question, when [newStatus] would otherwise leave a book
+  /// the reader does not have out of the default view. Returns whether the
+  /// status write that follows must carry `owned: true`.
+  Future<bool> _askOwnershipForStatus(
+    BuildContext context,
+    String newStatus,
+  ) {
+    final book = _book;
+    if (book == null) return Future.value(false);
+    return resolveOwnershipForStatusChange(
+      context,
+      book: book,
+      newStatus: newStatus,
+    );
+  }
+
   Future<void> _updateStatusDirectly(
     BuildContext context,
     String newStatus,
@@ -3003,9 +3020,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     if (_book == null || _book!.id == null) return;
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
+      // Inside the try: claiming the book creates its copy, and the FFI
+      // update path does not do that on its own, so a failure there must
+      // reach the reader like any other failed save.
+      final claimed = await _askOwnershipForStatus(context, newStatus);
+      if (!context.mounted) return;
       await bookRepo.updateBook(_book!.id!, {
         'title': _book!.title,
         'reading_status': newStatus,
+        if (claimed) 'owned': true,
       });
 
       if (context.mounted) {
@@ -3215,9 +3238,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
+      // Inside the try for the same reason as _updateStatusDirectly.
+      final claimed = await _askOwnershipForStatus(context, newStatus);
+      if (!context.mounted) return;
       final Map<String, dynamic> updateData = {
         'title': _book!.title,
         'reading_status': newStatus,
+        if (claimed) 'owned': true,
       };
 
       if (newStatus == 'reading') {

@@ -11874,3 +11874,24 @@ msgstr "Era già segnato come letto nella tua biblioteca."
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "Impossibile registrare questa lettura."
+
+msgid "status_change_ownership_title"
+msgstr "Questo libro è sui tuoi scaffali?"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "Entra in «Tutti i miei libri»."
+
+msgid "status_change_ownership_no_desc"
+msgstr "Resta visibile sotto il suo stato di lettura nella biblioteca."
+
+msgid "status_change_ownership_show_all"
+msgstr "Mostra tutto nella mia biblioteca"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "Posseduti o no, tutti i tuoi libri insieme. Modificabile nelle impostazioni."
+
+msgid "settings_show_not_owned_books"
+msgstr "Mostra i libri che non possiedo"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "Desideri e libri letti senza possederli compaiono nella biblioteca accanto agli altri."

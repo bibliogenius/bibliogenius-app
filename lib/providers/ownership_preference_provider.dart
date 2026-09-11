@@ -18,13 +18,21 @@ import '../utils/book_filters.dart';
 /// a status filter alone opens every ownership up.
 class OwnershipPreferenceProvider extends ChangeNotifier {
   static const _key = 'library_ownership_scope';
+  static const _declinedKey = 'library_ownership_declined';
 
   String? _scope;
+  bool _declined = false;
   bool _loaded = false;
 
   /// The remembered scope, or null when the reader never picked one.
   String? get scope => _scope;
   bool get isLoaded => _loaded;
+
+  /// The reader once answered "I do not own this book" when a status change
+  /// asked. One such answer can be a holiday read; from the second book on,
+  /// the question also offers to widen the default view instead of asking
+  /// again each time, so the offer is gated on this flag.
+  bool get hasDeclinedOwnership => _declined;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -33,8 +41,17 @@ class OwnershipPreferenceProvider extends ChangeNotifier {
     // scope) must leave the library on its default view rather than filtering
     // on a string nothing understands.
     _scope = OwnershipScope.values.contains(raw) ? raw : null;
+    _declined = prefs.getBool(_declinedKey) ?? false;
     _loaded = true;
     notifyListeners();
+  }
+
+  Future<void> markOwnershipDeclined() async {
+    if (_declined) return;
+    _declined = true;
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_declinedKey, true);
   }
 
   /// Remembers [value], or forgets the choice entirely when it is null.

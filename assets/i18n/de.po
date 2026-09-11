@@ -11750,3 +11750,24 @@ msgstr "War in Ihrer Bibliothek bereits als gelesen markiert."
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "Diese Lektüre konnte nicht gespeichert werden."
+
+msgid "status_change_ownership_title"
+msgstr "Steht dieses Buch in Ihrem Regal?"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "Es erscheint unter „Alle Bücher“."
+
+msgid "status_change_ownership_no_desc"
+msgstr "Es bleibt in der Bibliothek unter seinem Lesestatus sichtbar."
+
+msgid "status_change_ownership_show_all"
+msgstr "Alles in meiner Bibliothek anzeigen"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "Besessen oder nicht, alle Ihre Bücher zusammen. In den Einstellungen änderbar."
+
+msgid "settings_show_not_owned_books"
+msgstr "Bücher anzeigen, die ich nicht besitze"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "Wünsche und ohne Besitz gelesene Bücher erscheinen in der Bibliothek neben den anderen."

@@ -27,6 +27,7 @@ import '../widgets/premium_empty_state.dart';
 import '../widgets/book_cover_grid.dart';
 import '../widgets/premium_book_card.dart';
 import '../widgets/wishlist_availability_badge.dart';
+import '../utils/ownership_status_flow.dart';
 import '../theme/app_design.dart';
 import '../providers/theme_provider.dart';
 import '../providers/book_refresh_notifier.dart';
@@ -163,6 +164,14 @@ class _BookListScreenState extends State<BookListScreen>
       // Re-sort the visible list whenever the user changes the sort preference.
       _sortPrefProvider = context.read<SortPreferenceProvider>();
       _sortPrefProvider?.addListener(_handleSortPrefChanged);
+
+      // The ownership axis can change from outside this screen while it is
+      // still mounted: the settings switch, or the possession sheet on the
+      // book page above it choosing "show everything". Without this the list
+      // came back still scoped to possession and the widened view looked
+      // like it had not taken.
+      _ownershipPrefProvider ??= context.read<OwnershipPreferenceProvider>();
+      _ownershipPrefProvider?.addListener(_handleOwnershipPrefChanged);
 
       // Warm the favorite id set so the covers wear their ribbon (ADR-064).
       context.read<FavoritesProvider>().ensureLoaded();
@@ -316,6 +325,7 @@ class _BookListScreenState extends State<BookListScreen>
     widget.externalSearchQuery?.removeListener(_handleExternalSearchChange);
     _globalRefreshNotifier?.removeListener(_handleRefreshTrigger);
     _sortPrefProvider?.removeListener(_handleSortPrefChanged);
+    _ownershipPrefProvider?.removeListener(_handleOwnershipPrefChanged);
     _themeProvider?.removeListener(_handleThemePrefChanged);
     _searchController.dispose();
     _searchDebounce?.cancel();
@@ -325,6 +335,16 @@ class _BookListScreenState extends State<BookListScreen>
   void _handleSortPrefChanged() {
     if (!mounted) return;
     setState(_filterBooks);
+  }
+
+  void _handleOwnershipPrefChanged() {
+    if (!mounted) return;
+    final scope = _ownershipPrefProvider?.scope;
+    if (scope == _selectedOwnership) return;
+    setState(() {
+      _selectedOwnership = scope;
+      _filterBooks();
+    });
   }
 
   /// Reacts to changes of the "group by collection" and "collections enabled"
@@ -1390,10 +1410,12 @@ class _BookListScreenState extends State<BookListScreen>
             onSelected: (value) {
               setState(() {
                 if (value == 'clear') {
-                  // "All my books" resets both axes back to the default view.
+                  // "All my books" clears the status axis only. The ownership
+                  // axis is a remembered preference, also reachable from the
+                  // settings: clearing it here used to silently switch the
+                  // reader's "show everything" back off the moment they came
+                  // to check that it had worked.
                   _selectedStatus = null;
-                  _selectedOwnership = null;
-                  _ownershipPrefProvider?.setScope(null);
                 } else if (value.startsWith('own:')) {
                   // Ownership axis (ADR-063), orthogonal to the status one.
                   _selectedOwnership = value.substring(4);
@@ -1891,8 +1913,7 @@ class _BookListScreenState extends State<BookListScreen>
     }
     setState(() {
       _selectedStatus = null;
-      _selectedOwnership = null;
-      _ownershipPrefProvider?.setScope(null);
+      // The ownership axis is a preference, not a filter: see 'clear' above.
       _tagFilter = null;
       _currentShelf = null;
       _searchQuery = '';
@@ -2312,9 +2333,23 @@ class _BookListScreenState extends State<BookListScreen>
 
   Future<void> _onStatusChanged(Book book, String newStatus) async {
     if (book.id == null) return;
+    // A card's status badge is one of the doors that used to move a wish out
+    // of "All my books" without a word: the status stays, the book page and
+    // this list ask the same question about possession.
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
     try {
-      await bookRepo.updateBook(book.id!, {'reading_status': newStatus});
+      // Inside the try: a claimed book gets its copy here, and the FFI update
+      // does not create one, so that failure must surface like a failed save.
+      final claimed = await resolveOwnershipForStatusChange(
+        context,
+        book: book,
+        newStatus: newStatus,
+      );
+      if (!mounted) return;
+      await bookRepo.updateBook(book.id!, {
+        'reading_status': newStatus,
+        if (claimed) 'owned': true,
+      });
       // Same reason as _onBookTap: the status was changed from a card in the
       // list, so the list must not jump back to the top under the reader.
       if (mounted) _fetchBooks(silent: true);

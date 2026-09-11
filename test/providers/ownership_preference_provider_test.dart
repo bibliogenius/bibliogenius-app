@@ -81,4 +81,18 @@ void main() {
 
     expect(notifications, 2, reason: 'Load and the real change, not the no-op.');
   });
+
+  test('declining ownership once is remembered across launches', () async {
+    SharedPreferences.setMockInitialValues({});
+    final provider = OwnershipPreferenceProvider();
+    await provider.load();
+    expect(provider.hasDeclinedOwnership, isFalse);
+
+    await provider.markOwnershipDeclined();
+    expect(provider.hasDeclinedOwnership, isTrue);
+
+    final reloaded = OwnershipPreferenceProvider();
+    await reloaded.load();
+    expect(reloaded.hasDeclinedOwnership, isTrue);
+  });
 }

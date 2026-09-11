@@ -20,11 +20,13 @@ import 'package:bibliogenius/providers/book_note_provider.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/favorites_provider.dart';
 import 'package:bibliogenius/providers/hub_directory_provider.dart';
+import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/book_details_screen.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/utils/book_filters.dart';
 
 import '../helpers/mock_repositories.dart';
 
@@ -95,6 +97,15 @@ const _catalogue = {
     'wishlist_status': 'Wanted',
     'no_reading_status': 'No status',
     'reading_status_abandoned': 'Abandoned',
+    'date_select_option_today': 'Today',
+    'date_select_option_pick': 'Pick a date',
+    'date_select_option_none': 'No date',
+    'status_updated': 'Status updated',
+    'status_change_ownership_title': 'Is this book on your shelves?',
+    'status_change_ownership_yes_desc': 'It joins "All my books".',
+    'status_change_ownership_no_desc': 'It stays under its reading status.',
+    'status_change_ownership_show_all': 'Show everything in my library',
+    'status_change_ownership_show_all_desc': 'Owned or not, together.',
   },
 };
 
@@ -126,6 +137,7 @@ void main() {
   late MockCollectionRepository collections;
   late MockContactRepository contacts;
   late MockLoanRepository loans;
+  late OwnershipPreferenceProvider ownershipPrefs;
 
   Widget _wrap(Widget child) {
     final favorites = FavoritesProvider(collections, BookRefreshNotifier());
@@ -140,6 +152,9 @@ void main() {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: theme),
+        ChangeNotifierProvider<OwnershipPreferenceProvider>.value(
+          value: ownershipPrefs,
+        ),
         ChangeNotifierProvider<FavoritesProvider>.value(value: favorites),
         ChangeNotifierProvider<RecommendationProvider>.value(
           value: recommendations,
@@ -197,6 +212,7 @@ void main() {
     collections = MockCollectionRepository();
     contacts = MockContactRepository();
     loans = MockLoanRepository();
+    ownershipPrefs = OwnershipPreferenceProvider();
     TranslationService.setPoTranslationsForTest(_catalogue);
   });
 
@@ -486,6 +502,131 @@ void main() {
     await openOwnership(tester);
 
     expect(find.text('The book will leave your wishlist.'), findsOneWidget);
+  });
+
+  /// Starts reading through the primary button and picks today's date, which
+  /// is where the possession question fires, or must not.
+  Future<void> startReadingToday(WidgetTester tester) async {
+    await tester.tap(find.text('Start Reading'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('Today'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+
+  testWidgets('a book the reader does not have is asked about possession', (
+    tester,
+  ) async {
+    // A wish marked read used to leave "All my books" silently: the status
+    // never touched `owned`, and the default view is possession (ADR-063).
+    copies.mockCopies = [];
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', owned: false)),
+    );
+    await settle(tester);
+
+    await startReadingToday(tester);
+
+    expect(find.text('Is this book on your shelves?'), findsOneWidget);
+    expect(
+      books.lastUpdate,
+      isNull,
+      reason: 'the question comes before the write, so the two land together',
+    );
+
+    await tester.tap(find.byKey(const Key('ownershipAfterStatusYes')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(books.lastUpdate!['reading_status'], 'reading');
+    expect(books.lastUpdate!['owned'], isTrue);
+    expect(copies.createdCopies, hasLength(1));
+  });
+
+  testWidgets('declining possession still applies the status', (tester) async {
+    copies.mockCopies = [];
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', owned: false)),
+    );
+    await settle(tester);
+
+    await startReadingToday(tester);
+    await tester.tap(find.byKey(const Key('ownershipAfterStatusNo')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(books.lastUpdate!['reading_status'], 'reading');
+    expect(books.lastUpdate!.containsKey('owned'), isFalse);
+    expect(copies.createdCopies, isEmpty);
+  });
+
+  testWidgets('the first question is about the book alone', (tester) async {
+    copies.mockCopies = [];
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', owned: false)),
+    );
+    await settle(tester);
+
+    await startReadingToday(tester);
+
+    // One book read without owning it is an anecdote, not a habit: the
+    // row that widens the whole library is not offered yet.
+    expect(find.byKey(const Key('ownershipAfterStatusShowAll')), findsNothing);
+
+    await tester.tap(find.byKey(const Key('ownershipAfterStatusNo')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(ownershipPrefs.hasDeclinedOwnership, isTrue);
+  });
+
+  testWidgets('from the second declined book on, widening the view is offered', (
+    tester,
+  ) async {
+    copies.mockCopies = [];
+    await ownershipPrefs.markOwnershipDeclined();
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', owned: false)),
+    );
+    await settle(tester);
+
+    await startReadingToday(tester);
+    await tester.tap(find.byKey(const Key('ownershipAfterStatusShowAll')));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(ownershipPrefs.scope, OwnershipScope.all);
+    // The book itself is untouched: the status lands, possession does not.
+    expect(books.lastUpdate!['reading_status'], 'reading');
+    expect(books.lastUpdate!.containsKey('owned'), isFalse);
+    expect(copies.createdCopies, isEmpty);
+  });
+
+  testWidgets('a view that shows everything is never asked', (tester) async {
+    copies.mockCopies = [];
+    await ownershipPrefs.setScope(OwnershipScope.all);
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', owned: false)),
+    );
+    await settle(tester);
+
+    await startReadingToday(tester);
+
+    expect(find.text('Is this book on your shelves?'), findsNothing);
+    expect(books.lastUpdate!['reading_status'], 'reading');
+  });
+
+  testWidgets('an owned book is not asked about possession', (tester) async {
+    copies.mockCopies = [_copy('c1', 'available')];
+    await tester.pumpWidget(harness(book(readingStatus: 'to_read')));
+    await settle(tester);
+
+    await startReadingToday(tester);
+
+    expect(find.text('Is this book on your shelves?'), findsNothing);
+    expect(books.lastUpdate!['reading_status'], 'reading');
+    expect(books.lastUpdate!.containsKey('owned'), isFalse);
   });
 
   testWidgets('a long summary is clamped until the reader asks for more', (

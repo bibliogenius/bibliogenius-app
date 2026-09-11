@@ -11782,3 +11782,24 @@ msgstr ""
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr ""
+
+msgid "status_change_ownership_title"
+msgstr ""
+
+msgid "status_change_ownership_yes_desc"
+msgstr ""
+
+msgid "status_change_ownership_no_desc"
+msgstr ""
+
+msgid "status_change_ownership_show_all"
+msgstr ""
+
+msgid "status_change_ownership_show_all_desc"
+msgstr ""
+
+msgid "settings_show_not_owned_books"
+msgstr ""
+
+msgid "settings_show_not_owned_books_desc"
+msgstr ""
