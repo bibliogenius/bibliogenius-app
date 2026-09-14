@@ -131,10 +131,11 @@ class _GoalReachedWidgetState extends State<_GoalReachedWidget>
     // Generate fireworks
     _generateFireworks();
 
-    _mainController.forward().then((_) {
-      _fireworksController.stop();
-      widget.onComplete();
-    });
+    // Completion is observed through the status, not the `forward()` future:
+    // Flutter cancels that future (it never resolves) when tap-to-dismiss
+    // calls `animateTo`, and the overlay would then never be removed.
+    _mainController.addStatusListener(_onStatus);
+    _mainController.forward();
     _fireworksController.forward();
   }
 
@@ -174,8 +175,15 @@ class _GoalReachedWidgetState extends State<_GoalReachedWidget>
     }
   }
 
+  void _onStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _fireworksController.stop();
+    widget.onComplete();
+  }
+
   @override
   void dispose() {
+    _mainController.removeStatusListener(_onStatus);
     _mainController.dispose();
     _fireworksController.dispose();
     super.dispose();

@@ -146,7 +146,11 @@ class _BookCompleteCelebrationWidgetState
     // Generate stars
     _generateStars();
 
-    _mainController.forward().then((_) => widget.onComplete());
+    // Completion is observed through the status, not the `forward()` future:
+    // Flutter cancels that future (it never resolves) when tap-to-dismiss
+    // calls `animateTo`, and the overlay would then never be removed.
+    _mainController.addStatusListener(_onStatus);
+    _mainController.forward();
     _starsController.repeat();
   }
 
@@ -165,8 +169,13 @@ class _BookCompleteCelebrationWidgetState
     }
   }
 
+  void _onStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) widget.onComplete();
+  }
+
   @override
   void dispose() {
+    _mainController.removeStatusListener(_onStatus);
     _mainController.dispose();
     _starsController.dispose();
     super.dispose();

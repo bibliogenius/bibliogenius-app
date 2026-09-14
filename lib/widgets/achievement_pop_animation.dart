@@ -125,11 +125,20 @@ class _AchievementPopWidgetState extends State<_AchievementPopWidget>
       TweenSequenceItem(tween: ConstantTween<double>(1.0), weight: 70),
     ]).animate(_controller);
 
-    _controller.forward().then((_) => widget.onComplete());
+    // Completion is observed through the status, not the `forward()` future:
+    // Flutter cancels that future (it never resolves) when tap-to-dismiss
+    // calls `animateTo`, and the overlay would then never be removed.
+    _controller.addStatusListener(_onStatus);
+    _controller.forward();
+  }
+
+  void _onStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) widget.onComplete();
   }
 
   @override
   void dispose() {
+    _controller.removeStatusListener(_onStatus);
     _controller.dispose();
     super.dispose();
   }

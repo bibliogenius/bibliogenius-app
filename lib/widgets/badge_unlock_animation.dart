@@ -159,12 +159,11 @@ class _BadgeUnlockAnimationWidgetState
     _generateConfetti();
 
     // Start animations
-    _mainController.forward().then((_) {
-      // Stop all repeating animations before removing overlay
-      _pulseController.stop();
-      _confettiController.stop();
-      widget.onComplete();
-    });
+    // Completion is observed through the status, not the `forward()` future:
+    // Flutter cancels that future (it never resolves) when tap-to-dismiss
+    // calls `animateTo`, and the overlay would then never be removed.
+    _mainController.addStatusListener(_onStatus);
+    _mainController.forward();
     _confettiController.forward();
   }
 
@@ -196,8 +195,17 @@ class _BadgeUnlockAnimationWidgetState
     }
   }
 
+  void _onStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    // Stop all repeating animations before removing overlay
+    _pulseController.stop();
+    _confettiController.stop();
+    widget.onComplete();
+  }
+
   @override
   void dispose() {
+    _mainController.removeStatusListener(_onStatus);
     _mainController.dispose();
     _confettiController.dispose();
     _pulseController.dispose();

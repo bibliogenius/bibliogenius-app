@@ -104,6 +104,13 @@ class _LevelUpAnimationWidgetState extends State<_LevelUpAnimationWidget>
   final List<_Particle> _particles = [];
   final Random _random = Random();
 
+  /// Where the backdrop fade-out begins on the main timeline (see the
+  /// TweenSequence weights in [initState]).
+  static const _fadeOutStart = 0.87;
+
+  bool _dismissing = false;
+  bool _completed = false;
+
   @override
   void initState() {
     super.initState();
@@ -158,10 +165,24 @@ class _LevelUpAnimationWidgetState extends State<_LevelUpAnimationWidget>
 
     _generateParticles();
 
-    _main.forward().then((_) {
-      _glow.stop();
-      widget.onComplete();
-    });
+    // Completion is observed through the status, not the `forward()` future:
+    // Flutter cancels that future (it never resolves) when `animateTo` takes
+    // over the controller, which is exactly what tap-to-dismiss does. The
+    // overlay would then sit on screen until the app was killed.
+    _main.addStatusListener(_onStatus);
+    _main.forward();
+  }
+
+  void _onStatus(AnimationStatus status) {
+    if (status != AnimationStatus.completed) return;
+    _finish();
+  }
+
+  void _finish() {
+    if (_completed) return;
+    _completed = true;
+    _glow.stop();
+    widget.onComplete();
   }
 
   void _generateParticles() {
@@ -180,15 +201,23 @@ class _LevelUpAnimationWidgetState extends State<_LevelUpAnimationWidget>
 
   @override
   void dispose() {
+    _main.removeStatusListener(_onStatus);
     _main.dispose();
     _glow.dispose();
     super.dispose();
   }
 
   void _dismiss() {
-    // Jump to where the fade-out begins so a tap closes it promptly.
-    if (_main.value < 0.87) {
-      _main.animateTo(0.87, duration: const Duration(milliseconds: 200));
+    if (_dismissing) return;
+    _dismissing = true;
+    // Jump to where the fade-out begins so a tap closes it promptly, then
+    // resume the timeline so the fade-out actually plays out to completion.
+    if (_main.value < _fadeOutStart) {
+      _main
+          .animateTo(_fadeOutStart, duration: const Duration(milliseconds: 200))
+          .whenCompleteOrCancel(() {
+            if (mounted && !_completed) _main.forward();
+          });
     }
   }
 
