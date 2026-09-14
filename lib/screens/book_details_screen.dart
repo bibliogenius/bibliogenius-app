@@ -522,6 +522,10 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       },
     ).toString();
 
+    // The dead-end bars that lead here are not for the search screen: the
+    // messenger sits above the navigator, so whatever is showing or queued
+    // would otherwise land on top of the results.
+    ScaffoldMessenger.of(context).clearSnackBars();
     final edition = await context.push<Map<String, dynamic>>(query);
     if (!mounted || edition == null || book.id == null) return;
 
@@ -651,6 +655,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
             duration: const Duration(seconds: 8),
             action: _byTitleAction(book),
+            // An action pins the bar by default, which makes the duration
+            // inert and keeps it on screen through the search it offers.
+            persist: false,
           ),
         );
     }
@@ -3332,6 +3339,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
             ),
             duration: const Duration(seconds: 8),
             action: _byTitleAction(book),
+            // Same as the cover dead end: expire rather than follow the reader.
+            persist: false,
           ),
         );
         return;

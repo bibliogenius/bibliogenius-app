@@ -24,10 +24,12 @@ import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/book_details_screen.dart';
+import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/utils/book_filters.dart';
 
+import '../helpers/mock_classes.dart';
 import '../helpers/mock_repositories.dart';
 
 /// Action-area cover for the book detail page.
@@ -54,6 +56,16 @@ class _FakeRecommendationRepository implements RecommendationRepository {
   Future<DiscoveryLookupInputs?> getDiscoveryLookupInputs() async => null;
 }
 
+/// An ISBN lookup that comes back empty, as it does for an edition no source
+/// has indexed yet.
+class _NoMetadataApiService extends MockApiService {
+  @override
+  Future<Map<String, String?>?> lookupBookMetadata(
+    String isbn, {
+    String? lang,
+  }) async => null;
+}
+
 const _catalogue = {
   'en': {
     'start_reading': 'Start Reading',
@@ -75,6 +87,8 @@ const _catalogue = {
     'finished_on': 'Finished',
     'menu_delete': 'Delete',
     'refresh_metadata_title': 'Update',
+    'refresh_metadata_not_found': 'No data found for this ISBN',
+    'cover_search_by_title_short': 'By title',
     'book_visibility': 'Visibility',
     'book_visibility_public': 'Public',
     'book_visibility_public_desc': 'Visible to your contacts',
@@ -159,6 +173,7 @@ void main() {
         ChangeNotifierProvider<RecommendationProvider>.value(
           value: recommendations,
         ),
+        Provider<ApiService>.value(value: _NoMetadataApiService()),
         Provider<BookRepository>.value(value: books),
         Provider<CopyRepository>.value(value: copies),
         Provider<CollectionRepository>.value(value: collections),
@@ -227,10 +242,12 @@ void main() {
     String? summary,
     DateTime? startedAt,
     DateTime? finishedAt,
+    String? isbn,
   }) => Book(
     id: 'b1',
     title: 'The Anomaly',
     author: 'Herve Le Tellier',
+    isbn: isbn,
     readingStatus: readingStatus,
     owned: owned,
     private: private,
@@ -749,5 +766,35 @@ void main() {
         reason: '"$label" is under the tap target floor',
       );
     }
+  });
+
+  testWidgets('the ISBN dead end expires instead of following the reader', (
+    tester,
+  ) async {
+    // The bar offers "By title", and Flutter pins any bar that carries an
+    // action: its duration goes inert and, the messenger sitting above the
+    // navigator, it stays on screen through the search it sends the reader
+    // to. It has to say `persist: false` to expire like the others.
+    copies.mockCopies = [_copy('c1', 'available')];
+    await tester.pumpWidget(
+      harness(book(readingStatus: 'to_read', isbn: '9782072895098')),
+    );
+    await settle(tester);
+
+    await tester.tap(find.byTooltip('More'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.tap(find.text('Update'));
+    await settle(tester);
+
+    expect(find.text('No data found for this ISBN'), findsOneWidget);
+    expect(find.text('By title'), findsOneWidget);
+
+    // The dismissal timer is armed once the entrance animation has finished,
+    // then the bar's own eight seconds have to run out.
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 9));
+    await settle(tester);
+    expect(find.text('No data found for this ISBN'), findsNothing);
   });
 }
