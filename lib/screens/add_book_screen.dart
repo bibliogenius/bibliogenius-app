@@ -75,6 +75,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool _skipAutocomplete =
       false; // Suppress autocomplete when title is set programmatically
   String? _lastLookedUpIsbn; // Prevent duplicate lookups
+  // True once an ISBN lookup has filled the form: the book is identified by
+  // that ISBN, so editing the title is a correction, not a search. The title
+  // autocomplete stays off, since picking one of its editions would replace
+  // the scanned ISBN, publisher, year and cover with that edition's.
+  bool _isbnResolved = false;
   String? _lastChecksumWarningIsbn; // Prevent repeated checksum warnings
   final List<String> _selectedTags = [];
   List<Collection> _selectedCollections = [];
@@ -208,6 +213,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     // Reset last lookup if ISBN changed significantly (not just adding digits)
     if (_lastLookedUpIsbn != null && !isbn.startsWith(_lastLookedUpIsbn!)) {
       _lastLookedUpIsbn = null;
+      _isbnResolved = false;
     }
 
     // Lookup when ISBN reaches valid length (10 or 13), not currently fetching,
@@ -273,6 +279,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
       if (bookData != null && mounted) {
         setState(() {
+          // A record without a title has not identified the book: keep the
+          // title search available in that case.
+          _isbnResolved = (bookData['title'] as String?)?.isNotEmpty == true;
           if (_titleController.text.isEmpty) {
             _skipAutocomplete = true;
             _titleController.text = bookData['title'] ?? '';
@@ -883,6 +892,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         return const Iterable<Map<String, dynamic>>.empty();
                       }
 
+                      if (_isbnResolved) {
+                        return const Iterable<Map<String, dynamic>>.empty();
+                      }
+
                       if (textEditingValue.text.isEmpty ||
                           textEditingValue.text.length < 3) {
                         return const Iterable<Map<String, dynamic>>.empty();
@@ -1023,6 +1036,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                         ),
                                       ),
                                     )
+                                  : _isbnResolved
+                                  ? null
                                   : const Icon(Icons.search),
                             ),
                             validator: (value) => value == null || value.isEmpty
