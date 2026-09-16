@@ -682,6 +682,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     contentPadding: const EdgeInsets.symmetric(vertical: 0),
                   ),
                   onChanged: (v) => setState(() => _settingsSearch = v),
+                  // Drop the keyboard as soon as a tile is tapped. A tile that
+                  // presents a native sheet (file picker, share sheet) over a
+                  // still-focused field leaves iOS with a keyboard whose
+                  // Flutter client is gone: it stays up and the done key is
+                  // inert.
+                  onTapOutside: (_) =>
+                      FocusManager.instance.primaryFocus?.unfocus(),
                 ),
                 const SizedBox(height: 16),
 
