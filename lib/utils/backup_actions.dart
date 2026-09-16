@@ -25,6 +25,7 @@ import '../services/backup_prefs_whitelist.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as rust;
+import 'share_origin.dart';
 import '../widgets/passphrase_strength_meter.dart';
 
 enum _MobileExportChoice { save, share }
@@ -43,32 +44,6 @@ class BackupActions {
   /// leaves the device (share sheet, iCloud, AirDrop), so the floor must not
   /// drift between the two dialogs that offer to set it.
   static const int minPassphraseLength = 8;
-
-  /// Computes a non-zero anchor [Rect] for the system share sheet.
-  ///
-  /// On iPad (and, more strictly, on recent iOS) `share_plus` presents the
-  /// share sheet as a popover and requires `sharePositionOrigin` to be set
-  /// and non-zero, otherwise it throws
-  /// `PlatformException(... sharePositionOrigin ... must be non-zero ...)`.
-  /// Backup export and full-backup share calls run from a screen-level
-  /// context, so we anchor to that render box when available and fall back
-  /// to a 1x1 rect at the screen centre, which is always inside the source
-  /// view's coordinate space and satisfies the non-zero requirement.
-  static Rect _shareOrigin(BuildContext context) {
-    final renderObject = context.findRenderObject();
-    if (renderObject is RenderBox &&
-        renderObject.hasSize &&
-        renderObject.size.width > 0 &&
-        renderObject.size.height > 0) {
-      return renderObject.localToGlobal(Offset.zero) & renderObject.size;
-    }
-    final size = MediaQuery.maybeOf(context)?.size ?? const Size(400, 800);
-    return Rect.fromCenter(
-      center: Offset(size.width / 2, size.height / 2),
-      width: 1,
-      height: 1,
-    );
-  }
 
   // ---------------------------------------------------------------------------
   // Public entry points
@@ -149,7 +124,7 @@ class BackupActions {
     final messenger = ScaffoldMessenger.of(context);
     // Capture the share-sheet anchor now, while the screen is mounted, so the
     // later share call does not touch `context` across async gaps.
-    final shareOrigin = _shareOrigin(context);
+    final origin = shareOrigin(context);
     final saveDialogTitle = TranslationService.translate(
       context,
       'save_backup_dialog_title',
@@ -224,7 +199,7 @@ class BackupActions {
             await Share.shareXFiles(
               [XFile(file.path)],
               text: shareText,
-              sharePositionOrigin: shareOrigin,
+              sharePositionOrigin: origin,
             );
             exported = true;
           }
@@ -1048,7 +1023,7 @@ class BackupActions {
     final authService = context.read<AuthService>();
     // Capture the share-sheet anchor now, while the screen is mounted, so the
     // later share call does not touch `context` across async gaps.
-    final shareOrigin = _shareOrigin(context);
+    final origin = shareOrigin(context);
     // Pre-resolve the failure template for the same reason ({error} is
     // substituted manually in the catch, after the async gaps).
     final failedTemplate = TranslationService.translate(
@@ -1056,7 +1031,7 @@ class BackupActions {
       'backup_full_failed',
     );
 
-    final input = await _showFullBackupDebugDialog(context);
+    final input = await showFullBackupPassphraseDialog(context);
     if (input == null) return;
 
     // From here on, `input.secretBytes` is the only place the secret bytes
@@ -1130,7 +1105,7 @@ class BackupActions {
           [XFile(outputPath)],
           subject: defaultName,
           text: 'Sauvegarde complète BiblioGenius',
-          sharePositionOrigin: shareOrigin,
+          sharePositionOrigin: origin,
         );
       }
 
@@ -1161,7 +1136,11 @@ class BackupActions {
     }
   }
 
-  static Future<_FullBackupDebugInput?> _showFullBackupDebugDialog(
+  /// Prompts for the archive passphrase and the identity option.
+  ///
+  /// Public only for the widget test that guards the controller lifetime.
+  @visibleForTesting
+  static Future<FullBackupPassphraseInput?> showFullBackupPassphraseDialog(
     BuildContext context,
   ) async {
     final controller = TextEditingController();
@@ -1182,12 +1161,16 @@ class BackupActions {
     PassphraseStrength strength = const PassphraseStrength.empty();
     Timer? strengthDebounce;
     bool dialogOpen = true;
+    // The dialog's route, to release the controller only once its subtree is
+    // gone (see below).
+    ModalRoute<Object?>? route;
 
-    final result = await showDialog<_FullBackupDebugInput>(
+    final result = await showDialog<FullBackupPassphraseInput>(
       context: context,
       builder: (dialogCtx) {
         return StatefulBuilder(
           builder: (ctx, setState) {
+            route ??= ModalRoute.of(ctx);
             final secret = controller.text;
             final longEnough = secret.length >= minPassphraseLength;
             return AlertDialog(
@@ -1303,7 +1286,7 @@ class BackupActions {
                             utf8.encode(controller.text),
                           );
                           Navigator.of(ctx).pop(
-                            _FullBackupDebugInput(
+                            FullBackupPassphraseInput(
                               secretBytes: bytes,
                               unlockKind: unlockKind,
                               includeIdentity: includeIdentity,
@@ -1330,7 +1313,17 @@ class BackupActions {
     // are immutable so we cannot zero it; clearing the controller at
     // least removes our reference to it.
     controller.clear();
-    controller.dispose();
+    // `showDialog` resolves on pop, while the TextField stays on screen for
+    // the closing transition and rebuilds when the keyboard retracts.
+    // Disposing here made that rebuild throw "used after being disposed"
+    // and cascade into a framework assertion; `completed` fires once the
+    // overlay entries are removed, after the dialog's last build.
+    final closing = route?.completed;
+    if (closing == null) {
+      controller.dispose();
+    } else {
+      closing.whenComplete(controller.dispose);
+    }
     return result;
   }
 
@@ -1341,12 +1334,16 @@ class BackupActions {
   }
 }
 
-class _FullBackupDebugInput {
+/// What the passphrase dialog hands back to the full-backup writer.
+///
+/// Public only for the widget test that drives the dialog.
+@visibleForTesting
+class FullBackupPassphraseInput {
   final Uint8List secretBytes;
   final String unlockKind;
   final bool includeIdentity;
 
-  const _FullBackupDebugInput({
+  const FullBackupPassphraseInput({
     required this.secretBytes,
     required this.unlockKind,
     required this.includeIdentity,
