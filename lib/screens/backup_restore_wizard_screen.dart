@@ -397,6 +397,14 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
           // GeoNames integer id. Without this branch it would be exported into
           // the archive and then silently dropped on restore.
           await prefs.setInt(key, v);
+        } else if (v != null) {
+          // A whitelisted key whose type this loop does not handle: it is in
+          // the archive and is about to be discarded. The fix is a branch for
+          // that type, not a widening of the branches above. The drift test
+          // guards the same invariant at build time.
+          debugPrint(
+            'applyPrefs: dropped "$key", unhandled type ${v.runtimeType}',
+          );
         }
       }
     } catch (e) {
