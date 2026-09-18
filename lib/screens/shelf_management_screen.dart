@@ -728,11 +728,16 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
 
-      // Synthetic (subject-derived) tags have an empty uuid - they exist in book
+      // Synthetic (subject-derived) tags have no uuid - they exist in book
       // subjects but not in the tags table. Create the tag in DB, then rename
       // subjects in books if name changed.
-      if (id.isEmpty) {
-        final originalTag = _allTags.firstWhere((t) => t.id == id);
+      // The list may have been reloaded since the dialog opened: an id that
+      // is no longer in it is treated as a persisted tag, like before.
+      final originalTag = _allTags.firstWhere(
+        (t) => t.id == id,
+        orElse: () => Tag(id: id, name: name, count: 0),
+      );
+      if (!originalTag.isPersisted) {
         // Create with the OLD name first (so subjects match)
         final created = await api.createTag(
           originalTag.name,
@@ -747,17 +752,9 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
               'Shelf updated',
         );
       } else {
-        // Normal update for tags that already exist in the database. The tag is
-        // addressed by its uuid, resolved from the loaded list by its local id.
-        final uuid = _allTags
-            .firstWhere(
-              (t) => t.id == id,
-              orElse: () => Tag(id: id, name: name, count: 0),
-            )
-            .uuid;
-        if (uuid != null) {
-          await api.updateTag(uuid, name, parentId: parentId);
-        }
+        // Normal update for tags that already exist in the database,
+        // addressed by their uuid.
+        await api.updateTag(originalTag.uuid, name, parentId: parentId);
         _showSuccess(
           TranslationService.translate(context, 'shelf_updated') ??
               'Shelf updated',
@@ -773,25 +770,15 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
 
-      // Legacy tags (ID < 0) don't exist in DB - only skip if needed
-      if (tag.id.isEmpty) {
-        _showSuccess(
-          TranslationService.translate(context, 'shelf_deleted') ??
-              'Shelf deleted',
-        );
-        return; // Nothing to delete from DB
-      }
-
       // Delete children first (recursive)
       final children = Tag.getDirectChildren(tag.id, _allTags);
       for (final child in children) {
         await _deleteTagRecursive(child);
       }
 
-      // Delete the tag itself (addressed by its uuid)
-      if (tag.uuid != null) {
-        await api.deleteTag(tag.uuid!);
-      }
+      // Row or not, the name leaves the books (see deleteShelf): a shelf
+      // known only from their subjects is deleted the same way.
+      await api.deleteShelf(tag);
       _showSuccess(
         TranslationService.translate(context, 'shelf_deleted') ??
             'Shelf deleted',
@@ -803,15 +790,12 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
   }
 
   Future<void> _deleteTagRecursive(Tag tag) async {
-    if (tag.id.isEmpty) return; // Skip legacy (synthetic) tags
     final api = Provider.of<TagRepository>(context, listen: false);
     final children = Tag.getDirectChildren(tag.id, _allTags);
     for (final child in children) {
       await _deleteTagRecursive(child);
     }
-    if (tag.uuid != null) {
-      await api.deleteTag(tag.uuid!);
-    }
+    await api.deleteShelf(tag);
   }
 
   void _showSuccess(String message) {

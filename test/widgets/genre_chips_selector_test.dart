@@ -35,6 +35,9 @@ class _RecordingTagRepository implements TagRepository {
 
   @override
   Future<void> deleteTag(String uuid) async => throw UnimplementedError();
+
+  @override
+  Future<void> deleteShelf(Tag tag) async => throw UnimplementedError();
 }
 
 /// Holds the shelves the way the add/edit screens do, so a tap round-trips

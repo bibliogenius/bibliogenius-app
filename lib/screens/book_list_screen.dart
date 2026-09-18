@@ -951,12 +951,14 @@ class _BookListScreenState extends State<BookListScreen>
       // Apply tag filter with hierarchy support
       // When filtering by a parent tag, include books from all child tags
       bool Function(Book book)? shelfPredicate;
-      if (_currentShelf != null && _allTags.isNotEmpty) {
+      // A shelf reached by name (the shelves grid links to
+      // `/shelves?tag=Genre`) has to filter like one picked from the sheet:
+      // with its sub-shelves. On the bare name a parent whose books all sit
+      // in its sub-shelves opened as an empty list.
+      final shelf = _currentShelf ?? Tag.byName(_allTags, _tagFilter);
+      if (shelf != null && _allTags.isNotEmpty) {
         // Get all matching tag names (this tag + descendants)
-        final matchingNames = Tag.getTagNamesWithDescendants(
-          _currentShelf!,
-          _allTags,
-        );
+        final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);
         shelfPredicate = (book) {
           final bookTags =
               book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};

@@ -12049,3 +12049,19 @@ msgstr "Show books I do not own"
 
 msgid "settings_show_not_owned_books_desc"
 msgstr "Wishes and books read without owning them appear in the library alongside the others."
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "View books"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "%d sub-shelf"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "%d sub-shelves"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "The books stay in your library; they just leave this shelf."

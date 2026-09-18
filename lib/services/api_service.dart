@@ -4995,6 +4995,15 @@ class ApiService {
     await _dio.delete('/api/tags/$uuid');
   }
 
+  /// Remove a shelf name from every book's subjects. This is how a shelf
+  /// with no `tags` row is deleted. The web HTTP leg is dormant (not shipped).
+  Future<void> removeSubject(String name) async {
+    if (useFfi) {
+      return FfiService().removeSubject(name);
+    }
+    throw UnsupportedError('removeSubject is only available over FFI');
+  }
+
   // ============ P2P Device Pairing ============
 
   /// Generate a pairing code on this device (Source) by calling the local backend.

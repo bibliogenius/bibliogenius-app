@@ -186,6 +186,16 @@ class FfiService {
     }
   }
 
+  /// Remove a shelf name from every book's subjects (synthetic shelf delete).
+  Future<void> removeSubject(String name) async {
+    try {
+      await frb.removeSubject(name: name);
+    } catch (e) {
+      debugPrint('FFI removeSubject error: $e');
+      rethrow;
+    }
+  }
+
   /// Reorder books by updating shelf positions
   Future<void> reorderBooks(List<String> bookIds) async {
     try {

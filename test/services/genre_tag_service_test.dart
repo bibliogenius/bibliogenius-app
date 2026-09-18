@@ -34,6 +34,9 @@ class _RecordingTagRepository implements TagRepository {
 
   @override
   Future<void> deleteTag(String uuid) async => throw UnimplementedError();
+
+  @override
+  Future<void> deleteShelf(Tag tag) async => throw UnimplementedError();
 }
 
 Tag _shelf(String id, String name, {String? parentId}) =>
@@ -123,6 +126,20 @@ void main() {
       final leaf = await service.resolveShelfChain(['Genre', 'Manga']);
 
       expect(repo.created, ['Genre', 'Manga']);
+      expect(leaf.isPersisted, isTrue);
+    });
+
+    test('adopts a synthetic shelf the FFI listing spells with a legacy id', () async {
+      // Over FFI the same absence of a `tags` row is spelled `legacy:-N`, not
+      // an empty id. It passed as persisted: picking "Roman" for a book whose
+      // shelf survived only in the subjects created neither Genre nor Roman,
+      // and the top-level shelf never showed up on the shelves screen.
+      final repo = _RecordingTagRepository([_shelf('legacy:-1', 'Roman')]);
+      final service = GenreTagService(repo);
+
+      final leaf = await service.resolveShelfChain(['Genre', 'Roman']);
+
+      expect(repo.created, ['Genre', 'Roman']);
       expect(leaf.isPersisted, isTrue);
     });
 

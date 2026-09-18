@@ -83,6 +83,9 @@ class MockTagRepository implements TagRepository {
 
   @override
   Future<void> deleteTag(String uuid) async {}
+
+  @override
+  Future<void> deleteShelf(Tag tag) async {}
 }
 
 class MockContactRepository implements ContactRepository {

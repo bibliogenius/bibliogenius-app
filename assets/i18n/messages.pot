@@ -11803,3 +11803,19 @@ msgstr ""
 
 msgid "settings_show_not_owned_books_desc"
 msgstr ""
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr ""
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr ""
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr ""
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr ""

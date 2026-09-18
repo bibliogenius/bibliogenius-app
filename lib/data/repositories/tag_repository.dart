@@ -11,4 +11,9 @@ abstract class TagRepository {
 
   /// Delete a tag addressed by its uuid (cross-device identity).
   Future<void> deleteTag(String uuid);
+
+  /// Delete a shelf as the user sees it: the `tags` row when there is one,
+  /// and its name from every book's subjects either way. A synthetic shelf
+  /// (no row, see [Tag.isPersisted]) has only the second half to do.
+  Future<void> deleteShelf(Tag tag);
 }

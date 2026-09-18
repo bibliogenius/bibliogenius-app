@@ -26,4 +26,12 @@ class TagRepositoryImpl implements TagRepository {
   Future<void> deleteTag(String uuid) {
     return _apiService.deleteTag(uuid);
   }
+
+  @override
+  Future<void> deleteShelf(Tag tag) {
+    // The backend strips the name from the books when it deletes the row;
+    // a synthetic shelf has no row, so only the books are left to clean.
+    if (tag.isPersisted) return _apiService.deleteTag(tag.uuid);
+    return _apiService.removeSubject(tag.name);
+  }
 }

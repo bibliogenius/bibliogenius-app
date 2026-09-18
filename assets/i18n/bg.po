@@ -11902,3 +11902,19 @@ msgstr "Показвай книгите, които не притежавам"
 
 msgid "settings_show_not_owned_books_desc"
 msgstr "Желания и книги, прочетени без да са притежавани, се показват в библиотеката с останалите."
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "Виж книгите"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "%d подрафт"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "%d подрафта"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "Книгите остават в библиотеката ви; те само напускат този рафт."

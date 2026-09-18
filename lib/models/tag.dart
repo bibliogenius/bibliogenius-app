@@ -65,9 +65,18 @@ class Tag {
   /// Check if this is a root tag (no parent)
   bool get isRoot => parentId == null;
 
+  /// Prefix of the ids the FFI listing gives synthetic entries (`legacy:-1`,
+  /// `legacy:-2`, ...): a name found in the books' subjects with no `tags`
+  /// row behind it. The HTTP listing spells the same absence as an empty id.
+  static const syntheticIdPrefix = 'legacy:';
+
   /// Whether this tag is backed by a real `tags` row (has a uuid), as opposed
   /// to a synthetic subject-derived entry.
-  bool get isPersisted => id.isNotEmpty;
+  ///
+  /// Both spellings of "no row" count: a `legacy:` id used to pass here as
+  /// persisted, so filing a book under a genre whose name survived as an
+  /// orphan created neither the genre nor its parents.
+  bool get isPersisted => id.isNotEmpty && !id.startsWith(syntheticIdPrefix);
 
   /// Create a copy with updated children (for tree building)
   Tag copyWithChildren(List<Tag> newChildren) {
@@ -125,6 +134,17 @@ class Tag {
       }
     }
     return total;
+  }
+
+  /// The tag carrying [name] in [allTags], if any. Compared the way subjects
+  /// are stored: bare names, trimmed, case-insensitively.
+  static Tag? byName(List<Tag> allTags, String? name) {
+    if (name == null) return null;
+    final target = name.trim().toLowerCase();
+    for (final tag in allTags) {
+      if (tag.name.trim().toLowerCase() == target) return tag;
+    }
+    return null;
   }
 
   /// Get only root-level tags (no parent)

@@ -608,6 +608,12 @@ Future<void> renameSubject({
 Future<void> deleteTag({required String id}) =>
     RustLib.instance.api.crateApiFrbDeleteTag(id: id);
 
+/// Delete a shelf that has no `tags` row: a name that only lives in the
+/// books' subjects (a synthetic orphan on the shelves screen). Same outcome
+/// as `delete_tag` for the books, with nothing to cascade.
+Future<void> removeSubject({required String name}) =>
+    RustLib.instance.api.crateApiFrbRemoveSubject(name: name);
+
 /// Reorder books by updating shelf positions
 Future<void> reorderBooks({required List<String> bookIds}) =>
     RustLib.instance.api.crateApiFrbReorderBooks(bookIds: bookIds);

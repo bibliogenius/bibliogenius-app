@@ -11895,3 +11895,19 @@ msgstr "Mostra i libri che non possiedo"
 
 msgid "settings_show_not_owned_books_desc"
 msgstr "Desideri e libri letti senza possederli compaiono nella biblioteca accanto agli altri."
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "Vedi i libri"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "%d sotto-scaffale"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "%d sotto-scaffali"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "I libri restano nella tua biblioteca; lasciano solo questo scaffale."

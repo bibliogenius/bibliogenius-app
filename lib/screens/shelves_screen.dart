@@ -10,6 +10,7 @@ import '../widgets/contextual_help_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../providers/theme_provider.dart';
 import '../providers/ownership_preference_provider.dart';
 import '../utils/book_filters.dart';
@@ -30,8 +31,6 @@ class ShelvesScreen extends StatefulWidget {
 }
 
 class _ShelvesScreenState extends State<ShelvesScreen> {
-  late Future<List<Tag>> _tagsFuture;
-
   /// The badge must announce what the tap will open, and what it opens is the
   /// reader's remembered ownership axis (ADR-063). Watched rather than read
   /// once: changing the axis from the library screen has to repaint these.
@@ -43,35 +42,102 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     ),
   );
   List<Tag> _allTags = [];
+  bool _isLoading = true;
+  String? _error;
   Tag? _currentParent; // null = root level
   List<Tag> _path = []; // breadcrumb path
+  BookRefreshNotifier? _bookRefreshNotifier;
 
   @override
   void initState() {
     super.initState();
-    _tagsFuture = Provider.of<TagRepository>(context, listen: false).getTags();
-    widget.refreshNotifier?.addListener(_onRefreshRequested);
-  }
-
-  void _onRefreshRequested() {
-    _refreshTags();
+    widget.refreshNotifier?.addListener(_loadTags);
+    // The tab stays mounted behind whatever the reader pushes on top of it
+    // (a book form, a scan), so a shelf created or filled there has to reach
+    // this grid through the global notifier, or it only shows after leaving
+    // the tab and coming back.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _bookRefreshNotifier = context.read<BookRefreshNotifier>();
+      _bookRefreshNotifier?.addListener(_loadTags);
+    });
+    _loadTags();
   }
 
   @override
   void dispose() {
-    widget.refreshNotifier?.removeListener(_onRefreshRequested);
+    widget.refreshNotifier?.removeListener(_loadTags);
+    _bookRefreshNotifier?.removeListener(_loadTags);
     super.dispose();
   }
 
-  void _refreshTags() {
-    setState(() {
-      _tagsFuture = Provider.of<TagRepository>(
+  /// Reload the tags and keep the reader where they are.
+  ///
+  /// The grid keeps painting the previous list while the new one loads: a
+  /// spinner on every delete or rename reads as "something is off", while a
+  /// card that simply disappears reads as done. The current level is
+  /// re-resolved against the fresh list, and only dropped when the shelf the
+  /// reader was in no longer exists or no longer has sub-shelves.
+  Future<void> _loadTags() async {
+    try {
+      final tags = await Provider.of<TagRepository>(
         context,
         listen: false,
       ).getTags();
-      _currentParent = null;
-      _path = [];
-    });
+      if (!mounted) return;
+      setState(() {
+        _allTags = tags;
+        _error = null;
+        _isLoading = false;
+        _resolveLevel();
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _resolveLevel() {
+    Tag? find(Tag tag) {
+      for (final t in _allTags) {
+        if (t.id == tag.id) return t;
+      }
+      return null;
+    }
+
+    final resolvedPath = <Tag>[];
+    for (final ancestor in _path) {
+      final found = find(ancestor);
+      if (found == null) break;
+      resolvedPath.add(found);
+    }
+    _path = resolvedPath;
+
+    final parent = _currentParent == null ? null : find(_currentParent!);
+    if (parent == null || _childrenOf(parent).isEmpty) {
+      // The shelf is gone or became a leaf: climb one level rather than
+      // bounce the reader to an empty book list.
+      _currentParent = _path.isNotEmpty ? _path.removeLast() : null;
+    } else {
+      _currentParent = parent;
+    }
+  }
+
+  List<Tag> _childrenOf(Tag tag) =>
+      _allTags.where((t) => t.parentId == tag.id).toList();
+
+  /// Own books plus every descendant's: the number the shelf's book list
+  /// will show, since filtering on a parent includes its whole subtree.
+  int _aggregatedCount(Tag tag) {
+    final descendants = Tag.getDescendantIds(tag.id, _allTags);
+    var total = _shelfCount(tag);
+    for (final t in _allTags) {
+      if (descendants.contains(t.id)) total += _shelfCount(t);
+    }
+    return total;
   }
 
   /// Get tags to display at current level
@@ -81,14 +147,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       return _allTags.where((t) => t.parentId == null).toList();
     } else {
       // Show direct children of current parent
-      return _allTags.where((t) => t.parentId == _currentParent!.id).toList();
+      return _childrenOf(_currentParent!);
     }
   }
 
-  /// Drill down into a tag's children
-  void _drillDown(Tag tag) {
-    final children = _allTags.where((t) => t.parentId == tag.id).toList();
-    if (children.isNotEmpty) {
+  /// Open a shelf: its sub-shelves when it has some, its books otherwise.
+  void _openShelf(Tag tag) {
+    if (_childrenOf(tag).isNotEmpty) {
       setState(() {
         if (_currentParent != null) {
           _path.add(_currentParent!);
@@ -96,9 +161,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         _currentParent = tag;
       });
     } else {
-      // No children, navigate to books filtered by this tag
-      context.go('/shelves?tag=${tag.name}');
+      _openShelfBooks(tag);
     }
+  }
+
+  /// The book list of a shelf, sub-shelves included.
+  void _openShelfBooks(Tag tag) {
+    context.go('/shelves?tag=${Uri.encodeQueryComponent(tag.name)}');
   }
 
   /// Go back one level
@@ -120,10 +189,14 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     });
   }
 
+  String _plural(BuildContext context, String key, int count) =>
+      TranslationService.translate(
+        context,
+        count == 1 ? key : '${key}_plural',
+      ).replaceAll('%d', '$count');
+
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
     final themeStyle = Provider.of<ThemeProvider>(context).themeStyle;
 
     if (widget.isTabView) {
@@ -138,67 +211,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           decoration: BoxDecoration(
             gradient: AppDesign.pageGradientForTheme(themeStyle),
           ),
-          child: SafeArea(
-            top: false,
-            child: FutureBuilder<List<Tag>>(
-              future: _tagsFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return _buildErrorState(snapshot.error.toString());
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return _buildEmptyState(context);
-                }
-
-                _allTags = snapshot.data!;
-                final visibleTags = _visibleTags;
-
-                if (visibleTags.isEmpty && _currentParent != null) {
-                  // Navigate logic handled in post frame
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    context.go('/shelves?tag=${_currentParent!.name}');
-                  });
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () async => _refreshTags(),
-                  child: Column(
-                    children: [
-                      // Always show breadcrumb if parent != null, or even if root for consistency?
-                      // Original code only showed if _currentParent != null
-                      if (_currentParent != null) _buildBreadcrumb(context),
-
-                      // Shelves count badge
-                      if (visibleTags.isNotEmpty)
-                        _buildShelvesCountBadge(context, visibleTags.length),
-
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: GridView.builder(
-                            gridDelegate:
-                                SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: isMobile ? 2 : 3,
-                                  childAspectRatio: 1.0,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                ),
-                            itemCount: visibleTags.length,
-                            itemBuilder: (context, index) {
-                              final tag = visibleTags[index];
-                              return _buildShelfCard(context, tag, index);
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
+          child: SafeArea(top: false, child: _buildBody(context)),
         ),
       );
     }
@@ -213,7 +226,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         preSelectedShelfId: _currentParent?.name,
         title:
             _currentParent?.name ??
-            (TranslationService.translate(context, 'shelves') ?? 'Shelves'),
+            TranslationService.translate(context, 'shelves'),
         leading: _currentParent != null
             ? IconButton(
                 icon: Icon(Icons.adaptive.arrow_back, color: Colors.white),
@@ -248,7 +261,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             builder: (sheetContext) {
               final handlers = QuickActionsSheet.buildCommonHandlers(
                 sheetContext,
-                onDone: _refreshTags,
+                onDone: _loadTags,
               );
               // Override create_shelf to use the local dialog with parent preselect
               handlers['create_shelf'] = () {
@@ -305,73 +318,135 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         decoration: BoxDecoration(
           gradient: AppDesign.pageGradientForTheme(themeStyle),
         ),
-        child: FutureBuilder<List<Tag>>(
-          future: _tagsFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return _buildErrorState(snapshot.error.toString());
-            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyState(context);
-            }
+        child: _buildBody(context),
+      ),
+    );
+  }
 
-            // Store all tags for hierarchy navigation
-            _allTags = snapshot.data!;
-            final visibleTags = _visibleTags;
+  /// Shared by both branches: the standalone route and the library tab.
+  Widget _buildBody(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final bool isMobile = width <= 600;
 
-            if (visibleTags.isEmpty && _currentParent != null) {
-              // Current level has no children - show books for this tag
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                context.go('/shelves?tag=${_currentParent!.name}');
-              });
-              return const Center(child: CircularProgressIndicator());
-            }
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_error != null) {
+      return _buildErrorState(_error!);
+    }
+    if (_allTags.isEmpty) {
+      return _buildEmptyState(context);
+    }
 
-            return RefreshIndicator(
-              onRefresh: () async => _refreshTags(),
-              child: Column(
-                children: [
-                  // Breadcrumb navigation
-                  if (_currentParent != null) _buildBreadcrumb(context),
+    final visibleTags = _visibleTags;
 
-                  // Shelves count badge
-                  if (visibleTags.isNotEmpty)
-                    _buildShelvesCountBadge(context, visibleTags.length),
+    return RefreshIndicator(
+      onRefresh: _loadTags,
+      child: Column(
+        children: [
+          if (_currentParent != null) _buildLevelHeader(context),
 
-                  // Grid of shelves
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: GridView.builder(
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: isMobile ? 2 : 3,
-                          childAspectRatio: 1.0,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                        itemCount: visibleTags.length,
-                        itemBuilder: (context, index) {
-                          final tag = visibleTags[index];
-                          return _buildShelfCard(context, tag, index);
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+          // Shelves count badge
+          if (visibleTags.isNotEmpty)
+            _buildShelvesCountBadge(context, visibleTags.length),
+
+          // Grid of shelves
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isMobile ? 2 : 3,
+                  childAspectRatio: 1.0,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                ),
+                itemCount: visibleTags.length,
+                itemBuilder: (context, index) {
+                  final tag = visibleTags[index];
+                  return _buildShelfCard(context, tag, index);
+                },
               ),
-            );
-          },
-        ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Where the reader is, and the one thing a level cannot show as a card:
+  /// the books of the shelf itself.
+  ///
+  /// The tab has no app bar of its own, so without this the only trace of
+  /// having entered "Genre" was a thin breadcrumb line above a changed grid.
+  Widget _buildLevelHeader(BuildContext context) {
+    final theme = Theme.of(context);
+    final parent = _currentParent!;
+    final subShelves = _childrenOf(parent).length;
+    final books = _aggregatedCount(parent);
+    final summary =
+        '${_plural(context, 'sub_shelves_count', subShelves)} · '
+        '${_plural(context, 'displayed_books_count', books)}';
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(8, 4, 16, 12),
+      color: theme.colorScheme.surface.withValues(alpha: 0.9),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              IconButton(
+                icon: Icon(Icons.adaptive.arrow_back),
+                tooltip: TranslationService.translate(context, 'back'),
+                onPressed: _goBack,
+              ),
+              Expanded(child: _buildBreadcrumb(context)),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        header: true,
+                        child: Text(
+                          parent.name,
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Text(summary, style: theme.textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 12),
+                FilledButton.tonalIcon(
+                  onPressed: () => _openShelfBooks(parent),
+                  icon: const Icon(Icons.menu_book, size: 18),
+                  label: Text(
+                    TranslationService.translate(context, 'view_shelf_books'),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 
   /// Build breadcrumb navigation bar
   Widget _buildBreadcrumb(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.9),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
       child: Row(
         children: [
           // Home button
@@ -389,8 +464,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    TranslationService.translate(context, 'all_shelves') ??
-                        'All',
+                    TranslationService.translate(context, 'all_shelves'),
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w500,
@@ -400,7 +474,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
               ),
             ),
           ),
-
           // Path segments
           ..._path.map(
             (tag) => Row(
@@ -454,7 +527,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   Widget _buildShelvesCountBadge(BuildContext context, int count) {
     final theme = Theme.of(context);
     return Semantics(
-      label: '$count ${count == 1 ? 'etagere' : 'etageres'}',
+      label: _plural(context, 'displayed_shelves_count', count),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
@@ -582,7 +655,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(
-              onPressed: _refreshTags,
+              onPressed: _loadTags,
               icon: const Icon(Icons.refresh),
               label: Text(TranslationService.translate(context, 'retry')),
             ),
@@ -747,7 +820,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        _refreshTags();
+        _loadTags();
       }
     } catch (e) {
       if (mounted) {
@@ -763,20 +836,14 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text(
-            TranslationService.translate(context, 'delete_shelf') ??
-                'Delete Shelf',
-          ),
+          title: Text(TranslationService.translate(context, 'delete_shelf')),
           content: Text(
-            (TranslationService.translate(context, 'delete_shelf_confirm') ??
-                    'Are you sure you want to delete the shelf "%s"? This action cannot be undone.')
-                .replaceAll('%s', tag.name),
+            '${TranslationService.translate(context, 'delete_shelf_confirm').replaceAll('%s', tag.name)}\n\n'
+            '${TranslationService.translate(context, 'delete_shelf_books_kept')}',
           ),
           actions: <Widget>[
             TextButton(
-              child: Text(
-                TranslationService.translate(context, 'cancel') ?? 'Cancel',
-              ),
+              child: Text(TranslationService.translate(context, 'cancel')),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -784,7 +851,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               child: Text(
-                TranslationService.translate(context, 'delete') ?? 'Delete',
+                TranslationService.translate(context, 'delete'),
                 style: const TextStyle(color: Colors.white),
               ),
               onPressed: () {
@@ -801,20 +868,22 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   Future<void> _deleteShelf(Tag tag) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
-      if (tag.uuid == null) return; // synthetic shelf, no row to delete
-      await api.deleteTag(tag.uuid!);
+      // Row or not, the name has to leave the books: a shelf that only
+      // exists in their subjects is deleted the same way (see deleteShelf).
+      await api.deleteShelf(tag);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              (TranslationService.translate(context, 'shelf_deleted') ??
-                      'Shelf "%s" deleted.')
-                  .replaceAll('%s', tag.name),
+              TranslationService.translate(
+                context,
+                'shelf_deleted',
+              ).replaceAll('%s', tag.name),
             ),
             backgroundColor: Colors.green,
           ),
         );
-        _refreshTags();
+        await _loadTags();
       }
     } catch (e) {
       if (mounted) {
@@ -854,15 +923,16 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             const Color(0xFFfee140), // Yellow
             const Color(0xFFf5576c), // Red
           ];
-    // Check if tag has children
-    final hasChildren = _allTags.any((t) => t.parentId == tag.id);
-    // Calculate aggregated count (this tag + children)
-    int aggregatedCount = _shelfCount(tag);
-    for (final t in _allTags) {
-      if (t.parentId == tag.id) {
-        aggregatedCount += _shelfCount(t);
-      }
-    }
+    final subShelves = _childrenOf(tag).length;
+    final hasChildren = subShelves > 0;
+    // The badge counts the whole subtree: that is what the book list shows.
+    final aggregatedCount = _aggregatedCount(tag);
+    final booksLabel = _plural(
+      context,
+      'displayed_books_count',
+      aggregatedCount,
+    );
+    final subShelvesLabel = _plural(context, 'sub_shelves_count', subShelves);
 
     final color = colors[index % colors.length];
     final gradient = LinearGradient(
@@ -873,15 +943,16 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
     return Semantics(
       button: true,
-      label:
-          '${tag.name}, $aggregatedCount ${aggregatedCount == 1 ? 'livre' : 'livres'}',
+      label: hasChildren
+          ? '${tag.name}, $subShelvesLabel, $booksLabel'
+          : '${tag.name}, $booksLabel',
       child: Card(
         elevation: 8,
         shadowColor: color.withValues(alpha: 0.4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
-          onTap: () => _drillDown(tag),
+          onTap: () => _openShelf(tag),
           child: Container(
             decoration: BoxDecoration(
               gradient: gradient,
@@ -893,10 +964,12 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 Positioned(
                   right: -20,
                   top: -20,
-                  child: Icon(
-                    Icons.shelves,
-                    size: 100,
-                    color: Colors.white.withValues(alpha: 0.1),
+                  child: ExcludeSemantics(
+                    child: Icon(
+                      Icons.shelves,
+                      size: 100,
+                      color: Colors.white.withValues(alpha: 0.1),
+                    ),
                   ),
                 ),
 
@@ -905,8 +978,14 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   top: 8,
                   right: 8,
                   child: PopupMenuButton<String>(
+                    tooltip: TranslationService.translate(
+                      context,
+                      'more_actions',
+                    ),
                     onSelected: (value) {
-                      if (value == 'scan') {
+                      if (value == 'view_books') {
+                        _openShelfBooks(tag);
+                      } else if (value == 'scan') {
                         context
                             .push(
                               '/scan',
@@ -916,7 +995,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                                 'batch': true,
                               },
                             )
-                            .then((_) => _refreshTags());
+                            .then((_) => _loadTags());
                       } else if (value == 'edit') {
                         _showEditShelfDialog(tag);
                       } else if (value == 'delete') {
@@ -925,6 +1004,22 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                     },
                     itemBuilder: (BuildContext context) =>
                         <PopupMenuEntry<String>>[
+                          // A parent's tap opens its sub-shelves; its own
+                          // book list is reachable from here and from the
+                          // level header.
+                          if (hasChildren)
+                            PopupMenuItem<String>(
+                              value: 'view_books',
+                              child: ListTile(
+                                leading: const Icon(Icons.menu_book),
+                                title: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'view_shelf_books',
+                                  ),
+                                ),
+                              ),
+                            ),
                           PopupMenuItem<String>(
                             value: 'scan',
                             child: ListTile(
@@ -934,10 +1029,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                               ),
                               title: Text(
                                 TranslationService.translate(
-                                      context,
-                                      'scan_into_shelf',
-                                    ) ??
-                                    'Scan into this shelf',
+                                  context,
+                                  'scan_into_shelf',
+                                ),
                               ),
                             ),
                           ),
@@ -948,10 +1042,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                               leading: const Icon(Icons.edit),
                               title: Text(
                                 TranslationService.translate(
-                                      context,
-                                      'edit_shelf',
-                                    ) ??
-                                    'Edit',
+                                  context,
+                                  'edit_shelf',
+                                ),
                               ),
                             ),
                           ),
@@ -961,10 +1054,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                               leading: const Icon(Icons.delete),
                               title: Text(
                                 TranslationService.translate(
-                                      context,
-                                      'delete_shelf',
-                                    ) ??
-                                    'Delete',
+                                  context,
+                                  'delete_shelf',
+                                ),
                               ),
                             ),
                           ),
@@ -1008,32 +1100,20 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                                 color: Colors.white.withValues(alpha: 0.3),
                                 borderRadius: BorderRadius.circular(20),
                               ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    '$aggregatedCount',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  if (hasChildren) ...[
-                                    const SizedBox(width: 4),
-                                    const Icon(
-                                      Icons.chevron_right,
-                                      color: Colors.white,
-                                      size: 18,
-                                    ),
-                                  ],
-                                ],
+                              child: Text(
+                                '$aggregatedCount',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
                         ),
                       ),
-                      // Tag name
+                      // Tag name, then what the tap opens: the sub-shelves,
+                      // spelled out, or the books.
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1048,71 +1128,22 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _shelfCount(tag) == 1
-                                ? '${_shelfCount(tag)} ${TranslationService.translate(context, 'book')}'
-                                : '${_shelfCount(tag)} ${TranslationService.translate(context, 'books')}',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 13,
+                          const SizedBox(height: 6),
+                          if (hasChildren)
+                            _SubShelvesChip(label: subShelvesLabel)
+                          else
+                            Text(
+                              booksLabel,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.85),
+                                fontSize: 13,
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ],
                   ),
                 ),
-                // Direct access button for shelves with sub-shelves
-                if (hasChildren)
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: Semantics(
-                      button: true,
-                      label:
-                          '${TranslationService.translate(context, 'view')} ${tag.name}',
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          onTap: () => context.go('/shelves?tag=${tag.name}'),
-                          borderRadius: BorderRadius.circular(30),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.visibility,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  TranslationService.translate(context, 'view'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -1136,7 +1167,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        _refreshTags();
+        _loadTags();
       }
     } catch (e) {
       if (mounted) {
@@ -1269,6 +1300,46 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           },
         );
       },
+    );
+  }
+}
+
+/// The explicit way into a shelf's sub-shelves: a labelled pill, where a
+/// bare chevron next to the count used to be the only hint.
+class _SubShelvesChip extends StatelessWidget {
+  final String label;
+
+  const _SubShelvesChip({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.25),
+        borderRadius: BorderRadius.circular(30),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.folder_open, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: Colors.white, size: 16),
+        ],
+      ),
     );
   }
 }

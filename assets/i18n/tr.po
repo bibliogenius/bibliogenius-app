@@ -11902,3 +11902,19 @@ msgstr "Sahip olmadığım kitapları göster"
 
 msgid "settings_show_not_owned_books_desc"
 msgstr "Dilekler ve sahip olunmadan okunan kitaplar kütüphanede diğerleriyle birlikte görünür."
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "Kitapları gör"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "%d alt raf"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "%d alt raf"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "Kitaplar kütüphanenizde kalır; yalnızca bu raftan çıkarlar."
