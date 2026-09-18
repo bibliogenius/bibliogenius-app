@@ -110,7 +110,15 @@ class ApiService {
   /// Preferred port for the embedded HTTP server. Peers store URLs built on
   /// this port, so binding anywhere else leaves them unable to reach us
   /// directly (whatever occupies the port answers in our place).
-  static const int defaultHttpPort = 8000;
+  ///
+  /// Overridable at build time with `--dart-define=BIBLIOGENIUS_PORT=8010`,
+  /// so a development build and an installed build of the app can live on
+  /// one machine with two stable addresses instead of taking turns on 8000,
+  /// which made peers mistake one library for the other. Keep the override
+  /// within 8000-8010, the range peers probe when a stored port stops
+  /// answering.
+  static const int defaultHttpPort =
+      int.fromEnvironment('BIBLIOGENIUS_PORT', defaultValue: 8000);
 
   /// The actual HTTP server port (may differ from [defaultHttpPort] if occupied)
   static int httpPort = defaultHttpPort;
