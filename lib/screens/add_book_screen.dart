@@ -2328,6 +2328,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
       if (selection['summary'] != null) {
         _summaryController.text = selection['summary'];
       }
+      if (selection['page_count'] != null) {
+        _pageCountController.text = selection['page_count'].toString();
+      }
       if (selection['cover_url'] != null) {
         _coverUrl = selection['cover_url'];
       }
