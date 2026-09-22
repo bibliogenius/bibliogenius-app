@@ -11,13 +11,38 @@ class EditionPickerSheet extends StatefulWidget {
   final List<Map<String, dynamic>> editions;
   final Function(Map<String, dynamic>) onSelect;
 
+  /// Page the carousel opens on: the edition the reader already picked in the
+  /// suggestion list, so they do not have to find it again after the sort.
+  final int initialIndex;
+
   const EditionPickerSheet({
     super.key,
     required this.title,
     this.author,
     required this.editions,
     required this.onSelect,
+    this.initialIndex = 0,
   });
+
+  /// Position of [selected] in [editions], the entry itself or, failing that,
+  /// the one carrying the same ISBN. Falls back to the first page when
+  /// nothing matches or nothing was selected.
+  static int initialIndexFor(
+    List<Map<String, dynamic>> editions,
+    Map<String, dynamic>? selected,
+  ) {
+    if (selected == null) return 0;
+    final byIdentity = editions.indexWhere((e) => identical(e, selected));
+    if (byIdentity >= 0) return byIdentity;
+
+    // Same ISBN written differently is the same edition.
+    String plain(Object? isbn) =>
+        (isbn?.toString() ?? '').toUpperCase().replaceAll(RegExp(r'[^0-9X]'), '');
+    final wanted = plain(selected['isbn']);
+    if (wanted.isEmpty) return 0;
+    final byIsbn = editions.indexWhere((e) => plain(e['isbn']) == wanted);
+    return byIsbn >= 0 ? byIsbn : 0;
+  }
 
   /// Show the edition picker as a modal bottom sheet
   static Future<Map<String, dynamic>?> show({
@@ -25,6 +50,7 @@ class EditionPickerSheet extends StatefulWidget {
     required String title,
     String? author,
     required List<Map<String, dynamic>> editions,
+    Map<String, dynamic>? selected,
   }) async {
     // Sort editions: cover + publisher first, then cover, then publisher, then ISBN
     final sortedEditions = List<Map<String, dynamic>>.from(editions);
@@ -74,6 +100,7 @@ class EditionPickerSheet extends StatefulWidget {
         title: title,
         author: author,
         editions: sortedEditions,
+        initialIndex: initialIndexFor(sortedEditions, selected),
         onSelect: (edition) => Navigator.of(ctx).pop(edition),
       ),
     );
@@ -84,8 +111,15 @@ class EditionPickerSheet extends StatefulWidget {
 }
 
 class _EditionPickerSheetState extends State<EditionPickerSheet> {
-  final PageController _pageController = PageController();
-  int _currentPage = 0;
+  late final PageController _pageController;
+  late int _currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentPage = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
 
   @override
   void dispose() {

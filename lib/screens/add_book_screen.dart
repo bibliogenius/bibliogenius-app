@@ -999,6 +999,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           title: selection['title'] ?? '',
                           author: selection['author'] as String?,
                           editions: editions,
+                          selected: selection,
                         );
 
                         if (selectedEdition != null && mounted) {
