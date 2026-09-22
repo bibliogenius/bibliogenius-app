@@ -535,6 +535,7 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
           publisher: _meta?['publisher'],
           publicationYear: parsePublicationYear(yearStr),
           coverUrl: _meta?['cover_url'],
+          pageCount: int.tryParse(_meta?['page_count'] ?? ''),
           owned: true,
           private: false,
         ),

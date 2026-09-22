@@ -590,6 +590,7 @@ class FfiService {
         'publication_year': meta.publicationYear,
         'cover_url': meta.coverUrl,
         'summary': meta.summary,
+        'page_count': meta.pageCount?.toString(),
       };
     } catch (e) {
       debugPrint('FFI lookupBookMetadata error: $e');

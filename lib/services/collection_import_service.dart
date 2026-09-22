@@ -159,6 +159,7 @@ class CollectionImportService {
             'publication_year': book.publishedDate ?? lookup?['year'],
             'description': book.description ?? lookup?['summary'],
             'cover_url': book.coverUrl ?? lookup?['cover_url'],
+            'page_count': lookup?['page_count'],
             // Omitted entirely when empty rather than sent as []: an empty
             // list is a value, and createBook would write it over whatever
             // an existing book already carries.

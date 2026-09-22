@@ -362,6 +362,7 @@ class _ScanScreenState extends State<ScanScreen> {
             'publication_year': bookData['year'],
             'cover_url': bookData['cover_url'],
             'summary': bookData['summary'],
+            'page_count': bookData['page_count'],
             'reading_status': 'to_read',
             if (widget.preSelectedShelfId != null)
               'subjects': [widget.preSelectedShelfId],

@@ -35,6 +35,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
     'summary',
     'publisher',
     'publication_year',
+    'page_count',
     'cover_url',
   ];
 
@@ -73,6 +74,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
       'summary' => book.summary,
       'publisher' => book.publisher,
       'publication_year' => book.publicationYear?.toString(),
+      'page_count' => book.pageCount?.toString(),
       'cover_url' => book.hasPersistedCover ? book.coverUrl : null,
       _ => null,
     };
@@ -89,7 +91,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
   bool _valuesEqual(String key, String? current, String? fetched) {
     if (current == null && fetched == null) return true;
     if (current == null || fetched == null) return false;
-    if (key == 'publication_year') {
+    if (key == 'publication_year' || key == 'page_count') {
       // Compare as integers
       return int.tryParse(current) == int.tryParse(fetched);
     }
@@ -103,6 +105,8 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
       'summary' => 'refresh_field_summary',
       'publisher' => 'refresh_field_publisher',
       'publication_year' => 'refresh_field_year',
+      // Reuses the add/edit form label rather than a new catalogue entry.
+      'page_count' => 'page_count_label',
       'cover_url' => 'refresh_field_cover',
       _ => key,
     };
@@ -120,6 +124,10 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
 
       if (entry.key == 'publication_year') {
         result[entry.key] = parsePublicationYear(fetched);
+      } else if (entry.key == 'page_count') {
+        final pages = int.tryParse(fetched);
+        if (pages == null) continue;
+        result[entry.key] = pages;
       } else {
         result[entry.key] = fetched;
       }

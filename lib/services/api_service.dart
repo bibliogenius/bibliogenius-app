@@ -4813,6 +4813,9 @@ class ApiService {
           'year': parsePublicationYear(data['publication_year']?.toString()),
           'cover_url': data['cover_url'],
           'summary': data['summary'],
+          // Carried through as the backend answers it (an integer or null):
+          // createBook / updateBook accept either an int or a numeric string.
+          'page_count': data['page_count'],
         };
       }
     } catch (e) {
