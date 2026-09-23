@@ -140,6 +140,7 @@ class _HangmanScreenState extends State<HangmanScreen> {
                 ),
                 leading: IconButton(
                   icon: const Icon(Icons.arrow_back),
+                  tooltip: TranslationService.translate(context, 'back'),
                   onPressed: _onBackPressed,
                 ),
                 actions: [

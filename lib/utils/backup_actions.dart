@@ -1219,6 +1219,10 @@ class BackupActions {
                           icon: Icon(
                             obscure ? Icons.visibility : Icons.visibility_off,
                           ),
+                          tooltip: TranslationService.translate(
+                            context,
+                            'tooltip_toggle_password',
+                          ),
                           onPressed: () => setState(() => obscure = !obscure),
                         ),
                       ),

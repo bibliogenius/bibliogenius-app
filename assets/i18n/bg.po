@@ -560,6 +560,10 @@ msgstr "Вече сканирана"
 msgid "batch_scan_save"
 msgstr "Запазване"
 
+#. Remove from batch
+msgid "batch_scan_remove"
+msgstr "Премахване от пакета"
+
 #. Saving books progress
 msgid "batch_scan_saving"
 msgstr "Запазване..."
@@ -6195,6 +6199,14 @@ msgstr "Обновяване"
 #. Open
 msgid "audio_open"
 msgstr "Отваряне"
+
+#. Play
+msgid "audio_play"
+msgstr "Възпроизвеждане"
+
+#. Pause
+msgid "audio_pause"
+msgstr "Пауза"
 
 #. Author - when authors already added
 msgid "author_hint_add"

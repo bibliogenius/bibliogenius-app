@@ -97,6 +97,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
           onPressed: _onBackPressed,
         ),
         title: Text(

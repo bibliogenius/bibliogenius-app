@@ -373,6 +373,14 @@ msgstr "Yenile"
 msgid "audio_open"
 msgstr "Aç"
 
+#. Play
+msgid "audio_play"
+msgstr "Oynat"
+
+#. Pause
+msgid "audio_pause"
+msgstr "Duraklat"
+
 #. Automatically search for free audiobook versions
 msgid "audiobooks_auto_search"
 msgstr "Ücretsiz sesli kitap versiyonlarını otomatik olarak ara"
@@ -595,6 +603,10 @@ msgstr "Zaten tarandı"
 #. Save scanned books
 msgid "batch_scan_save"
 msgstr "Kaydet"
+
+#. Remove from batch
+msgid "batch_scan_remove"
+msgstr "Toplu taramadan çıkar"
 
 #. Saving books progress
 msgid "batch_scan_saving"

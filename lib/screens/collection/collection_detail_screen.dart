@@ -1085,7 +1085,10 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                                             size: 20,
                                             color: Colors.grey[400],
                                           ),
-                                          tooltip: '',
+                                          tooltip: TranslationService.translate(
+                                            context,
+                                            'tooltip_open_menu',
+                                          ),
                                           padding: EdgeInsets.zero,
                                           onSelected: (value) {
                                             if (value == 'remove') {

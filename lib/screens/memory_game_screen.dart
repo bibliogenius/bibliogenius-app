@@ -107,6 +107,7 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: TranslationService.translate(context, 'back'),
           onPressed: _onBackPressed,
         ),
         title: Text(TranslationService.translate(context, 'memory_game_title')),

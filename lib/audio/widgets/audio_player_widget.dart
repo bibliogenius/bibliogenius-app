@@ -381,6 +381,10 @@ class _AudioPlayerWidgetState extends State<AudioPlayerWidget> {
                         ? Icons.pause
                         : Icons.play_arrow,
                   ),
+                  tooltip: TranslationService.translate(
+                    context,
+                    playing ? 'audio_pause' : 'audio_play',
+                  ),
                   onPressed: () {
                     if (playing) {
                       _player.pause();

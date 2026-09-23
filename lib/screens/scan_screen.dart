@@ -768,6 +768,7 @@ class _ScanScreenState extends State<ScanScreen> {
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.close),
+                        tooltip: TranslationService.translate(context, 'close'),
                         onPressed: () {
                           saveBook(currentIndex);
                           Navigator.pop(ctx);
@@ -1362,46 +1363,59 @@ class _ScanScreenState extends State<ScanScreen> {
                           horizontal: 6,
                           vertical: 4,
                         ),
-                        child: GestureDetector(
-                          onTap: () => _showBookEditSheet(index),
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: book.coverUrl != null
-                                    ? Image.network(
-                                        book.coverUrl!,
-                                        width: 58,
-                                        height: 80,
-                                        fit: BoxFit.cover,
-                                        errorBuilder: (_, __, ___) =>
-                                            _buildPlaceholder(book.title),
-                                      )
-                                    : _buildPlaceholder(book.title),
-                              ),
-                              Positioned(
-                                top: 0,
-                                right: 0,
-                                child: GestureDetector(
-                                  onTap: () => _removeFromBatch(index),
-                                  child: Container(
-                                    padding: const EdgeInsets.all(2),
-                                    decoration: const BoxDecoration(
-                                      color: Colors.black54,
-                                      borderRadius: BorderRadius.only(
-                                        topRight: Radius.circular(4),
-                                        bottomLeft: Radius.circular(8),
-                                      ),
+                        child: Semantics(
+                          button: true,
+                          label: book.title,
+                          child: GestureDetector(
+                            onTap: () => _showBookEditSheet(index),
+                            child: Stack(
+                              children: [
+                                ExcludeSemantics(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(4),
+                                    child: book.coverUrl != null
+                                        ? Image.network(
+                                            book.coverUrl!,
+                                            width: 58,
+                                            height: 80,
+                                            fit: BoxFit.cover,
+                                            errorBuilder: (_, __, ___) =>
+                                                _buildPlaceholder(book.title),
+                                          )
+                                        : _buildPlaceholder(book.title),
+                                  ),
+                                ),
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: Semantics(
+                                    button: true,
+                                    label: TranslationService.translate(
+                                      context,
+                                      'batch_scan_remove',
                                     ),
-                                    child: const Icon(
-                                      Icons.close,
-                                      size: 14,
-                                      color: Colors.white,
+                                    child: GestureDetector(
+                                      onTap: () => _removeFromBatch(index),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.only(
+                                            topRight: Radius.circular(4),
+                                            bottomLeft: Radius.circular(8),
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.close,
+                                          size: 14,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       );

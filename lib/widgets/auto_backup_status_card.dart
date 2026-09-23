@@ -1127,6 +1127,7 @@ class _AutoBackupActivationSheetState
             border: const OutlineInputBorder(),
             suffixIcon: IconButton(
               icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+              tooltip: _t('tooltip_toggle_password'),
               onPressed: () => setState(() => _obscure = !_obscure),
             ),
           ),

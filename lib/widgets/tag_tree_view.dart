@@ -191,17 +191,22 @@ class _TagTreeViewState extends State<TagTreeView> {
               children: [
                 // Expand/collapse button for parents
                 if (hasChildren)
-                  GestureDetector(
-                    onTap: () => _toggleExpansion(tag.id),
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 8.0),
-                      child: AnimatedRotation(
-                        turns: isExpanded ? 0.25 : 0.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Icon(
-                          Icons.keyboard_arrow_right,
-                          size: 20,
-                          color: theme.colorScheme.onSurfaceVariant,
+                  Semantics(
+                    button: true,
+                    expanded: isExpanded,
+                    label: tag.name,
+                    child: GestureDetector(
+                      onTap: () => _toggleExpansion(tag.id),
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: AnimatedRotation(
+                          turns: isExpanded ? 0.25 : 0.0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.keyboard_arrow_right,
+                            size: 20,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
                       ),
                     ),

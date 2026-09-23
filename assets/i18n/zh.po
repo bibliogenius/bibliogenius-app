@@ -560,6 +560,10 @@ msgstr "Already scanned"
 msgid "batch_scan_save"
 msgstr "Save"
 
+#. Remove from batch
+msgid "batch_scan_remove"
+msgstr "从批量扫描中移除"
+
 #. Saving books progress
 msgid "batch_scan_saving"
 msgstr "Saving..."
@@ -6314,6 +6318,14 @@ msgstr "刷新"
 #. Open
 msgid "audio_open"
 msgstr "打开"
+
+#. Play
+msgid "audio_play"
+msgstr "播放"
+
+#. Pause
+msgid "audio_pause"
+msgstr "暂停"
 
 #. Author - when authors already added
 msgid "author_hint_add"

@@ -560,6 +560,10 @@ msgstr "Already scanned"
 msgid "batch_scan_save"
 msgstr "Save"
 
+#. Remove from batch
+msgid "batch_scan_remove"
+msgstr "일괄 스캔에서 제거"
+
 #. Saving books progress
 msgid "batch_scan_saving"
 msgstr "Saving..."
@@ -6314,6 +6318,14 @@ msgstr "새로고침"
 #. Open
 msgid "audio_open"
 msgstr "열기"
+
+#. Play
+msgid "audio_play"
+msgstr "재생"
+
+#. Pause
+msgid "audio_pause"
+msgstr "일시정지"
 
 #. Author - when authors already added
 msgid "author_hint_add"

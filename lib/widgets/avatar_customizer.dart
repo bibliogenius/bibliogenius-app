@@ -284,22 +284,27 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
               runSpacing: 12,
               children: colors.entries.map((entry) {
                 final isSelected = entry.key == currentValue;
-                return GestureDetector(
-                  onTap: () => onChanged(entry.key),
-                  child: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: _getColor(entry.key),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: isSelected ? Colors.blue : Colors.grey[300]!,
-                        width: isSelected ? 3 : 1,
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: entry.value,
+                  child: GestureDetector(
+                    onTap: () => onChanged(entry.key),
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        color: _getColor(entry.key),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isSelected ? Colors.blue : Colors.grey[300]!,
+                          width: isSelected ? 3 : 1,
+                        ),
                       ),
+                      child: isSelected
+                          ? const Icon(Icons.check, color: Colors.white)
+                          : null,
                     ),
-                    child: isSelected
-                        ? const Icon(Icons.check, color: Colors.white)
-                        : null,
                   ),
                 );
               }).toList(),

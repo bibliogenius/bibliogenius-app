@@ -393,6 +393,14 @@ msgstr "Aktualisieren"
 msgid "audio_open"
 msgstr "Öffnen"
 
+#. Play
+msgid "audio_play"
+msgstr "Abspielen"
+
+#. Pause
+msgid "audio_pause"
+msgstr "Pause"
+
 #. Automatically search for free audiobook versions
 msgid "audiobooks_auto_search"
 msgstr "Automatisch nach kostenlosen Hörbuchversionen suchen"
@@ -619,6 +627,10 @@ msgstr "Bereits gescannt"
 #. Save scanned books
 msgid "batch_scan_save"
 msgstr "Speichern"
+
+#. Remove from batch
+msgid "batch_scan_remove"
+msgstr "Aus dem Stapel entfernen"
 
 #. Saving books progress
 msgid "batch_scan_saving"
