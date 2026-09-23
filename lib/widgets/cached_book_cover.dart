@@ -300,6 +300,14 @@ class CachedBookCover extends StatelessWidget {
   final BorderRadius? borderRadius;
   final Widget? placeholder;
   final Widget? errorWidget;
+
+  /// What a screen reader announces for this cover, normally title and author.
+  ///
+  /// Required but nullable, so that leaving a cover silent is a decision the
+  /// caller makes rather than one it forgets: a null label routes the cover
+  /// through [ExcludeSemantics], which is right when an ancestor already names
+  /// it and wrong everywhere else. Twelve call sites relied on the old default
+  /// and dropped their covers out of the semantics tree without a trace.
   final String? semanticLabel;
 
   /// Called when the user taps the fallback/error placeholder.
@@ -322,7 +330,7 @@ class CachedBookCover extends StatelessWidget {
     this.borderRadius,
     this.placeholder,
     this.errorWidget,
-    this.semanticLabel,
+    required this.semanticLabel,
     this.onTapPlaceholder,
     this.isPeerCover = false,
   });

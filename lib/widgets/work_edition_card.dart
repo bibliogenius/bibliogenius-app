@@ -363,14 +363,17 @@ class _WorkEditionCardState extends State<WorkEditionCard> {
                 if (coverUrl != null && coverUrl.isNotEmpty)
                   ClipRRect(
                     borderRadius: BorderRadius.circular(8),
-                    child: CachedNetworkImage(
-                      imageUrl: coverUrl,
-                      width: 100,
-                      height: 150,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => const SizedBox.shrink(),
-                      errorWidget: (context, url, error) =>
-                          const SizedBox.shrink(),
+                    // One edition among several, captioned just below.
+                    child: ExcludeSemantics(
+                      child: CachedNetworkImage(
+                        imageUrl: coverUrl,
+                        width: 100,
+                        height: 150,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => const SizedBox.shrink(),
+                        errorWidget: (context, url, error) =>
+                            const SizedBox.shrink(),
+                      ),
                     ),
                   ),
 

@@ -8,6 +8,7 @@ import '../data/repositories/book_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../utils/book_display.dart';
 import '../utils/borrowed_copy_payload.dart';
 import '../widgets/genie_app_bar.dart';
 import 'scan_screen.dart';
@@ -504,6 +505,10 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: Image.network(
                       cover,
+                      semanticLabel: BookDisplay.resolveCoverLabel(
+                        title: '$title',
+                        author: author,
+                      ),
                       width: 40,
                       height: 56,
                       fit: BoxFit.cover,
@@ -567,6 +572,8 @@ class _BorrowBookScreenState extends State<BorrowBookScreen> {
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
                   cover,
+                  // The preview card spells the book out beside it.
+                  excludeFromSemantics: true,
                   width: 60,
                   height: 90,
                   fit: BoxFit.cover,

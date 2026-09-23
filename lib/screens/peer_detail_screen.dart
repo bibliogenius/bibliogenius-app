@@ -99,32 +99,37 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
       radius: 48,
       backgroundColor: fallbackColor.withValues(alpha: 0.15),
       child: ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: url,
-          width: 96,
-          height: 96,
-          fit: BoxFit.cover,
-          placeholder: (_, _) => CircleAvatar(
-            radius: 48,
-            backgroundColor: fallbackColor,
-            child: Text(
-              letter,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
+        // The identity card wraps this avatar in a Semantics carrying the
+        // contact name, and that label survives the exclusion below. Drop the
+        // wrapper there and the avatar goes silent.
+        child: ExcludeSemantics(
+          child: CachedNetworkImage(
+            imageUrl: url,
+            width: 96,
+            height: 96,
+            fit: BoxFit.cover,
+            placeholder: (_, _) => CircleAvatar(
+              radius: 48,
+              backgroundColor: fallbackColor,
+              child: Text(
+                letter,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                ),
               ),
             ),
-          ),
-          errorWidget: (_, _, _) => CircleAvatar(
-            radius: 48,
-            backgroundColor: fallbackColor,
-            child: Text(
-              letter,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 32,
+            errorWidget: (_, _, _) => CircleAvatar(
+              radius: 48,
+              backgroundColor: fallbackColor,
+              child: Text(
+                letter,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 32,
+                ),
               ),
             ),
           ),

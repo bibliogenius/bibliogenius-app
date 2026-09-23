@@ -439,8 +439,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       themeProvider.avatarConfig?.assetPath ??
                                           'assets/genie_mascot.jpg',
                                       fit: BoxFit.cover,
+                                      excludeFromSemantics: true,
                                     )
-                                  : CachedNetworkImage(
+                                  // The reader's own avatar; the profile names its owner.
+                                  : ExcludeSemantics(
+                                    child: CachedNetworkImage(
                                       imageUrl:
                                           themeProvider.avatarConfig?.toUrl(
                                             size: 140,
@@ -455,6 +458,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                             color: Colors.grey,
                                           ),
                                     ),
+                                  ),
                             ),
                           ),
                         ),

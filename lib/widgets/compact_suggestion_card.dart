@@ -118,7 +118,11 @@ class _MarkedCover extends StatelessWidget {
       ),
       child: hasCover
           // Decorative: the card's own Semantics names the book.
-          ? CachedBookCover(imageUrl: coverUrl, fit: BoxFit.cover)
+          ? CachedBookCover(
+              imageUrl: coverUrl,
+              semanticLabel: null,
+              fit: BoxFit.cover,
+            )
           // The Activity strip's own fallback: with no image and no caption
           // underneath, a placeholder icon would leave the card
           // unidentifiable, so the title takes the cover's place.

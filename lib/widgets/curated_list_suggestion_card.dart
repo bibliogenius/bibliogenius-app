@@ -652,6 +652,7 @@ class _FanLayer extends StatelessWidget {
                 // Decorative: the card's own Semantics names the list.
                 : CachedBookCover(
                     imageUrl: coverUrl,
+                    semanticLabel: null,
                     width: coverW,
                     height: coverH,
                     fit: BoxFit.cover,

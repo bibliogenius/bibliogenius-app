@@ -4694,7 +4694,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 16),
                   if (qrCode != null)
-                    Image.memory(base64Decode(qrCode), height: 200, width: 200),
+                    // The secret is offered as selectable text below; the
+                    // QR itself has nothing to say to a screen reader.
+                    Image.memory(
+                      base64Decode(qrCode),
+                      height: 200,
+                      width: 200,
+                      excludeFromSemantics: true,
+                    ),
                   const SizedBox(height: 16),
                   SelectableText(
                     '${TranslationService.translate(context, 'secret_key') ?? 'Secret Key'}: $secret',

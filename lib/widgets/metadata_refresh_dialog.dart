@@ -326,8 +326,11 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(4),
                   child: (current != null && current.isNotEmpty)
+                      // The caption above each slot says which cover it is;
+                      // the images themselves have no name to give.
                       ? CachedBookCover(
                           imageUrl: current,
+                          semanticLabel: null,
                           width: 50,
                           height: 70,
                         )
@@ -360,6 +363,7 @@ class _MetadataRefreshDialogState extends State<MetadataRefreshDialog> {
                   borderRadius: BorderRadius.circular(4),
                   child: CachedBookCover(
                     imageUrl: fetched,
+                    semanticLabel: null,
                     width: 50,
                     height: 70,
                   ),

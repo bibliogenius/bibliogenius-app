@@ -560,8 +560,11 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                       ? Image.asset(
                           avatarConfig?.assetPath ?? 'assets/genie_mascot.jpg',
                           fit: BoxFit.cover,
+                          excludeFromSemantics: true,
                         )
-                      : CachedNetworkImage(
+                      // The profile button that holds it is already named.
+                      : ExcludeSemantics(
+                        child: CachedNetworkImage(
                           imageUrl:
                               avatarConfig?.toUrl(size: 32, format: 'png') ??
                               '',
@@ -569,6 +572,7 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                           errorWidget: (_, __, ___) =>
                               const Icon(Icons.person, color: Colors.grey),
                         ),
+                      ),
                 ),
               ),
             ),

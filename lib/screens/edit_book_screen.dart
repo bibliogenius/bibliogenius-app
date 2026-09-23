@@ -1578,6 +1578,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
               ? Image.file(
                   File(displayUrl),
                   key: ValueKey('$displayUrl\_$_coverVersion'),
+                  // The form's own title field names the book.
+                  excludeFromSemantics: true,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => _buildCoverPlaceholder(),
                 )

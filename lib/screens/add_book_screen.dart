@@ -1136,16 +1136,22 @@ class _AddBookScreenState extends State<AddBookScreen> {
                                               ClipRRect(
                                                 borderRadius:
                                                     BorderRadius.circular(4),
-                                                child: CachedNetworkImage(
-                                                  imageUrl: cover,
-                                                  width: 40,
-                                                  height: 60,
-                                                  fit: BoxFit.cover,
-                                                  placeholder: (context, url) =>
-                                                      const SizedBox.shrink(),
-                                                  errorWidget:
-                                                      (context, url, error) =>
-                                                          const SizedBox.shrink(),
+                                                child: Semantics(
+                                                  image: true,
+                                                  label:
+                                                      '${option['title'] ?? ''}',
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: cover,
+                                                    width: 40,
+                                                    height: 60,
+                                                    fit: BoxFit.cover,
+                                                    placeholder:
+                                                        (context, url) =>
+                                                            const SizedBox.shrink(),
+                                                    errorWidget:
+                                                        (context, url, error) =>
+                                                            const SizedBox.shrink(),
+                                                  ),
                                                 ),
                                               ),
                                             // 3. Source Badge
@@ -1365,13 +1371,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               padding: const EdgeInsets.only(right: 12.0),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(40),
-                                child: CachedNetworkImage(
-                                  imageUrl: imageUrl,
-                                  width: 60,
-                                  height: 60,
-                                  fit: BoxFit.cover,
-                                  errorWidget: (_, __, ___) =>
-                                      const Icon(Icons.person, size: 40),
+                                // The author name is spelled out beside it.
+                                child: ExcludeSemantics(
+                                  child: CachedNetworkImage(
+                                    imageUrl: imageUrl,
+                                    width: 60,
+                                    height: 60,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (_, __, ___) =>
+                                        const Icon(Icons.person, size: 40),
+                                  ),
                                 ),
                               ),
                             ),

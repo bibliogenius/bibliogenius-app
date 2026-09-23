@@ -140,8 +140,11 @@ class _CoverPickerDialogState extends State<CoverPickerDialog> {
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(8),
+          // The source chip below the slide is what tells the candidates
+          // apart; the images differ visually and not by name.
           child: CachedBookCover(
             imageUrl: candidate.url,
+            semanticLabel: null,
             width: 160,
             height: 240,
             fit: BoxFit.contain,

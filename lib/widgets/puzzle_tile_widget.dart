@@ -114,8 +114,11 @@ class PuzzleTileWidget extends StatelessWidget {
       child: SizedBox(
         width: tileSize * gridSize,
         height: tileSize * gridSize,
+        // One fragment of the cover: naming every tile would repeat the same
+        // title across the whole grid. The reference image carries the name.
         child: CachedBookCover(
           imageUrl: coverUrl,
+          semanticLabel: null,
           fit: BoxFit.cover,
           borderRadius: BorderRadius.zero,
           errorWidget: Container(

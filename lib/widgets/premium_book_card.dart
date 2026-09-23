@@ -324,14 +324,17 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                         // Image on top
                                         if (widget.book.coverUrl != null &&
                                             widget.book.coverUrl!.isNotEmpty)
-                                          CachedNetworkImage(
-                                            imageUrl: widget.book.coverUrl!,
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                const SizedBox.shrink(),
-                                            errorWidget:
-                                                (context, url, error) =>
-                                                    const SizedBox.shrink(),
+                                          // The card's own Semantics names the book.
+                                          ExcludeSemantics(
+                                            child: CachedNetworkImage(
+                                              imageUrl: widget.book.coverUrl!,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const SizedBox.shrink(),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      const SizedBox.shrink(),
+                                            ),
                                           ),
                                       ],
                                     ),
@@ -540,13 +543,16 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                               _buildFallbackCover(context),
                               if (widget.book.coverUrl != null &&
                                   widget.book.coverUrl!.isNotEmpty)
-                                CachedNetworkImage(
-                                  imageUrl: widget.book.coverUrl!,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) =>
-                                      const SizedBox.shrink(),
-                                  errorWidget: (context, url, error) =>
-                                      const SizedBox.shrink(),
+                                // The card's own Semantics names the book.
+                                ExcludeSemantics(
+                                  child: CachedNetworkImage(
+                                    imageUrl: widget.book.coverUrl!,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        const SizedBox.shrink(),
+                                    errorWidget: (context, url, error) =>
+                                        const SizedBox.shrink(),
+                                  ),
                                 ),
                             ],
                           ),

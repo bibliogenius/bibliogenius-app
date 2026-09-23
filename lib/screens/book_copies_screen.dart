@@ -399,12 +399,14 @@ class _BookCopiesScreenState extends State<BookCopiesScreen>
           Positioned.fill(
             child: Opacity(
               opacity: 0.1,
-              child: CachedNetworkImage(
-                imageUrl:
-                    'https://www.transparenttextures.com/patterns/wood-pattern.png',
-                imageBuilder: (context, imageProvider) =>
-                    Image(image: imageProvider, repeat: ImageRepeat.repeat),
-                errorWidget: (c, e, s) => const SizedBox(),
+              child: ExcludeSemantics(
+                child: CachedNetworkImage(
+                  imageUrl:
+                      'https://www.transparenttextures.com/patterns/wood-pattern.png',
+                  imageBuilder: (context, imageProvider) =>
+                      Image(image: imageProvider, repeat: ImageRepeat.repeat),
+                  errorWidget: (c, e, s) => const SizedBox(),
+                ),
               ),
             ),
           ),

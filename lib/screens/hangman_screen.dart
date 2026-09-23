@@ -575,13 +575,17 @@ class _HangmanScreenState extends State<HangmanScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: ImageFiltered(
-                  imageFilter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-                  child: CachedNetworkImage(
-                    imageUrl: provider.coverUrl!,
-                    height: 80,
-                    width: 60,
-                    fit: BoxFit.cover,
+                // Blurred on purpose: it is a hint, and naming the book
+                // would hand over the answer.
+                child: ExcludeSemantics(
+                  child: ImageFiltered(
+                    imageFilter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                    child: CachedNetworkImage(
+                      imageUrl: provider.coverUrl!,
+                      height: 80,
+                      width: 60,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -780,11 +784,14 @@ class _HangmanCompleteViewState extends State<_HangmanCompleteView>
                       Center(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(8),
-                          child: CachedNetworkImage(
-                            imageUrl: provider.coverUrl!,
-                            height: 100,
-                            width: 70,
-                            fit: BoxFit.cover,
+                          // The completed round spells the book out above.
+                          child: ExcludeSemantics(
+                            child: CachedNetworkImage(
+                              imageUrl: provider.coverUrl!,
+                              height: 100,
+                              width: 70,
+                              fit: BoxFit.cover,
+                            ),
                           ),
                         ),
                       ),

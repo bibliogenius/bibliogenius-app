@@ -109,7 +109,9 @@ class LibraryAvatar extends StatelessWidget {
       // DiceBear avatars have a transparent background: tint the disc rather
       // than fill it, so the artwork reads the same as in the contacts list.
       backgroundColor: backgroundColor.withValues(alpha: 0.15),
-      child: ClipOval(child: image),
+      // Both branches stay silent: the asset one says so on the widget, the
+      // network one has no such parameter and needs the wrapper.
+      child: ClipOval(child: ExcludeSemantics(child: image)),
     );
   }
 }

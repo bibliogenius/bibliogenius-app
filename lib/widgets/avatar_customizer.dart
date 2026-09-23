@@ -74,15 +74,19 @@ class _AvatarCustomizerState extends State<AvatarCustomizer> {
                     'assets/genie_mascot.jpg',
                     width: 200,
                     height: 200,
+                    excludeFromSemantics: true,
                     fit: BoxFit.cover,
                   )
-                : CachedNetworkImage(
+                // Live preview of the avatar being built; the controls below name it.
+                : ExcludeSemantics(
+                  child: CachedNetworkImage(
                     imageUrl: _config.toUrl(size: 200, format: 'png'),
                     placeholder: (context, url) =>
                         const Center(child: CircularProgressIndicator()),
                     errorWidget: (context, url, error) =>
                         const Center(child: Icon(Icons.error)),
                   ),
+                ),
           ),
         ),
         const SizedBox(height: 24),

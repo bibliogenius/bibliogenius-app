@@ -597,6 +597,7 @@ class _ScanScreenState extends State<ScanScreen> {
                     borderRadius: BorderRadius.circular(4),
                     child: Image.network(
                       book.coverUrl!,
+                      semanticLabel: book.title,
                       width: 50,
                       height: 70,
                       fit: BoxFit.cover,
@@ -796,6 +797,7 @@ class _ScanScreenState extends State<ScanScreen> {
                               child: book.coverUrl != null
                                   ? Image.network(
                                       book.coverUrl!,
+                                      excludeFromSemantics: true,
                                       width: 70,
                                       height: 100,
                                       fit: BoxFit.cover,

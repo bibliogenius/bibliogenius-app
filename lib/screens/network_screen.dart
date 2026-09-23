@@ -3288,15 +3288,18 @@ class _LibraryRelationCard extends StatelessWidget {
       radius: 18,
       backgroundColor: fallbackColor.withValues(alpha: 0.15),
       child: ClipOval(
-        child: CachedNetworkImage(
-          imageUrl: url,
-          width: 36,
-          height: 36,
-          fit: BoxFit.cover,
-          placeholder: (_, _) =>
-              _initialLetterFallback(relation, fallbackColor),
-          errorWidget: (_, _, _) =>
-              _initialLetterFallback(relation, fallbackColor),
+        // The row spells out the contact name beside it.
+        child: ExcludeSemantics(
+          child: CachedNetworkImage(
+            imageUrl: url,
+            width: 36,
+            height: 36,
+            fit: BoxFit.cover,
+            placeholder: (_, _) =>
+                _initialLetterFallback(relation, fallbackColor),
+            errorWidget: (_, _, _) =>
+                _initialLetterFallback(relation, fallbackColor),
+          ),
         ),
       ),
     );

@@ -247,7 +247,11 @@ class SuggestionCover extends StatelessWidget {
       ),
       child: hasCover
           // Decorative here: the tile's own Semantics names the book.
-          ? CachedBookCover(imageUrl: coverUrl, fit: BoxFit.cover)
+          ? CachedBookCover(
+              imageUrl: coverUrl,
+              semanticLabel: null,
+              fit: BoxFit.cover,
+            )
           : Container(
               color: colorScheme.surfaceContainerHighest,
               child: Icon(

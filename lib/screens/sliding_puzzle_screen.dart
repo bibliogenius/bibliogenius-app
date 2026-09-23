@@ -456,6 +456,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
               height: 120,
               child: CachedBookCover(
                 imageUrl: provider.board?.coverUrl ?? '',
+                semanticLabel: provider.board?.title,
                 fit: BoxFit.cover,
                 borderRadius: BorderRadius.circular(8),
               ),
@@ -488,6 +489,7 @@ class _SlidingPuzzleScreenState extends State<SlidingPuzzleScreen> {
               height: 40,
               child: CachedBookCover(
                 imageUrl: provider.board?.coverUrl ?? '',
+                semanticLabel: provider.board?.title,
                 fit: BoxFit.cover,
                 borderRadius: BorderRadius.circular(6),
               ),

@@ -115,6 +115,8 @@ class _MemoryCardWidgetState extends State<MemoryCardWidget>
           children: [
             CachedBookCover(
               imageUrl: widget.card.coverUrl,
+              // Only ever built face up, so naming it gives nothing away.
+              semanticLabel: widget.card.title,
               fit: BoxFit.cover,
               borderRadius: BorderRadius.circular(8),
               errorWidget: Container(

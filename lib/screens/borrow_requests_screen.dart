@@ -806,23 +806,27 @@ class _LoansScreenState extends State<LoansScreen>
                   width: 52,
                   height: 72,
                   child: cover != null
-                      ? CachedNetworkImage(
-                          imageUrl: cover,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.menu_book,
-                              color: theme.colorScheme.onSurfaceVariant,
-                              size: 24,
+                      ? Semantics(
+                          image: true,
+                          label: loan.bookTitle,
+                          child: CachedNetworkImage(
+                            imageUrl: cover,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(
+                                Icons.menu_book,
+                                color: theme.colorScheme.onSurfaceVariant,
+                                size: 24,
+                              ),
                             ),
-                          ),
-                          errorWidget: (_, __, ___) => Container(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.menu_book,
-                              color: theme.colorScheme.onSurfaceVariant,
-                              size: 24,
+                            errorWidget: (_, __, ___) => Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(
+                                Icons.menu_book,
+                                color: theme.colorScheme.onSurfaceVariant,
+                                size: 24,
+                              ),
                             ),
                           ),
                         )
@@ -1264,23 +1268,27 @@ class _LoansScreenState extends State<LoansScreen>
                   width: 52,
                   height: 72,
                   child: cover != null && cover.isNotEmpty
-                      ? CachedNetworkImage(
-                          imageUrl: cover,
-                          fit: BoxFit.cover,
-                          placeholder: (_, __) => Container(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.menu_book,
-                              color: theme.colorScheme.onSurfaceVariant,
-                              size: 24,
+                      ? Semantics(
+                          image: true,
+                          label: '$title',
+                          child: CachedNetworkImage(
+                            imageUrl: cover,
+                            fit: BoxFit.cover,
+                            placeholder: (_, __) => Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(
+                                Icons.menu_book,
+                                color: theme.colorScheme.onSurfaceVariant,
+                                size: 24,
+                              ),
                             ),
-                          ),
-                          errorWidget: (_, __, ___) => Container(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            child: Icon(
-                              Icons.menu_book,
-                              color: theme.colorScheme.onSurfaceVariant,
-                              size: 24,
+                            errorWidget: (_, __, ___) => Container(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              child: Icon(
+                                Icons.menu_book,
+                                color: theme.colorScheme.onSurfaceVariant,
+                                size: 24,
+                              ),
                             ),
                           ),
                         )
@@ -2018,6 +2026,7 @@ class _LoansScreenState extends State<LoansScreen>
           child: resolvedCover != null
               ? CachedBookCover(
                   imageUrl: resolvedCover,
+                  semanticLabel: title,
                   fit: BoxFit.cover,
                   borderRadius: BorderRadius.circular(4),
                   placeholder: Container(

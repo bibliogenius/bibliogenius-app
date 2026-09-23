@@ -331,8 +331,11 @@ class _CoverLayer extends StatelessWidget {
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(6),
+            // The pile's own Semantics sets `excludeSemantics: true`, so a
+            // label here would be dropped rather than announced twice.
             child: CachedBookCover(
               imageUrl: coverUrl,
+              semanticLabel: null,
               width: coverW,
               height: coverH,
               fit: BoxFit.cover,
@@ -583,6 +586,7 @@ class _SheetContent extends StatelessWidget {
             label: '${book.title}, ${book.author ?? ''}',
             child: CachedBookCover(
               imageUrl: book.coverUrl,
+              semanticLabel: null,
               width: 68,
               height: 102,
               borderRadius: BorderRadius.circular(6),
@@ -688,6 +692,7 @@ class _BookTile extends StatelessWidget {
             children: [
               CachedBookCover(
                 imageUrl: book.coverUrl,
+                semanticLabel: null,
                 width: 36,
                 height: 54,
                 borderRadius: BorderRadius.circular(4),
