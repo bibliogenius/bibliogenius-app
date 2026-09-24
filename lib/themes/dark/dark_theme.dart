@@ -309,14 +309,18 @@ class DarkTheme extends AppTheme {
       ),
 
       switchTheme: SwitchThemeData(
+        // Switched on, the thumb used to take the cyan and the track the same
+        // cyan at a third opacity, leaving the thumb 1.8:1 against the rail it
+        // slides on. The page background is what this theme already puts on
+        // cyan elsewhere, and it reads at 7.4:1.
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? DarkColors.cyan
+              ? DarkColors.bg
               : DarkColors.textMuted,
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? DarkColors.cyan.withValues(alpha: 0.3)
+              ? DarkColors.cyan
               : DarkColors.elevated,
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(

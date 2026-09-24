@@ -204,6 +204,12 @@ class MinimalTheme extends AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: bgCard,
+        // A selected chip used to fill with the full accent, leaving its
+        // near-black label at 3.4:1. This tint is the accent lightened until
+        // the same label reads at 5.3:1, and it still stands 3.2:1 clear of
+        // the card behind it, so selected and unselected stay apart. Every
+        // chip in the theme keeps one label colour this way.
+        selectedColor: const Color(0xFF5C8AF0),
         side: const BorderSide(color: border, width: 1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
         labelStyle: const TextStyle(
@@ -239,14 +245,18 @@ class MinimalTheme extends AppTheme {
       ),
       iconTheme: const IconThemeData(color: textMain, size: 20),
       switchTheme: SwitchThemeData(
+        // Switched on, the thumb used to take the accent and the track the
+        // same accent at half opacity, leaving the thumb 2.1:1 against the
+        // rail it slides on. Material fills the track and rides a light thumb
+        // on it, which is also what makes the position readable at a glance.
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? accent
+              ? Colors.white
               : const Color(0xFFF5F5F5), // Light grey instead of white
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? accent.withValues(alpha: 0.5)
+              ? accent
               : border,
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(

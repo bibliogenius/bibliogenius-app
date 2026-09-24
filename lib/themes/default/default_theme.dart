@@ -4,6 +4,8 @@
 /// Features a green sidebar for an organic, library-inspired feel.
 
 import 'package:flutter/material.dart';
+
+import '../../utils/accessible_color.dart';
 import '../base/theme_interface.dart';
 
 class DefaultTheme extends AppTheme {
@@ -31,6 +33,11 @@ class DefaultTheme extends AppTheme {
   @override
   ThemeData buildTheme({Color? accentColor}) {
     final bannerColor = accentColor ?? _headerBlue;
+    // Which of black or white sits on the accent stays Flutter's call, so a
+    // filled button keeps the look the reader knows. Flipping it by measured
+    // ratio would have been more correct in the abstract and turned every
+    // white icon on a mid-tone accent black, which is not a contrast fix
+    // anyone asked for.
     final brightness = ThemeData.estimateBrightnessForColor(bannerColor);
     final foregroundColor = brightness == Brightness.dark
         ? Colors.white
@@ -42,8 +49,22 @@ class DefaultTheme extends AppTheme {
     const textMain = Color(0xFF44403C); // Stone 700
     const border = Color(0xFFE7E5E4); // Stone 200
 
+    // The contrast is bought on the surface instead: deepen the accent just
+    // enough that the foreground above already clears AA. Eight of the two
+    // dozen avatar accents need it, the rest come back untouched.
+    //
+    // Every filled use takes this one value. Applying it to a single button
+    // theme left `FilledButton`, which fills from `colorScheme.primary`, at
+    // the ratio that started this, and put two shades of the accent on the
+    // same screen next to the floating action button.
+    final accentSurface = shiftUntilReadable(bannerColor, foregroundColor);
+
+    final accentInk = inkOn(bgBody, bannerColor);
+    // A border is a UI component, not text: WCAG asks 3:1 of it.
+    final accentBorder = inkOn(bgCard, bannerColor, minimumRatio: 3);
+
     return ThemeData(
-      primaryColor: bannerColor,
+      primaryColor: accentSurface,
       useMaterial3: true,
       scaffoldBackgroundColor: bgBody,
       fontFamily: 'Inter',
@@ -83,14 +104,18 @@ class DefaultTheme extends AppTheme {
       ),
       // FAB uses primary color (Blue), so no override needed or explicit blue
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: bannerColor, // Blue
-        foregroundColor: Colors.white,
+        backgroundColor: accentSurface,
+        foregroundColor: foregroundColor,
         elevation: 4,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       colorScheme: ColorScheme.fromSeed(
         seedColor: bannerColor,
-        primary: bannerColor,
+        primary: accentSurface,
+        // `FilledButton` and friends read this rather than any button theme.
+        // Left to `fromSeed` it came back white on a pale accent, which is how
+        // an amber button shipped its label at 1.6:1.
+        onPrimary: foregroundColor,
         secondary: _tealLight, // Teal as secondary
 
         surface: bgCard,
@@ -135,9 +160,19 @@ class DefaultTheme extends AppTheme {
           letterSpacing: 0.3,
         ),
       ),
+      // Both write with the accent rather than fill with it, so they take the
+      // ink variant. Left to `colorScheme.primary` they would inherit the
+      // value calibrated to carry a foreground, which lands just under the bar
+      // when it becomes the foreground itself.
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: accentInk),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(foregroundColor: accentInk),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: bannerColor,
+          backgroundColor: accentSurface,
           foregroundColor: foregroundColor,
           elevation: 2,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
@@ -159,7 +194,7 @@ class DefaultTheme extends AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: bannerColor, width: 2),
+          borderSide: BorderSide(color: accentBorder, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -167,7 +202,7 @@ class DefaultTheme extends AppTheme {
         ),
         labelStyle: const TextStyle(color: textMain, fontSize: 14),
         floatingLabelStyle: TextStyle(
-          color: bannerColor,
+          color: accentInk,
           fontSize: 16,
           fontWeight: FontWeight.w500,
         ),
@@ -175,14 +210,18 @@ class DefaultTheme extends AppTheme {
       ),
       // Switch theme with better contrast for OFF state
       switchTheme: SwitchThemeData(
+        // Switched on, the thumb used to take the accent and the track the
+        // same accent at half opacity, leaving the thumb 2.0:1 against the
+        // rail it slides on. Material fills the track and rides a light thumb
+        // on it, which is also what makes the position readable at a glance.
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? bannerColor
+              ? foregroundColor
               : const Color(0xFFF5F5F5), // Very light grey instead of white
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected)
-              ? bannerColor.withAlpha(128)
+              ? accentSurface
               : const Color(0xFFE0E0E0), // Light grey track
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(
