@@ -44,45 +44,75 @@ class DeviceService {
     return null;
   }
 
+  /// Salt mixed into the fingerprint of non-release builds (`flutter run`,
+  /// profile builds) so a development build never shares its hub
+  /// `device_fingerprint` with the store build installed on the same machine.
+  ///
+  /// The platform IDs below identify the hardware (or the vendor on iOS), not
+  /// the app, so two builds running side by side on one device used to report
+  /// the same fingerprint. The hub deduplicates new registrations by that
+  /// fingerprint and deletes the other profile (follows, cached catalog, relay
+  /// mailbox), and each build then recreated itself on its next heartbeat:
+  /// an endless ping-pong. Release builds keep the unsalted hash so profiles
+  /// published by shipped versions are untouched.
+  static const String _devFingerprintSalt = 'bibliogenius-dev';
+
   /// Returns a SHA-256 fingerprint for hub profile deduplication.
   ///
   /// - Android: `sha256(ANDROID_ID)` via MethodChannel (survives reinstall)
   /// - iOS: `sha256(identifierForVendor)` (stable per install, resets on reinstall)
-  /// - macOS: `sha256(serialNumber)` (stable hardware ID)
+  /// - macOS: `sha256(systemGUID)` (stable hardware ID)
   /// - Linux: `sha256(machineId)`
   /// - Windows: `sha256(deviceId)`
+  ///
+  /// Non-release builds hash the platform ID together with
+  /// [_devFingerprintSalt], see [fingerprintFor].
   Future<String?> getDeviceFingerprint() async {
     try {
       if (Platform.isAndroid) {
         final androidId = await _channel.invokeMethod<String>('getAndroidId');
         if (androidId != null && androidId.isNotEmpty) {
-          return _sha256(androidId);
+          return fingerprintFor(androidId);
         }
       } else if (Platform.isIOS) {
         final info = await _deviceInfo.iosInfo;
         final vendorId = info.identifierForVendor;
         if (vendorId != null && vendorId.isNotEmpty) {
-          return _sha256(vendorId);
+          return fingerprintFor(vendorId);
         }
       } else if (Platform.isMacOS) {
         final info = await _deviceInfo.macOsInfo;
         final guid = info.systemGUID;
         if (guid != null && guid.isNotEmpty) {
-          return _sha256(guid);
+          return fingerprintFor(guid);
         }
       } else if (Platform.isLinux) {
         final info = await _deviceInfo.linuxInfo;
         if (info.machineId != null && info.machineId!.isNotEmpty) {
-          return _sha256(info.machineId!);
+          return fingerprintFor(info.machineId!);
         }
       } else if (Platform.isWindows) {
         final info = await _deviceInfo.windowsInfo;
-        return _sha256(info.deviceId);
+        return fingerprintFor(info.deviceId);
       }
     } catch (e) {
       debugPrint('DeviceService.getDeviceFingerprint error: $e');
     }
     return null;
+  }
+
+  /// Derives the hub fingerprint from a platform-stable [platformId].
+  ///
+  /// Release builds return `sha256(platformId)`, exactly what every shipped
+  /// version reports. Non-release builds salt the input with
+  /// [_devFingerprintSalt] so they get their own, still stable, fingerprint.
+  /// [releaseBuild] defaults to [kReleaseMode] and exists for tests only.
+  static String fingerprintFor(
+    String platformId, {
+    bool releaseBuild = kReleaseMode,
+  }) {
+    if (releaseBuild) return _sha256(platformId);
+    return _sha256('$_devFingerprintSalt:$platformId');
   }
 
   /// Returns the client app version reported to the hub (e.g. "0.9.0+422").
