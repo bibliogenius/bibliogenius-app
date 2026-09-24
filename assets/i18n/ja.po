@@ -11208,3 +11208,7 @@ msgstr "蔵書ですでに読了として記録されています。"
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "この読書を記録できませんでした。"
+
+#. Snackbar action offering to add a contact; also names the add button of an empty profile section.
+msgid "add"
+msgstr "追加"

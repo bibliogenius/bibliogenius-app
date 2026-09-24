@@ -32,13 +32,16 @@ class BookshelfView extends StatelessWidget {
                 crossAxisAlignment: WrapCrossAlignment.end,
                 children: books.map((book) {
                   final seed = bookColorSeed(book);
-                  return GestureDetector(
-                    onTap: () => onBookTap(book),
-                    child: BookSpine.fromBook(
-                      book: book,
-                      height: 220 + (seed.abs() % 4) * 12.0,
-                      width: 60 + (seed.abs() % 3) * 6.0,
-                      showNewBand: book.isNew,
+                  return Semantics(
+                    button: true,
+                    child: GestureDetector(
+                      onTap: () => onBookTap(book),
+                      child: BookSpine.fromBook(
+                        book: book,
+                        height: 220 + (seed.abs() % 4) * 12.0,
+                        width: 60 + (seed.abs() % 3) * 6.0,
+                        showNewBand: book.isNew,
+                      ),
                     ),
                   );
                 }).toList(),

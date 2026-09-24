@@ -947,13 +947,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   topicId: 'two_factor_auth_setting',
                                 ),
                                 const SizedBox(width: 4),
-                                Switch(
-                                  value: mfaEnabled,
-                                  onChanged: (val) {
-                                    if (val) {
-                                      _setupMfa();
-                                    }
-                                  },
+                                Semantics(
+                                  // The tile's title sits outside the
+                                  // switch's own node.
+                                  label: TranslationService.translate(
+                                    context,
+                                    'two_factor_auth',
+                                  ),
+                                  child: Switch(
+                                    value: mfaEnabled,
+                                    onChanged: (val) {
+                                      if (val) {
+                                        _setupMfa();
+                                      }
+                                    },
+                                  ),
                                 ),
                               ],
                             ),
@@ -3444,67 +3452,83 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final primary = Theme.of(context).colorScheme.primary;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () {
-          showCountryPicker(
-            context: context,
-            showPhoneCode: false,
-            favorite: ['FR', 'BE', 'CH', 'CA'],
-            countryListTheme: CountryListThemeData(
-              borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
-              ),
-              inputDecoration: InputDecoration(
-                hintText:
-                    TranslationService.translate(context, 'search') ?? 'Search',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      // Says what the field picks, and still names it before a country is
+      // chosen, when the row shows nothing.
+      button: true,
+      label: TranslationService.translate(context, 'country_label'),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            showCountryPicker(
+              context: context,
+              showPhoneCode: false,
+              favorite: ['FR', 'BE', 'CH', 'CA'],
+              countryListTheme: CountryListThemeData(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
+                ),
+                inputDecoration: InputDecoration(
+                  hintText:
+                      TranslationService.translate(context, 'search') ??
+                      'Search',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
+              onSelect: (Country selected) async {
+                await themeProvider.setCountry(selected.countryCode);
+                if (!context.mounted) return;
+                final hub = context.read<HubDirectoryProvider>();
+                // A city belongs to a country. Keeping one from the previous
+                // country leaves the picker showing "unknown city" (it resolves
+                // selections from the current country file) and, when shared,
+                // publishes a country+city pair no directory filter can match.
+                await hub.dropCityForCountryChange(selected.countryCode);
+                try {
+                  await hub.syncLocationCountry(selected.countryCode);
+                } catch (e) {
+                  debugPrint('Hub locationCountry update failed: $e');
+                }
+              },
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+            decoration: BoxDecoration(
+              color: Theme.of(
+                context,
+              ).colorScheme.surface.withValues(alpha: 0.8),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
             ),
-            onSelect: (Country selected) async {
-              await themeProvider.setCountry(selected.countryCode);
-              if (!context.mounted) return;
-              final hub = context.read<HubDirectoryProvider>();
-              // A city belongs to a country. Keeping one from the previous
-              // country leaves the picker showing "unknown city" (it resolves
-              // selections from the current country file) and, when shared,
-              // publishes a country+city pair no directory filter can match.
-              await hub.dropCityForCountryChange(selected.countryCode);
-              try {
-                await hub.syncLocationCountry(selected.countryCode);
-              } catch (e) {
-                debugPrint('Hub locationCountry update failed: $e');
-              }
-            },
-          );
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            children: [
-              Text(
-                current?.flagEmoji ?? '',
-                style: const TextStyle(fontSize: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  current?.name ?? countryCode,
-                  style: TextStyle(color: primary, fontWeight: FontWeight.w600),
+            child: Row(
+              children: [
+                // A screen reader names the flag ("flag: France") right before
+                // the country name: the name alone is enough.
+                ExcludeSemantics(
+                  child: Text(
+                    current?.flagEmoji ?? '',
+                    style: const TextStyle(fontSize: 24),
+                  ),
                 ),
-              ),
-              Icon(Icons.arrow_drop_down, color: primary),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    current?.name ?? countryCode,
+                    style: TextStyle(
+                      color: primary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+                Icon(Icons.arrow_drop_down, color: primary),
+              ],
+            ),
           ),
         ),
       ),
@@ -3519,41 +3543,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Color color,
     ThemeProvider themeProvider,
   ) {
-    return Material(
-      color: color.withValues(alpha: 0.1),
-      borderRadius: BorderRadius.circular(12),
-      child: InkWell(
+    return Semantics(
+      // Applies the preset at once: an action, so a button.
+      button: true,
+      child: Material(
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        onTap: () async {
-          await themeProvider.applyPreset(presetName);
-          if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  '${TranslationService.translate(context, 'preset_applied') ?? 'Configuration applied'}: $label',
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () async {
+            await themeProvider.applyPreset(presetName);
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    '${TranslationService.translate(context, 'preset_applied') ?? 'Configuration applied'}: $label',
+                  ),
+                  duration: const Duration(seconds: 2),
                 ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: color, size: 32),
-              const SizedBox(height: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
+              );
+            }
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: color, size: 32),
+                const SizedBox(height: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -3575,49 +3603,55 @@ class _SettingsScreenState extends State<SettingsScreen> {
       required VoidCallback onTap,
     }) {
       return Expanded(
-        child: GestureDetector(
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
-            decoration: BoxDecoration(
-              color: selected
-                  ? theme.colorScheme.primary.withValues(alpha: 0.12)
-                  : isDark
-                  ? theme.colorScheme.surface.withValues(alpha: 0.8)
-                  : Colors.grey.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
+        child: Semantics(
+          // The highlighted option is the active one; a screen reader is
+          // told which, not only the eye.
+          button: true,
+          selected: selected,
+          child: GestureDetector(
+            onTap: onTap,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+              decoration: BoxDecoration(
                 color: selected
-                    ? theme.colorScheme.primary
-                    : Colors.grey.withValues(alpha: 0.3),
-                width: selected ? 2 : 1,
-              ),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  size: 28,
+                    ? theme.colorScheme.primary.withValues(alpha: 0.12)
+                    : isDark
+                    ? theme.colorScheme.surface.withValues(alpha: 0.8)
+                    : Colors.grey.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
                   color: selected
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                      : Colors.grey.withValues(alpha: 0.3),
+                  width: selected ? 2 : 1,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  TranslationService.translate(context, labelKey),
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    icon,
+                    size: 28,
                     color: selected
                         ? theme.colorScheme.primary
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    TranslationService.translate(context, labelKey),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                      color: selected
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -3684,74 +3718,81 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 padding: EdgeInsets.only(
                   right: theme.id != themes.last.id ? 8.0 : 0,
                 ),
-                child: GestureDetector(
-                  onTap: () async {
-                    HapticFeedback.lightImpact();
-                    await themeProvider.setThemeStyle(theme.id);
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? theme.previewColor.withValues(alpha: 0.15)
-                          : Theme.of(
-                              context,
-                            ).colorScheme.surface.withValues(alpha: 0.8),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
+                child: Semantics(
+                  // The outlined option is the active theme.
+                  button: true,
+                  selected: isSelected,
+                  child: GestureDetector(
+                    onTap: () async {
+                      HapticFeedback.lightImpact();
+                      await themeProvider.setThemeStyle(theme.id);
+                    },
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? theme.previewColor
-                            : Colors.grey.withValues(alpha: 0.3),
-                        width: isSelected ? 2 : 1,
+                            ? theme.previewColor.withValues(alpha: 0.15)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.surface.withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: isSelected
+                              ? theme.previewColor
+                              : Colors.grey.withValues(alpha: 0.3),
+                          width: isSelected ? 2 : 1,
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                theme.previewSecondaryColor,
-                                theme.previewColor,
-                              ],
-                              stops: const [0.5, 0.5],
+                      child: Column(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  theme.previewSecondaryColor,
+                                  theme.previewColor,
+                                ],
+                                stops: const [0.5, 0.5],
+                              ),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.grey.withValues(alpha: 0.3),
+                                width: 1.5,
+                              ),
                             ),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.grey.withValues(alpha: 0.3),
-                              width: 1.5,
+                            child: isSelected
+                                ? const Icon(
+                                    Icons.check,
+                                    color: Colors.white,
+                                    size: 20,
+                                  )
+                                : null,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _themeDisplayName(context, theme.id),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.w500,
+                              color: isSelected
+                                  ? theme.previewColor
+                                  : Theme.of(
+                                      context,
+                                    ).textTheme.bodyMedium?.color,
                             ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          child: isSelected
-                              ? const Icon(
-                                  Icons.check,
-                                  color: Colors.white,
-                                  size: 20,
-                                )
-                              : null,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _themeDisplayName(context, theme.id),
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.w500,
-                            color: isSelected
-                                ? theme.previewColor
-                                : Theme.of(context).textTheme.bodyMedium?.color,
-                          ),
-                          textAlign: TextAlign.center,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

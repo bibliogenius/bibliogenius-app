@@ -503,27 +503,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Consumer<ThemeProvider>(
                   builder: (context, themeProvider, _) {
                     final libraryName = themeProvider.libraryName;
-                    return GestureDetector(
-                      onTap: () => _showEditLibraryNameDialog(libraryName),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(
-                            child: Text(
-                              libraryName,
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(fontWeight: FontWeight.bold),
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
+                    return Semantics(
+                      // The pencil beside the name says "rename" to the
+                      // eye; the role and hint say it to a screen reader.
+                      button: true,
+                      hint: TranslationService.translate(
+                        context,
+                        'edit_library_name',
+                      ),
+                      child: GestureDetector(
+                        onTap: () => _showEditLibraryNameDialog(libraryName),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                libraryName,
+                                style: Theme.of(context).textTheme.headlineSmall
+                                    ?.copyWith(fontWeight: FontWeight.bold),
+                                textAlign: TextAlign.center,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 6),
-                          Icon(
-                            Icons.edit_outlined,
-                            size: 18,
-                            color: Colors.grey[400],
-                          ),
-                        ],
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.edit_outlined,
+                              size: 18,
+                              color: Colors.grey[400],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
@@ -1057,19 +1066,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
-              InkWell(
-                onTap: onEdit,
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    isOptional ? Icons.add_circle_outline : Icons.edit_outlined,
-                    color: Colors.grey[500],
-                    size: 20,
+              Semantics(
+                // An icon alone: the section title just before it says
+                // what is edited.
+                button: true,
+                label: TranslationService.translate(
+                  context,
+                  isOptional ? 'add' : 'menu_edit',
+                ),
+                child: InkWell(
+                  onTap: onEdit,
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      isOptional
+                          ? Icons.add_circle_outline
+                          : Icons.edit_outlined,
+                      color: Colors.grey[500],
+                      size: 20,
+                    ),
                   ),
                 ),
               ),

@@ -766,116 +766,120 @@ class TrackProgressWidget extends StatelessWidget {
         : Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey);
     final levelFontSize = isDesktop ? 12.0 : 10.0;
 
-    return GestureDetector(
-      onTap: () => showTrackLevelInfo(
-        context,
-        trackName: trackName,
-        track: track,
-        icon: icon,
-        color: color,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: size,
-            height: size,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                // Background circle
-                SizedBox(
-                  width: size,
-                  height: size,
-                  child: CircularProgressIndicator(
-                    value: 1.0,
-                    strokeWidth: 6,
-                    backgroundColor: Colors.transparent,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      color.withValues(alpha: 0.2),
+    return Semantics(
+      // Opens the level details for this track.
+      button: true,
+      child: GestureDetector(
+        onTap: () => showTrackLevelInfo(
+          context,
+          trackName: trackName,
+          track: track,
+          icon: icon,
+          color: color,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: size,
+              height: size,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Background circle
+                  SizedBox(
+                    width: size,
+                    height: size,
+                    child: CircularProgressIndicator(
+                      value: 1.0,
+                      strokeWidth: 6,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        color.withValues(alpha: 0.2),
+                      ),
                     ),
                   ),
-                ),
-                // Progress circle
-                SizedBox(
-                  width: size,
-                  height: size,
-                  child: CircularProgressIndicator(
-                    value: track.progress,
-                    strokeWidth: 6,
-                    backgroundColor: Colors.transparent,
-                    valueColor: AlwaysStoppedAnimation<Color>(color),
+                  // Progress circle
+                  SizedBox(
+                    width: size,
+                    height: size,
+                    child: CircularProgressIndicator(
+                      value: track.progress,
+                      strokeWidth: 6,
+                      backgroundColor: Colors.transparent,
+                      valueColor: AlwaysStoppedAnimation<Color>(color),
+                    ),
                   ),
-                ),
-                // Center icon
-                Container(
-                  width: size * 0.6,
-                  height: size * 0.6,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: color.withValues(alpha: 0.1),
+                  // Center icon
+                  Container(
+                    width: size * 0.6,
+                    height: size * 0.6,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: color.withValues(alpha: 0.1),
+                    ),
+                    child: Icon(icon, color: color, size: size * 0.35),
                   ),
-                  child: Icon(icon, color: color, size: size * 0.35),
-                ),
-                // Level badge (top-right corner)
-                if (track.level > 0)
-                  Positioned(
-                    top: 0,
-                    right: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: _getLevelColor(track.level),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 2),
-                      ),
-                      child: Text(
-                        track.level.toString(),
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: levelFontSize,
+                  // Level badge (top-right corner)
+                  if (track.level > 0)
+                    Positioned(
+                      top: 0,
+                      right: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: _getLevelColor(track.level),
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white, width: 2),
+                        ),
+                        child: Text(
+                          track.level.toString(),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: levelFontSize,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            trackName,
-            style: labelStyle?.copyWith(
-              color: color,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          // Show progress intelligently: if current >= nextThreshold, show level completed
-          Text(
-            track.isMaxLevel
-                ? '${track.current} ✓'
-                : track.current >= track.nextThreshold
-                ? '${track.current}/${track.nextThreshold} ✓'
-                : '${track.current}/${track.nextThreshold}',
-            style: progressStyle,
-          ),
-          if (descriptionKey != null) ...[
-            const SizedBox(height: 2),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4.0),
-              child: Text(
-                TranslationService.translate(context, descriptionKey!),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: isDesktop ? 12.0 : 10.0,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                ],
               ),
             ),
+            const SizedBox(height: 8),
+            Text(
+              trackName,
+              style: labelStyle?.copyWith(
+                color: color,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            // Show progress intelligently: if current >= nextThreshold, show level completed
+            Text(
+              track.isMaxLevel
+                  ? '${track.current} ✓'
+                  : track.current >= track.nextThreshold
+                  ? '${track.current}/${track.nextThreshold} ✓'
+                  : '${track.current}/${track.nextThreshold}',
+              style: progressStyle,
+            ),
+            if (descriptionKey != null) ...[
+              const SizedBox(height: 2),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Text(
+                  TranslationService.translate(context, descriptionKey!),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: isDesktop ? 12.0 : 10.0,
+                    color: Theme.of(context).textTheme.bodySmall?.color,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }
@@ -1113,195 +1117,213 @@ class _GamificationSummaryCardState extends State<GamificationSummaryCard> {
         borderRadius: BorderRadius.circular(20),
         child: Material(
           color: Colors.transparent,
-          child: InkWell(
-            onTap: widget.onTap,
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with title, info button and streak
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              // Flat solid badge, consistent with the section
-                              // header icons (no gradient).
-                              color: const Color(0xFF667eea),
-                              borderRadius: BorderRadius.circular(10),
+          child: Semantics(
+            button: widget.onTap != null,
+            child: InkWell(
+              onTap: widget.onTap,
+              borderRadius: BorderRadius.circular(20),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header with title, info button and streak
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                // Flat solid badge, consistent with the section
+                                // header icons (no gradient).
+                                color: const Color(0xFF667eea),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.trending_up,
+                                color: Colors.white,
+                                size: 18,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.trending_up,
-                              color: Colors.white,
-                              size: 18,
+                            const SizedBox(width: 12),
+                            Text(
+                              TranslationService.translate(
+                                context,
+                                'your_progress',
+                              ),
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(fontWeight: FontWeight.bold),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            TranslationService.translate(
-                              context,
-                              'your_progress',
+                            const SizedBox(width: 8),
+                            Semantics(
+                              // An icon alone that shows or hides the help
+                              // panel below.
+                              button: true,
+                              expanded: _showHelp,
+                              label: TranslationService.translate(
+                                context,
+                                'help',
+                              ),
+                              child: GestureDetector(
+                                onTap: () =>
+                                    setState(() => _showHelp = !_showHelp),
+                                child: Icon(
+                                  _showHelp ? Icons.close : Icons.help_outline,
+                                  size: 20,
+                                  color: isDark
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                                ),
+                              ),
                             ),
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () => setState(() => _showHelp = !_showHelp),
-                            child: Icon(
-                              _showHelp ? Icons.close : Icons.help_outline,
-                              size: 20,
-                              color: isDark
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                      StreakWidget(streak: widget.status.streak),
+                          ],
+                        ),
+                        StreakWidget(streak: widget.status.streak),
+                      ],
+                    ),
+
+                    // Help panel (expandable)
+                    if (_showHelp) ...[
+                      const SizedBox(height: 16),
+                      _buildHelpPanel(context, isDark),
                     ],
-                  ),
 
-                  // Help panel (expandable)
-                  if (_showHelp) ...[
-                    const SizedBox(height: 16),
-                    _buildHelpPanel(context, isDark),
-                  ],
-
-                  // Dynamic progress hint
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
-                    child: Text(
-                      _getProgressHint(context),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: isDark ? Colors.grey[400] : Colors.grey[600],
-                        fontStyle: FontStyle.italic,
+                    // Dynamic progress hint
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0, bottom: 12.0),
+                      child: Text(
+                        _getProgressHint(context),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
                       ),
                     ),
-                  ),
 
-                  // Badge Collection
-                  BadgeCollectionWidget(statusLevel: widget.status.statusLevel),
+                    // Badge Collection
+                    BadgeCollectionWidget(
+                      statusLevel: widget.status.statusLevel,
+                    ),
 
-                  const SizedBox(height: 16),
-                  const Divider(height: 1, indent: 24, endIndent: 24),
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 16),
+                    const Divider(height: 1, indent: 24, endIndent: 24),
+                    const SizedBox(height: 24),
 
-                  // Tracks with enhanced layout
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: TracksProgressRow(status: widget.status),
-                  ),
+                    // Tracks with enhanced layout
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: TracksProgressRow(status: widget.status),
+                    ),
 
-                  // Reading goal progress (if enabled)
-                  if (widget.status.config.readingGoalYearly > 0) ...[
-                    const SizedBox(height: 20),
-                    _buildReadingGoalSection(context),
-                  ],
+                    // Reading goal progress (if enabled)
+                    if (widget.status.config.readingGoalYearly > 0) ...[
+                      const SizedBox(height: 20),
+                      _buildReadingGoalSection(context),
+                    ],
 
-                  // Achievements section
-                  if (widget.status.hasAchievements) ...[
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.white.withValues(alpha: 0.05)
-                            : Colors.black.withValues(alpha: 0.03),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.star,
-                                size: 16,
-                                color: Colors.amber[600],
-                              ),
-                              const SizedBox(width: 6),
-                              Expanded(
-                                child: Text(
+                    // Achievements section
+                    if (widget.status.hasAchievements) ...[
+                      const SizedBox(height: 20),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.05)
+                              : Colors.black.withValues(alpha: 0.03),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.star,
+                                  size: 16,
+                                  color: Colors.amber[600],
+                                ),
+                                const SizedBox(width: 6),
+                                Expanded(
+                                  child: Text(
+                                    TranslationService.translate(
+                                      context,
+                                      'recent_achievements',
+                                    ),
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                                _buildFilterChip(
+                                  context,
+                                  'all',
                                   TranslationService.translate(
                                     context,
-                                    'recent_achievements',
+                                    'filter_all',
                                   ),
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(fontWeight: FontWeight.w600),
+                                  Icons.star,
                                 ),
-                              ),
-                              _buildFilterChip(
-                                context,
-                                'all',
-                                TranslationService.translate(
+                                const SizedBox(width: 4),
+                                _buildFilterChip(
                                   context,
-                                  'filter_all',
-                                ),
-                                Icons.star,
-                              ),
-                              const SizedBox(width: 4),
-                              _buildFilterChip(
-                                context,
-                                'games',
-                                TranslationService.translate(
-                                  context,
-                                  'filter_games',
-                                ),
-                                Icons.sports_esports,
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                          Builder(
-                            builder: (context) {
-                              final filtered = _achievementFilter == 'games'
-                                  ? widget.status.recentAchievements
-                                        .where(
-                                          (id) =>
-                                              id.startsWith('memory') ||
-                                              id.startsWith('puzzle'),
-                                        )
-                                        .toList()
-                                  : widget.status.recentAchievements;
-                              if (filtered.isEmpty) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 8,
+                                  'games',
+                                  TranslationService.translate(
+                                    context,
+                                    'filter_games',
                                   ),
-                                  child: Text(
-                                    '-',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(
-                                          color: isDark
-                                              ? Colors.white54
-                                              : Colors.black38,
-                                        ),
-                                  ),
+                                  Icons.sports_esports,
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                            Builder(
+                              builder: (context) {
+                                final filtered = _achievementFilter == 'games'
+                                    ? widget.status.recentAchievements
+                                          .where(
+                                            (id) =>
+                                                id.startsWith('memory') ||
+                                                id.startsWith('puzzle'),
+                                          )
+                                          .toList()
+                                    : widget.status.recentAchievements;
+                                if (filtered.isEmpty) {
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 8,
+                                    ),
+                                    child: Text(
+                                      '-',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: isDark
+                                                ? Colors.white54
+                                                : Colors.black38,
+                                          ),
+                                    ),
+                                  );
+                                }
+                                return Wrap(
+                                  spacing: 8,
+                                  runSpacing: 6,
+                                  children: filtered
+                                      .map(
+                                        (id) =>
+                                            _buildAchievementChip(context, id),
+                                      )
+                                      .toList(),
                                 );
-                              }
-                              return Wrap(
-                                spacing: 8,
-                                runSpacing: 6,
-                                children: filtered
-                                    .map(
-                                      (id) =>
-                                          _buildAchievementChip(context, id),
-                                    )
-                                    .toList(),
-                              );
-                            },
-                          ),
-                        ],
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),

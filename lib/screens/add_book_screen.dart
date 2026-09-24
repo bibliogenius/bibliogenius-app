@@ -2122,9 +2122,11 @@ class _AddBookScreenState extends State<AddBookScreen> {
     required ValueChanged<bool> onChanged,
   }) {
     final theme = Theme.of(context);
+    // One toggle node: the tile's title and subtitle name it, the wrapper
+    // gives its state and the GestureDetector its tap. A label here read the
+    // title twice, and the Switch inside formed a second, unnamed toggle.
     return Semantics(
       toggled: value,
-      label: TranslationService.translate(context, titleKey),
       child: GestureDetector(
         onTap: () => onChanged(!value),
         child: AnimatedContainer(
@@ -2176,11 +2178,13 @@ class _AddBookScreenState extends State<AddBookScreen> {
                   ],
                 ),
               ),
-              Switch.adaptive(
-                value: value,
-                onChanged: onChanged,
-                activeTrackColor: activeColor.withValues(alpha: 0.5),
-                activeThumbColor: activeColor,
+              ExcludeSemantics(
+                child: Switch.adaptive(
+                  value: value,
+                  onChanged: onChanged,
+                  activeTrackColor: activeColor.withValues(alpha: 0.5),
+                  activeThumbColor: activeColor,
+                ),
               ),
             ],
           ),
@@ -2192,10 +2196,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   /// Styled status selection chip.
   Widget _buildStatusChip(BookStatus status, bool isActive) {
     final theme = Theme.of(context);
+    // The chip's own text names it; a label here read it twice.
     return Semantics(
       button: true,
       selected: isActive,
-      label: status.label,
       child: GestureDetector(
         onTap: () => setState(() {
           _readingStatus = isActive ? noReadingStatus : status.value;

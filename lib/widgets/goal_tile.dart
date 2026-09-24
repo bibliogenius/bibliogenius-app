@@ -40,16 +40,20 @@ class GoalTile extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Stack(
       children: [
-        Semantics(
-          button: true,
-          label: label,
-          // width:infinity so the Card fills its slot (e.g. an Expanded in a
-          // two-column grid); otherwise the Stack passes loose constraints and
-          // the Card shrinks to its content width.
-          child: SizedBox(
-            width: double.infinity,
-            child: Card(
-              margin: EdgeInsets.zero,
+        // width:infinity so the Card fills its slot (e.g. an Expanded in a
+        // two-column grid); otherwise the Stack passes loose constraints and
+        // the Card shrinks to its content width.
+        SizedBox(
+          width: double.infinity,
+          child: Card(
+            margin: EdgeInsets.zero,
+            // Inside the Card, so the label, the role and the InkWell's tap land
+            // in the Card's own node. Above the Card they did not: it opens
+            // its own node, which left a "button" with nothing to press
+            // and, below it, an unnamed tap.
+            child: Semantics(
+              button: true,
+              label: label,
               child: InkWell(
                 borderRadius: BorderRadius.circular(12),
                 onTap: onTap,

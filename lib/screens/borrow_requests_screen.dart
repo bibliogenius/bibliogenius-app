@@ -786,166 +786,174 @@ class _LoansScreenState extends State<LoansScreen>
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: () {
-          if (bookId != null) {
-            GoRouter.of(context).push('/books/$bookId');
-          } else {
-            _navigateToLoanBook(loan);
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Book cover
-              ClipRRect(
-                borderRadius: BorderRadius.circular(6),
-                child: SizedBox(
-                  width: 52,
-                  height: 72,
-                  child: cover != null
-                      ? Semantics(
-                          image: true,
-                          label: loan.bookTitle,
-                          child: CachedNetworkImage(
-                            imageUrl: cover,
-                            fit: BoxFit.cover,
-                            placeholder: (_, __) => Container(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.menu_book,
-                                color: theme.colorScheme.onSurfaceVariant,
-                                size: 24,
+      child: Semantics(
+        // Inside the Card, so the role joins the Card's node and its tap.
+        button: true,
+        child: InkWell(
+          onTap: () {
+            if (bookId != null) {
+              GoRouter.of(context).push('/books/$bookId');
+            } else {
+              _navigateToLoanBook(loan);
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Book cover
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: SizedBox(
+                    width: 52,
+                    height: 72,
+                    child: cover != null
+                        ? Semantics(
+                            image: true,
+                            label: loan.bookTitle,
+                            child: CachedNetworkImage(
+                              imageUrl: cover,
+                              fit: BoxFit.cover,
+                              placeholder: (_, __) => Container(
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
+                                child: Icon(
+                                  Icons.menu_book,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  size: 24,
+                                ),
+                              ),
+                              errorWidget: (_, __, ___) => Container(
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
+                                child: Icon(
+                                  Icons.menu_book,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  size: 24,
+                                ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => Container(
-                              color: theme.colorScheme.surfaceContainerHighest,
-                              child: Icon(
-                                Icons.menu_book,
-                                color: theme.colorScheme.onSurfaceVariant,
-                                size: 24,
-                              ),
+                          )
+                        : Container(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            child: Icon(
+                              Icons.menu_book,
+                              color: theme.colorScheme.onSurfaceVariant,
+                              size: 24,
                             ),
                           ),
-                        )
-                      : Container(
-                          color: theme.colorScheme.surfaceContainerHighest,
-                          child: Icon(
-                            Icons.menu_book,
-                            color: theme.colorScheme.onSurfaceVariant,
-                            size: 24,
-                          ),
-                        ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              // Content
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      bookTitle,
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${TranslationService.translate(context, 'lent_to')}: $contactName',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        if (loanDate.isNotEmpty)
-                          Text(
-                            _formatDate(loanDate),
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 11,
-                            ),
-                          ),
-                        if (loanDate.isNotEmpty && dueDate.isNotEmpty)
-                          Text(
-                            ' - ',
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 11,
-                            ),
-                          ),
-                        if (dueDate.isNotEmpty)
-                          Text(
-                            _formatDate(dueDate),
-                            style: TextStyle(
-                              color: isOverdue ? Colors.red : Colors.grey[600],
-                              fontSize: 11,
-                              fontWeight: isOverdue
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              // Status + action
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: statusColor.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: Text(
-                      statusLabel,
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: statusColor,
-                      ),
-                    ),
                   ),
-                  if (!returned) ...[
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      height: 30,
-                      child: FilledButton.icon(
-                        onPressed: () => _returnLoan(loanId),
-                        icon: const Icon(Icons.check, size: 14),
-                        label: Text(
-                          TranslationService.translate(
-                            context,
-                            'btn_mark_returned',
-                          ),
-                          style: const TextStyle(fontSize: 11),
+                ),
+                const SizedBox(width: 12),
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        bookTitle,
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
                         ),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${TranslationService.translate(context, 'lent_to')}: $contactName',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          if (loanDate.isNotEmpty)
+                            Text(
+                              _formatDate(loanDate),
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 11,
+                              ),
+                            ),
+                          if (loanDate.isNotEmpty && dueDate.isNotEmpty)
+                            Text(
+                              ' - ',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 11,
+                              ),
+                            ),
+                          if (dueDate.isNotEmpty)
+                            Text(
+                              _formatDate(dueDate),
+                              style: TextStyle(
+                                color: isOverdue
+                                    ? Colors.red
+                                    : Colors.grey[600],
+                                fontSize: 11,
+                                fontWeight: isOverdue
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Status + action
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 3,
+                      ),
+                      decoration: BoxDecoration(
+                        color: statusColor.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: statusColor.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Text(
+                        statusLabel,
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: statusColor,
                         ),
                       ),
                     ),
+                    if (!returned) ...[
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        height: 30,
+                        child: FilledButton.icon(
+                          onPressed: () => _returnLoan(loanId),
+                          icon: const Icon(Icons.check, size: 14),
+                          label: Text(
+                            TranslationService.translate(
+                              context,
+                              'btn_mark_returned',
+                            ),
+                            style: const TextStyle(fontSize: 11),
+                          ),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
-                ],
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -2026,7 +2034,9 @@ class _LoansScreenState extends State<LoansScreen>
           child: resolvedCover != null
               ? CachedBookCover(
                   imageUrl: resolvedCover,
-                  semanticLabel: title,
+                  // The tile's title right beside it names the book; a
+                  // label here read it twice.
+                  semanticLabel: null,
                   fit: BoxFit.cover,
                   borderRadius: BorderRadius.circular(4),
                   placeholder: Container(

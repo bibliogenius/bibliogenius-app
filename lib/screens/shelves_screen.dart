@@ -205,7 +205,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         floatingActionButton: FloatingActionButton(
           heroTag: 'shelf_add_fab_tab',
           onPressed: _showCreateShelfDialog,
-          child: const Icon(Icons.add),
+          child: Icon(
+            Icons.add,
+            semanticLabel: TranslationService.translate(
+              context,
+              'create_shelf',
+            ),
+          ),
         ),
         body: Container(
           decoration: BoxDecoration(
@@ -220,7 +226,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'shelf_add_fab',
         onPressed: _showCreateShelfDialog,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          semanticLabel: TranslationService.translate(context, 'create_shelf'),
+        ),
       ),
       appBar: GenieAppBar(
         preSelectedShelfId: _currentParent?.name,
@@ -941,15 +950,20 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       end: Alignment.bottomRight,
     );
 
-    return Semantics(
-      button: true,
-      label: hasChildren
-          ? '${tag.name}, $subShelvesLabel, $booksLabel'
-          : '${tag.name}, $booksLabel',
-      child: Card(
-        elevation: 8,
-        shadowColor: color.withValues(alpha: 0.4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    // The label sits inside the Card, around the InkWell, so label, role and
+    // tap share the Card's own node. Wrapped around the Card, they did not:
+    // a Card opens its own node, which left a "button" with nothing to press
+    // above a pressable tile with no role re-reading the painted texts. The
+    // texts are excluded; the label already says all they say.
+    return Card(
+      elevation: 8,
+      shadowColor: color.withValues(alpha: 0.4),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Semantics(
+        button: true,
+        label: hasChildren
+            ? '${tag.name}, $subShelvesLabel, $booksLabel'
+            : '${tag.name}, $booksLabel',
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () => _openShelf(tag),
@@ -1067,81 +1081,83 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 ),
 
                 // Content
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Shelf icon with count badge
-                      Padding(
-                        padding: const EdgeInsets.only(right: 32),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                hasChildren ? Icons.folder : Icons.label,
-                                color: Colors.white,
-                                size: 24,
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.3),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                '$aggregatedCount',
-                                style: const TextStyle(
+                ExcludeSemantics(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        // Shelf icon with count badge
+                        Padding(
+                          padding: const EdgeInsets.only(right: 32),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  hasChildren ? Icons.folder : Icons.label,
                                   color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  size: 24,
                                 ),
                               ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 6,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  '$aggregatedCount',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Tag name, then what the tap opens: the sub-shelves,
+                        // spelled out, or the books.
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tag.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                                letterSpacing: 0.5,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
+                            const SizedBox(height: 6),
+                            if (hasChildren)
+                              _SubShelvesChip(label: subShelvesLabel)
+                            else
+                              Text(
+                                booksLabel,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  fontSize: 13,
+                                ),
+                              ),
                           ],
                         ),
-                      ),
-                      // Tag name, then what the tap opens: the sub-shelves,
-                      // spelled out, or the books.
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            tag.name,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              letterSpacing: 0.5,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 6),
-                          if (hasChildren)
-                            _SubShelvesChip(label: subShelvesLabel)
-                          else
-                            Text(
-                              booksLabel,
-                              style: TextStyle(
-                                color: Colors.white.withValues(alpha: 0.85),
-                                fontSize: 13,
-                              ),
-                            ),
-                        ],
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

@@ -43,43 +43,49 @@ class AutoBackupStatusCard extends StatelessWidget {
         return Card(
           margin: const EdgeInsets.symmetric(vertical: 8),
           color: state.bgColor(theme),
-          child: InkWell(
-            onTap: () => _openSheet(context),
-            borderRadius: BorderRadius.circular(12),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(state.icon, color: state.fgColor(theme), size: 28),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          state.title(context),
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: state.fgColor(theme),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        if (state.subtitle(context) != null) ...[
-                          const SizedBox(height: 2),
+          child: Semantics(
+            // Inside the Card, so the role joins the Card's node and tap.
+            button: true,
+            child: InkWell(
+              onTap: () => _openSheet(context),
+              borderRadius: BorderRadius.circular(12),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Icon(state.icon, color: state.fgColor(theme), size: 28),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
                           Text(
-                            state.subtitle(context)!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: state.fgColor(theme).withValues(alpha: 0.85),
+                            state.title(context),
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              color: state.fgColor(theme),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
+                          if (state.subtitle(context) != null) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              state.subtitle(context)!,
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: state
+                                    .fgColor(theme)
+                                    .withValues(alpha: 0.85),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
-                  ),
-                  Icon(
-                    Icons.expand_more,
-                    color: state.fgColor(theme).withValues(alpha: 0.7),
-                  ),
-                ],
+                    Icon(
+                      Icons.expand_more,
+                      color: state.fgColor(theme).withValues(alpha: 0.7),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

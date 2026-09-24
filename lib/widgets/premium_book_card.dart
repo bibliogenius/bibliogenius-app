@@ -319,8 +319,12 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                     child: Stack(
                                       fit: StackFit.expand,
                                       children: [
-                                        // Fallback always at bottom
-                                        _buildFallbackCover(context),
+                                        // Fallback always at bottom. Its
+                                        // painted title is for the eye: the
+                                        // card's label names the book.
+                                        ExcludeSemantics(
+                                          child: _buildFallbackCover(context),
+                                        ),
                                         // Image on top
                                         if (widget.book.coverUrl != null &&
                                             widget.book.coverUrl!.isNotEmpty)
@@ -370,51 +374,69 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                 if (hasReadingStatus(
                                   widget.book.readingStatus,
                                 )) ...[
-                                  GestureDetector(
-                                    onTap: widget.onStatusChanged != null
-                                        ? () async {
-                                            final useInventoryStatuses = context
-                                                .read<ThemeProvider>()
-                                                .inventoryStatusesEnabled;
-                                            final picked =
-                                                await showReadingStatusPicker(
-                                                  context,
-                                                  currentStatus:
-                                                      widget.book.readingStatus,
-                                                  useInventoryStatuses:
-                                                      useInventoryStatuses,
-                                                );
-                                            if (picked != null &&
-                                                picked !=
-                                                    widget.book.readingStatus) {
-                                              widget.onStatusChanged!(picked);
+                                  Semantics(
+                                    label: TranslationService.translate(
+                                      context,
+                                      'reading_status_${widget.book.readingStatus}',
+                                    ),
+                                    button: widget.onStatusChanged != null,
+                                    child: GestureDetector(
+                                      onTap: widget.onStatusChanged != null
+                                          ? () async {
+                                              final useInventoryStatuses =
+                                                  context
+                                                      .read<ThemeProvider>()
+                                                      .inventoryStatusesEnabled;
+                                              final picked =
+                                                  await showReadingStatusPicker(
+                                                    context,
+                                                    currentStatus: widget
+                                                        .book
+                                                        .readingStatus,
+                                                    useInventoryStatuses:
+                                                        useInventoryStatuses,
+                                                  );
+                                              if (picked != null &&
+                                                  picked !=
+                                                      widget
+                                                          .book
+                                                          .readingStatus) {
+                                                widget.onStatusChanged!(picked);
+                                              }
                                             }
-                                          }
-                                        : null,
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                        vertical: 5,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            theme.primaryColor,
-                                            theme.colorScheme.secondary,
-                                          ],
+                                          : null,
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                          vertical: 5,
                                         ),
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        TranslationService.translate(
-                                          context,
-                                          'reading_status_${widget.book.readingStatus}',
-                                        ).toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.bold,
-                                          letterSpacing: 0.5,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              theme.primaryColor,
+                                              theme.colorScheme.secondary,
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                        // The wrapper above names the pill in
+                                        // its own case; the capitals are only
+                                        // for the eye.
+                                        child: ExcludeSemantics(
+                                          child: Text(
+                                            TranslationService.translate(
+                                              context,
+                                              'reading_status_${widget.book.readingStatus}',
+                                            ).toUpperCase(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.bold,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -431,46 +453,58 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                   const SizedBox(height: 12),
                                 ],
                                 // Title
-                                Text(
-                                  widget.book.title,
-                                  style: theme.textTheme.headlineSmall
-                                      ?.copyWith(fontWeight: FontWeight.bold),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                // Title and author are in the card's label already.
+                                ExcludeSemantics(
+                                  child: Text(
+                                    widget.book.title,
+                                    style: theme.textTheme.headlineSmall
+                                        ?.copyWith(fontWeight: FontWeight.bold),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                 ),
                                 const SizedBox(height: 8),
                                 // Author
                                 if (widget.book.author != null)
-                                  Text(
-                                    widget.book.author!,
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: theme.textTheme.bodySmall?.color,
+                                  ExcludeSemantics(
+                                    child: Text(
+                                      widget.book.author!,
+                                      style: theme.textTheme.bodyLarge
+                                          ?.copyWith(
+                                            color: theme
+                                                .textTheme
+                                                .bodySmall
+                                                ?.color,
+                                          ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 const Spacer(),
                                 // Action hint
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.touch_app,
-                                      size: 16,
-                                      color: theme.primaryColor,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      TranslationService.translate(
-                                        context,
-                                        'tap_to_view',
-                                      ),
-                                      style: TextStyle(
+                                // "Tap to view" is advice for the eye; the button role says it.
+                                ExcludeSemantics(
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.touch_app,
+                                        size: 16,
                                         color: theme.primaryColor,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
                                       ),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        TranslationService.translate(
+                                          context,
+                                          'tap_to_view',
+                                        ),
+                                        style: TextStyle(
+                                          color: theme.primaryColor,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),

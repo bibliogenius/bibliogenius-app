@@ -1347,44 +1347,47 @@ class _BookListScreenState extends State<BookListScreen>
                 context,
                 _isSearching ? 'cancel' : 'search_books',
               ),
-              child: ScaleOnTap(
-                onTap: () {
-                  setState(() {
-                    if (_isSearching) {
-                      _isSearching = false;
-                      _searchQuery = '';
-                      _searchController.clear();
-                      _filterBooks();
-                    } else {
-                      _isSearching = true;
-                    }
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: _isSearching
-                        ? theme.primaryColor
-                        : isDark
-                        ? Colors.white.withValues(alpha: 0.15)
-                        : theme.primaryColor.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
+              child: Semantics(
+                button: true,
+                child: ScaleOnTap(
+                  onTap: () {
+                    setState(() {
+                      if (_isSearching) {
+                        _isSearching = false;
+                        _searchQuery = '';
+                        _searchController.clear();
+                        _filterBooks();
+                      } else {
+                        _isSearching = true;
+                      }
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
                       color: _isSearching
                           ? theme.primaryColor
                           : isDark
-                          ? Colors.white24
-                          : theme.primaryColor.withValues(alpha: 0.3),
+                          ? Colors.white.withValues(alpha: 0.15)
+                          : theme.primaryColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: _isSearching
+                            ? theme.primaryColor
+                            : isDark
+                            ? Colors.white24
+                            : theme.primaryColor.withValues(alpha: 0.3),
+                      ),
                     ),
-                  ),
-                  child: Icon(
-                    _isSearching ? Icons.search_off : Icons.search,
-                    size: 20,
-                    color: _isSearching
-                        ? Colors.white
-                        : isDark
-                        ? Colors.white70
-                        : theme.primaryColor,
+                    child: Icon(
+                      _isSearching ? Icons.search_off : Icons.search,
+                      size: 20,
+                      color: _isSearching
+                          ? Colors.white
+                          : isDark
+                          ? Colors.white70
+                          : theme.primaryColor,
+                    ),
                   ),
                 ),
               ),
@@ -1407,253 +1410,64 @@ class _BookListScreenState extends State<BookListScreen>
           if (!_isReordering) _buildSortControl(context),
           const SizedBox(width: 4),
 
-          // 3. Consolidated Status Filter Dropdown
-          PopupMenuButton<String>(
-            onSelected: (value) {
-              setState(() {
-                if (value == 'clear') {
-                  // "All my books" clears the status axis only. The ownership
-                  // axis is a remembered preference, also reachable from the
-                  // settings: clearing it here used to silently switch the
-                  // reader's "show everything" back off the moment they came
-                  // to check that it had worked.
-                  _selectedStatus = null;
-                } else if (value.startsWith('own:')) {
-                  // Ownership axis (ADR-063), orthogonal to the status one.
-                  _selectedOwnership = value.substring(4);
-                  _ownershipPrefProvider?.setScope(_selectedOwnership);
-                } else {
-                  _selectedStatus = value;
-                }
-                _filterBooks();
-              });
-            },
-            offset: const Offset(0, 40),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            itemBuilder: (context) {
-              final theme = Theme.of(context);
-              return [
-                // HEADER: Statut
-                PopupMenuItem<String>(
-                  enabled: false,
-                  height: 32,
-                  child: Text(
-                    TranslationService.translate(
-                          context,
-                          'status',
-                        )?.toUpperCase() ??
-                        'STATUS',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.disabledColor,
-                      fontWeight: FontWeight.bold,
+          // 3. Consolidated Status Filter Dropdown. A PopupMenuButton with a
+          // custom child builds a bare InkWell: the wrapper gives it the
+          // button role and says what the pill filters ("Status, All").
+          Semantics(
+            button: true,
+            label: TranslationService.translate(context, 'status'),
+            child: PopupMenuButton<String>(
+              onSelected: (value) {
+                setState(() {
+                  if (value == 'clear') {
+                    // "All my books" clears the status axis only. The ownership
+                    // axis is a remembered preference, also reachable from the
+                    // settings: clearing it here used to silently switch the
+                    // reader's "show everything" back off the moment they came
+                    // to check that it had worked.
+                    _selectedStatus = null;
+                  } else if (value.startsWith('own:')) {
+                    // Ownership axis (ADR-063), orthogonal to the status one.
+                    _selectedOwnership = value.substring(4);
+                    _ownershipPrefProvider?.setScope(_selectedOwnership);
+                  } else {
+                    _selectedStatus = value;
+                  }
+                  _filterBooks();
+                });
+              },
+              offset: const Offset(0, 40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              itemBuilder: (context) {
+                final theme = Theme.of(context);
+                return [
+                  // HEADER: Statut
+                  PopupMenuItem<String>(
+                    enabled: false,
+                    height: 32,
+                    child: Text(
+                      TranslationService.translate(
+                            context,
+                            'status',
+                          )?.toUpperCase() ??
+                          'STATUS',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.disabledColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                ),
-                // Tous mes livres (Clear)
-                PopupMenuItem(
-                  value: 'clear',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.library_books,
-                        color: _selectedStatus == null
-                            ? theme.primaryColor
-                            : theme.iconTheme.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        TranslationService.translate(
-                              context,
-                              'filter_all_books',
-                            ) ??
-                            'Tous mes livres',
-                        style: TextStyle(
-                          fontWeight: _selectedStatus == null
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedStatus == null
-                              ? theme.primaryColor
-                              : null,
-                        ),
-                      ),
-                      if (_selectedStatus == null) ...[
-                        const Spacer(),
-                        Icon(Icons.check, size: 18, color: theme.primaryColor),
-                      ],
-                    ],
-                  ),
-                ),
-                // Lecture en cours
-                PopupMenuItem(
-                  value: 'reading',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.auto_stories,
-                        color: _selectedStatus == 'reading'
-                            ? Colors.blue
-                            : theme.iconTheme.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        TranslationService.translate(
-                              context,
-                              'reading_status_reading',
-                            ) ??
-                            'Lecture en cours',
-                        style: TextStyle(
-                          fontWeight: _selectedStatus == 'reading'
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedStatus == 'reading'
-                              ? Colors.blue
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // À lire
-                PopupMenuItem(
-                  value: 'to_read',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.bookmark_border,
-                        color: _selectedStatus == 'to_read'
-                            ? Colors.orange
-                            : theme.iconTheme.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        TranslationService.translate(
-                              context,
-                              'reading_status_to_read',
-                            ) ??
-                            'À lire',
-                        style: TextStyle(
-                          fontWeight: _selectedStatus == 'to_read'
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedStatus == 'to_read'
-                              ? Colors.orange
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Lu
-                PopupMenuItem(
-                  value: 'read',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        color: _selectedStatus == 'read'
-                            ? Colors.green
-                            : theme.iconTheme.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        TranslationService.translate(
-                              context,
-                              'reading_status_read',
-                            ) ??
-                            'Lu',
-                        style: TextStyle(
-                          fontWeight: _selectedStatus == 'read'
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedStatus == 'read'
-                              ? Colors.green
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Sans statut (books without reading status)
-                PopupMenuItem(
-                  value: 'uncategorized',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.inventory_2_outlined,
-                        color: _selectedStatus == 'uncategorized'
-                            ? Colors.blueGrey
-                            : Colors.blueGrey,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        TranslationService.translate(
-                              context,
-                              'status_uncategorized',
-                            ) ??
-                            'Non classés',
-                        style: TextStyle(
-                          fontWeight: _selectedStatus == 'uncategorized'
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedStatus == 'uncategorized'
-                              ? Colors.blueGrey
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Envie de lire (Wishlist)
-                PopupMenuItem(
-                  value: 'wanting',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.favorite_border,
-                        color: _selectedStatus == 'wanting'
-                            ? Colors.red
-                            : Colors.red,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        TranslationService.translate(
-                              context,
-                              'reading_status_wanting',
-                            ) ??
-                            'Envie de lire',
-                        style: TextStyle(
-                          fontWeight: _selectedStatus == 'wanting'
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: _selectedStatus == 'wanting'
-                              ? Colors.red
-                              : null,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // Empruntés (only if borrow module is enabled)
-                if (Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                ).canBorrowBooks)
+                  // Tous mes livres (Clear)
                   PopupMenuItem(
-                    value: 'borrowed',
+                    value: 'clear',
                     child: Row(
                       children: [
                         Icon(
-                          Icons.swap_horiz,
-                          color: _selectedStatus == 'borrowed'
-                              ? Colors.purple
+                          Icons.library_books,
+                          color: _selectedStatus == null
+                              ? theme.primaryColor
                               : theme.iconTheme.color,
                           size: 20,
                         ),
@@ -1661,33 +1475,68 @@ class _BookListScreenState extends State<BookListScreen>
                         Text(
                           TranslationService.translate(
                                 context,
-                                'reading_status_borrowed',
+                                'filter_all_books',
                               ) ??
-                              'Empruntés',
+                              'Tous mes livres',
                           style: TextStyle(
-                            fontWeight: _selectedStatus == 'borrowed'
+                            fontWeight: _selectedStatus == null
                                 ? FontWeight.bold
                                 : FontWeight.normal,
-                            color: _selectedStatus == 'borrowed'
-                                ? Colors.purple
+                            color: _selectedStatus == null
+                                ? theme.primaryColor
+                                : null,
+                          ),
+                        ),
+                        if (_selectedStatus == null) ...[
+                          const Spacer(),
+                          Icon(
+                            Icons.check,
+                            size: 18,
+                            color: theme.primaryColor,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  // Lecture en cours
+                  PopupMenuItem(
+                    value: 'reading',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.auto_stories,
+                          color: _selectedStatus == 'reading'
+                              ? Colors.blue
+                              : theme.iconTheme.color,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          TranslationService.translate(
+                                context,
+                                'reading_status_reading',
+                              ) ??
+                              'Lecture en cours',
+                          style: TextStyle(
+                            fontWeight: _selectedStatus == 'reading'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _selectedStatus == 'reading'
+                                ? Colors.blue
                                 : null,
                           ),
                         ),
                       ],
                     ),
                   ),
-                // Prêtés (only if lending module is enabled)
-                if (Provider.of<ThemeProvider>(
-                  context,
-                  listen: false,
-                ).canLendBooks)
+                  // À lire
                   PopupMenuItem(
-                    value: 'lent',
+                    value: 'to_read',
                     child: Row(
                       children: [
                         Icon(
-                          Icons.output,
-                          color: _selectedStatus == 'lent'
+                          Icons.bookmark_border,
+                          color: _selectedStatus == 'to_read'
                               ? Colors.orange
                               : theme.iconTheme.color,
                           size: 20,
@@ -1696,14 +1545,14 @@ class _BookListScreenState extends State<BookListScreen>
                         Text(
                           TranslationService.translate(
                                 context,
-                                'reading_status_lent',
+                                'reading_status_to_read',
                               ) ??
-                              'Prêtés',
+                              'À lire',
                           style: TextStyle(
-                            fontWeight: _selectedStatus == 'lent'
+                            fontWeight: _selectedStatus == 'to_read'
                                 ? FontWeight.bold
                                 : FontWeight.normal,
-                            color: _selectedStatus == 'lent'
+                            color: _selectedStatus == 'to_read'
                                 ? Colors.orange
                                 : null,
                           ),
@@ -1711,69 +1560,233 @@ class _BookListScreenState extends State<BookListScreen>
                       ],
                     ),
                   ),
-                // HEADER: Possession (ADR-063) - orthogonal to the status axis
-                PopupMenuItem<String>(
-                  enabled: false,
-                  height: 32,
-                  child: Text(
-                    TranslationService.translate(
-                          context,
-                          'ownership_filter',
-                        )?.toUpperCase() ??
-                        'POSSESSION',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: theme.disabledColor,
-                      fontWeight: FontWeight.bold,
+                  // Lu
+                  PopupMenuItem(
+                    value: 'read',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline,
+                          color: _selectedStatus == 'read'
+                              ? Colors.green
+                              : theme.iconTheme.color,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          TranslationService.translate(
+                                context,
+                                'reading_status_read',
+                              ) ??
+                              'Lu',
+                          style: TextStyle(
+                            fontWeight: _selectedStatus == 'read'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _selectedStatus == 'read'
+                                ? Colors.green
+                                : null,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                ..._ownershipMenuItems(theme),
-              ];
-            },
-            child: Container(
-              height: 36,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: isFilterActive
-                    ? theme.primaryColor.withOpacity(0.1)
-                    : (isDark ? theme.cardColor : Colors.white),
-                borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-                border: Border.all(
+                  // Sans statut (books without reading status)
+                  PopupMenuItem(
+                    value: 'uncategorized',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.inventory_2_outlined,
+                          color: _selectedStatus == 'uncategorized'
+                              ? Colors.blueGrey
+                              : Colors.blueGrey,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          TranslationService.translate(
+                                context,
+                                'status_uncategorized',
+                              ) ??
+                              'Non classés',
+                          style: TextStyle(
+                            fontWeight: _selectedStatus == 'uncategorized'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _selectedStatus == 'uncategorized'
+                                ? Colors.blueGrey
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Envie de lire (Wishlist)
+                  PopupMenuItem(
+                    value: 'wanting',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          color: _selectedStatus == 'wanting'
+                              ? Colors.red
+                              : Colors.red,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          TranslationService.translate(
+                                context,
+                                'reading_status_wanting',
+                              ) ??
+                              'Envie de lire',
+                          style: TextStyle(
+                            fontWeight: _selectedStatus == 'wanting'
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: _selectedStatus == 'wanting'
+                                ? Colors.red
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Empruntés (only if borrow module is enabled)
+                  if (Provider.of<ThemeProvider>(
+                    context,
+                    listen: false,
+                  ).canBorrowBooks)
+                    PopupMenuItem(
+                      value: 'borrowed',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.swap_horiz,
+                            color: _selectedStatus == 'borrowed'
+                                ? Colors.purple
+                                : theme.iconTheme.color,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            TranslationService.translate(
+                                  context,
+                                  'reading_status_borrowed',
+                                ) ??
+                                'Empruntés',
+                            style: TextStyle(
+                              fontWeight: _selectedStatus == 'borrowed'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _selectedStatus == 'borrowed'
+                                  ? Colors.purple
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  // Prêtés (only if lending module is enabled)
+                  if (Provider.of<ThemeProvider>(
+                    context,
+                    listen: false,
+                  ).canLendBooks)
+                    PopupMenuItem(
+                      value: 'lent',
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.output,
+                            color: _selectedStatus == 'lent'
+                                ? Colors.orange
+                                : theme.iconTheme.color,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            TranslationService.translate(
+                                  context,
+                                  'reading_status_lent',
+                                ) ??
+                                'Prêtés',
+                            style: TextStyle(
+                              fontWeight: _selectedStatus == 'lent'
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: _selectedStatus == 'lent'
+                                  ? Colors.orange
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  // HEADER: Possession (ADR-063) - orthogonal to the status axis
+                  PopupMenuItem<String>(
+                    enabled: false,
+                    height: 32,
+                    child: Text(
+                      TranslationService.translate(
+                            context,
+                            'ownership_filter',
+                          )?.toUpperCase() ??
+                          'POSSESSION',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: theme.disabledColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  ..._ownershipMenuItems(theme),
+                ];
+              },
+              child: Container(
+                height: 36,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
                   color: isFilterActive
-                      ? theme.primaryColor
-                      : (isDark
-                            ? Colors.white24
-                            : Colors.grey.withOpacity(0.3)),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    filterIcon,
-                    size: 18,
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : (isDark ? theme.cardColor : Colors.white),
+                  borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                  border: Border.all(
                     color: isFilterActive
                         ? theme.primaryColor
-                        : theme.iconTheme.color,
+                        : (isDark
+                              ? Colors.white24
+                              : Colors.grey.withOpacity(0.3)),
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    filterLabel,
-                    style: TextStyle(
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      filterIcon,
+                      size: 18,
                       color: isFilterActive
                           ? theme.primaryColor
-                          : (isDark ? Colors.white : Colors.black87),
-                      fontWeight: FontWeight.w500,
+                          : theme.iconTheme.color,
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.arrow_drop_down,
-                    size: 20,
-                    color: isFilterActive
-                        ? theme.primaryColor
-                        : theme.iconTheme.color?.withOpacity(0.5),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      filterLabel,
+                      style: TextStyle(
+                        color: isFilterActive
+                            ? theme.primaryColor
+                            : (isDark ? Colors.white : Colors.black87),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.arrow_drop_down,
+                      size: 20,
+                      color: isFilterActive
+                          ? theme.primaryColor
+                          : theme.iconTheme.color?.withOpacity(0.5),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -1784,31 +1797,37 @@ class _BookListScreenState extends State<BookListScreen>
               _tagFilter != null ||
               _searchQuery.isNotEmpty) ...[
             const SizedBox(width: 8),
-            ScaleOnTap(
-              onTap: _resetAllFilters,
-              child: Container(
-                height: 36,
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.red.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-                  border: Border.all(color: Colors.red.withOpacity(0.3)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.clear_all, size: 18, color: Colors.red),
-                    const SizedBox(width: 6),
-                    Text(
-                      TranslationService.translate(context, 'reset_filters') ??
-                          'Réinitialiser',
-                      style: const TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13,
+            Semantics(
+              button: true,
+              child: ScaleOnTap(
+                onTap: _resetAllFilters,
+                child: Container(
+                  height: 36,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  decoration: BoxDecoration(
+                    color: Colors.red.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+                    border: Border.all(color: Colors.red.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.clear_all, size: 18, color: Colors.red),
+                      const SizedBox(width: 6),
+                      Text(
+                        TranslationService.translate(
+                              context,
+                              'reset_filters',
+                            ) ??
+                            'Réinitialiser',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -2051,82 +2070,87 @@ class _BookListScreenState extends State<BookListScreen>
 
     return Padding(
       padding: const EdgeInsets.only(right: 8),
-      child: ScaleOnTap(
-        onTap: () {
-          if (isClearAction) {
-            if (widget.showBackToShelves) {
-              // Navigate back to shelves grid when clearing filter from shelf view
-              context.go('/shelves');
+      child: Semantics(
+        // The active filter pill is filled in; say so, not only show it.
+        button: true,
+        selected: isSelected && !isClearAction,
+        child: ScaleOnTap(
+          onTap: () {
+            if (isClearAction) {
+              if (widget.showBackToShelves) {
+                // Navigate back to shelves grid when clearing filter from shelf view
+                context.go('/shelves');
+              } else {
+                setState(() {
+                  _tagFilter = null;
+                  _filterBooks();
+                });
+              }
             } else {
               setState(() {
-                _tagFilter = null;
+                _selectedStatus = isSelected ? null : status;
                 _filterBooks();
               });
             }
-          } else {
-            setState(() {
-              _selectedStatus = isSelected ? null : status;
-              _filterBooks();
-            });
-          }
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: isClearAction
-                ? Colors.redAccent.withOpacity(0.8)
-                : (isSelected
-                      ? Theme.of(context).primaryColor
-                      : isDarkTheme
-                      ? Theme.of(context).cardColor.withOpacity(0.8)
-                      : Colors.white),
-            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-            border: Border.all(
-              color: isSelected
-                  ? Colors.transparent
-                  : isDarkTheme
-                  ? Theme.of(context).colorScheme.outline
-                  : Colors.grey.withOpacity(0.3),
-              width: isDarkTheme ? 1.5 : 1.0,
-            ),
-            boxShadow: isSelected && !isClearAction
-                ? [
-                    BoxShadow(
-                      color: Theme.of(context).primaryColor.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isClearAction) ...[
-                const Icon(Icons.close, size: 16, color: Colors.white),
-                const SizedBox(width: 6),
-              ] else if (statusIcon != null) ...[
-                Icon(
-                  statusIcon,
-                  size: 16,
-                  color: isSelected ? Colors.white : statusColor,
-                ),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                label,
-                style: TextStyle(
-                  color: isClearAction
-                      ? Colors.white
-                      : (isSelected
-                            ? Colors.white
-                            : Theme.of(context).textTheme.bodyMedium?.color ??
-                                  Colors.black54),
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  fontSize: 13,
-                ),
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: isClearAction
+                  ? Colors.redAccent.withOpacity(0.8)
+                  : (isSelected
+                        ? Theme.of(context).primaryColor
+                        : isDarkTheme
+                        ? Theme.of(context).cardColor.withOpacity(0.8)
+                        : Colors.white),
+              borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+              border: Border.all(
+                color: isSelected
+                    ? Colors.transparent
+                    : isDarkTheme
+                    ? Theme.of(context).colorScheme.outline
+                    : Colors.grey.withOpacity(0.3),
+                width: isDarkTheme ? 1.5 : 1.0,
               ),
-            ],
+              boxShadow: isSelected && !isClearAction
+                  ? [
+                      BoxShadow(
+                        color: Theme.of(context).primaryColor.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isClearAction) ...[
+                  const Icon(Icons.close, size: 16, color: Colors.white),
+                  const SizedBox(width: 6),
+                ] else if (statusIcon != null) ...[
+                  Icon(
+                    statusIcon,
+                    size: 16,
+                    color: isSelected ? Colors.white : statusColor,
+                  ),
+                  const SizedBox(width: 6),
+                ],
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: isClearAction
+                        ? Colors.white
+                        : (isSelected
+                              ? Colors.white
+                              : Theme.of(context).textTheme.bodyMedium?.color ??
+                                    Colors.black54),
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -2174,27 +2198,31 @@ class _BookListScreenState extends State<BookListScreen>
                   color: isDark ? Colors.white24 : Colors.grey.withOpacity(0.3),
                 ),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.sort, size: 18, color: theme.primaryColor),
-                  const SizedBox(width: 6),
-                  Text(
-                    fieldLabel,
-                    style: TextStyle(
-                      color: isDark ? Colors.white : Colors.black87,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
+              child: // The wrapper's label already says field and direction; the
+                  // painted field name would follow it a second time.
+                  ExcludeSemantics(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.sort, size: 18, color: theme.primaryColor),
+                        const SizedBox(width: 6),
+                        Text(
+                          fieldLabel,
+                          style: TextStyle(
+                            color: isDark ? Colors.white : Colors.black87,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          asc ? Icons.arrow_downward : Icons.arrow_upward,
+                          size: 16,
+                          color: theme.primaryColor,
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    asc ? Icons.arrow_downward : Icons.arrow_upward,
-                    size: 16,
-                    color: theme.primaryColor,
-                  ),
-                ],
-              ),
             ),
           ),
         ),

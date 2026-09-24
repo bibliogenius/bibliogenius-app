@@ -135,6 +135,9 @@ class _CollectionStackWidgetState extends State<CollectionStackWidget> {
                 '${TranslationService.translate(context, 'favorite_marker_label')}'
           : semanticLabel,
       excludeSemantics: true,
+      // `excludeSemantics` drops the GestureDetector's tap along with the
+      // covers, so the wrapper carries it.
+      onTap: _onTap,
       child: Tooltip(
         message: tooltipMessage,
         preferBelow: false,
@@ -826,10 +829,15 @@ class _CollectionCoverCardState extends State<CollectionCoverCard> {
       );
     }
 
+    // `excludeSemantics` drops the GestureDetector's actions along with the
+    // painted texts, so the wrapper carries the tap itself: without it the
+    // card was announced as a button a screen reader could not press.
     return Semantics(
       button: true,
       label: semanticLabel,
       excludeSemantics: true,
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
       child: GestureDetector(
         onTapDown: (_) => setState(() => _pressed = true),
         onTapUp: (_) => setState(() => _pressed = false),

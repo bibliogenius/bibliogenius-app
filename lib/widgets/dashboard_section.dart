@@ -97,9 +97,12 @@ class SeeAllLink extends StatelessWidget {
   Widget build(BuildContext context) {
     final primary = Theme.of(context).colorScheme.primary;
 
+    // The ExcludeSemantics below also drops ScaleOnTap's tap, so the wrapper
+    // carries it: the link was a button a screen reader could not press.
     return Semantics(
       button: true,
       label: label,
+      onTap: onTap,
       child: ExcludeSemantics(
         child: ScaleOnTap(
           onTap: onTap,

@@ -246,67 +246,76 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
           hideLogo = painter.width > availableWidth - logoSize - spacing;
         }
 
-        return MergeSemantics(
-          child: ClipRect(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!hideLogo)
-                  Semantics(
-                    button: true,
-                    label: TranslationService.translate(
-                      context,
-                      'go_to_library',
-                    ),
-                    child: GestureDetector(
-                      onTap: () => context.go('/books'),
-                      child: SizedBox(
-                        width: logoSize,
-                        height: logoSize,
-                        child: BiblioGeniusLogo(
-                          size: logoSize,
-                          color: Colors.white,
-                        ),
+        // No MergeSemantics around the whole title: it fused two actions
+        // (the logo's "go to library" and the library-name rename) into one
+        // node, of which a screen reader could only ever trigger one. Each
+        // control is its own node; the title texts read as plain text.
+        return ClipRect(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (!hideLogo)
+                Semantics(
+                  container: true,
+                  button: true,
+                  label: TranslationService.translate(context, 'go_to_library'),
+                  child: GestureDetector(
+                    onTap: () => context.go('/books'),
+                    child: SizedBox(
+                      width: logoSize,
+                      height: logoSize,
+                      child: BiblioGeniusLogo(
+                        size: logoSize,
+                        color: Colors.white,
                       ),
                     ),
                   ),
-                if (!hideTitle) ...[
-                  if (!hideLogo)
-                    ExcludeSemantics(child: SizedBox(width: spacing)),
-                  Flexible(
-                    child: title is Widget
-                        ? title
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (title != null)
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        title.toString(),
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: titleFontSize,
-                                          color: Colors.white,
-                                          letterSpacing: 0.5,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.fade,
-                                        softWrap: false,
+                ),
+              if (!hideTitle) ...[
+                if (!hideLogo)
+                  ExcludeSemantics(child: SizedBox(width: spacing)),
+                Flexible(
+                  child: title is Widget
+                      ? title
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (title != null)
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      title.toString(),
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: titleFontSize,
+                                        color: Colors.white,
+                                        letterSpacing: 0.5,
                                       ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.fade,
+                                      softWrap: false,
                                     ),
-                                  ],
-                                ),
-                              // Subtitle (library name) - tappable to edit when it's the default libraryName
-                              // When title is null, subtitle is the primary text: use hideTitle threshold
-                              if ((title != null
-                                      ? !hideSubtitle
-                                      : !hideTitle) &&
-                                  displaySubtitle.isNotEmpty)
-                                GestureDetector(
+                                  ),
+                                ],
+                              ),
+                            // Subtitle (library name) - tappable to edit when it's the default libraryName
+                            // When title is null, subtitle is the primary text: use hideTitle threshold
+                            if ((title != null ? !hideSubtitle : !hideTitle) &&
+                                displaySubtitle.isNotEmpty)
+                              Semantics(
+                                container: true,
+                                button: subtitle == null,
+                                // The pencil says "rename" to the eye.
+                                hint: subtitle == null
+                                    ? TranslationService.translate(
+                                        context,
+                                        'edit_library_name',
+                                      )
+                                    : null,
+                                child: GestureDetector(
                                   onTap: subtitle == null
                                       ? () => _showRenameLibraryDialog(
                                           context,
@@ -347,12 +356,12 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                                     ],
                                   ),
                                 ),
-                            ],
-                          ),
-                  ),
-                ],
+                              ),
+                          ],
+                        ),
+                ),
               ],
-            ),
+            ],
           ),
         );
       },
@@ -428,14 +437,17 @@ class GenieAppBar extends StatelessWidget implements PreferredSizeWidget {
                         children: [
                           const Icon(Icons.bolt, color: Colors.white, size: 20),
                           const SizedBox(width: 4),
-                          Text(
-                            TranslationService.translate(
-                              context,
-                              'quick_actions_title',
-                            ),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                          // Named by the Semantics above; read once.
+                          ExcludeSemantics(
+                            child: Text(
+                              TranslationService.translate(
+                                context,
+                                'quick_actions_title',
+                              ),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ],

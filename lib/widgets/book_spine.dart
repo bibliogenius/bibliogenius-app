@@ -160,11 +160,18 @@ class BookSpine extends StatelessWidget {
     final notOwnedWord = ownershipMark == OwnershipMark.none
         ? null
         : TranslationService.translate(context, 'not_owned');
+    // The label stands in for the painted text: letting the spine's own
+    // title merge in as well read every book twice ("Dune, Dune"). The
+    // "new" band is painted text too, so it joins the label.
+    final newWord = showNewBand
+        ? TranslationService.translate(context, 'badge_new').toLowerCase()
+        : null;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: showNewBand ? 5 : 3),
       child: Semantics(
-        label: notOwnedWord == null ? baseLabel : '$baseLabel, $notOwnedWord',
+        label: [baseLabel, ?notOwnedWord, ?newWord].join(', '),
+        excludeSemantics: true,
         child: OwnershipCoverTreatment(
           mark: ownershipMark,
           child: Opacity(

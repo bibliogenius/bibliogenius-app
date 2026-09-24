@@ -11208,3 +11208,7 @@ msgstr "在你的书库中已经标记为已读。"
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "无法记录这次阅读。"
+
+#. Snackbar action offering to add a contact; also names the add button of an empty profile section.
+msgid "add"
+msgstr "添加"

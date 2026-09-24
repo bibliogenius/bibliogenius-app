@@ -1642,39 +1642,42 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     required MaterialColor color,
     VoidCallback? onTap,
   }) {
-    return SizedBox(
-      height: 44,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Center(
-            widthFactor: 1,
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 5,
-              ),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: color.withValues(alpha: 0.28)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 13, color: color),
-                  const SizedBox(width: 4),
-                  Text(
-                    label,
-                    style: TextStyle(
-                      color: color.shade700,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 12,
+    return Semantics(
+      button: onTap != null,
+      child: SizedBox(
+        height: 44,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Center(
+              widthFactor: 1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: color.withValues(alpha: 0.28)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 13, color: color),
+                    const SizedBox(width: 4),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: color.shade700,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -2156,16 +2159,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           context,
           isFavorite ? 'favorite_toggle_remove' : 'favorite_toggle_add',
         );
-        return Semantics(
-          button: true,
-          label: label,
-          child: IconButton(
-            key: const Key('favoriteToggleButton'),
-            tooltip: label,
-            onPressed: () => _toggleFavorite(book),
-            style: IconButton.styleFrom(backgroundColor: scrim),
-            icon: FavoriteRibbonIcon(active: isFavorite, size: 22),
-          ),
+        // The IconButton names itself through its tooltip. A Semantics
+        // wrapper around it added a second, empty "button" node that read
+        // the same label again and could not be pressed.
+        return IconButton(
+          key: const Key('favoriteToggleButton'),
+          tooltip: label,
+          onPressed: () => _toggleFavorite(book),
+          style: IconButton.styleFrom(backgroundColor: scrim),
+          icon: FavoriteRibbonIcon(active: isFavorite, size: 22),
         );
       },
     );
@@ -2875,42 +2877,48 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     // The pill keeps its own height; the tap target around it is 44, the floor
     // both platforms ask for. It opens the status picker, so it is a control,
-    // not a label.
-    return SizedBox(
-      height: 44,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _showStatusPicker(context),
-          borderRadius: BorderRadius.circular(20),
-          child: Center(
-            widthFactor: 1,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: color.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(icon, size: 16, color: color),
-                  const SizedBox(width: 6),
-                  Flexible(
-                    child: Text(
-                      label,
-                      style: TextStyle(
-                        color: color,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
+    // not a label, and says so to a screen reader too.
+    return Semantics(
+      button: true,
+      child: SizedBox(
+        height: 44,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () => _showStatusPicker(context),
+            borderRadius: BorderRadius.circular(20),
+            child: Center(
+              widthFactor: 1,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 16, color: color),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          color: color,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(Icons.arrow_drop_down, size: 18, color: color),
-                ],
+                    const SizedBox(width: 4),
+                    Icon(Icons.arrow_drop_down, size: 18, color: color),
+                  ],
+                ),
               ),
             ),
           ),

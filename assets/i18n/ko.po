@@ -11208,3 +11208,7 @@ msgstr "서재에서 이미 읽음으로 표시되어 있습니다."
 #. Error - the reading could not be recorded.
 msgid "read_it_failed"
 msgstr "이 독서를 기록하지 못했습니다."
+
+#. Snackbar action offering to add a contact; also names the add button of an empty profile section.
+msgid "add"
+msgstr "추가"

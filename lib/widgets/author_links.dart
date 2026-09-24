@@ -94,12 +94,17 @@ class _AuthorNameLinkState extends State<_AuthorNameLink> {
 
   bool get _accented => _hovering || _focused;
 
+  void _open() => context.push('/authors/${Uri.encodeComponent(widget.name)}');
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    // `excludeSemantics` also drops the InkWell's tap, so the wrapper
+    // carries it: a screen reader heard a button it could not press.
     return Semantics(
       button: true,
       excludeSemantics: true,
+      onTap: _open,
       label: TranslationService.translate(
         context,
         'author_page_open_semantic',
@@ -110,8 +115,7 @@ class _AuthorNameLinkState extends State<_AuthorNameLink> {
         onEnter: (_) => setState(() => _hovering = true),
         onExit: (_) => setState(() => _hovering = false),
         child: InkWell(
-          onTap: () =>
-              context.push('/authors/${Uri.encodeComponent(widget.name)}'),
+          onTap: _open,
           onFocusChange: (focused) => setState(() => _focused = focused),
           borderRadius: BorderRadius.circular(4),
           child: Text(

@@ -384,7 +384,13 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'collection_add_fab',
         onPressed: _createCollection,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          semanticLabel: TranslationService.translate(
+            context,
+            'create_collection',
+          ),
+        ),
       ),
     );
   }

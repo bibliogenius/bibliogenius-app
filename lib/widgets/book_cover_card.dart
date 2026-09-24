@@ -86,161 +86,183 @@ class BookCoverCard extends StatelessWidget {
       statusBadgeShown: hasReadingStatus(book.readingStatus),
     );
 
-    final card = GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-          boxShadow: AppDesign.subtleShadow,
-        ),
-        clipBehavior: Clip.antiAlias,
-        child: LayoutBuilder(
-          builder: (context, box) => Stack(
-            fit: StackFit.expand,
-            children: [
-              OwnershipCoverTreatment(
-                mark: mark,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    // Background / Cover (Layered for robust fallback)
-                    _buildFallbackCover(context),
+    // A plain GestureDetector gives the screen reader the tap but no role:
+    // the tile is read as text ("Dune, Frank Herbert") with nothing saying
+    // it opens the book.
+    final card = Semantics(
+      button: true,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+            boxShadow: AppDesign.subtleShadow,
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: LayoutBuilder(
+            builder: (context, box) => Stack(
+              fit: StackFit.expand,
+              children: [
+                OwnershipCoverTreatment(
+                  mark: mark,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Background / Cover (Layered for robust fallback)
+                      _buildFallbackCover(context),
 
-                    if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
-                      CachedBookCover(
-                        imageUrl: book.coverUrl!,
-                        fit: BoxFit.cover,
-                        placeholder:
-                            const SizedBox.shrink(), // Show fallback while loading
-                        errorWidget:
-                            const SizedBox.shrink(), // Show fallback on error
-                        semanticLabel: BookDisplay.coverLabelOf(context, book),
-                        isPeerCover: isPeerCover,
-                      ),
-                  ],
+                      if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
+                        CachedBookCover(
+                          imageUrl: book.coverUrl!,
+                          fit: BoxFit.cover,
+                          placeholder:
+                              const SizedBox.shrink(), // Show fallback while loading
+                          errorWidget:
+                              const SizedBox.shrink(), // Show fallback on error
+                          semanticLabel: BookDisplay.coverLabelOf(
+                            context,
+                            book,
+                          ),
+                          isPeerCover: isPeerCover,
+                        ),
+                    ],
+                  ),
                 ),
-              ),
 
-              if (badgeMark != OwnershipMark.none)
-                Positioned(
-                  top: 8,
-                  left: 8,
-                  child: OwnershipBadge(mark: badgeMark),
-                ),
+                if (badgeMark != OwnershipMark.none)
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: OwnershipBadge(mark: badgeMark),
+                  ),
 
-              // "New" marker (opt-in): the shared rotated paper band, on the
-              // free bottom-right corner so it never competes with the
-              // status badge (top-right) or the ownership badge (top-left).
-              if (showNewBadge && book.isNew)
-                const Positioned(bottom: 12, right: -6, child: NewCornerBand()),
+                // "New" marker (opt-in): the shared rotated paper band, on the
+                // free bottom-right corner so it never competes with the
+                // status badge (top-right) or the ownership badge (top-left).
+                if (showNewBadge && book.isNew)
+                  const Positioned(
+                    bottom: 12,
+                    right: -6,
+                    child: NewCornerBand(),
+                  ),
 
-              // Reading Status Indicator (tappable to edit). A long
-              // translated label cannot fit a narrow cover: below the width
-              // threshold the badge is the status icon alone (tooltip and
-              // semantics carry the label); above it the pill is width-capped
-              // with an ellipsis so it can never overflow the cover.
-              if (hasReadingStatus(book.readingStatus))
-                Positioned(
-                  top: 8,
-                  right: _statusRight,
-                  child: Builder(
-                    builder: (context) {
-                      final useInventoryStatuses = Provider.of<ThemeProvider>(
-                        context,
-                        listen: false,
-                      ).inventoryStatusesEnabled;
-                      final statusInfo = getStatusFromValue(
-                        context,
-                        book.readingStatus!,
-                        useInventoryStatuses,
-                      );
-                      final badgeColor = statusInfo?.color ?? Colors.black;
-                      final label = TranslationService.translate(
-                        context,
-                        'reading_status_${book.readingStatus}',
-                      );
-                      final onBadgeTap = onStatusChanged != null
-                          ? () async {
-                              final picked = await showReadingStatusPicker(
-                                context,
-                                currentStatus: book.readingStatus,
-                                useInventoryStatuses: useInventoryStatuses,
-                              );
-                              if (picked != null &&
-                                  picked != book.readingStatus) {
-                                onStatusChanged!(picked);
+                // Reading Status Indicator (tappable to edit). A long
+                // translated label cannot fit a narrow cover: below the width
+                // threshold the badge is the status icon alone (tooltip and
+                // semantics carry the label); above it the pill is width-capped
+                // with an ellipsis so it can never overflow the cover.
+                if (hasReadingStatus(book.readingStatus))
+                  Positioned(
+                    top: 8,
+                    right: _statusRight,
+                    child: Builder(
+                      builder: (context) {
+                        final useInventoryStatuses = Provider.of<ThemeProvider>(
+                          context,
+                          listen: false,
+                        ).inventoryStatusesEnabled;
+                        final statusInfo = getStatusFromValue(
+                          context,
+                          book.readingStatus!,
+                          useInventoryStatuses,
+                        );
+                        final badgeColor = statusInfo?.color ?? Colors.black;
+                        final label = TranslationService.translate(
+                          context,
+                          'reading_status_${book.readingStatus}',
+                        );
+                        final onBadgeTap = onStatusChanged != null
+                            ? () async {
+                                final picked = await showReadingStatusPicker(
+                                  context,
+                                  currentStatus: book.readingStatus,
+                                  useInventoryStatuses: useInventoryStatuses,
+                                );
+                                if (picked != null &&
+                                    picked != book.readingStatus) {
+                                  onStatusChanged!(picked);
+                                }
                               }
-                            }
-                          : null;
+                            : null;
 
-                      if (box.maxWidth < 120) {
-                        // Icon-only: the label must still reach the screen
-                        // reader (Rule A1); the tooltip serves pointer users.
+                        if (box.maxWidth < 120) {
+                          // Icon-only: the label must still reach the screen
+                          // reader (Rule A1); the tooltip serves pointer users.
+                          return Semantics(
+                            label: label,
+                            button: onBadgeTap != null,
+                            child: Tooltip(
+                              message: label,
+                              excludeFromSemantics: true,
+                              child: GestureDetector(
+                                onTap: onBadgeTap,
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: badgeColor.withValues(alpha: 0.85),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    statusInfo?.icon ?? Icons.menu_book,
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+
+                        // The pill prints the status in capitals; the reader
+                        // hears the label in its own case, as a button when it
+                        // opens the status picker.
                         return Semantics(
                           label: label,
                           button: onBadgeTap != null,
-                          child: Tooltip(
-                            message: label,
-                            excludeFromSemantics: true,
-                            child: GestureDetector(
-                              onTap: onBadgeTap,
+                          onTap: onBadgeTap,
+                          excludeSemantics: true,
+                          child: GestureDetector(
+                            onTap: onBadgeTap,
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxWidth: box.maxWidth - 8 - _statusRight,
+                              ),
                               child: Container(
-                                padding: const EdgeInsets.all(4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
                                 decoration: BoxDecoration(
                                   color: badgeColor.withValues(alpha: 0.85),
-                                  shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(4),
                                 ),
-                                child: Icon(
-                                  statusInfo?.icon ?? Icons.menu_book,
-                                  size: 12,
-                                  color: Colors.white,
+                                child: Text(
+                                  label.toUpperCase(),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ),
                           ),
                         );
-                      }
-
-                      return GestureDetector(
-                        onTap: onBadgeTap,
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(
-                            maxWidth: box.maxWidth - 8 - _statusRight,
-                          ),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: badgeColor.withValues(alpha: 0.85),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              label.toUpperCase(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                      },
+                    ),
                   ),
-                ),
 
-              // Wishlist availability badge (wanted book, provider found)
-              if (availabilityLabel != null)
-                Positioned(
-                  bottom: 8,
-                  left: 8,
-                  child: WishlistAvailabilityBadge(label: availabilityLabel!),
-                ),
-            ],
+                // Wishlist availability badge (wanted book, provider found)
+                if (availabilityLabel != null)
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: WishlistAvailabilityBadge(label: availabilityLabel!),
+                  ),
+              ],
+            ),
           ),
         ),
       ),

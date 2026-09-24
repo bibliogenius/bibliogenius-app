@@ -1090,55 +1090,60 @@ class _DashboardScreenState extends State<DashboardScreen>
             color: theme.colorScheme.primary.withValues(alpha: 0.2),
           ),
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push('/memory-game'),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+        child: Semantics(
+          // Merges into the Card's node with the InkWell's tap: without it
+          // the card read as plain text with nothing saying it opens a game.
+          button: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push('/memory-game'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.auto_stories,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.auto_stories,
-                    color: theme.colorScheme.primary,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'memory_game_title',
+                          ),
+                          style: theme.textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'memory_game_dashboard_subtitle',
+                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'memory_game_title',
-                        ),
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'memory_game_dashboard_subtitle',
-                        ),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1159,55 +1164,60 @@ class _DashboardScreenState extends State<DashboardScreen>
             color: theme.colorScheme.primary.withValues(alpha: 0.2),
           ),
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push('/sliding-puzzle'),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+        child: Semantics(
+          // Merges into the Card's node with the InkWell's tap: without it
+          // the card read as plain text with nothing saying it opens a game.
+          button: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push('/sliding-puzzle'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.grid_view,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.grid_view,
-                    color: theme.colorScheme.primary,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'sliding_puzzle_title',
+                          ),
+                          style: theme.textTheme.titleSmall,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'sliding_puzzle_dashboard_subtitle',
+                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'sliding_puzzle_title',
-                        ),
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'sliding_puzzle_dashboard_subtitle',
-                        ),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1228,52 +1238,60 @@ class _DashboardScreenState extends State<DashboardScreen>
             color: theme.colorScheme.primary.withValues(alpha: 0.2),
           ),
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => context.push('/hangman'),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+        child: Semantics(
+          // Merges into the Card's node with the InkWell's tap: without it
+          // the card read as plain text with nothing saying it opens a game.
+          button: true,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => context.push('/hangman'),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.text_fields,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
-                  child: Icon(
-                    Icons.text_fields,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        TranslationService.translate(context, 'hangman_title'),
-                        style: theme.textTheme.titleSmall,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        TranslationService.translate(
-                          context,
-                          'hangman_dashboard_subtitle',
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'hangman_title',
+                          ),
+                          style: theme.textTheme.titleSmall,
                         ),
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                        const SizedBox(height: 2),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'hangman_dashboard_subtitle',
+                          ),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Icon(
-                  Icons.chevron_right,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ],
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -1304,44 +1322,49 @@ class _DashboardScreenState extends State<DashboardScreen>
 
               const SizedBox(height: 12),
               // See All Link
-              ScaleOnTap(
-                onTap: () => context.go(seeAllRoute),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(AppDesign.radiusRound),
-                    border: Border.all(
+              Semantics(
+                button: true,
+                child: ScaleOnTap(
+                  onTap: () => context.go(seeAllRoute),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
                       color: Theme.of(
                         context,
-                      ).colorScheme.primary.withValues(alpha: 0.15),
+                      ).colorScheme.primary.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(
+                        AppDesign.radiusRound,
+                      ),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withValues(alpha: 0.15),
+                      ),
                     ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        seeAllLabel,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          letterSpacing: 0.2,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          seeAllLabel,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 13,
+                            letterSpacing: 0.2,
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 6),
-                      Icon(
-                        Icons.arrow_forward_rounded,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Icon(
+                          Icons.arrow_forward_rounded,
+                          size: 16,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -1508,61 +1531,69 @@ class _DashboardScreenState extends State<DashboardScreen>
                                         )
                                       : null;
 
-                                  return InkWell(
-                                    onTap: () async {
-                                      if (localBook != null) {
-                                        context.push('/books/${localBook.id}');
-                                      } else {
-                                        final searchQuery = source.isNotEmpty
-                                            ? "$author $source"
-                                            : author;
-                                        final result = await context.push(
-                                          '/search/external?q=${Uri.encodeComponent(searchQuery)}',
-                                        );
-                                        if (result == true) {
-                                          _fetchDashboardData();
+                                  return Semantics(
+                                    // The quote's author opens the book or a
+                                    // search for it.
+                                    button: true,
+                                    child: InkWell(
+                                      onTap: () async {
+                                        if (localBook != null) {
+                                          context.push(
+                                            '/books/${localBook.id}',
+                                          );
+                                        } else {
+                                          final searchQuery = source.isNotEmpty
+                                              ? "$author $source"
+                                              : author;
+                                          final result = await context.push(
+                                            '/search/external?q=${Uri.encodeComponent(searchQuery)}',
+                                          );
+                                          if (result == true) {
+                                            _fetchDashboardData();
+                                          }
                                         }
-                                      }
-                                    },
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        Container(
-                                          width: 16,
-                                          height: 1,
-                                          color: textColor.withValues(
-                                            alpha: 0.3,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Flexible(
-                                          child: Text(
-                                            _dailyQuote!.author,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              fontWeight: FontWeight.w600,
-                                              color: textColor,
-                                              letterSpacing: 0.3,
-                                              decoration:
-                                                  TextDecoration.underline,
-                                              decorationColor: textColor
-                                                  .withValues(alpha: 0.3),
+                                      },
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Container(
+                                            width: 16,
+                                            height: 1,
+                                            color: textColor.withValues(
+                                              alpha: 0.3,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Icon(
-                                          localBook != null
-                                              ? Icons.arrow_forward
-                                              : Icons.search,
-                                          size: 14,
-                                          color: textColor.withValues(
-                                            alpha: 0.5,
+                                          const SizedBox(width: 8),
+                                          Flexible(
+                                            child: Text(
+                                              _dailyQuote!.author,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                color: textColor,
+                                                letterSpacing: 0.3,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                decorationColor: textColor
+                                                    .withValues(alpha: 0.3),
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
-                                        ),
-                                      ],
+                                          const SizedBox(width: 4),
+                                          Icon(
+                                            localBook != null
+                                                ? Icons.arrow_forward
+                                                : Icons.search,
+                                            size: 14,
+                                            color: textColor.withValues(
+                                              alpha: 0.5,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 },
@@ -1599,9 +1630,16 @@ class _DashboardScreenState extends State<DashboardScreen>
         ? Colors.white.withValues(alpha: 0.8)
         : theme.colorScheme.onSurfaceVariant;
 
+    // The label reads "My Books : 3"; the painted value and caption would
+    // follow it a second time, so they are excluded and the wrapper carries
+    // the tap they would otherwise have brought.
     return Semantics(
       button: onTap != null,
-      label: '$label : $value',
+      label: subtitle == null
+          ? '$label : $value'
+          : '$label : $value, $subtitle',
+      onTap: onTap,
+      excludeSemantics: true,
       child: ScaleOnTap(
         onTap: onTap,
         child: Container(
@@ -1762,9 +1800,9 @@ class _DashboardScreenState extends State<DashboardScreen>
     VoidCallback onTap, {
     Key? key,
   }) {
+    // The card's own text names it; a label here read it twice.
     return Semantics(
       button: true,
-      label: label,
       child: ScaleOnTap(
         onTap: onTap,
         child: Container(

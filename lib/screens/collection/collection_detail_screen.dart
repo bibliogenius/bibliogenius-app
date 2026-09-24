@@ -633,7 +633,13 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
       floatingActionButton: FloatingActionButton(
         heroTag: 'collection_detail_fab',
         onPressed: _addBook,
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          semanticLabel: TranslationService.translate(
+            context,
+            'add_book_button',
+          ),
+        ),
       ),
       body: FutureBuilder<List<CollectionBook>>(
         future: _booksFuture,
@@ -913,247 +919,268 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                               child: Material(
                                 color: Colors.transparent,
                                 borderRadius: BorderRadius.circular(16),
-                                child: InkWell(
-                                  // ... existing inkwell ...
-                                  onTap: () =>
-                                      context.push('/books/${book.bookId}'),
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(12),
-                                    child: Row(
-                                      children: [
-                                        if (_isSeries) ...[
-                                          ReorderableDragStartListener(
-                                            index: index,
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                right: 6,
-                                              ),
-                                              child: Icon(
-                                                Icons.drag_indicator,
-                                                color: Theme.of(
-                                                  context,
-                                                ).colorScheme.outline,
-                                                semanticLabel:
-                                                    TranslationService.translate(
-                                                      context,
-                                                      'series_reorder_handle',
-                                                    ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                        _buildCoverWithVolume(book),
-                                        const SizedBox(width: 14),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                book.title,
-                                                style: Theme.of(context)
-                                                    .textTheme
-                                                    .titleSmall
-                                                    ?.copyWith(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 15,
-                                                      decoration: book.isOwned
-                                                          ? null
-                                                          : TextDecoration.none,
-                                                      // Theme token, not a
-                                                      // hard-coded grey
-                                                      // (ADR-063).
-                                                      color: book.isOwned
-                                                          ? null
-                                                          : Theme.of(context)
-                                                                .colorScheme
-                                                                .onSurfaceVariant,
-                                                    ),
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              if (book.author != null) ...[
-                                                const SizedBox(height: 4),
-                                                Text(
-                                                  book.author!,
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall
-                                                      ?.copyWith(
-                                                        color: Colors.grey,
-                                                      ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
+                                child: Semantics(
+                                  button: true,
+                                  child: InkWell(
+                                    // ... existing inkwell ...
+                                    onTap: () =>
+                                        context.push('/books/${book.bookId}'),
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(12),
+                                      child: Row(
+                                        children: [
+                                          if (_isSeries) ...[
+                                            ReorderableDragStartListener(
+                                              index: index,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                  right: 6,
                                                 ),
-                                              ],
-                                              // Publisher & Year row
-                                              if (book.publisher != null ||
-                                                  book.publicationYear !=
-                                                      null) ...[
-                                                const SizedBox(height: 2),
-                                                Text(
-                                                  [
-                                                    if (book.publisher != null)
-                                                      book.publisher,
-                                                    if (book.publicationYear !=
-                                                        null)
-                                                      '(${book.publicationYear})',
-                                                  ].join(' '),
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .bodySmall
-                                                      ?.copyWith(
-                                                        color: Colors.grey[500],
-                                                        fontSize: 11,
-                                                      ),
-                                                  maxLines: 1,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                ),
-                                              ],
-                                              _buildReadingStatusChip(
-                                                book,
-                                                statusByValue,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        // Status badge with label
-                                        GestureDetector(
-                                          onTap: () => _toggleBookStatus(book),
-                                          child: Tooltip(
-                                            message: book.isOwned
-                                                ? TranslationService.translate(
+                                                child: Icon(
+                                                  Icons.drag_indicator,
+                                                  color: Theme.of(
                                                     context,
-                                                    'status_owned',
-                                                  )
-                                                : TranslationService.translate(
-                                                    context,
-                                                    'status_wanted',
-                                                  ),
-                                            // Wanted state on theme tokens,
-                                            // aligned with the shared badge
-                                            // vocabulary (ADR-063).
-                                            child: Container(
-                                              padding: const EdgeInsets.all(7),
-                                              decoration: BoxDecoration(
-                                                color: book.isOwned
-                                                    ? Colors.green.withValues(
-                                                        alpha: 0.1,
-                                                      )
-                                                    : Theme.of(context)
-                                                          .colorScheme
-                                                          .tertiaryContainer,
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                                border: Border.all(
-                                                  color: book.isOwned
-                                                      ? Colors.green.withValues(
-                                                          alpha: 0.3,
-                                                        )
-                                                      : Theme.of(context)
-                                                            .colorScheme
-                                                            .tertiary
-                                                            .withValues(
-                                                              alpha: 0.3,
-                                                            ),
+                                                  ).colorScheme.outline,
+                                                  semanticLabel:
+                                                      TranslationService.translate(
+                                                        context,
+                                                        'series_reorder_handle',
+                                                      ),
                                                 ),
-                                              ),
-                                              child: Icon(
-                                                book.isOwned
-                                                    ? Icons.check_circle
-                                                    : Icons
-                                                          .bookmark_add_outlined,
-                                                size: 16,
-                                                color: book.isOwned
-                                                    ? Colors.green.shade700
-                                                    : Theme.of(context)
-                                                          .colorScheme
-                                                          .onTertiaryContainer,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 4),
-                                        // Remove from collection button
-                                        PopupMenuButton<String>(
-                                          icon: Icon(
-                                            Icons.more_vert,
-                                            size: 20,
-                                            color: Colors.grey[400],
-                                          ),
-                                          tooltip: TranslationService.translate(
-                                            context,
-                                            'tooltip_open_menu',
-                                          ),
-                                          padding: EdgeInsets.zero,
-                                          onSelected: (value) {
-                                            if (value == 'remove') {
-                                              _confirmAndRemoveBook(book);
-                                            } else if (value == 'toggle') {
-                                              _toggleBookStatus(book);
-                                            }
-                                          },
-                                          itemBuilder: (context) => [
-                                            PopupMenuItem<String>(
-                                              value: 'toggle',
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    book.isOwned
-                                                        ? Icons
-                                                              .bookmark_add_outlined
-                                                        : Icons.check_circle,
-                                                    size: 18,
-                                                    color: book.isOwned
-                                                        ? Theme.of(
-                                                            context,
-                                                          ).colorScheme.tertiary
-                                                        : Colors.green,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    book.isOwned
-                                                        ? TranslationService.translate(
-                                                            context,
-                                                            'status_wanted',
-                                                          )
-                                                        : TranslationService.translate(
-                                                            context,
-                                                            'status_owned',
-                                                          ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            PopupMenuItem<String>(
-                                              value: 'remove',
-                                              child: Row(
-                                                children: [
-                                                  const Icon(
-                                                    Icons.remove_circle_outline,
-                                                    size: 18,
-                                                    color: Colors.red,
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(
-                                                    TranslationService.translate(
-                                                      context,
-                                                      'remove_from_collection',
-                                                    ),
-                                                    style: const TextStyle(
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
                                               ),
                                             ),
                                           ],
-                                        ),
-                                      ],
+                                          _buildCoverWithVolume(book),
+                                          const SizedBox(width: 14),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  book.title,
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .titleSmall
+                                                      ?.copyWith(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 15,
+                                                        decoration: book.isOwned
+                                                            ? null
+                                                            : TextDecoration
+                                                                  .none,
+                                                        // Theme token, not a
+                                                        // hard-coded grey
+                                                        // (ADR-063).
+                                                        color: book.isOwned
+                                                            ? null
+                                                            : Theme.of(context)
+                                                                  .colorScheme
+                                                                  .onSurfaceVariant,
+                                                      ),
+                                                  maxLines: 2,
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                                if (book.author != null) ...[
+                                                  const SizedBox(height: 4),
+                                                  Text(
+                                                    book.author!,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                          color: Colors.grey,
+                                                        ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ],
+                                                // Publisher & Year row
+                                                if (book.publisher != null ||
+                                                    book.publicationYear !=
+                                                        null) ...[
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    [
+                                                      if (book.publisher !=
+                                                          null)
+                                                        book.publisher,
+                                                      if (book.publicationYear !=
+                                                          null)
+                                                        '(${book.publicationYear})',
+                                                    ].join(' '),
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodySmall
+                                                        ?.copyWith(
+                                                          color:
+                                                              Colors.grey[500],
+                                                          fontSize: 11,
+                                                        ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ],
+                                                _buildReadingStatusChip(
+                                                  book,
+                                                  statusByValue,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          // Status badge with label
+                                          Semantics(
+                                            // Named by its tooltip; tapping
+                                            // flips owned and wanted.
+                                            button: true,
+                                            child: GestureDetector(
+                                              onTap: () =>
+                                                  _toggleBookStatus(book),
+                                              child: Tooltip(
+                                                message: book.isOwned
+                                                    ? TranslationService.translate(
+                                                        context,
+                                                        'status_owned',
+                                                      )
+                                                    : TranslationService.translate(
+                                                        context,
+                                                        'status_wanted',
+                                                      ),
+                                                // Wanted state on theme tokens,
+                                                // aligned with the shared badge
+                                                // vocabulary (ADR-063).
+                                                child: Container(
+                                                  padding: const EdgeInsets.all(
+                                                    7,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: book.isOwned
+                                                        ? Colors.green
+                                                              .withValues(
+                                                                alpha: 0.1,
+                                                              )
+                                                        : Theme.of(context)
+                                                              .colorScheme
+                                                              .tertiaryContainer,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: book.isOwned
+                                                          ? Colors.green
+                                                                .withValues(
+                                                                  alpha: 0.3,
+                                                                )
+                                                          : Theme.of(context)
+                                                                .colorScheme
+                                                                .tertiary
+                                                                .withValues(
+                                                                  alpha: 0.3,
+                                                                ),
+                                                    ),
+                                                  ),
+                                                  child: Icon(
+                                                    book.isOwned
+                                                        ? Icons.check_circle
+                                                        : Icons
+                                                              .bookmark_add_outlined,
+                                                    size: 16,
+                                                    color: book.isOwned
+                                                        ? Colors.green.shade700
+                                                        : Theme.of(context)
+                                                              .colorScheme
+                                                              .onTertiaryContainer,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 4),
+                                          // Remove from collection button
+                                          PopupMenuButton<String>(
+                                            icon: Icon(
+                                              Icons.more_vert,
+                                              size: 20,
+                                              color: Colors.grey[400],
+                                            ),
+                                            tooltip:
+                                                TranslationService.translate(
+                                                  context,
+                                                  'tooltip_open_menu',
+                                                ),
+                                            padding: EdgeInsets.zero,
+                                            onSelected: (value) {
+                                              if (value == 'remove') {
+                                                _confirmAndRemoveBook(book);
+                                              } else if (value == 'toggle') {
+                                                _toggleBookStatus(book);
+                                              }
+                                            },
+                                            itemBuilder: (context) => [
+                                              PopupMenuItem<String>(
+                                                value: 'toggle',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(
+                                                      book.isOwned
+                                                          ? Icons
+                                                                .bookmark_add_outlined
+                                                          : Icons.check_circle,
+                                                      size: 18,
+                                                      color: book.isOwned
+                                                          ? Theme.of(context)
+                                                                .colorScheme
+                                                                .tertiary
+                                                          : Colors.green,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      book.isOwned
+                                                          ? TranslationService.translate(
+                                                              context,
+                                                              'status_wanted',
+                                                            )
+                                                          : TranslationService.translate(
+                                                              context,
+                                                              'status_owned',
+                                                            ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              PopupMenuItem<String>(
+                                                value: 'remove',
+                                                child: Row(
+                                                  children: [
+                                                    const Icon(
+                                                      Icons
+                                                          .remove_circle_outline,
+                                                      size: 18,
+                                                      color: Colors.red,
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Text(
+                                                      TranslationService.translate(
+                                                        context,
+                                                        'remove_from_collection',
+                                                      ),
+                                                      style: const TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1344,9 +1371,9 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
           imageUrl: book.coverUrl,
           width: 50,
           height: 75,
-          semanticLabel: book.author != null && book.author!.isNotEmpty
-              ? '${book.title}, ${book.author}'
-              : book.title,
+          // The row's own title and author name it; a label here read the
+          // book twice.
+          semanticLabel: null,
         ),
       ),
     );

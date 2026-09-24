@@ -59,6 +59,20 @@ class StarRatingWidget extends StatelessWidget {
     final starCount = 5;
     final displayRating = (rating ?? 0) / 2.0; // Convert 0-10 to 0-5
 
+    // A slider a screen reader can move. The row used to be announced as a
+    // slider with no adjust action, over five unnamed tappable stars: the
+    // reader heard "slider" and could neither swipe it nor tell the stars
+    // apart. One step is one star, or half a star when halves are allowed.
+    final step = allowHalf ? 1 : 2;
+    final current = rating ?? 0;
+    final localeTag = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).localeTag;
+    String stars(int value) => formatStarRating(value / 2.0, localeTag);
+    final canIncrease = isInteractive && current < 10;
+    final canDecrease = isInteractive && current > 0;
+
     return Semantics(
       // Rule A4: the announced value goes through the catalogues. It used to be
       // a hardcoded French string, announced as such to every reader whatever
@@ -76,6 +90,17 @@ class StarRatingWidget extends StatelessWidget {
         },
       ),
       slider: isInteractive,
+      value: isInteractive ? stars(current) : null,
+      increasedValue: canIncrease ? stars((current + step).clamp(0, 10)) : null,
+      decreasedValue: canDecrease ? stars((current - step).clamp(0, 10)) : null,
+      onIncrease: canIncrease
+          ? () => onRatingChanged!((current + step).clamp(0, 10))
+          : null,
+      onDecrease: canDecrease
+          ? () => onRatingChanged!((current - step).clamp(0, 10))
+          : null,
+      // The adjust actions replace the per-star taps for a screen reader.
+      excludeSemantics: true,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: List.generate(starCount, (index) {

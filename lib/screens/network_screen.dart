@@ -389,7 +389,13 @@ class _NetworkScreenState extends State<NetworkScreen>
         key: const Key('networkAddFab'),
         heroTag: 'network_add_fab',
         onPressed: () => _showAddConnectionSheet(context),
-        child: const Icon(Icons.add),
+        child: Icon(
+          Icons.add,
+          semanticLabel: TranslationService.translate(
+            context,
+            'add_connection_title',
+          ),
+        ),
       ),
     );
   }
@@ -1386,13 +1392,16 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   }
 
   Widget _buildBorrowerTile(NetworkMember member) {
-    return Semantics(
-      button: true,
-      label: member.displayName,
-      child: Card(
-        key: Key('memberTile_${member.id}'),
-        surfaceTintColor: Colors.transparent,
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+    // The role sits inside the Card, around the InkWell, so it shares the
+    // Card's own node with the tap. Wrapped around the Card, it did not: a
+    // Card opens its own node, which left a "button" with nothing to press
+    // above a tile with no role. The tile's own text names it.
+    return Card(
+      key: Key('memberTile_${member.id}'),
+      surfaceTintColor: Colors.transparent,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      child: Semantics(
+        button: true,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => context.push(
@@ -2427,9 +2436,10 @@ class _InviteBanner extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primary = Theme.of(context).colorScheme.primary;
 
+    // The banner's own title and subtitle name it; a label here read the
+    // title twice.
     return Semantics(
       button: true,
-      label: TranslationService.translate(context, 'invite_card_title'),
       child: ScaleOnTap(
         onTap: onTap,
         child: Container(
@@ -2921,13 +2931,13 @@ class _LibraryRelationCard extends StatelessWidget {
       statusColor = null; // still checking
     }
 
-    return Semantics(
-      button: true,
-      label: relation.name,
-      child: Card(
-        key: Key('libraryCard_${relation.nodeId}'),
-        surfaceTintColor: Colors.transparent,
-        margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+    // One node, role and tap together: see `_buildBorrowerTile`.
+    return Card(
+      key: Key('libraryCard_${relation.nodeId}'),
+      surfaceTintColor: Colors.transparent,
+      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      child: Semantics(
+        button: true,
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: () => _onCardTap(context),

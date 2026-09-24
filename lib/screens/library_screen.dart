@@ -368,7 +368,16 @@ class _LibraryScreenState extends State<LibraryScreen>
                         }
                       }
                     },
-                    child: const Icon(Icons.qr_code_scanner, size: 22),
+                    // The icon's label names the button: a FAB has no text
+                    // and, without it, is announced as a bare "button".
+                    child: Icon(
+                      Icons.qr_code_scanner,
+                      size: 22,
+                      semanticLabel: TranslationService.translate(
+                        context,
+                        'scan_isbn',
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -397,7 +406,14 @@ class _LibraryScreenState extends State<LibraryScreen>
                         }
                       }
                     },
-                    child: const Icon(Icons.add, size: 22),
+                    child: Icon(
+                      Icons.add,
+                      size: 22,
+                      semanticLabel: TranslationService.translate(
+                        context,
+                        'add_book_button',
+                      ),
+                    ),
                   ),
                 ),
               ],

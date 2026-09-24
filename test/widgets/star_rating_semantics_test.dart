@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -98,6 +99,39 @@ void main() {
     expect(find.bySemanticsLabel('Note : 3,5 sur 5'), findsOneWidget);
   });
 
+  // It was announced as a slider that could not be moved, over five unnamed
+  // tappable stars. A screen reader adjusts it one star at a time.
+  testWidgets('a screen reader moves the rating one star at a time', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final reported = <int?>[];
+    await _pump(
+      tester,
+      StarRatingWidget(rating: 6, onRatingChanged: reported.add),
+    );
+
+    final node = tester.getSemantics(find.byType(StarRatingWidget));
+    expect(node.flagsCollection.isSlider, isTrue);
+    expect(node.value, '3');
+    expect(node.increasedValue, '4');
+    expect(node.decreasedValue, '2');
+
+    final owner = tester.binding.renderViews.first.owner!.semanticsOwner!;
+    owner.performAction(node.id, SemanticsAction.increase);
+    owner.performAction(node.id, SemanticsAction.decrease);
+    expect(reported, [8, 4]);
+
+    // The stars are no longer separate, unnamed tap targets.
+    final tappable = <SemanticsNode>[];
+    node.visitChildren((child) {
+      tappable.add(child);
+      return true;
+    });
+    expect(tappable, isEmpty);
+    handle.dispose();
+  });
+
   // Rule A: the tap target, not the glyph, is what has to clear the floor.
   // These stars were 36x32 boxes, under both the 44pt iOS and the 48dp
   // Material minimum, on the page's most-used control.
@@ -148,6 +182,10 @@ void main() {
     await tester.tapAt(Offset(rect.left + 2, rect.top + 2));
     await tester.pump();
 
-    expect(reported, 6, reason: 'the third star is 3 stars, 6 on the 0-10 scale');
+    expect(
+      reported,
+      6,
+      reason: 'the third star is 3 stars, 6 on the 0-10 scale',
+    );
   });
 }

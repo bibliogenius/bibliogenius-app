@@ -490,6 +490,10 @@ class _ScaleOnTapState extends State<ScaleOnTap> {
   @override
   Widget build(BuildContext context) {
     final child = GestureDetector(
+      // Without an action the press animation still listens for taps, and
+      // those listeners alone gave a screen reader a phantom, unnamed tap
+      // target wrapped around whatever button sits inside.
+      excludeFromSemantics: widget.onTap == null,
       onTapDown: (_) => setState(() => _isPressed = true),
       onTapUp: (_) {
         setState(() => _isPressed = false);
