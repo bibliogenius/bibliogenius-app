@@ -574,7 +574,11 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                           child: Stack(
                             fit: StackFit.expand,
                             children: [
-                              _buildFallbackCover(context),
+                              // The card's label names the book; the
+                              // painted title is for the eye.
+                              ExcludeSemantics(
+                                child: _buildFallbackCover(context),
+                              ),
                               if (widget.book.coverUrl != null &&
                                   widget.book.coverUrl!.isNotEmpty)
                                 // The card's own Semantics names the book.
@@ -661,42 +665,56 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                               );
                               final badgeColor =
                                   statusInfo?.color ?? Colors.blueAccent;
-                              return GestureDetector(
-                                onTap: widget.onStatusChanged != null
-                                    ? () async {
-                                        final picked =
-                                            await showReadingStatusPicker(
-                                              context,
-                                              currentStatus:
-                                                  widget.book.readingStatus,
-                                              useInventoryStatuses:
-                                                  useInventoryStatuses,
-                                            );
-                                        if (picked != null &&
-                                            picked !=
-                                                widget.book.readingStatus) {
-                                          widget.onStatusChanged!(picked);
+                              // The pill prints the status in capitals; the
+                              // reader hears it in its own case, as a button
+                              // when it opens the status picker.
+                              return Semantics(
+                                label: TranslationService.translate(
+                                  context,
+                                  'reading_status_${widget.book.readingStatus}',
+                                ),
+                                button: widget.onStatusChanged != null,
+                                child: GestureDetector(
+                                  onTap: widget.onStatusChanged != null
+                                      ? () async {
+                                          final picked =
+                                              await showReadingStatusPicker(
+                                                context,
+                                                currentStatus:
+                                                    widget.book.readingStatus,
+                                                useInventoryStatuses:
+                                                    useInventoryStatuses,
+                                              );
+                                          if (picked != null &&
+                                              picked !=
+                                                  widget.book.readingStatus) {
+                                            widget.onStatusChanged!(picked);
+                                          }
                                         }
-                                      }
-                                    : null,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: badgeColor.withValues(alpha: 0.85),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    TranslationService.translate(
-                                      context,
-                                      'reading_status_${widget.book.readingStatus}',
-                                    ).toUpperCase(),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.bold,
+                                      : null,
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: badgeColor.withValues(
+                                        alpha: 0.85,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ExcludeSemantics(
+                                      child: Text(
+                                        TranslationService.translate(
+                                          context,
+                                          'reading_status_${widget.book.readingStatus}',
+                                        ).toUpperCase(),
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),

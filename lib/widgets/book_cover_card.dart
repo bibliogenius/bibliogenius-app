@@ -108,8 +108,13 @@ class BookCoverCard extends StatelessWidget {
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Background / Cover (Layered for robust fallback)
-                      _buildFallbackCover(context),
+                      // Background / Cover (Layered for robust fallback).
+                      // Under a cover, its painted title and author would
+                      // follow the cover's label: the book was read twice.
+                      if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
+                        ExcludeSemantics(child: _buildFallbackCover(context))
+                      else
+                        _buildFallbackCover(context),
 
                       if (book.coverUrl != null && book.coverUrl!.isNotEmpty)
                         CachedBookCover(

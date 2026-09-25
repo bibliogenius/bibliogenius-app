@@ -291,8 +291,10 @@ class _TapTargetRoleGuideline extends AccessibilityGuideline {
 
 /// Whether [label] says the same thing twice: a Semantics label written above
 /// widgets whose own text merges in after it ("Dune, Dune"; "My Books : 3,
-/// 3, My Books"). Flutter joins merged texts with newlines, so a repeated
-/// line, or later lines all already contained in the first, is the mark.
+/// 3, My Books"). Flutter joins merged texts with newlines, so the mark is a
+/// repeated line, later lines all already contained in the first, or a line
+/// whose comma-separated parts were all read before, as a cover labelled
+/// "Dune, Frank Herbert" over a card printing "Dune" then "Frank Herbert".
 bool _readsTwice(String label) {
   final lines = label
       .split('\n')
@@ -301,7 +303,14 @@ bool _readsTwice(String label) {
       .toList();
   if (lines.length < 2) return false;
   if (lines.toSet().length < lines.length) return true;
-  return lines.skip(1).every(lines.first.contains);
+  if (lines.skip(1).every(lines.first.contains)) return true;
+  final heard = <String>{};
+  for (final line in lines) {
+    final parts = line.split(', ').map((p) => p.trim()).toList();
+    if (heard.containsAll(parts)) return true;
+    heard.addAll(parts);
+  }
+  return false;
 }
 
 /// A tappable node must say what it is, not only what it is called.
@@ -415,6 +424,9 @@ class _QuietSyncService extends SyncService {
 final _books = [
   Book(
     id: 'b1',
+    // Most real books carry a cover, and the cover names the book: a fixture
+    // without one hid a card that read every covered title twice.
+    coverUrl: 'https://covers.example/b1.jpg',
     title: 'The Anomaly',
     author: 'Herve Le Tellier',
     readingStatus: 'to_read',
@@ -422,6 +434,7 @@ final _books = [
   ),
   Book(
     id: 'b2',
+    coverUrl: 'https://covers.example/b2.jpg',
     title: 'Dune',
     author: 'Frank Herbert',
     readingStatus: 'reading',
