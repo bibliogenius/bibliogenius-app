@@ -2077,10 +2077,6 @@ msgstr "Saisir l'ISBN manuellement"
 msgid "enter_library_name"
 msgstr "Nom de votre bibliothèque"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "Saisir manuellement"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "Entrez votre mot de passe pour confirmer la réinitialisation"
@@ -5054,10 +5050,6 @@ msgstr "Nom de l'éditeur"
 msgid "publisher_label"
 msgstr "Éditeur"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "Impossible de générer le QR Code."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Vérifiez que vous êtes connecté à un réseau WiFi et réessayez."
@@ -5124,7 +5116,7 @@ msgstr "Importer Goodreads"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "Partager"
+msgstr "Inviter"
 
 #. Country / Market
 msgid "settings_country"
@@ -6250,26 +6242,6 @@ msgstr "Afficher les livres empruntés"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Inclure les livres empruntés dans la vue bibliothèque"
-
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "Quand quelqu'un scanne ce code, il peut se connecter à votre bibliothèque pour les prêts et la synchronisation."
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "Montrez ce code à un ami"
-
-#. They scan it with their camera or from the app
-msgid "show_code_step_2"
-msgstr "Il le scanne avec son appareil photo ou depuis l'appli"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "Vous obtenez tous les deux accès aux prêts et à la synchro"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "Afficher mon code"
 
 #. Showing cached
 msgid "showing_cached"
@@ -8013,10 +7985,6 @@ msgstr "Accès distant"
 msgid "invite_library_icon"
 msgstr "Icône de bibliothèque"
 
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "Votre lien d'invitation"
-
 msgid "invite_card_title"
 msgstr "Partagez votre bibliothèque"
 
@@ -8039,7 +8007,7 @@ msgid "tooltip_share_invite"
 msgstr "Partager le lien d'invitation"
 
 msgid "share_invite_empty_state"
-msgstr "Partager le lien d'invitation"
+msgstr "Inviter une bibliothèque"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8051,7 +8019,7 @@ msgstr "Préparation du lien d'invitation..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "Partager ma bibliothèque"
+msgstr "Mon invitation"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"

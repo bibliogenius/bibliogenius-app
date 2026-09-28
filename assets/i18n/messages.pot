@@ -1967,10 +1967,6 @@ msgstr ""
 msgid "enter_library_name"
 msgstr ""
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr ""
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr ""
@@ -4618,10 +4614,6 @@ msgstr ""
 msgid "publisher_label"
 msgstr ""
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr ""
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr ""
@@ -5742,26 +5734,6 @@ msgstr ""
 
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
-msgstr ""
-
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr ""
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr ""
-
-#. They scan it with their camera or from the app
-msgid "show_code_step_2"
-msgstr ""
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr ""
-
-#. Show My Code
-msgid "show_my_code"
 msgstr ""
 
 #. Showing cached
@@ -7248,10 +7220,6 @@ msgid "invite_remote_ready"
 msgstr ""
 
 msgid "invite_library_icon"
-msgstr ""
-
-#. Invite share sheet
-msgid "invite_share_title"
 msgstr ""
 
 msgid "invite_card_title"

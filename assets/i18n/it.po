@@ -2077,10 +2077,6 @@ msgstr "Inserisci ISBN manualmente"
 msgid "enter_library_name"
 msgstr "Nome della tua biblioteca"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "Inserisci manualmente"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "Inserisci la password per confermare il reset"
@@ -5124,10 +5120,6 @@ msgstr "Nome editore"
 msgid "publisher_label"
 msgstr "Editore"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "Impossibile generare il QR Code."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Assicurati di essere connesso a una rete WiFi e riprova."
@@ -6320,26 +6312,6 @@ msgstr "Mostra libri presi in prestito"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Includi i libri presi in prestito nella vista della biblioteca"
-
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "Quando qualcuno scansiona questo codice, può connettersi alla tua biblioteca per prestiti e sincronizzazione."
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "Mostra questo codice a un amico"
-
-#. They tap + then "Scan QR Code" in their app
-msgid "show_code_step_2"
-msgstr "Toccano + e poi \"Scansiona codice QR\" nella loro app"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "Entrambi avrete accesso ai prestiti e alla sincronizzazione"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "Mostra il mio codice"
 
 #. Showing cached
 msgid "showing_cached"
@@ -8256,10 +8228,6 @@ msgstr "Remoto pronto"
 
 msgid "invite_library_icon"
 msgstr "Icona biblioteca"
-
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "Il tuo link d'invito"
 
 msgid "invite_card_title"
 msgstr "Condividi il tuo link d'invito"

@@ -12,7 +12,7 @@ import '../widgets/hub_follow_requests.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/add_connection_sheet.dart';
-import '../widgets/invite_share_sheet.dart';
+import '../widgets/invite_share_direct.dart';
 import 'invite_screen.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/shimmer_loading.dart';
@@ -1731,8 +1731,8 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 key: const Key('shareInviteEmptyStateBtn'),
-                onPressed: () => showInviteShareSheet(context),
-                icon: const Icon(Icons.share, size: 20),
+                onPressed: () => showInviteScreen(context),
+                icon: const Icon(Icons.qr_code_2, size: 20),
                 label: Text(
                   TranslationService.translate(
                     context,

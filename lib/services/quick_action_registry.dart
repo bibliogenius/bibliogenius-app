@@ -99,12 +99,20 @@ class QuickActionRegistry {
       color: Colors.amber,
     ),
 
-    // Export / Share
+    // Invite another library (id kept: it is persisted in the slot prefs)
     QuickActionDef(
       id: 'share_library',
       labelKey: 'quick_share_library',
-      keywords: ['share', 'partager', 'library', 'bibliotheque'],
-      icon: Icons.share,
+      keywords: [
+        'invite',
+        'inviter',
+        'invitation',
+        'share',
+        'partager',
+        'library',
+        'bibliotheque',
+      ],
+      icon: Icons.qr_code_2,
       color: Colors.teal,
     ),
 

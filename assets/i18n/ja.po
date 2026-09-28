@@ -1729,10 +1729,6 @@ msgstr "ISBN を手動で入力"
 msgid "enter_library_name"
 msgstr "ライブラリの名前"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "手動で入力"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "リセットを確認するにはパスワードを入力してください"
@@ -4213,10 +4209,6 @@ msgstr "出版社名"
 msgid "publisher_label"
 msgstr "出版社"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "QRコードを生成できませんでした。"
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Wi-Fiネットワークに接続されていることを確認して、もう一度お試しください。"
@@ -4983,10 +4975,6 @@ msgstr "借りた本を表示"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "借りた本をライブラリ表示に含めます"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "自分のコードを表示"
 
 #. Showing cached
 msgid "showing_cached"
@@ -7233,22 +7221,6 @@ msgstr "どのようなタイプの読者ですか？"
 msgid "setup_profile_coming_soon"
 msgstr "近日公開"
 
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "このコードをスキャンすると、貸出や同期のためにあなたのライブラリに接続できます。"
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "このコードを友だちに見せる"
-
-#. They scan it with their camera or from the app
-msgid "show_code_step_2"
-msgstr "相手がカメラまたはアプリでスキャンする"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "両者が貸出と同期を利用できるようになる"
-
 #. Sort by
 msgid "sort_by_label"
 msgstr "並べ替え"
@@ -8219,10 +8191,6 @@ msgstr "リモートアクセス"
 
 msgid "invite_library_icon"
 msgstr "ライブラリのアイコン"
-
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "招待リンク"
 
 msgid "invite_card_title"
 msgstr "ライブラリを共有"

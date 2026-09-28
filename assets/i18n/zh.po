@@ -1729,10 +1729,6 @@ msgstr "手动输入 ISBN"
 msgid "enter_library_name"
 msgstr "您的图书馆名称"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "手动输入"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "输入您的密码以确认重置"
@@ -4213,10 +4209,6 @@ msgstr "出版社名称"
 msgid "publisher_label"
 msgstr "出版社"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "无法生成二维码。"
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "请确认您已连接到 WiFi 网络后重试。"
@@ -4983,10 +4975,6 @@ msgstr "显示借入的图书"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "在图书馆视图中包含借入的图书"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "显示我的代码"
 
 #. Showing cached
 msgid "showing_cached"
@@ -7233,22 +7221,6 @@ msgstr "您是哪种类型的读者？"
 msgid "setup_profile_coming_soon"
 msgstr "即将推出"
 
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "当有人扫描此二维码时，他们就可以连接到您的图书馆以进行借阅和同步。"
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "向朋友出示此二维码"
-
-#. They scan it with their camera or from the app
-msgid "show_code_step_2"
-msgstr "他们用相机或在应用中扫描它"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "你们双方都可以使用借阅和同步功能"
-
 #. Sort by
 msgid "sort_by_label"
 msgstr "排序方式"
@@ -8219,10 +8191,6 @@ msgstr "远程访问已就绪"
 
 msgid "invite_library_icon"
 msgstr "图书馆图标"
-
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "您的邀请链接"
 
 msgid "invite_card_title"
 msgstr "分享您的图书馆"

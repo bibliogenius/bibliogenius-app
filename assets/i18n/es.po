@@ -1884,10 +1884,6 @@ msgstr "Introducir ISBN manualmente"
 msgid "enter_library_name"
 msgstr "Introduce el nombre de la biblioteca"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "Introducir manualmente"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "Introduce la contraseña para reiniciar"
@@ -4697,10 +4693,6 @@ msgstr "Nombre del editor"
 msgid "publisher_label"
 msgstr "Editor"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "No se pudo generar el código QR."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Conéctate al mismo WiFi para mejor conexión"
@@ -5587,10 +5579,6 @@ msgstr "Mostrar libros prestados"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Incluir libros prestados en la vista de biblioteca"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "Mostrar mi código"
 
 #. Showing cached
 msgid "showing_cached"
@@ -6651,10 +6639,6 @@ msgstr "Acceso remoto"
 msgid "invite_library_icon"
 msgstr "Icono de biblioteca"
 
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "Tu enlace de invitación"
-
 msgid "invite_card_title"
 msgstr "Comparte tu enlace de invitación"
 
@@ -7652,18 +7636,6 @@ msgstr "Que tipo de lector eres?"
 msgid "setup_profile_step_title"
 msgstr "Tu perfil"
 
-msgid "show_code_explanation"
-msgstr "Cuando alguien escanea este codigo, puede conectarse a tu biblioteca para prestamos y sincronizacion."
-
-msgid "show_code_step_1"
-msgstr "Muestra este codigo a un amigo"
-
-msgid "show_code_step_2"
-msgstr "Lo escanea con su camara o desde la app"
-
-msgid "show_code_step_3"
-msgstr "Ambos obtienen acceso a prestamos y sincronizacion"
-
 msgid "show_view_count"
 msgstr "Mostrar vistas de la biblioteca"
 
@@ -8548,7 +8520,7 @@ msgstr "Contactos"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "Compartir"
+msgstr "Invitar"
 
 #. Reading Streak
 msgid "reading_streak"

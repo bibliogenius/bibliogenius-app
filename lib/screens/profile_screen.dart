@@ -24,7 +24,7 @@ import '../widgets/gamification_widgets.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/reorderable_sections.dart';
 import '../widgets/scaffold_with_nav.dart';
-import '../widgets/invite_share_sheet.dart';
+import 'invite_screen.dart';
 import '../widgets/network_leaderboard_card.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -541,9 +541,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                 // Share invite link (discreet)
                 TextButton.icon(
-                  onPressed: () => showInviteShareSheet(context),
+                  onPressed: () => showInviteScreen(context),
                   icon: Icon(
-                    Icons.share_outlined,
+                    Icons.qr_code_2,
                     size: 16,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),

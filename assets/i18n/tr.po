@@ -1785,10 +1785,6 @@ msgstr "ISBN'yi manuel girin"
 msgid "enter_library_name"
 msgstr "Kütüphanenizin adı"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "Manuel Gir"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "Sıfırlamayı onaylamak için şifrenizi girin"
@@ -4509,10 +4505,6 @@ msgstr "Yayıncı adı"
 msgid "publisher_label"
 msgstr "Yayıncı"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "QR Kodu oluşturulamadı."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Bir WiFi ağına bağlı olduğunuzdan emin olun ve tekrar deneyin."
@@ -5279,26 +5271,6 @@ msgstr "Ödünç alınan kitapları göster"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Kütüphane görünümünüze ödünç alınan kitapları dahil edin"
-
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "Birisi bu kodu taradığında, ödünç verme ve senkronizasyon için kütüphanenize bağlanabilir."
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "Bu kodu bir arkadaşınıza gösterin"
-
-#. They tap + then "Scan QR Code" in their app
-msgid "show_code_step_2"
-msgstr "Uygulamalarında + simgesine, ardından \"QR Kodunu Tara\"ya dokunurlar"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "İkiniz de ödünç verme ve senkronizasyona erişim sağlarsınız"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "Kodumu Göster"
 
 #. Showing cached
 msgid "showing_cached"
@@ -8014,10 +7986,6 @@ msgstr "Uzaktan erişime hazır"
 
 msgid "invite_library_icon"
 msgstr "Kütüphane simgesi"
-
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "Davet bağlantınız"
 
 msgid "invite_card_title"
 msgstr "Kütüphanenizi paylaşın"

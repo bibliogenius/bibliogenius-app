@@ -1729,10 +1729,6 @@ msgstr "ISBN 직접 입력"
 msgid "enter_library_name"
 msgstr "라이브러리 이름"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "직접 입력"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "초기화를 확인하려면 비밀번호를 입력하세요"
@@ -4213,10 +4209,6 @@ msgstr "출판사 이름"
 msgid "publisher_label"
 msgstr "출판사"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "QR 코드를 생성할 수 없습니다."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "WiFi 네트워크에 연결되어 있는지 확인한 후 다시 시도하세요."
@@ -4983,10 +4975,6 @@ msgstr "빌린 책 표시"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "서재 화면에 빌린 책을 포함합니다"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "내 코드 표시"
 
 #. Showing cached
 msgid "showing_cached"
@@ -7233,22 +7221,6 @@ msgstr "어떤 유형의 독자이신가요?"
 msgid "setup_profile_coming_soon"
 msgstr "출시 예정"
 
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "누군가 이 코드를 스캔하면 대출과 동기화를 위해 내 서재에 연결할 수 있습니다."
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "친구에게 이 코드를 보여주세요"
-
-#. They scan it with their camera or from the app
-msgid "show_code_step_2"
-msgstr "친구가 카메라나 앱으로 스캔합니다"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "두 사람 모두 대출과 동기화에 접근할 수 있습니다"
-
 #. Sort by
 msgid "sort_by_label"
 msgstr "정렬 기준"
@@ -8219,10 +8191,6 @@ msgstr "원격 접속 준비됨"
 
 msgid "invite_library_icon"
 msgstr "서재 아이콘"
-
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "초대 링크"
 
 msgid "invite_card_title"
 msgstr "서재 공유하기"

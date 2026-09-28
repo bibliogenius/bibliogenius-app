@@ -1884,10 +1884,6 @@ msgstr "ISBN manuell eingeben"
 msgid "enter_library_name"
 msgstr "Bibliotheksname eingeben"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "Manuell eingeben"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "Passwort eingeben zum Zurücksetzen"
@@ -4697,10 +4693,6 @@ msgstr "Verlagsname"
 msgid "publisher_label"
 msgstr "Verlag"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "QR-Code konnte nicht generiert werden."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Verbinde dich mit demselben WLAN für bessere Verbindung"
@@ -5587,10 +5579,6 @@ msgstr "Geliehene Bücher anzeigen"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Geliehene Bücher in der Bibliothek anzeigen"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "Meinen Code anzeigen"
 
 #. Showing cached
 msgid "showing_cached"
@@ -6651,10 +6639,6 @@ msgstr "Fernzugriff bereit"
 msgid "invite_library_icon"
 msgstr "Bibliothekssymbol"
 
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "Dein Einladungslink"
-
 msgid "invite_card_title"
 msgstr "Teile deinen Einladungslink"
 
@@ -7651,18 +7635,6 @@ msgstr "Welcher Lesertyp sind Sie?"
 
 msgid "setup_profile_step_title"
 msgstr "Ihr Profil"
-
-msgid "show_code_explanation"
-msgstr "Wenn jemand diesen Code scannt, kann er sich mit Ihrer Bibliothek für Ausleihen und Synchronisation verbinden."
-
-msgid "show_code_step_1"
-msgstr "Zeigen Sie diesen Code einem Freund"
-
-msgid "show_code_step_2"
-msgstr "Er scannt ihn mit der Kamera oder aus der App"
-
-msgid "show_code_step_3"
-msgstr "Beide erhalten Zugang zu Ausleihen und Synchronisation"
 
 msgid "show_view_count"
 msgstr "Bibliotheksaufrufe anzeigen"

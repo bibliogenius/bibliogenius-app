@@ -7,7 +7,7 @@ import '../services/quick_action_registry.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
 import 'configurable_action_card.dart';
-import 'invite_share_sheet.dart';
+import '../screens/invite_screen.dart';
 
 class QuickActionsSheet extends StatelessWidget {
   final List<Widget>? contextualActions;
@@ -232,7 +232,7 @@ class QuickActionsSheet extends StatelessWidget {
                             rootNavigator: true,
                           );
                           Navigator.pop(context);
-                          showInviteShareSheet(navState.context);
+                          showInviteScreen(navState.context);
                         },
                         'inventory': () =>
                             showShelfPickerForInventory(context, onBookAdded),
@@ -289,7 +289,7 @@ class QuickActionsSheet extends StatelessWidget {
       'share_library': () {
         final navState = Navigator.of(context, rootNavigator: true);
         Navigator.pop(context);
-        showInviteShareSheet(navState.context);
+        showInviteScreen(navState.context);
       },
     };
   }

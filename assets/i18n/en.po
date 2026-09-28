@@ -2077,10 +2077,6 @@ msgstr "Enter ISBN manually"
 msgid "enter_library_name"
 msgstr "Name of your library"
 
-#. Enter Manually
-msgid "enter_manually"
-msgstr "Enter Manually"
-
 #. Enter your password to confirm reset
 msgid "enter_password_to_reset"
 msgstr "Enter your password to confirm reset"
@@ -5054,10 +5050,6 @@ msgstr "Publisher name"
 msgid "publisher_label"
 msgstr "Publisher"
 
-#. Could not generate QR Code.
-msgid "qr_error"
-msgstr "Could not generate QR Code."
-
 #. Make sure you are connected to a WiFi network and try again.
 msgid "qr_wifi_suggestion"
 msgstr "Make sure you are connected to a WiFi network and try again."
@@ -5124,7 +5116,7 @@ msgstr "Import Goodreads"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "Share library"
+msgstr "Invite"
 
 #. Country / Market
 msgid "settings_country"
@@ -6250,26 +6242,6 @@ msgstr "Show borrowed books"
 #. Include borrowed books in your library view
 msgid "show_borrowed_subtitle"
 msgstr "Include borrowed books in your library view"
-
-#. When someone scans this code, they can connect to your library for loans and sync.
-msgid "show_code_explanation"
-msgstr "When someone scans this code, they can connect to your library for loans and sync."
-
-#. Show this code to a friend
-msgid "show_code_step_1"
-msgstr "Show this code to a friend"
-
-#. They scan it with their camera or from the app
-msgid "show_code_step_2"
-msgstr "They scan it with their camera or from the app"
-
-#. You both get access to loans and sync
-msgid "show_code_step_3"
-msgstr "You both get access to loans and sync"
-
-#. Show My Code
-msgid "show_my_code"
-msgstr "Show My Code"
 
 #. Showing cached
 msgid "showing_cached"
@@ -8013,10 +7985,6 @@ msgstr "Remote ready"
 msgid "invite_library_icon"
 msgstr "Library icon"
 
-#. Invite share sheet
-msgid "invite_share_title"
-msgstr "Your invite link"
-
 msgid "invite_card_title"
 msgstr "Share your library"
 
@@ -8039,7 +8007,7 @@ msgid "tooltip_share_invite"
 msgstr "Share invite link"
 
 msgid "share_invite_empty_state"
-msgstr "Share invite link"
+msgstr "Invite a library"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8051,7 +8019,7 @@ msgstr "Generating invite link..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "Share my library"
+msgstr "My invitation"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
