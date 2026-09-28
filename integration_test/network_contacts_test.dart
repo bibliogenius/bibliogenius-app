@@ -155,13 +155,12 @@ void main() {
       final contacts = (response.data['data'] ?? response.data) as List;
       for (final contact in contacts) {
         final uuid = contact['uuid'] as String?;
-        final localId = contact['id'] as int?;
         final name = contact['name'] as String? ?? '';
         // Only delete our test contacts (prefixed with test names)
         if (uuid != null &&
             (name.startsWith('TestContact_') || name.startsWith('Persona_'))) {
           try {
-            await api.deleteContact(uuid, localId: localId);
+            await api.deleteContact(uuid);
           } catch (_) {}
         }
       }
