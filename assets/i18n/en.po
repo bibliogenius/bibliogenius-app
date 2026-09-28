@@ -12077,3 +12077,43 @@ msgstr "%d sub-shelves"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "The books stay in your library; they just leave this shelf."
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "My invitation"
+
+#. Intro of the invitation screen: what a connection gives
+msgid "invite_intro"
+msgstr "A library connected to yours can exchange loans with you and stay in sync."
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "In person"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "Show this code to the other library: they scan it with their camera or from the app."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "QR code of your invitation"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "Remotely"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "Send your link by message. The other library opens it to connect to yours."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "This link only works on your WiFi network. Turn on \"Remote reachable\" in the settings to invite beyond it."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "Send"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "Your invitation cannot be prepared."

@@ -12072,3 +12072,43 @@ msgstr "%d sous-étagères"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Les livres restent dans votre bibliothèque ; ils quittent seulement cette étagère."
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "Mon invitation"
+
+#. Intro of the invitation screen: what a connection gives
+msgid "invite_intro"
+msgstr "Une bibliothèque connectée à la vôtre peut échanger des prêts avec vous et rester synchronisée."
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "En personne"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "Montrez ce code à l'autre bibliothèque : elle le scanne avec son appareil photo ou depuis l'application."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "Code QR de votre invitation"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "À distance"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "Envoyez votre lien par message. L'autre bibliothèque l'ouvre pour se connecter à la vôtre."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "Ce lien fonctionne seulement sur votre réseau WiFi. Activez « Joignable à distance » dans les paramètres pour inviter au-delà."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "Envoyer"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "Impossible de préparer votre invitation."

@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../services/city_repository.dart';
 import '../theme/app_design.dart';
 import '../widgets/city_picker_sheet.dart';
@@ -13,16 +12,15 @@ import '../widgets/hub_follow_requests.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
+import 'invite_screen.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/shimmer_loading.dart';
-import '../utils/invite_payload.dart';
 import '../utils/known_libraries.dart';
 import '../utils/requests_tabs.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
-import 'dart:convert';
 import '../models/avatar_config.dart';
 import '../models/contact.dart';
 import '../models/network_member.dart';
@@ -37,8 +35,6 @@ import '../providers/theme_provider.dart';
 import '../providers/pending_peers_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
-import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share_plus/share_plus.dart';
 
 /// Unified screen displaying "Mon reseau" and "Decouvrir" tabs
 class NetworkScreen extends StatefulWidget {
@@ -194,42 +190,7 @@ class _NetworkScreenState extends State<NetworkScreen>
                         isDark: isDark,
                         onTap: () {
                           Navigator.pop(sheetContext);
-                          showGeneralDialog(
-                            context: context,
-                            barrierDismissible: true,
-                            barrierLabel: MaterialLocalizations.of(
-                              context,
-                            ).modalBarrierDismissLabel,
-                            transitionDuration: const Duration(
-                              milliseconds: 300,
-                            ),
-                            pageBuilder: (dialogContext, _, _) => Scaffold(
-                              key: const Key('showMyCodeDialog'),
-                              appBar: AppBar(
-                                title: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'show_my_code',
-                                  ),
-                                ),
-                                leading: IconButton(
-                                  key: const Key('closeShowMyCode'),
-                                  icon: const Icon(Icons.close),
-                                  tooltip: TranslationService.translate(
-                                    context,
-                                    'close',
-                                  ),
-                                  onPressed: () => Navigator.pop(dialogContext),
-                                ),
-                              ),
-                              body: const SafeArea(
-                                child: SingleChildScrollView(
-                                  padding: EdgeInsets.all(24),
-                                  child: ShareContactView(),
-                                ),
-                              ),
-                            ),
-                          );
+                          showInviteScreen(context);
                         },
                       ),
                     ),
@@ -2023,281 +1984,6 @@ class _ConnectionActionCard extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// View for Sharing Code (extracted from original state)
-class ShareContactView extends StatefulWidget {
-  const ShareContactView({super.key});
-
-  @override
-  State<ShareContactView> createState() => _ShareContactViewState();
-}
-
-class _ShareContactViewState extends State<ShareContactView> {
-  String? _qrData;
-  String? _inviteLink;
-  String? _libraryName;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    debugPrint('📱 [QR] ShareContactView.initState()');
-    _initQRData();
-  }
-
-  Future<void> _initQRData() async {
-    debugPrint('📱 [QR] _initQRData() START');
-    try {
-      final apiService = Provider.of<ApiService>(context, listen: false);
-      // Library name from ThemeProvider (single source of truth)
-      final libraryName = Provider.of<ThemeProvider>(
-        context,
-        listen: false,
-      ).libraryName;
-
-      final result = await loadInviteLink(
-        libraryName: libraryName,
-        fetchLibraryConfig: () async =>
-            (await apiService.getLibraryConfig()).data as Map,
-        httpPort: ApiService.httpPort,
-        hubBaseUrl: ApiService.hubUrl,
-      );
-
-      if (result == null) {
-        debugPrint('⚠️ QR: No valid LAN IP and no relay configured');
-        if (mounted) setState(() => _isLoading = false);
-        return;
-      }
-      if (mounted) {
-        setState(() {
-          _libraryName = libraryName;
-          _qrData = jsonEncode(result.payload);
-          _inviteLink = result.link;
-          _isLoading = false;
-        });
-        // Log the lanes only: the payload carries the relay write token.
-        debugPrint(
-          '📱 [QR] QR data ready: lan=${(result.payload['u'] as String).isNotEmpty}, '
-          'relay=${result.payload.containsKey('mi')}',
-        );
-      }
-    } catch (e, stack) {
-      debugPrint('📱 [QR] ERROR in _initQRData: $e');
-      debugPrint('📱 [QR] Stack: $stack');
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    debugPrint(
-      '📱 [QR] build() - isLoading=$_isLoading, qrData=${_qrData != null}',
-    );
-    if (_isLoading) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (_inviteLink != null) ...[
-          // Info banner
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  size: 20,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    TranslationService.translate(
-                      context,
-                      'show_code_explanation',
-                    ),
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          // QR code
-          SizedBox(
-            width: 200,
-            height: 200,
-            child: QrImageView(
-              key: const Key('myQrCode'),
-              data: _inviteLink!,
-              version: QrVersions.auto,
-              size: 200.0,
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Numbered steps
-          _buildStep(
-            context,
-            1,
-            TranslationService.translate(context, 'show_code_step_1'),
-          ),
-          const SizedBox(height: 8),
-          _buildStep(
-            context,
-            2,
-            TranslationService.translate(context, 'show_code_step_2'),
-          ),
-          const SizedBox(height: 8),
-          _buildStep(
-            context,
-            3,
-            TranslationService.translate(context, 'show_code_step_3'),
-          ),
-          const SizedBox(height: 16),
-          // Copy + Share invite link buttons
-          Wrap(
-            alignment: WrapAlignment.center,
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              OutlinedButton.icon(
-                key: const Key('copyInviteLinkBtn'),
-                onPressed: _inviteLink == null
-                    ? null
-                    : () {
-                        Clipboard.setData(ClipboardData(text: _inviteLink!));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              TranslationService.translate(
-                                context,
-                                'invite_link_copied',
-                              ),
-                            ),
-                            backgroundColor: Colors.green,
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                icon: const Icon(Icons.content_copy, size: 18),
-                label: Text(
-                  TranslationService.translate(context, 'copy_invite_link'),
-                ),
-              ),
-              Builder(
-                builder: (btnContext) => OutlinedButton.icon(
-                  key: const Key('shareInviteLinkBtn'),
-                  onPressed: _inviteLink == null
-                      ? null
-                      : () async {
-                          final box =
-                              btnContext.findRenderObject() as RenderBox?;
-                          final origin = box != null
-                              ? box.localToGlobal(Offset.zero) & box.size
-                              : null;
-                          final message =
-                              TranslationService.translate(
-                                    context,
-                                    'invite_share_message',
-                                  )
-                                  .replaceAll(
-                                    '{name}',
-                                    _libraryName ?? 'BiblioGenius',
-                                  )
-                                  .replaceAll('{link}', _inviteLink!);
-                          try {
-                            await Share.share(
-                              message,
-                              sharePositionOrigin: origin,
-                            );
-                          } catch (e) {
-                            debugPrint(
-                              'NetworkScreen: share invite failed: $e',
-                            );
-                          }
-                        },
-                  icon: const Icon(Icons.share, size: 18),
-                  label: Text(
-                    TranslationService.translate(context, 'share_invite_link'),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ] else
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.wifi_off,
-                  size: 48,
-                  color: Theme.of(context).colorScheme.error,
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  TranslationService.translate(context, 'qr_error'),
-                  style: Theme.of(context).textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  TranslationService.translate(context, 'qr_wifi_suggestion'),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildStep(BuildContext context, int number, String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(
-          radius: 12,
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          child: Text(
-            '$number',
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: TextStyle(
-              fontSize: 13,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
