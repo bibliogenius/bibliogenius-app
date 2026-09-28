@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+
+import '../services/mdns_service.dart';
 
 /// Mapping from v4 short keys to canonical long keys.
 const _v4Decode = {
@@ -40,6 +43,119 @@ Map<String, dynamic> buildInvitePayload({
     if (mailboxId != null) 'mi': mailboxId,
     if (relayWriteToken != null) 'wt': relayWriteToken,
   };
+}
+
+/// Filters the Wi-Fi address reported by the platform.
+///
+/// Returns null for a missing address or a link-local one (169.254.x.x),
+/// which means the device holds no DHCP lease and cannot be reached.
+String? usableWifiIp(String? ip) {
+  if (ip == null || ip.isEmpty || ip.startsWith('169.254.')) return null;
+  return ip;
+}
+
+/// Builds this library's own invite payload from its config and LAN address.
+///
+/// Pure function shared by every surface that shows or shares the invite,
+/// so the pairing lanes behave identically everywhere:
+/// - Wi-Fi available: `u` carries the LAN URL (plus relay keys when present).
+/// - No Wi-Fi but relay credentials (mobile data): `u` is the empty string.
+///   The receiver treats an empty address as relay-only and the Rust backend
+///   mints its own `relay://` placeholder. A `relay://` value here would be
+///   mistaken for a LAN URL by the deep-link acceptance screen.
+/// - Neither: returns null, there is nothing another library could reach.
+Map<String, dynamic>? buildLocalInvitePayload({
+  required String libraryName,
+  required Map<dynamic, dynamic> config,
+  required String? lanIp,
+  required int httpPort,
+}) {
+  final relayUrl = config['relay_url'] as String?;
+  final mailboxId = config['mailbox_id'] as String?;
+  final hasRelay = relayUrl != null && mailboxId != null;
+
+  if (lanIp == null && !hasRelay) return null;
+
+  return buildInvitePayload(
+    name: libraryName,
+    url: lanIp != null ? 'http://$lanIp:$httpPort' : '',
+    libraryUuid: config['library_uuid'] as String?,
+    ed25519PublicKey: config['ed25519_public_key'] as String?,
+    x25519PublicKey: config['x25519_public_key'] as String?,
+    relayUrl: relayUrl,
+    mailboxId: mailboxId,
+    relayWriteToken: config['relay_write_token'] as String?,
+  );
+}
+
+/// The invite ready to display or share: the short (or long fallback) link
+/// and the payload it encodes.
+class InviteLinkData {
+  final Map<String, dynamic> payload;
+  final String link;
+
+  const InviteLinkData({required this.payload, required this.link});
+}
+
+/// Resolves the device's LAN address the same way the mDNS handshake does:
+/// the platform Wi-Fi address first, then the interface scan fallback.
+Future<String?> resolvePlatformLanIp() async {
+  String? ip;
+  try {
+    ip = usableWifiIp(await NetworkInfo().getWifiIP());
+  } catch (e) {
+    debugPrint('resolvePlatformLanIp: NetworkInfo error: $e');
+  }
+  return ip ?? await MdnsService.getValidLanIp();
+}
+
+/// Loads everything needed to show or share this library's invite.
+///
+/// Returns null when the invite cannot be generated (no Wi-Fi and no relay
+/// credentials) or when any step throws; callers show their error state in
+/// both cases. [fetchLibraryConfig] is the library config map from the
+/// backend; [resolveLanIp] and [createLink] are injectable for tests and
+/// default to the platform resolution and the hub short-link call.
+Future<InviteLinkData?> loadInviteLink({
+  required String libraryName,
+  required Future<Map<dynamic, dynamic>> Function() fetchLibraryConfig,
+  required int httpPort,
+  required String hubBaseUrl,
+  Future<String?> Function() resolveLanIp = resolvePlatformLanIp,
+  Future<String> Function(
+        Map<String, dynamic> payload, {
+        required String hubBaseUrl,
+      })
+      createLink =
+      createInviteLink,
+}) async {
+  try {
+    String? lanIp;
+    try {
+      lanIp = await resolveLanIp();
+    } catch (e) {
+      debugPrint('loadInviteLink: LAN IP resolution failed: $e');
+    }
+    debugPrint('loadInviteLink: lanIp=$lanIp');
+
+    final config = await fetchLibraryConfig();
+    final payload = buildLocalInvitePayload(
+      libraryName: libraryName,
+      config: config,
+      lanIp: lanIp,
+      httpPort: httpPort,
+    );
+    if (payload == null) {
+      debugPrint('loadInviteLink: no LAN IP and no relay credentials');
+      return null;
+    }
+
+    final link = await createLink(payload, hubBaseUrl: hubBaseUrl);
+    return InviteLinkData(payload: payload, link: link);
+  } catch (e) {
+    debugPrint('loadInviteLink: error: $e');
+    return null;
+  }
 }
 
 /// Encodes an invite payload Map into a full invite URL (long format).

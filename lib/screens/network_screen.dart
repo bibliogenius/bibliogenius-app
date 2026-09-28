@@ -37,7 +37,6 @@ import '../providers/pending_peers_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Unified screen displaying "Mon reseau" and "Decouvrir" tabs
@@ -2038,6 +2037,7 @@ class ShareContactView extends StatefulWidget {
 class _ShareContactViewState extends State<ShareContactView> {
   String? _qrData;
   String? _inviteLink;
+  String? _libraryName;
   bool _isLoading = true;
 
   @override
@@ -2051,72 +2051,37 @@ class _ShareContactViewState extends State<ShareContactView> {
     debugPrint('📱 [QR] _initQRData() START');
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
-      debugPrint('📱 [QR] Got ApiService OK');
-
-      // Use the same multi-strategy IP resolution as mDNS/peer handshake
-      String? localIp;
-      try {
-        final info = NetworkInfo();
-        final wifiIp = await info.getWifiIP();
-        debugPrint('📱 [QR] NetworkInfo.getWifiIP() = $wifiIp');
-        if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
-          localIp = wifiIp;
-        }
-      } catch (e) {
-        debugPrint('📱 [QR] NetworkInfo error: $e');
-      }
-      localIp ??= await MdnsService.getValidLanIp();
-      debugPrint('📱 [QR] Final localIp = $localIp');
-
-      final configRes = await apiService.getLibraryConfig();
       // Library name from ThemeProvider (single source of truth)
-      String libraryName = Provider.of<ThemeProvider>(
+      final libraryName = Provider.of<ThemeProvider>(
         context,
         listen: false,
       ).libraryName;
-      final libraryUuid = configRes.data['library_uuid'] as String?;
-      final ed25519Key = configRes.data['ed25519_public_key'] as String?;
-      final x25519Key = configRes.data['x25519_public_key'] as String?;
-      final relayUrl = configRes.data['relay_url'] as String?;
-      final mailboxId = configRes.data['mailbox_id'] as String?;
-      final relayWriteToken = configRes.data['relay_write_token'] as String?;
-      debugPrint(
-        '📱 [QR] libraryName=$libraryName, hasKeys=${ed25519Key != null}, hasRelay=${relayUrl != null}',
+
+      final result = await loadInviteLink(
+        libraryName: libraryName,
+        fetchLibraryConfig: () async =>
+            (await apiService.getLibraryConfig()).data as Map,
+        httpPort: ApiService.httpPort,
+        hubBaseUrl: ApiService.hubUrl,
       );
 
-      // Build the connection URL: prefer LAN IP, fall back to relay URL
-      final String connectUrl;
-      if (localIp != null) {
-        connectUrl = "http://$localIp:${ApiService.httpPort}";
-      } else if (relayUrl != null && mailboxId != null) {
-        // No WiFi (e.g. 5G) - use relay URL so the QR code still works
-        connectUrl = "relay://$mailboxId";
-        debugPrint('📱 [QR] No LAN IP, using relay URL for QR code');
-      } else {
+      if (result == null) {
         debugPrint('⚠️ QR: No valid LAN IP and no relay configured');
         if (mounted) setState(() => _isLoading = false);
         return;
       }
-
-      final data = buildInvitePayload(
-        name: libraryName,
-        url: connectUrl,
-        libraryUuid: libraryUuid,
-        ed25519PublicKey: ed25519Key,
-        x25519PublicKey: x25519Key,
-        relayUrl: relayUrl,
-        mailboxId: mailboxId,
-        relayWriteToken: relayWriteToken,
-      );
-      // Precalculate the short invite link (async, falls back to long format)
-      final link = await createInviteLink(data, hubBaseUrl: ApiService.hubUrl);
       if (mounted) {
         setState(() {
-          _qrData = jsonEncode(data);
-          _inviteLink = link;
+          _libraryName = libraryName;
+          _qrData = jsonEncode(result.payload);
+          _inviteLink = result.link;
           _isLoading = false;
         });
-        debugPrint('📱 [QR] QR data ready: $_qrData');
+        // Log the lanes only: the payload carries the relay write token.
+        debugPrint(
+          '📱 [QR] QR data ready: lan=${(result.payload['u'] as String).isNotEmpty}, '
+          'relay=${result.payload.containsKey('mi')}',
+        );
       }
     } catch (e, stack) {
       debugPrint('📱 [QR] ERROR in _initQRData: $e');
@@ -2244,9 +2209,19 @@ class _ShareContactViewState extends State<ShareContactView> {
                           final origin = box != null
                               ? box.localToGlobal(Offset.zero) & box.size
                               : null;
+                          final message =
+                              TranslationService.translate(
+                                    context,
+                                    'invite_share_message',
+                                  )
+                                  .replaceAll(
+                                    '{name}',
+                                    _libraryName ?? 'BiblioGenius',
+                                  )
+                                  .replaceAll('{link}', _inviteLink!);
                           try {
                             await Share.share(
-                              _inviteLink!,
+                              message,
                               sharePositionOrigin: origin,
                             );
                           } catch (e) {

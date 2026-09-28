@@ -2,14 +2,12 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:network_info_plus/network_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
-import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../utils/invite_payload.dart';
 
@@ -55,48 +53,21 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
   );
 
   try {
-    // Resolve local IP (best-effort for LAN connections)
-    String? localIp;
-    try {
-      final info = NetworkInfo();
-      final wifiIp = await info.getWifiIP();
-      if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
-        localIp = wifiIp;
-      }
-    } catch (_) {}
-    localIp ??= await MdnsService.getValidLanIp();
+    final result = await loadInviteLink(
+      libraryName: libraryName,
+      fetchLibraryConfig: () async =>
+          (await apiService.getLibraryConfig()).data as Map,
+      httpPort: ApiService.httpPort,
+      hubBaseUrl: ApiService.hubUrl,
+    );
 
-    final configRes = await apiService.getLibraryConfig();
-    final libraryUuid = configRes.data['library_uuid'] as String?;
-    final ed25519Key = configRes.data['ed25519_public_key'] as String?;
-    final x25519Key = configRes.data['x25519_public_key'] as String?;
-    final relayUrl = configRes.data['relay_url'] as String?;
-    final mailboxId = configRes.data['mailbox_id'] as String?;
-    final relayWriteToken = configRes.data['relay_write_token'] as String?;
-
-    if (localIp == null && (relayUrl == null || mailboxId == null)) {
+    if (result == null) {
       messenger.hideCurrentSnackBar();
       // Cannot generate link - fall back to bottom sheet (shows error state)
       if (context.mounted) showInviteShareSheet(context);
       return;
     }
-
-    final peerUrl = localIp != null
-        ? "http://$localIp:${ApiService.httpPort}"
-        : "";
-
-    final payload = buildInvitePayload(
-      name: libraryName,
-      url: peerUrl,
-      libraryUuid: libraryUuid,
-      ed25519PublicKey: ed25519Key,
-      x25519PublicKey: x25519Key,
-      relayUrl: relayUrl,
-      mailboxId: mailboxId,
-      relayWriteToken: relayWriteToken,
-    );
-
-    final link = await createInviteLink(payload, hubBaseUrl: ApiService.hubUrl);
+    final link = result.link;
 
     messenger.hideCurrentSnackBar();
 
@@ -155,58 +126,26 @@ class _InviteShareSheetState extends State<InviteShareSheet> {
   Future<void> _initData() async {
     try {
       final apiService = Provider.of<ApiService>(context, listen: false);
-
-      // Resolve local IP (best-effort for LAN connections)
-      String? localIp;
-      try {
-        final info = NetworkInfo();
-        final wifiIp = await info.getWifiIP();
-        if (wifiIp != null && !wifiIp.startsWith('169.254.')) {
-          localIp = wifiIp;
-        }
-      } catch (_) {}
-      localIp ??= await MdnsService.getValidLanIp();
-
-      final configRes = await apiService.getLibraryConfig();
       // Library name from ThemeProvider (single source of truth)
       final libraryName = Provider.of<ThemeProvider>(
         context,
         listen: false,
       ).libraryName;
-      final libraryUuid = configRes.data['library_uuid'] as String?;
-      final ed25519Key = configRes.data['ed25519_public_key'] as String?;
-      final x25519Key = configRes.data['x25519_public_key'] as String?;
-      final relayUrl = configRes.data['relay_url'] as String?;
-      final mailboxId = configRes.data['mailbox_id'] as String?;
-      final relayWriteToken = configRes.data['relay_write_token'] as String?;
+
+      final result = await loadInviteLink(
+        libraryName: libraryName,
+        fetchLibraryConfig: () async =>
+            (await apiService.getLibraryConfig()).data as Map,
+        httpPort: ApiService.httpPort,
+        hubBaseUrl: ApiService.hubUrl,
+      );
 
       // No WiFi IP AND no relay credentials: cannot generate invite
-      if (localIp == null && (relayUrl == null || mailboxId == null)) {
+      if (result == null) {
         if (mounted) setState(() => _isLoading = false);
         return;
       }
-
-      // Build URL: use LAN URL if available, empty string for relay-only
-      final peerUrl = localIp != null
-          ? "http://$localIp:${ApiService.httpPort}"
-          : "";
-
-      final payload = buildInvitePayload(
-        name: libraryName,
-        url: peerUrl,
-        libraryUuid: libraryUuid,
-        ed25519PublicKey: ed25519Key,
-        x25519PublicKey: x25519Key,
-        relayUrl: relayUrl,
-        mailboxId: mailboxId,
-        relayWriteToken: relayWriteToken,
-      );
-
-      // Try to create a short invite link via the hub
-      final link = await createInviteLink(
-        payload,
-        hubBaseUrl: ApiService.hubUrl,
-      );
+      final link = result.link;
 
       if (mounted) {
         setState(() {
