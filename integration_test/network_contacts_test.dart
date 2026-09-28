@@ -225,7 +225,7 @@ void main() {
     // Verify bottom sheet items
     expect(find.byKey(const Key('actionEnterManually')), findsOneWidget);
     expect(find.byKey(const Key('actionScanQr')), findsOneWidget);
-    expect(find.byKey(const Key('actionShowMyCode')), findsOneWidget);
+    expect(find.byKey(const Key('actionInvite')), findsOneWidget);
 
     await takeScreenshot(tester, 'network_alice_fab_bottom_sheet');
 
@@ -387,13 +387,13 @@ void main() {
     // =====================================================================
     // PERSONA 7: Gina — Show My QR Code
     // =====================================================================
-    debugPrint('\n👤 Persona 7: Gina — Show My QR Code');
+    debugPrint('\n👤 Persona 7: Gina — My invitation (QR code + link)');
 
-    // Open FAB → Show My Code
+    // Open FAB → Invite someone
     await tester.tap(find.byKey(const Key('networkAddFab')));
     await tester.pumpAndSettle();
 
-    final showMyCodeAction = find.byKey(const Key('actionShowMyCode'));
+    final showMyCodeAction = find.byKey(const Key('actionInvite'));
     expect(showMyCodeAction, findsOneWidget);
     await tester.tap(showMyCodeAction);
     await tester.pumpAndSettle();

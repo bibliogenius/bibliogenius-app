@@ -12117,3 +12117,39 @@ msgstr "Send"
 #. Error state of the invitation screen: neither WiFi nor remote access
 msgid "invite_unavailable_title"
 msgstr "Your invitation cannot be prepared."
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "To exchange loans and stay in sync."
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "A BiblioGenius library"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "Scan their code"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "Add a contact"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "Invite someone"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "A contact without the app"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "Loans handled by hand"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "You are side by side"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "Your code and your invite link"

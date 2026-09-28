@@ -11,6 +11,7 @@ import '../widgets/discover_card.dart';
 import '../widgets/hub_follow_requests.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/contextual_help_sheet.dart';
+import '../widgets/add_connection_sheet.dart';
 import '../widgets/invite_share_sheet.dart';
 import 'invite_screen.dart';
 import '../widgets/configurable_action_card.dart';
@@ -94,139 +95,26 @@ class _NetworkScreenState extends State<NetworkScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (sheetContext) {
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Header
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? Colors.teal.withValues(alpha: 0.2)
-                            : Colors.teal.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Icon(
-                        Icons.people_alt,
-                        color: Colors.teal,
-                        size: 20,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      TranslationService.translate(
-                        context,
-                        'add_connection_title',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                // Actions grid
-                Row(
-                  children: [
-                    Expanded(
-                      child: _ConnectionActionCard(
-                        key: const Key('actionEnterManually'),
-                        icon: Icons.edit,
-                        color: Colors.orange,
-                        label: TranslationService.translate(
-                          context,
-                          'enter_manually',
-                        ),
-                        isDark: isDark,
-                        onTap: () async {
-                          Navigator.pop(sheetContext);
-                          final result = await context.push('/contacts/add');
-                          if (result == true) {
-                            _myNetworkKey.currentState?.reloadMembers();
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _ConnectionActionCard(
-                        key: const Key('actionScanQr'),
-                        icon: Icons.qr_code_scanner,
-                        color: Colors.blue,
-                        label: TranslationService.translate(
-                          context,
-                          'scan_qr_code',
-                        ),
-                        isDark: isDark,
-                        onTap: () async {
-                          Navigator.pop(sheetContext);
-                          final result = await context.push('/scan-qr');
-                          if (result == true) {
-                            _myNetworkKey.currentState?.reloadMembers();
-                          }
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _ConnectionActionCard(
-                        key: const Key('actionShowMyCode'),
-                        icon: Icons.qr_code,
-                        color: Colors.purple,
-                        label: TranslationService.translate(
-                          context,
-                          'show_my_code',
-                        ),
-                        isDark: isDark,
-                        onTap: () {
-                          Navigator.pop(sheetContext);
-                          showInviteScreen(context);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                // Share invite link button
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    key: const Key('actionShareInviteLink'),
-                    onPressed: () {
-                      Navigator.pop(sheetContext);
-                      shareInviteLinkDirect(context);
-                    },
-                    icon: const Icon(Icons.share, size: 18),
-                    label: Text(
-                      TranslationService.translate(
-                        context,
-                        'share_invite_link',
-                      ),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
+      builder: (sheetContext) => AddConnectionSheet(
+        onScan: () async {
+          Navigator.pop(sheetContext);
+          final result = await context.push('/scan-qr');
+          if (result == true) {
+            _myNetworkKey.currentState?.reloadMembers();
+          }
+        },
+        onEnterAddress: () async {
+          Navigator.pop(sheetContext);
+          final result = await context.push('/contacts/add');
+          if (result == true) {
+            _myNetworkKey.currentState?.reloadMembers();
+          }
+        },
+        onInvite: () {
+          Navigator.pop(sheetContext);
+          showInviteScreen(context);
+        },
+      ),
     );
   }
 
@@ -1918,76 +1806,6 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
 }
 
 /// Card for connection actions (styled like QuickActionCard).
-class _ConnectionActionCard extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final String label;
-  final bool isDark;
-  final VoidCallback onTap;
-
-  const _ConnectionActionCard({
-    super.key,
-    required this.icon,
-    required this.color,
-    required this.label,
-    required this.isDark,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-          decoration: BoxDecoration(
-            color: isDark
-                ? color.withValues(alpha: 0.15)
-                : color.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: color.withValues(alpha: 0.2), width: 1),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[800] : Colors.white,
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white70 : Colors.grey[800],
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Pending connections banner - compact, branded
 // ---------------------------------------------------------------------------
