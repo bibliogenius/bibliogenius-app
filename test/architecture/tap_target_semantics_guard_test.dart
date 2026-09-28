@@ -498,6 +498,14 @@ class _Harness {
         name: 'Ada Martin',
         libraryOwnerId: 1,
       ),
+      // Two borrowers, not one: every contact-backed member has the same int
+      // `id`, and a key built from it collided as soon as there were two.
+      Contact(
+        id: 'k2',
+        type: 'borrower',
+        name: 'Basile Roux',
+        libraryOwnerId: 1,
+      ),
     ];
   final copies = MockCopyRepository()
     ..mockCopies = [
@@ -903,6 +911,17 @@ void _setUp() {
 void main() {
   setUpAll(_setUpAll);
   setUp(_setUp);
+
+  // Not a semantics check, but a crash the lot moving this key exposed: the
+  // borrower tile's key became a direct child key of the network list, and
+  // every borrower shared `memberTile_0`, which broke the list on rebuild.
+  testWidgets('each borrower tile of the network list has its own key', (
+    tester,
+  ) async {
+    await _render(tester, _probes.firstWhere((p) => p.name == 'network'));
+    expect(find.byKey(const Key('memberTile_k1')), findsOneWidget);
+    expect(find.byKey(const Key('memberTile_k2')), findsOneWidget);
+  });
 
   for (final probe in _probes) {
     testWidgets('${probe.name}: every tap target has a name and a role', (

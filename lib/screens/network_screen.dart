@@ -1397,7 +1397,10 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     // Card opens its own node, which left a "button" with nothing to press
     // above a tile with no role. The tile's own text names it.
     return Card(
-      key: Key('memberTile_${member.id}'),
+      // The contact's uuid, not `member.id`: that int is 0 for every
+      // contact-backed member, and this key sits directly in the list, where
+      // a duplicate breaks the list on rebuild.
+      key: Key('memberTile_${member.contactUuid ?? member.id}'),
       surfaceTintColor: Colors.transparent,
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
       child: Semantics(
