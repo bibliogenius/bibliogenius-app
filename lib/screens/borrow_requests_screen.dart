@@ -18,10 +18,12 @@ import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
+import '../providers/pending_peers_provider.dart';
 import '../providers/theme_provider.dart';
 import '../src/rust/api/frb.dart'
     show FrbHubBorrowRequest, FrbNudgeEvent, subscribeRelayNudges;
 import '../utils/cover_url_resolver.dart';
+import '../utils/requests_tabs.dart';
 import '../widgets/premium_empty_state.dart';
 
 /// Screen for managing loans, borrows, and P2P requests
@@ -38,11 +40,15 @@ class LoansScreen extends StatefulWidget {
   /// Initial status filter: 'active', 'overdue', 'returned'
   final String? initialStatusFilter;
 
+  /// Initial sub-tab of Demandes: 'received', 'sent' or 'connections'
+  final String? initialSubTab;
+
   const LoansScreen({
     super.key,
     this.isTabView = false,
     this.initialTab,
     this.initialStatusFilter,
+    this.initialSubTab,
   });
 
   @override
@@ -153,14 +159,15 @@ class _LoansScreenState extends State<LoansScreen>
     //   Reçues  → canLendBooks   (peers want our books)
     //   Envoyées → canBorrowBooks (we want their books)
     //   Connexions → connectionValidationEnabled
-    int requestsSubCount = 0;
-    if (themeProvider.canLendBooks) requestsSubCount++; // +Reçues
-    if (themeProvider.canBorrowBooks) requestsSubCount++; // +Envoyées
-    if (showConnections) requestsSubCount++; // +Connexions
-    if (requestsSubCount == 0) requestsSubCount = 1; // safety floor
+    final requestsSubTabs = RequestsSubTabs(
+      canLend: themeProvider.canLendBooks,
+      canBorrow: themeProvider.canBorrowBooks,
+      showConnections: showConnections,
+    );
     _requestsTabController = TabController(
-      length: requestsSubCount,
+      length: requestsSubTabs.count,
       vsync: this,
+      initialIndex: requestsSubTabIndex(requestsSubTabs, widget.initialSubTab),
     );
     _fetchAllData();
     _refreshTimer = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -2293,11 +2300,14 @@ class _LoansScreenState extends State<LoansScreen>
   Future<void> _acceptConnection(Map<String, dynamic> peer) async {
     final api = Provider.of<ApiService>(context, listen: false);
     final hubDir = Provider.of<HubDirectoryProvider>(context, listen: false);
+    final pending = Provider.of<PendingPeersProvider>(context, listen: false);
     try {
       await api.updatePeerStatus(peer['id'], 'active');
       // ADR-053: a freshly accepted pairing must also hold hub catalog
       // access; the reconciliation sends/approves the mutual follow.
       unawaited(hubDir.reconcilePairedPeerFollows());
+      // The pending banner and badge otherwise wait for the 30 s poll.
+      unawaited(pending.refresh());
       _fetchAllData();
     } catch (e) {
       if (mounted) {
@@ -2310,8 +2320,10 @@ class _LoansScreenState extends State<LoansScreen>
 
   Future<void> _rejectConnection(Map<String, dynamic> peer) async {
     final api = Provider.of<ApiService>(context, listen: false);
+    final pending = Provider.of<PendingPeersProvider>(context, listen: false);
     try {
       await api.updatePeerStatus(peer['id'], 'rejected');
+      unawaited(pending.refresh());
       _fetchAllData();
     } catch (e) {
       if (mounted) {

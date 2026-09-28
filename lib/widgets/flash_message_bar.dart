@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/flash_message_provider.dart';
 import '../services/translation_service.dart';
+import '../utils/requests_tabs.dart';
 
 // -- Shared flash card styling --
 
@@ -265,7 +266,7 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
             TextButton(
               onPressed: () {
                 if (flash.isPending) {
-                  context.push('/requests');
+                  context.push(kConnectionRequestsRoute);
                 } else {
                   context.push(
                     '/peers/${flash.peerId}/books',
@@ -420,7 +421,7 @@ class _PeerConnectionsDialog extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(ctx).pop();
                           if (flash.isPending) {
-                            parentContext.push('/requests');
+                            parentContext.push(kConnectionRequestsRoute);
                           } else {
                             parentContext.push(
                               '/peers/${flash.peerId}/books',

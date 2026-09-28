@@ -17,6 +17,7 @@ import '../widgets/configurable_action_card.dart';
 import '../widgets/shimmer_loading.dart';
 import '../utils/invite_payload.dart';
 import '../utils/known_libraries.dart';
+import '../utils/requests_tabs.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1141,7 +1142,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
         if (pendingProvider.pendingCount > 0)
           _PendingBanner(
             count: pendingProvider.pendingCount,
-            onAction: pendingProvider.refresh,
+            onAction: () => context.push(kConnectionRequestsRoute),
           ),
         // Hub follow requests. Shown whenever there are pending requests, even
         // if the public directory is currently off, so users can resolve legacy

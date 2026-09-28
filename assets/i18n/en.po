@@ -1249,7 +1249,7 @@ msgstr "Connection Approval"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "Require your approval before new libraries can access yours"
+msgstr "Require your approval before a new library can ask you for loans or sync with you"
 
 #. Auto-approve loan requests
 msgid "auto_approve_loans_title"

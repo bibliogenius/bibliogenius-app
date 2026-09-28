@@ -1408,10 +1408,12 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
               builder: (context, state) {
                 final tab = state.uri.queryParameters['tab'];
                 final status = state.uri.queryParameters['status'];
+                final sub = state.uri.queryParameters['sub'];
                 return LoansScreen(
                   isTabView: false,
                   initialTab: tab,
                   initialStatusFilter: status,
+                  initialSubTab: sub,
                 );
               },
             ),
