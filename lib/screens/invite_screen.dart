@@ -30,8 +30,9 @@ Future<void> showInviteScreen(BuildContext context) {
   );
 }
 
-/// The one screen that shows this library's invitation: what a connection
-/// gives, the QR code for pairing in person, the link for pairing remotely.
+/// The one screen that shows this library's invitation: the QR code for
+/// pairing in person, the link for pairing remotely, and the two actions
+/// pinned at the bottom so they never scroll out of reach.
 class InviteScreen extends StatefulWidget {
   final InviteLoader? loader;
 
@@ -126,6 +127,7 @@ class _InviteScreenState extends State<InviteScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final invite = _invite;
     return Scaffold(
       key: const Key('showMyCodeDialog'),
       appBar: AppBar(
@@ -140,20 +142,27 @@ class _InviteScreenState extends State<InviteScreen> {
         ),
       ),
       body: SafeArea(
+        bottom: false,
         child: _isLoading
             ? _LoadingState()
-            : _invite == null
+            : invite == null
             ? _UnavailableState(onRetry: _load)
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
                 child: _InviteContent(
-                  invite: _invite!,
-                  isDesktop: _isDesktop,
-                  onCopy: _copyLink,
-                  onShare: _shareLink,
+                  invite: invite,
+                  libraryName: _libraryName,
                 ),
               ),
       ),
+      // Pinned: the two actions stay reachable whatever the scroll position.
+      bottomNavigationBar: (_isLoading || invite == null)
+          ? null
+          : _ActionBar(
+              isDesktop: _isDesktop,
+              onCopy: _copyLink,
+              onShare: _shareLink,
+            ),
     );
   }
 }
@@ -216,16 +225,9 @@ class _UnavailableState extends StatelessWidget {
 
 class _InviteContent extends StatelessWidget {
   final InviteLinkData invite;
-  final bool isDesktop;
-  final VoidCallback onCopy;
-  final void Function(BuildContext buttonContext) onShare;
+  final String libraryName;
 
-  const _InviteContent({
-    required this.invite,
-    required this.isDesktop,
-    required this.onCopy,
-    required this.onShare,
-  });
+  const _InviteContent({required this.invite, required this.libraryName});
 
   /// Relay credentials travel as the `mi` (mailbox id) key of the payload;
   /// without them the link only reaches this library on its own Wi-Fi.
@@ -234,46 +236,24 @@ class _InviteContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final hintStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          TranslationService.translate(context, 'invite_intro'),
-          style: theme.textTheme.bodyMedium,
-        ),
-        const SizedBox(height: 24),
-
         _SectionTitle(
           icon: Icons.qr_code_2,
           text: TranslationService.translate(context, 'invite_in_person_title'),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           TranslationService.translate(context, 'invite_in_person_hint'),
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          style: hintStyle,
         ),
         const SizedBox(height: 16),
         Center(
-          child: Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              // The QR code needs a light, opaque background to scan in dark mode.
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: QrImageView(
-              key: const Key('myQrCode'),
-              data: invite.link,
-              version: QrVersions.auto,
-              size: 200,
-              semanticsLabel: TranslationService.translate(
-                context,
-                'invite_qr_semantics',
-              ),
-            ),
-          ),
+          child: _QrCard(link: invite.link, libraryName: libraryName),
         ),
         const SizedBox(height: 28),
 
@@ -281,14 +261,12 @@ class _InviteContent extends StatelessWidget {
           icon: Icons.send_outlined,
           text: TranslationService.translate(context, 'invite_remote_title'),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Text(
           TranslationService.translate(context, 'invite_remote_hint'),
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          style: hintStyle,
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         _ReachNote(
           icon: _reachableRemotely ? Icons.cell_tower : Icons.wifi,
           text: TranslationService.translate(
@@ -296,34 +274,67 @@ class _InviteContent extends StatelessWidget {
             _reachableRemotely ? 'invite_works_everywhere' : 'invite_lan_only',
           ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _ActionButton(
-                key: const Key('copyInviteLinkBtn'),
-                filled: isDesktop,
-                icon: Icons.content_copy,
-                label: TranslationService.translate(
-                  context,
-                  'copy_invite_link',
-                ),
-                onPressed: (_) => onCopy(),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _ActionButton(
-                key: const Key('shareInviteLinkBtn'),
-                filled: !isDesktop,
-                icon: Icons.share,
-                label: TranslationService.translate(context, 'invite_send'),
-                onPressed: onShare,
-              ),
+      ],
+    );
+  }
+}
+
+/// The QR code on an opaque white card (it must scan in dark mode too), with
+/// the library name under it so the reader knows what the code stands for.
+class _QrCard extends StatelessWidget {
+  final String link;
+  final String libraryName;
+
+  const _QrCard({required this.link, required this.libraryName});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    // The card follows the wider of the QR code and the name, up to 320 dp,
+    // so a typical name sits on one line instead of wrapping under the code.
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 320),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.black.withValues(alpha: 0.08)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-      ],
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            QrImageView(
+              key: const Key('myQrCode'),
+              data: link,
+              version: QrVersions.auto,
+              size: 200,
+              semanticsLabel: TranslationService.translate(
+                context,
+                'invite_qr_semantics',
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              libraryName,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: const Color(0xFF1A2E35),
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -357,6 +368,8 @@ class _SectionTitle extends StatelessWidget {
   }
 }
 
+/// A light one-liner, not a boxed callout: the reach of the link is a
+/// secondary fact next to the QR code and the actions.
 class _ReachNote extends StatelessWidget {
   final IconData icon;
   final String text;
@@ -366,32 +379,82 @@ class _ReachNote extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: theme.colorScheme.primary),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface,
-              ),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 2),
+          child: Icon(icon, size: 16, color: theme.colorScheme.primary),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurface,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
 
 /// Desktop puts "copy" first (sharing is limited there), mobile puts "send"
-/// first; the filled button marks the primary action on each.
+/// first; the filled button marks the primary action on each. Short labels
+/// so neither button ever wraps next to the other.
+class _ActionBar extends StatelessWidget {
+  final bool isDesktop;
+  final VoidCallback onCopy;
+  final void Function(BuildContext buttonContext) onShare;
+
+  const _ActionBar({
+    required this.isDesktop,
+    required this.onCopy,
+    required this.onShare,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.scaffoldBackgroundColor,
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+          child: Row(
+            children: [
+              Expanded(
+                child: _ActionButton(
+                  key: const Key('copyInviteLinkBtn'),
+                  filled: isDesktop,
+                  icon: Icons.content_copy,
+                  label: TranslationService.translate(
+                    context,
+                    'copy_invite_link',
+                  ),
+                  onPressed: (_) => onCopy(),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _ActionButton(
+                  key: const Key('shareInviteLinkBtn'),
+                  filled: !isDesktop,
+                  icon: Icons.share,
+                  label: TranslationService.translate(context, 'invite_send'),
+                  onPressed: onShare,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _ActionButton extends StatelessWidget {
   final bool filled;
   final IconData icon;
@@ -408,17 +471,18 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final text = Text(label, maxLines: 1, overflow: TextOverflow.ellipsis);
     return Builder(
       builder: (buttonContext) => filled
           ? FilledButton.icon(
               onPressed: () => onPressed(buttonContext),
               icon: Icon(icon, size: 18),
-              label: Text(label),
+              label: text,
             )
           : OutlinedButton.icon(
               onPressed: () => onPressed(buttonContext),
               icon: Icon(icon, size: 18),
-              label: Text(label),
+              label: text,
             ),
     );
   }

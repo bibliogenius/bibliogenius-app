@@ -6023,7 +6023,7 @@ msgstr "Détails techniques"
 
 #. This link works on any network
 msgid "invite_works_everywhere"
-msgstr "Ce lien fonctionne sur tout réseau : WiFi, 4G ou 5G. Le destinataire n'a pas besoin d'être à proximité."
+msgstr "Fonctionne partout : WiFi, 4G ou 5G."
 
 #. Local network
 msgid "settings_network_local"
@@ -7992,7 +7992,7 @@ msgid "invite_card_subtitle"
 msgstr "Envoyez un lien d'invitation"
 
 msgid "copy_invite_link"
-msgstr "Copier le lien"
+msgstr "Copier"
 
 msgid "invite_link_copied"
 msgstr "Lien d'invitation copié !"
@@ -12045,17 +12045,13 @@ msgstr "Les livres restent dans votre bibliothèque ; ils quittent seulement cet
 msgid "invite_screen_title"
 msgstr "Mon invitation"
 
-#. Intro of the invitation screen: what a connection gives
-msgid "invite_intro"
-msgstr "Une bibliothèque connectée à la vôtre peut échanger des prêts avec vous et rester synchronisée."
-
 #. Section: pairing in person with the QR code
 msgid "invite_in_person_title"
 msgstr "En personne"
 
 #. Hint under the in-person section
 msgid "invite_in_person_hint"
-msgstr "Montrez ce code à l'autre bibliothèque : elle le scanne avec son appareil photo ou depuis l'application."
+msgstr "L'autre bibliothèque scanne ce code, depuis l'app ou l'appareil photo."
 
 #. Semantic label of the invitation QR code
 msgid "invite_qr_semantics"
@@ -12067,11 +12063,11 @@ msgstr "À distance"
 
 #. Hint under the remote section
 msgid "invite_remote_hint"
-msgstr "Envoyez votre lien par message. L'autre bibliothèque l'ouvre pour se connecter à la vôtre."
+msgstr "Envoyez votre lien par message : l'autre bibliothèque l'ouvre pour se connecter."
 
 #. Note shown when the link only reaches the library on its own Wi-Fi
 msgid "invite_lan_only"
-msgstr "Ce lien fonctionne seulement sur votre réseau WiFi. Activez « Joignable à distance » dans les paramètres pour inviter au-delà."
+msgstr "Sur votre WiFi seulement. Activez « Joignable à distance » pour inviter au-delà."
 
 #. Primary button of the invitation screen: open the system share sheet
 msgid "invite_send"

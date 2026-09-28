@@ -20,7 +20,6 @@ const _translations = {
   'invite_screen_title': 'My invitation',
   'close': 'Close',
   'generating_invite_link': 'Preparing your invite link...',
-  'invite_intro': 'A connected library can exchange loans with you.',
   'invite_in_person_title': 'In person',
   'invite_in_person_hint': 'Show this code to the other library.',
   'invite_qr_semantics': 'QR code of your invitation',
