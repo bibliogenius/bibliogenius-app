@@ -8709,9 +8709,9 @@ msgstr "Göz at"
 msgid "flash_peer_review"
 msgstr "İncele"
 
-#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+#. Flash message, body shown when a pairing is accepted and the contact card is empty (the title already names the library)
 msgid "flash_peer_contact_invite"
-msgstr "Ödünç vermeyi kararlaştırmak için {name} iletişim bilgilerinize ihtiyaç duyacak."
+msgstr "Ödünç vermeyi kararlaştırmak için bu kütüphanenin iletişim bilgilerinize ihtiyacı olacak."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

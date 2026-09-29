@@ -8914,9 +8914,9 @@ msgstr "閲覧"
 msgid "flash_peer_review"
 msgstr "確認"
 
-#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+#. Flash message, body shown when a pairing is accepted and the contact card is empty (the title already names the library)
 msgid "flash_peer_contact_invite"
-msgstr "貸し借りを相談するには、{name}にあなたの連絡先が必要です。"
+msgstr "貸し借りを相談するには、この図書館にあなたの連絡先が必要です。"
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

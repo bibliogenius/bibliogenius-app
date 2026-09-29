@@ -2339,9 +2339,12 @@ class _LoansScreenState extends State<LoansScreen>
   Future<void> _rejectConnection(Map<String, dynamic> peer) async {
     final api = Provider.of<ApiService>(context, listen: false);
     final pending = Provider.of<PendingPeersProvider>(context, listen: false);
+    final flashes = Provider.of<FlashMessageProvider>(context, listen: false);
     try {
       await api.updatePeerStatus(peer['id'], 'rejected');
       unawaited(pending.refresh());
+      // Settled: its "Review" banner would now open an empty list.
+      flashes.dismissEphemeral(peer['id'] as int);
       _fetchAllData();
     } catch (e) {
       if (mounted) {

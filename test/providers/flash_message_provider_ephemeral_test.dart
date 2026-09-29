@@ -84,4 +84,30 @@ void main() {
     );
     expect(provider.allEphemeralFlashes, hasLength(2));
   });
+
+  test('accepting always clears the pending banner, shown or not', () {
+    // With nothing to invite to, the accepted banner stays silent, but the
+    // request it answered is settled: "Review" would open an empty list.
+    final provider = FlashMessageProvider();
+    provider.addEphemeralPeer(_flash(isPending: true));
+    provider.addEphemeralPeer(_flash());
+    expect(provider.allEphemeralFlashes, isEmpty);
+  });
+
+  test('the contacts screen leaves pending requests to its own banner', () {
+    final provider = FlashMessageProvider();
+    provider.addEphemeralPeer(
+      _flash(peerId: 1, nodeId: 'node-a', isPending: true),
+    );
+    provider.addEphemeralPeer(
+      _flash(peerId: 2, nodeId: 'node-b'),
+      showAccepted: true,
+    );
+
+    expect(
+      provider.visibleEphemeralFlashesOn('/network').map((f) => f.peerId),
+      [2],
+    );
+    expect(provider.visibleEphemeralFlashesOn('/books'), hasLength(2));
+  });
 }

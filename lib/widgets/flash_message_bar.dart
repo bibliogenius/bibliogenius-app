@@ -87,8 +87,8 @@ class FlashMessageBar extends StatelessWidget {
     final provider = context.watch<FlashMessageProvider>();
     final currentRoute = GoRouterState.of(context).uri.path;
     final staticFlashes = provider.getVisibleFlashes(context, currentRoute);
-    final ephemeralFlashes = provider.visibleEphemeralFlashes;
-    final hasOverflow = provider.hasEphemeralOverflow;
+    final ephemeralFlashes = provider.visibleEphemeralFlashesOn(currentRoute);
+    final overflowCount = provider.ephemeralOverflowCountOn(currentRoute);
 
     if (staticFlashes.isEmpty && ephemeralFlashes.isEmpty) {
       return const SizedBox.shrink();
@@ -105,8 +105,7 @@ class FlashMessageBar extends StatelessWidget {
         children: [
           ...staticFlashes.map((def) => _FlashBar(definition: def)),
           ...ephemeralFlashes.map((f) => _EphemeralPeerFlashBar(flash: f)),
-          if (hasOverflow)
-            _EphemeralSeeMoreRow(count: provider.ephemeralOverflowCount),
+          if (overflowCount > 0) _EphemeralSeeMoreRow(count: overflowCount),
           const SizedBox(height: 8),
         ],
       ),
@@ -225,7 +224,6 @@ class _FlashBar extends StatelessWidget {
 Widget _flashTextButton(
   BuildContext context, {
   required String label,
-  String? semanticsLabel,
   required VoidCallback onPressed,
 }) {
   final colorScheme = Theme.of(context).colorScheme;
@@ -239,7 +237,6 @@ Widget _flashTextButton(
     ),
     child: Text(
       label,
-      semanticsLabel: semanticsLabel,
       style: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -252,14 +249,33 @@ Widget _flashTextButton(
 /// Compact bar for a single ephemeral peer connection flash.
 /// Shows different text and action for pending vs accepted connections.
 ///
-/// An accepted pairing with an empty contact card gets a second line: the
-/// new peer is the one who will need the card to agree on a loan (ADR-067
-/// D9). It sits inside the same live region so it is announced with the
-/// banner, and it goes away on its own once the card is filled.
+/// An accepted pairing with an empty contact card is laid out differently:
+/// the invitation is the reason the banner is shown at all (ADR-067 D9), so
+/// its action leads, the title gets the full width, and the actions move
+/// under the text where they can wrap. Everything stays inside the same live
+/// region, and the banner falls back to its compact form once the card is
+/// filled.
 class _EphemeralPeerFlashBar extends StatelessWidget {
   final EphemeralPeerFlash flash;
 
   const _EphemeralPeerFlashBar({required this.flash});
+
+  void _openTarget(BuildContext context) {
+    if (flash.isPending) {
+      context.push(kConnectionRequestsRoute);
+    } else {
+      context.push(
+        '/peers/${flash.peerId}/books',
+        extra: {
+          'id': flash.peerId,
+          'name': flash.peerName,
+          'url': flash.peerUrl ?? '',
+          'hasRelayCredentials': flash.hasRelayCredentials,
+          'nodeId': flash.nodeId ?? '',
+        },
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -269,6 +285,7 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
       (p) => p.shouldInviteContactCard,
     );
     final invite = !flash.isPending && shouldInvite;
+    String t(String key) => TranslationService.translate(context, key);
     final textKey = flash.isPending
         ? 'flash_peer_pending'
         : 'flash_peer_connected';
@@ -277,89 +294,105 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
         : 'flash_peer_browse';
 
     final title = Text(
-      '${TranslationService.translate(context, textKey)} ${flash.peerName}',
+      '${t(textKey)} ${flash.peerName}',
       style: TextStyle(
         fontSize: 13,
-        fontWeight: FontWeight.w500,
+        fontWeight: invite ? FontWeight.w600 : FontWeight.w500,
         color: colorScheme.onSurface,
       ),
-      maxLines: 1,
+      maxLines: invite ? 2 : 1,
       overflow: TextOverflow.ellipsis,
     );
+    final badge = _flashIconBadge(
+      colorScheme,
+      flash.isPending ? Icons.person_add : Icons.people,
+    );
+    final close = _flashCloseButton(
+      context,
+      () => context.read<FlashMessageProvider>().dismissEphemeral(flash.peerId),
+    );
+
+    final Widget content;
+    if (invite) {
+      content = Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          badge,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Level with the close button's centre.
+                Padding(padding: const EdgeInsets.only(top: 4), child: title),
+                const SizedBox(height: 4),
+                Text(
+                  t('flash_peer_contact_invite'),
+                  style: TextStyle(
+                    fontSize: 13,
+                    height: 1.35,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 4,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    FilledButton.tonal(
+                      onPressed: () => showContactCardSheet(context),
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        minimumSize: const Size(0, 40),
+                        textStyle: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      child: Text(t('contact_prompt_action')),
+                    ),
+                    _flashTextButton(
+                      context,
+                      label: t(actionKey),
+                      onPressed: () => _openTarget(context),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          close,
+        ],
+      );
+    } else {
+      content = Row(
+        children: [
+          badge,
+          const SizedBox(width: 12),
+          Expanded(child: title),
+          const SizedBox(width: 4),
+          _flashTextButton(
+            context,
+            label: t(actionKey),
+            onPressed: () => _openTarget(context),
+          ),
+          close,
+        ],
+      );
+    }
 
     return Semantics(
       liveRegion: true,
       child: Container(
         margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-        padding: const EdgeInsets.fromLTRB(14, 12, 8, 12),
+        padding: EdgeInsets.fromLTRB(14, 12, 8, invite ? 10 : 12),
         decoration: _flashCardDecoration(colorScheme, isDark),
-        child: Row(
-          children: [
-            _flashIconBadge(
-              colorScheme,
-              flash.isPending ? Icons.person_add : Icons.people,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: invite
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        title,
-                        const SizedBox(height: 2),
-                        Text(
-                          TranslationService.translate(
-                            context,
-                            'flash_peer_contact_invite',
-                            params: {'name': flash.peerName},
-                          ),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        _flashTextButton(
-                          context,
-                          label: TranslationService.translate(context, 'add'),
-                          semanticsLabel: TranslationService.translate(
-                            context,
-                            'contact_prompt_action',
-                          ),
-                          onPressed: () => showContactCardSheet(context),
-                        ),
-                      ],
-                    )
-                  : title,
-            ),
-            const SizedBox(width: 4),
-            _flashTextButton(
-              context,
-              label: TranslationService.translate(context, actionKey),
-              onPressed: () {
-                if (flash.isPending) {
-                  context.push(kConnectionRequestsRoute);
-                } else {
-                  context.push(
-                    '/peers/${flash.peerId}/books',
-                    extra: {
-                      'id': flash.peerId,
-                      'name': flash.peerName,
-                      'url': flash.peerUrl ?? '',
-                      'hasRelayCredentials': flash.hasRelayCredentials,
-                      'nodeId': flash.nodeId ?? '',
-                    },
-                  );
-                }
-              },
-            ),
-            _flashCloseButton(
-              context,
-              () => context.read<FlashMessageProvider>().dismissEphemeral(
-                flash.peerId,
-              ),
-            ),
-          ],
-        ),
+        child: content,
       ),
     );
   }

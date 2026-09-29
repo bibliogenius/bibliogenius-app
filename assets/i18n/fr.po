@@ -8722,9 +8722,9 @@ msgstr "Parcourir"
 msgid "flash_peer_review"
 msgstr "Examiner"
 
-#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+#. Flash message, body shown when a pairing is accepted and the contact card is empty (the title already names the library)
 msgid "flash_peer_contact_invite"
-msgstr "Pour convenir d'un prêt, {name} aura besoin de vos coordonnées."
+msgstr "Pour convenir d'un prêt, cette bibliothèque aura besoin de vos coordonnées."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

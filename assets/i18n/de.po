@@ -7071,9 +7071,9 @@ msgstr "Wartet auf Ihre Genehmigung"
 msgid "flash_peer_review"
 msgstr "Prüfen"
 
-#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+#. Flash message, body shown when a pairing is accepted and the contact card is empty (the title already names the library)
 msgid "flash_peer_contact_invite"
-msgstr "Um eine Ausleihe zu vereinbaren, braucht {name} Ihre Kontaktdaten."
+msgstr "Um eine Ausleihe zu vereinbaren, braucht diese Bibliothek Ihre Kontaktdaten."
 
 msgid "flash_peer_see_more"
 msgstr "weitere Verbindungen"

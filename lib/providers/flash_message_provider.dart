@@ -233,8 +233,8 @@ class FlashMessageProvider extends ChangeNotifier {
   ///
   /// An accepted connection is only shown when [showAccepted] is set: the
   /// plain "paired with" banner was dropped as noise, and comes back only
-  /// when it carries something to do (the contact card invitation). It then
-  /// replaces the pending banner of the same peer rather than stacking on it.
+  /// when it carries something to do (the contact card invitation). Either
+  /// way it clears the pending banner of the same peer.
   void addEphemeralPeer(EphemeralPeerFlash flash, {bool showAccepted = false}) {
     if (flash.isPending) {
       if (_shownPending.contains(flash) || _shownAccepted.contains(flash)) {
@@ -242,9 +242,18 @@ class FlashMessageProvider extends ChangeNotifier {
       }
       _shownPending.add(flash);
     } else {
-      if (!showAccepted || _shownAccepted.contains(flash)) return;
-      _shownAccepted.add(flash);
+      // The request is settled whether or not the accepted banner shows: a
+      // leftover "Review" would open an empty list.
       _shownPending.add(flash);
+      final before = _ephemeralFlashes.length;
+      _ephemeralFlashes.removeWhere(
+        (f) => f.isPending && flash.isSamePeerAs(f),
+      );
+      if (!showAccepted || _shownAccepted.contains(flash)) {
+        if (_ephemeralFlashes.length != before) notifyListeners();
+        return;
+      }
+      _shownAccepted.add(flash);
       _ephemeralFlashes.removeWhere(flash.isSamePeerAs);
     }
     _ephemeralFlashes.insert(0, flash); // newest first
@@ -263,21 +272,28 @@ class FlashMessageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The up-to-3 flashes shown as bars.
-  List<EphemeralPeerFlash> get visibleEphemeralFlashes =>
-      _ephemeralFlashes.take(maxEphemeralVisible).toList();
+  /// Routes that show pending connection requests in their own banner, which
+  /// stays until the request is settled: the ephemeral one would repeat it.
+  static const _routesWithPendingBanner = ['/network'];
+
+  List<EphemeralPeerFlash> _ephemeralFlashesOn(String route) {
+    if (!_routesWithPendingBanner.any(route.startsWith)) {
+      return _ephemeralFlashes;
+    }
+    return _ephemeralFlashes.where((f) => !f.isPending).toList();
+  }
+
+  /// The up-to-3 flashes shown as bars on [route].
+  List<EphemeralPeerFlash> visibleEphemeralFlashesOn(String route) =>
+      _ephemeralFlashesOn(route).take(maxEphemeralVisible).toList();
 
   /// All flashes (for the "see more" dialog).
   List<EphemeralPeerFlash> get allEphemeralFlashes =>
       List.unmodifiable(_ephemeralFlashes);
 
-  /// Whether there are more ephemerals than the visible limit.
-  bool get hasEphemeralOverflow =>
-      _ephemeralFlashes.length > maxEphemeralVisible;
-
-  /// Count of hidden ephemeral flashes.
-  int get ephemeralOverflowCount =>
-      _ephemeralFlashes.length > maxEphemeralVisible
-      ? _ephemeralFlashes.length - maxEphemeralVisible
-      : 0;
+  /// Count of flashes on [route] beyond the visible limit.
+  int ephemeralOverflowCountOn(String route) {
+    final count = _ephemeralFlashesOn(route).length;
+    return count > maxEphemeralVisible ? count - maxEphemeralVisible : 0;
+  }
 }

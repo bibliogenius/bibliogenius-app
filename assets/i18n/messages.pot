@@ -7868,7 +7868,7 @@ msgstr ""
 msgid "flash_peer_review"
 msgstr ""
 
-#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+#. Flash message, body shown when a pairing is accepted and the contact card is empty (the title already names the library)
 msgid "flash_peer_contact_invite"
 msgstr ""
 

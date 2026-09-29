@@ -26,7 +26,8 @@ class _MockFfiService extends FfiService {
       );
 }
 
-const _invite = 'To agree on a loan, Alice will need your contact details.';
+const _invite =
+    'To agree on a loan, this library will need your contact details.';
 
 /// The pairing banner is where a new peer first appears, so it is where the
 /// missing contact card gets named: one extra line, inside the same live
@@ -47,8 +48,7 @@ void main() {
         'flash_peer_browse': 'Browse',
         'flash_peer_review': 'Review',
         'flash_dismiss_tooltip': 'Dismiss',
-        'flash_peer_contact_invite':
-            'To agree on a loan, {name} will need your contact details.',
+        'flash_peer_contact_invite': _invite,
         'add': 'Add',
         'contact_prompt_action': 'Add my contact details',
         'contact_prompt_title': 'How can people reach you?',
@@ -120,7 +120,36 @@ void main() {
       ),
       findsOneWidget,
     );
-    expect(find.bySemanticsLabel('Add my contact details'), findsOneWidget);
+    // The invitation is the reason this banner exists: its action is the
+    // primary one, labelled on its own, and comfortably tappable.
+    final primary = find.widgetWithText(FilledButton, 'Add my contact details');
+    expect(primary, findsOneWidget);
+    expect(tester.getSize(primary).height, greaterThanOrEqualTo(48));
+    expect(find.widgetWithText(TextButton, 'Browse'), findsOneWidget);
+  });
+
+  testWidgets('a long library name is not cut short', (tester) async {
+    tester.view.physicalSize = const Size(320, 640);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final h = await hub(storedContact: '');
+    flashes.addEphemeralPeer(
+      EphemeralPeerFlash(
+        peerId: 8,
+        peerName: 'Bibliotheque de Fede Android',
+        connectedAt: DateTime(2026, 9, 29),
+      ),
+      showAccepted: true,
+    );
+    await tester.pumpWidget(harness(h));
+    await tester.pumpAndSettle();
+
+    final title = tester.widget<Text>(
+      find.text('Paired with Bibliotheque de Fede Android'),
+    );
+    expect(title.maxLines, greaterThanOrEqualTo(2));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('the button opens the contact card form', (tester) async {
@@ -129,7 +158,7 @@ void main() {
     await tester.pumpWidget(harness(h));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Add'));
+    await tester.tap(find.text('Add my contact details'));
     await tester.pumpAndSettle();
 
     expect(tester.takeException(), isNull);
@@ -145,7 +174,7 @@ void main() {
 
     expect(find.textContaining('Paired with'), findsOneWidget);
     expect(find.text(_invite), findsNothing);
-    expect(find.text('Add'), findsNothing);
+    expect(find.text('Add my contact details'), findsNothing);
   });
 
   testWidgets('a pending request carries no invitation', (tester) async {
