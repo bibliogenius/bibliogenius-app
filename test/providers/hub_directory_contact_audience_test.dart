@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +9,7 @@ import 'package:bibliogenius/models/hub_directory.dart';
 import 'package:bibliogenius/providers/hub_directory_provider.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
+import 'package:bibliogenius/services/device_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/src/rust/api/frb.dart' as frb;
 
@@ -68,8 +71,56 @@ class _MockFfiService extends FfiService {
         allowBorrowing: false,
       );
 
+  /// Calls to the followers list, which every projection starts with.
+  int listFollowersCalls = 0;
+  int _inFlight = 0;
+
+  /// Highest number of projections observed running at the same time.
+  int maxConcurrentSyncs = 0;
+
+  /// When set, each followers read waits on it, so a test can hold a
+  /// projection open while it fires more.
+  Completer<void>? gate;
+
+  /// When true, the next followers read fails like an unreachable hub.
+  bool failNextList = false;
+
   @override
-  Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async => followers;
+  Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async {
+    listFollowersCalls++;
+    _inFlight++;
+    if (_inFlight > maxConcurrentSyncs) maxConcurrentSyncs = _inFlight;
+    try {
+      await gate?.future;
+      if (failNextList) {
+        failNextList = false;
+        throw Exception('hub unreachable');
+      }
+      return followers;
+    } finally {
+      _inFlight--;
+    }
+  }
+
+  @override
+  Future<frb.FrbRelayConfig?> getRelayConfig() async => null;
+
+  @override
+  Future<int> countBooks() async => 3;
+
+  @override
+  Future<String?> getLocalX25519PublicKey() async => 'x25519-pubkey-hex';
+
+  @override
+  Future<frb.FrbDirectoryConfig?> hubDirectoryRegister(
+    frb.FrbRegisterParams params,
+  ) async => frb.FrbDirectoryConfig(
+    nodeId: params.nodeId,
+    isListed: params.isListed,
+    requiresApproval: params.requiresApproval,
+    acceptFrom: params.acceptFrom,
+    allowBorrowing: params.allowBorrowing,
+  );
 
   @override
   Future<List<frb.FrbHubFollow>> hubDirectoryListFollowing() async => following;
@@ -108,6 +159,17 @@ class _MockFfiService extends FfiService {
   }
 }
 
+class _MockDeviceService extends DeviceService {
+  @override
+  Future<String?> getDeviceModel() async => 'TestDevice';
+
+  @override
+  Future<String?> getDeviceFingerprint() async => 'fp-test';
+
+  @override
+  Future<String?> getAppVersion() async => '1.0.0';
+}
+
 class _MockApiService extends ApiService {
   _MockApiService(this.peers)
     : super(AuthService(), baseUrl: 'http://localhost:0');
@@ -142,7 +204,11 @@ Future<(HubDirectoryProvider, _MockFfiService, _MockApiService)> _provider({
   AuthService.storage = MockSecureStorage();
   final ffi = _MockFfiService();
   final api = _MockApiService(paired.map(_peer).toList());
-  final p = HubDirectoryProvider(ffi: ffi, apiService: api);
+  final p = HubDirectoryProvider(
+    ffi: ffi,
+    apiService: api,
+    deviceService: _MockDeviceService(),
+  );
   await p.loadHubEnabled();
   await p.loadConfig();
   await p.loadContactInfo();
@@ -410,6 +476,66 @@ void main() {
       ];
       await p.reconcilePairedPeerFollows();
       expect(ffi.syncPushes.last, {1: ''});
+    });
+  });
+
+  group('projection robustness', () {
+    test(
+      'projections never overlap, and a burst collapses into one rerun',
+      () async {
+        final (p, ffi, _) = await _provider(
+          prefs: {'hub_contact_info': _card},
+        );
+        ffi.followers = [
+          _follower(id: 1, node: _pairedNode, key: 'k1'),
+          _follower(id: 2, node: _strangerNode, key: 'k2', blob: 'old'),
+        ];
+        ffi.gate = Completer<void>();
+
+        // Three quick ticks while the first projection is still in flight.
+        final first = p.setContactAudience(ContactAudience.legacy);
+        final second = p.setContactAudience(ContactAudience.fresh);
+        final third = p.setContactAudience(
+          const ContactAudience(pairedPeers: false, directoryFollowers: false),
+        );
+        await Future<void>.delayed(Duration.zero);
+        ffi.gate!.complete();
+        await Future.wait([first, second, third]);
+
+        expect(ffi.maxConcurrentSyncs, 1);
+        expect(
+          ffi.listFollowersCalls,
+          2,
+          reason: 'one run, then one coalesced rerun',
+        );
+        // The last run reads the latest choice: nobody keeps the card.
+        expect(ffi.syncPushes.last, {2: ''});
+      },
+    );
+
+    test('a failed projection is retried by the next reconciliation', () async {
+      final (p, ffi, _) = await _provider(
+        prefs: {'hub_contact_info': _card, 'hub_contact_audience': 'paired'},
+      );
+      ffi.followers = [_follower(id: 1, node: _pairedNode, key: 'k1')];
+      ffi.failNextList = true;
+
+      await p.reconcilePairedPeerFollows();
+      expect(ffi.syncPushes, isEmpty);
+
+      // Same paired set: only the earlier failure justifies a new attempt.
+      await p.reconcilePairedPeerFollows();
+      expect(ffi.syncPushes, [
+        {1: 'sealed-for-k1'},
+      ]);
+    });
+
+    test('publishing keys with an empty card costs no follower read', () async {
+      final (p, ffi, _) = await _provider(hubEnabled: true);
+
+      await p.ensureKeysPublished('Test Library');
+
+      expect(ffi.listFollowersCalls, 0);
     });
   });
 

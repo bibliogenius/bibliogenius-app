@@ -1822,8 +1822,13 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (kDebugMode)
       debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
-    // Now that our key is on the hub, re-project the contact card.
-    await syncContactToFollowers();
+    // Now that our key is on the hub, re-seal the contact card. An empty card
+    // is skipped: this runs on every settings and contacts screen, and the
+    // withdrawal of a card emptied earlier is the per-launch reconciliation
+    // pass's job, not worth a follower read on each screen visit.
+    if (_contactRaw.isNotEmpty) {
+      await syncContactToFollowers();
+    }
   }
 
   /// Whether borrowing is enabled in the current config.
@@ -2400,9 +2405,10 @@ class HubDirectoryProvider extends ChangeNotifier {
       // The contact card is sealed per audience, and "paired peers" is one of
       // them: when the set of pairings moves (or on the first pass of this
       // launch), the projection on the hub must follow.
-      if (!setEquals(knownPaired, _contactProjectedPaired)) {
+      if (!setEquals(knownPaired, _contactProjectedPaired) &&
+          await syncContactToFollowers(pairedUuids: knownPaired)) {
+        // Only after success: a failed push is retried by the next trigger.
         _contactProjectedPaired = knownPaired;
-        await syncContactToFollowers(pairedUuids: knownPaired);
       }
       final pairedUuids = knownPaired;
       if (pairedUuids.isEmpty) return;
@@ -2791,7 +2797,43 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// [pairedUuids] - pass it when the caller has just read the pairings.
   /// When the pairings cannot be read, nothing is pushed: withdrawing on a
   /// failed read would take the card back from every paired peer.
-  Future<void> syncContactToFollowers({Set<String>? pairedUuids}) async {
+  ///
+  /// Returns false when nothing could be pushed (pairings unreadable, hub
+  /// unreachable), true otherwise, including when nothing had to change.
+  ///
+  /// Projections never overlap: each one reads the card and the audience at
+  /// its start, so two in flight could land in the wrong order and leave the
+  /// hub on a stale choice. A call made while one runs queues a single rerun,
+  /// and further calls share that rerun, which reads the latest state anyway.
+  Future<bool> syncContactToFollowers({Set<String>? pairedUuids}) {
+    final queued = _contactSyncQueued;
+    if (queued != null) return queued;
+    final running = _contactSyncRunning;
+    if (running == null) return _startContactSync(pairedUuids);
+    final rerun = running.then((_) {
+      _contactSyncQueued = null;
+      // The pairings may have moved while waiting: read them again.
+      return _startContactSync(null);
+    });
+    _contactSyncQueued = rerun;
+    return rerun;
+  }
+
+  Future<bool>? _contactSyncRunning;
+  Future<bool>? _contactSyncQueued;
+
+  Future<bool> _startContactSync(Set<String>? pairedUuids) {
+    final run = _projectContactOnce(pairedUuids);
+    _contactSyncRunning = run;
+    unawaited(
+      run.whenComplete(() {
+        if (identical(_contactSyncRunning, run)) _contactSyncRunning = null;
+      }),
+    );
+    return run;
+  }
+
+  Future<bool> _projectContactOnce(Set<String>? pairedUuids) async {
     try {
       var paired = pairedUuids;
       if (paired == null) {
@@ -2800,7 +2842,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
       if (paired == null) {
         debugPrint('[CONTACT-SYNC] skip: pairings unreadable');
-        return;
+        return false;
       }
       final followersList = await _ffi.hubDirectoryListFollowers();
       final plan = planContactSync(
@@ -2811,7 +2853,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       );
       if (plan.isEmpty) {
         debugPrint('[CONTACT-SYNC] nothing to change');
-        return;
+        return true;
       }
 
       final followIds = <int>[];
@@ -2826,15 +2868,17 @@ class HubDirectoryProvider extends ChangeNotifier {
         followIds.add(f.id);
         blobs.add('');
       }
-      if (followIds.isEmpty) return;
+      if (followIds.isEmpty) return true;
 
       debugPrint(
         '[CONTACT-SYNC] pushing ${blobs.where((b) => b.isNotEmpty).length} '
         'sealed, ${plan.clear.length} withdrawn',
       );
       await _ffi.hubDirectorySyncContacts(followIds, blobs);
+      return true;
     } catch (e) {
       debugPrint('[CONTACT-SYNC] ERROR: $e');
+      return false;
     }
   }
 
