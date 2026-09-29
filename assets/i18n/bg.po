@@ -760,6 +760,10 @@ msgstr "Заемане от контакт"
 msgid "borrow_request_sent"
 msgstr "Заявката е изпратена успешно!"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "Добавете данните си за контакт, за да може заемодателят да се свърже с вас."
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "Заявки за заемане"
@@ -8710,6 +8714,10 @@ msgstr "Разглеждане"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "Преглед"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "За да уговори заемане, {name} ще има нужда от вашите данни за контакт."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

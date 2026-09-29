@@ -804,6 +804,10 @@ msgstr "Bir kişiden ödünç al"
 msgid "borrow_request_sent"
 msgstr "İstek başarıyla gönderildi!"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "Ödünç verenin size ulaşabilmesi için iletişim bilgilerinizi ekleyin."
+
 #. A borrowed copy will be added to your existing book
 msgid "borrow_copy_added_to_existing"
 msgstr "Ödünç alınan bir kopya mevcut kitabınıza eklenecek"
@@ -8704,6 +8708,10 @@ msgstr "Göz at"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "İncele"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "Ödünç vermeyi kararlaştırmak için {name} iletişim bilgilerinize ihtiyaç duyacak."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

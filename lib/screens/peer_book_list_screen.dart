@@ -25,6 +25,7 @@ import '../widgets/cached_book_cover.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/recently_added_carousel.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/borrow_request_sent_snack_bar.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
@@ -2142,13 +2143,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'borrow_request_sent'),
-            ),
-          ),
-        );
+        showBorrowRequestSentSnackBar(context, lenderIsPairedPeer: true);
       }
     } catch (e) {
       // Re-enable button on error so user can retry

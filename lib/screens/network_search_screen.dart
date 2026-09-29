@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/borrow_request_sent_snack_bar.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import 'package:dio/dio.dart';
@@ -127,12 +128,10 @@ class _NetworkSearchScreenState extends State<NetworkSearchScreen> {
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'request_sent_to')} ${book['_peer_name']}',
-            ),
-          ),
+        showBorrowRequestSentSnackBar(
+          context,
+          lenderName: '${book['_peer_name']}',
+          lenderIsPairedPeer: true,
         );
       }
     } catch (e) {

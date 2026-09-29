@@ -21,6 +21,7 @@ import '../widgets/contact_actions_sheet.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/hub_location_label.dart';
 import '../widgets/library_avatar.dart';
+import '../widgets/borrow_request_sent_snack_bar.dart';
 
 /// Displays a library's public catalog (list of ISBNs) fetched from the hub.
 ///
@@ -554,15 +555,14 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
         widget.entry.isbn,
         _meta?['title'] ?? widget.entry.title,
       );
+      final lenderIsPairedPeer = await provider.isPairedPeer(
+        widget.lenderNodeId,
+      );
       if (mounted) {
-        final messenger = ScaffoldMessenger.of(context);
         Navigator.of(context).pop();
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(
-              TranslationService.translate(context, 'borrow_request_sent'),
-            ),
-          ),
+        showBorrowRequestSentSnackBar(
+          context,
+          lenderIsPairedPeer: lenderIsPairedPeer,
         );
       }
     } catch (e) {

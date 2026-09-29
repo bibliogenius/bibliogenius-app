@@ -9,6 +9,7 @@ import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' show FrbWishlistProvider;
 import '../utils/borrow_eligibility.dart';
 import 'contact_actions_sheet.dart';
+import 'borrow_request_sent_snack_bar.dart';
 
 /// Per-provider borrow rows: who holds a book, with the request action.
 ///
@@ -160,6 +161,7 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
     setState(() => _requestedNow.add(_sourceKey(p)));
 
     var sent = false;
+    var lenderIsPairedPeer = false;
     String? errorKey;
     try {
       if (p.peerUrl != null) {
@@ -176,6 +178,7 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
           errorKey = 'borrow_request_rejected_no_copy';
         } else {
           sent = true;
+          lenderIsPairedPeer = true;
         }
       } else if (p.nodeId != null) {
         final hub = context.read<HubDirectoryProvider>();
@@ -184,6 +187,7 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
           widget.isbn,
           widget.bookTitle,
         );
+        if (sent) lenderIsPairedPeer = await hub.isPairedPeer(p.nodeId!);
       }
     } catch (e) {
       debugPrint('Borrow request failed: $e');
@@ -191,15 +195,20 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
     }
 
     if (!mounted) return;
-    if (!sent) {
-      setState(() => _requestedNow.remove(_sourceKey(p)));
+    if (sent) {
+      showBorrowRequestSentSnackBar(
+        context,
+        lenderIsPairedPeer: lenderIsPairedPeer,
+      );
+      return;
     }
+    setState(() => _requestedNow.remove(_sourceKey(p)));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           TranslationService.translate(
             context,
-            sent ? 'borrow_request_sent' : (errorKey ?? 'borrow_unavailable'),
+            errorKey ?? 'borrow_unavailable',
           ),
         ),
       ),

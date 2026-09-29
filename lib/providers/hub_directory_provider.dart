@@ -350,6 +350,15 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Who receives the contact card.
   ContactAudience get contactAudience => _contactAudience;
 
+  /// Whether to ask for the contact card at the moments a paired library is
+  /// about to need it: a pairing just accepted, a borrow request just sent.
+  ///
+  /// Registration, because the card only travels sealed through the hub. The
+  /// paired audience, because unticking it is an answer: asking again at every
+  /// pairing would argue with it.
+  bool get shouldInviteContactCard =>
+      isRegistered && _contactCard.isEmpty && _contactAudience.pairedPeers;
+
   Future<void> loadContactInfo() async {
     final prefs = await SharedPreferences.getInstance();
     _contactRaw = prefs.getString(_kContactInfoKey) ?? '';

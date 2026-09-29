@@ -836,6 +836,10 @@ msgstr "Ausleihen von"
 msgid "borrow_request_sent"
 msgstr "Anfrage erfolgreich gesendet!"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "Fügen Sie Ihre Kontaktdaten hinzu, damit die verleihende Bibliothek Sie erreichen kann."
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "Ausleihanfragen"
@@ -7066,6 +7070,10 @@ msgstr "Wartet auf Ihre Genehmigung"
 
 msgid "flash_peer_review"
 msgstr "Prüfen"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "Um eine Ausleihe zu vereinbaren, braucht {name} Ihre Kontaktdaten."
 
 msgid "flash_peer_see_more"
 msgstr "weitere Verbindungen"

@@ -760,6 +760,10 @@ msgstr "連絡先から借りる"
 msgid "borrow_request_sent"
 msgstr "リクエストを送信しました！"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "貸し手が連絡できるよう、連絡先を追加してください。"
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "借用リクエスト"
@@ -8909,6 +8913,10 @@ msgstr "閲覧"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "確認"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "貸し借りを相談するには、{name}にあなたの連絡先が必要です。"
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

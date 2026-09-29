@@ -760,6 +760,10 @@ msgstr "연락처에게서 빌리기"
 msgid "borrow_request_sent"
 msgstr "요청을 성공적으로 보냈습니다!"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "빌려주는 분이 연락할 수 있도록 연락처를 추가하세요."
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "대출 요청"
@@ -8909,6 +8913,10 @@ msgstr "둘러보기"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "검토"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "대출을 정하려면 {name}에게 연락처가 필요합니다."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

@@ -1724,6 +1724,10 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         context,
         listen: false,
       );
+      final hubDirectory = Provider.of<HubDirectoryProvider>(
+        context,
+        listen: false,
+      );
       pendingProvider.onNewPeerDetected = (peer) {
         final isPending = (peer['connection_status'] as String?) == 'pending';
         flashProvider.addEphemeralPeer(
@@ -1738,6 +1742,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             connectedAt: DateTime.now(),
             isPending: isPending,
           ),
+          showAccepted: hubDirectory.shouldInviteContactCard,
         );
       };
     });

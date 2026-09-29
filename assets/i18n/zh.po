@@ -760,6 +760,10 @@ msgstr "向联系人借阅"
 msgid "borrow_request_sent"
 msgstr "请求已成功发送！"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "请添加您的联系方式，以便出借方联系您。"
+
 #. Borrow Requests
 msgid "borrow_requests_title"
 msgstr "借阅请求"
@@ -8909,6 +8913,10 @@ msgstr "浏览"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "查看"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "要商定借书事宜，{name}需要您的联系方式。"
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

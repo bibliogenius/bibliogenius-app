@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../models/book.dart';
 import '../providers/flash_message_provider.dart';
+import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 
@@ -113,6 +114,9 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
           hasRelayCredentials: hasRelay,
           connectedAt: DateTime.now(),
         ),
+        showAccepted: context
+            .read<HubDirectoryProvider>()
+            .shouldInviteContactCard,
       );
 
       // Prefetch peer's library in background so it's cached when user browses

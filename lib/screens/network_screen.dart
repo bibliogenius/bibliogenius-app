@@ -1588,6 +1588,9 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                               nodeId: peer.libraryId,
                               connectedAt: DateTime.now(),
                             ),
+                            showAccepted: context
+                                .read<HubDirectoryProvider>()
+                                .shouldInviteContactCard,
                           );
                           _loadAll();
                         }

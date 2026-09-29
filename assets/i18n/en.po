@@ -916,6 +916,10 @@ msgstr "Borrow from a contact"
 msgid "borrow_request_sent"
 msgstr "Request sent successfully!"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "Add your contact details so the lender can reach you."
+
 #. Borrow request auto-rejected
 msgid "borrow_request_rejected_no_copy"
 msgstr "Request rejected: no copy available from this library."
@@ -8717,6 +8721,10 @@ msgstr "Browse"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "Review"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "To agree on a loan, {name} will need your contact details."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

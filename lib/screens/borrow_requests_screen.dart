@@ -18,6 +18,7 @@ import '../services/api_service.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
+import '../providers/flash_message_provider.dart';
 import '../providers/pending_peers_provider.dart';
 import '../providers/theme_provider.dart';
 import '../src/rust/api/frb.dart'
@@ -2301,6 +2302,7 @@ class _LoansScreenState extends State<LoansScreen>
     final api = Provider.of<ApiService>(context, listen: false);
     final hubDir = Provider.of<HubDirectoryProvider>(context, listen: false);
     final pending = Provider.of<PendingPeersProvider>(context, listen: false);
+    final flashes = Provider.of<FlashMessageProvider>(context, listen: false);
     try {
       await api.updatePeerStatus(peer['id'], 'active');
       // ADR-053: a freshly accepted pairing must also hold hub catalog
@@ -2308,6 +2310,22 @@ class _LoansScreenState extends State<LoansScreen>
       unawaited(hubDir.reconcilePairedPeerFollows());
       // The pending banner and badge otherwise wait for the 30 s poll.
       unawaited(pending.refresh());
+      // Same banner as the initiating side, replacing the pending one of this
+      // peer: it is where the contact card invitation is offered. Last, so
+      // nothing here can keep the ADR-053 reconciliation from starting.
+      flashes.addEphemeralPeer(
+        EphemeralPeerFlash(
+          peerId: peer['id'] as int,
+          peerName: peer['name'] as String? ?? '',
+          peerUrl: peer['url'] as String?,
+          nodeId: peer['library_uuid'] as String?,
+          hasRelayCredentials:
+              (peer['relay_url'] as String?)?.isNotEmpty == true &&
+              (peer['mailbox_id'] as String?)?.isNotEmpty == true,
+          connectedAt: DateTime.now(),
+        ),
+        showAccepted: hubDir.shouldInviteContactCard,
+      );
       _fetchAllData();
     } catch (e) {
       if (mounted) {

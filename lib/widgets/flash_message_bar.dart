@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../providers/flash_message_provider.dart';
+import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/requests_tabs.dart';
+import 'contact_card_prompt.dart';
 
 // -- Shared flash card styling --
 
@@ -219,8 +221,41 @@ class _FlashBar extends StatelessWidget {
   }
 }
 
+/// Compact text button shared by the ephemeral peer bar's actions.
+Widget _flashTextButton(
+  BuildContext context, {
+  required String label,
+  String? semanticsLabel,
+  required VoidCallback onPressed,
+}) {
+  final colorScheme = Theme.of(context).colorScheme;
+  return TextButton(
+    onPressed: onPressed,
+    style: TextButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      minimumSize: const Size(0, 32),
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+    child: Text(
+      label,
+      semanticsLabel: semanticsLabel,
+      style: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        color: colorScheme.primary,
+      ),
+    ),
+  );
+}
+
 /// Compact bar for a single ephemeral peer connection flash.
 /// Shows different text and action for pending vs accepted connections.
+///
+/// An accepted pairing with an empty contact card gets a second line: the
+/// new peer is the one who will need the card to agree on a loan (ADR-067
+/// D9). It sits inside the same live region so it is announced with the
+/// banner, and it goes away on its own once the card is filled.
 class _EphemeralPeerFlashBar extends StatelessWidget {
   final EphemeralPeerFlash flash;
 
@@ -230,12 +265,27 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final shouldInvite = context.select<HubDirectoryProvider, bool>(
+      (p) => p.shouldInviteContactCard,
+    );
+    final invite = !flash.isPending && shouldInvite;
     final textKey = flash.isPending
         ? 'flash_peer_pending'
         : 'flash_peer_connected';
     final actionKey = flash.isPending
         ? 'flash_peer_review'
         : 'flash_peer_browse';
+
+    final title = Text(
+      '${TranslationService.translate(context, textKey)} ${flash.peerName}',
+      style: TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: colorScheme.onSurface,
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
 
     return Semantics(
       liveRegion: true,
@@ -251,19 +301,40 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Text(
-                '${TranslationService.translate(context, textKey)} ${flash.peerName}',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w500,
-                  color: colorScheme.onSurface,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
+              child: invite
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        title,
+                        const SizedBox(height: 2),
+                        Text(
+                          TranslationService.translate(
+                            context,
+                            'flash_peer_contact_invite',
+                            params: {'name': flash.peerName},
+                          ),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        _flashTextButton(
+                          context,
+                          label: TranslationService.translate(context, 'add'),
+                          semanticsLabel: TranslationService.translate(
+                            context,
+                            'contact_prompt_action',
+                          ),
+                          onPressed: () => showContactCardSheet(context),
+                        ),
+                      ],
+                    )
+                  : title,
             ),
             const SizedBox(width: 4),
-            TextButton(
+            _flashTextButton(
+              context,
+              label: TranslationService.translate(context, actionKey),
               onPressed: () {
                 if (flash.isPending) {
                   context.push(kConnectionRequestsRoute);
@@ -280,25 +351,6 @@ class _EphemeralPeerFlashBar extends StatelessWidget {
                   );
                 }
               },
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                minimumSize: const Size(0, 32),
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text(
-                TranslationService.translate(context, actionKey),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: colorScheme.primary,
-                ),
-              ),
             ),
             _flashCloseButton(
               context,

@@ -46,10 +46,12 @@ void main() {
     required List<frb.FrbHubFollow> followers,
     bool hubEnabled = true,
     bool registered = true,
+    String? audience,
   }) async {
     SharedPreferences.setMockInitialValues({
       'hub_contact_info': storedContact,
       'hub_directory_enabled': hubEnabled,
+      'hub_contact_audience': ?audience,
     });
     ffi = _MockFfiService()..followers = followers;
     if (!registered) ffi.config = null;
@@ -120,5 +122,46 @@ void main() {
       registered: false,
     );
     expect(shouldOfferContactPrompt(p), isFalse);
+  });
+
+  // The invitation at pairing and borrow time asks about the card as seen by
+  // paired libraries: those are the people it is about to be needed by.
+  group('shouldInviteContactCard', () {
+    test(
+      'asks when the card is empty and paired libraries receive it',
+      () async {
+        final p = await provider(storedContact: '', followers: []);
+        expect(p.contactAudience.pairedPeers, isTrue);
+        expect(p.shouldInviteContactCard, isTrue);
+      },
+    );
+
+    test('never asks once the card carries something', () async {
+      final p = await provider(storedContact: 'Ask at the desk', followers: []);
+      expect(p.shouldInviteContactCard, isFalse);
+    });
+
+    test('never asks when the owner unticked paired libraries', () async {
+      // They chose not to share it with peers: asking again at every pairing
+      // would argue with that choice.
+      final p = await provider(
+        storedContact: '',
+        followers: [],
+        audience: 'directory',
+      );
+      expect(p.shouldInviteContactCard, isFalse);
+    });
+
+    test(
+      'never asks before registration: the card would reach nobody',
+      () async {
+        final p = await provider(
+          storedContact: '',
+          followers: [],
+          registered: false,
+        );
+        expect(p.shouldInviteContactCard, isFalse);
+      },
+    );
   });
 }

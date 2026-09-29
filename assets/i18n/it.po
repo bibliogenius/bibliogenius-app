@@ -916,6 +916,10 @@ msgstr "Prendi in prestito da un contatto"
 msgid "borrow_request_sent"
 msgstr "Richiesta inviata con successo!"
 
+#. Appended to the borrow request confirmation when the contact card is empty and the lender is a paired peer
+msgid "borrow_request_sent_contact_hint"
+msgstr "Aggiungi i tuoi recapiti perché chi presta possa contattarti."
+
 #. Borrow request auto-rejected
 msgid "borrow_request_rejected_no_copy"
 msgstr "Richiesta rifiutata: nessuna copia disponibile in questa biblioteca."
@@ -8943,6 +8947,10 @@ msgstr "Sfoglia"
 #. Flash message: review pending connection action
 msgid "flash_peer_review"
 msgstr "Esamina"
+
+#. Flash message, second line when a pairing is accepted and the contact card is empty ({name} = peer library)
+msgid "flash_peer_contact_invite"
+msgstr "Per concordare un prestito, {name} avrà bisogno dei tuoi recapiti."
 
 #. Flash message: pending connection hint in dialog
 msgid "flash_peer_pending_hint"

@@ -81,6 +81,36 @@ class EphemeralPeerFlash {
     required this.connectedAt,
     this.isPending = false,
   });
+
+  /// Same peer seen through any of the keys the emitting screens use.
+  bool isSamePeerAs(EphemeralPeerFlash other) =>
+      other.peerId == peerId ||
+      (peerUrl != null && other.peerUrl == peerUrl) ||
+      (nodeId != null && other.nodeId == nodeId);
+}
+
+/// Peers already announced in this session, under every key they came with.
+class _SeenPeers {
+  final Set<int> _ids = {};
+  final Set<String> _urls = {};
+  final Set<String> _nodeIds = {};
+
+  bool contains(EphemeralPeerFlash flash) =>
+      _ids.contains(flash.peerId) ||
+      (flash.peerUrl != null && _urls.contains(flash.peerUrl)) ||
+      (flash.nodeId != null && _nodeIds.contains(flash.nodeId));
+
+  void add(EphemeralPeerFlash flash) {
+    _ids.add(flash.peerId);
+    if (flash.peerUrl != null) _urls.add(flash.peerUrl!);
+    if (flash.nodeId != null) _nodeIds.add(flash.nodeId!);
+  }
+
+  void clear() {
+    _ids.clear();
+    _urls.clear();
+    _nodeIds.clear();
+  }
 }
 
 /// Provider that manages flash messages: registration, dismissal, visibility.
@@ -103,9 +133,8 @@ class FlashMessageProvider extends ChangeNotifier {
   // -- Ephemeral peer connection flashes --
   static const int maxEphemeralVisible = 3;
   final List<EphemeralPeerFlash> _ephemeralFlashes = [];
-  final Set<int> _shownPeerIds = {};
-  final Set<String> _shownPeerUrls = {};
-  final Set<String> _shownNodeIds = {};
+  final _shownPending = _SeenPeers();
+  final _shownAccepted = _SeenPeers();
 
   /// Register a flash message definition.
   void register(FlashMessageDefinition definition) {
@@ -135,9 +164,8 @@ class FlashMessageProvider extends ChangeNotifier {
     _dismissed.clear();
     _hasBooks = false;
     _ephemeralFlashes.clear();
-    _shownPeerIds.clear();
-    _shownPeerUrls.clear();
-    _shownNodeIds.clear();
+    _shownPending.clear();
+    _shownAccepted.clear();
     notifyListeners();
   }
 
@@ -202,17 +230,23 @@ class FlashMessageProvider extends ChangeNotifier {
   /// This prevents duplicates when the same peer is detected by both
   /// the outgoing connection screen (url.hashCode) and the incoming
   /// detection poll (DB id).
-  void addEphemeralPeer(EphemeralPeerFlash flash) {
-    // Only show flash for pending connection requests, not accepted ones
-    if (!flash.isPending) return;
-
-    if (_shownPeerIds.contains(flash.peerId)) return;
-    if (flash.peerUrl != null && _shownPeerUrls.contains(flash.peerUrl)) return;
-    if (flash.nodeId != null && _shownNodeIds.contains(flash.nodeId)) return;
-
-    _shownPeerIds.add(flash.peerId);
-    if (flash.peerUrl != null) _shownPeerUrls.add(flash.peerUrl!);
-    if (flash.nodeId != null) _shownNodeIds.add(flash.nodeId!);
+  ///
+  /// An accepted connection is only shown when [showAccepted] is set: the
+  /// plain "paired with" banner was dropped as noise, and comes back only
+  /// when it carries something to do (the contact card invitation). It then
+  /// replaces the pending banner of the same peer rather than stacking on it.
+  void addEphemeralPeer(EphemeralPeerFlash flash, {bool showAccepted = false}) {
+    if (flash.isPending) {
+      if (_shownPending.contains(flash) || _shownAccepted.contains(flash)) {
+        return;
+      }
+      _shownPending.add(flash);
+    } else {
+      if (!showAccepted || _shownAccepted.contains(flash)) return;
+      _shownAccepted.add(flash);
+      _shownPending.add(flash);
+      _ephemeralFlashes.removeWhere(flash.isSamePeerAs);
+    }
     _ephemeralFlashes.insert(0, flash); // newest first
     notifyListeners();
   }
