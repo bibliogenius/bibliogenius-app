@@ -11289,7 +11289,7 @@ msgstr "Sans coordonnées, personne ne peut convenir avec vous d'un lieu ni d'un
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "Une fois envoyées, on ne peut plus les retirer."
+msgstr "Vous pourrez les retirer plus tard, mais pas effacer ce qu'une bibliothèque a déjà lu."
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -11298,6 +11298,44 @@ msgstr "Des bibliothèques vous suivent, mais ne peuvent pas vous joindre."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Ajouter mes coordonnées"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "Mes coordonnées"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "Pour convenir d'un lieu ou d'une date de prêt. Chiffrées, elles ne sont envoyées qu'aux bibliothèques cochées ci-dessous."
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "Qui les reçoit"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "Mes bibliothèques appairées"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "Celles avec qui vous avez fait un appairage : invitation, code QR ou réseau local."
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "Mes abonnés de l'annuaire"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "Toute bibliothèque dont vous avez accepté l'abonnement dans l'annuaire."
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "Personne ne recevra vos coordonnées."
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "Décocher les retire aux bibliothèques concernées, mais n'efface pas ce qu'elles ont déjà lu."
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"

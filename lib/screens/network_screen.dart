@@ -2721,8 +2721,15 @@ class _LibraryRelationCard extends StatelessWidget {
                       );
                       if (confirm == true && context.mounted) {
                         onRemoved(relation.nodeId);
-                        context.read<ApiService>().deletePeer(
-                          relation.peer!.id,
+                        final hub = context.read<HubDirectoryProvider>();
+                        // Once the pairing is gone, the contact card
+                        // projection must drop it if it was the only
+                        // reason to seal.
+                        unawaited(
+                          context
+                              .read<ApiService>()
+                              .deletePeer(relation.peer!.id)
+                              .then((_) => hub.reconcilePairedPeerFollows()),
                         );
                       }
                     },

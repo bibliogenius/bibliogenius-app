@@ -8903,6 +8903,33 @@ msgstr ""
 msgid "contact_prompt_action"
 msgstr ""
 
+msgid "my_contact_details_title"
+msgstr ""
+
+msgid "my_contact_details_intro"
+msgstr ""
+
+msgid "contact_audience_title"
+msgstr ""
+
+msgid "contact_audience_paired"
+msgstr ""
+
+msgid "contact_audience_paired_desc"
+msgstr ""
+
+msgid "contact_audience_directory"
+msgstr ""
+
+msgid "contact_audience_directory_desc"
+msgstr ""
+
+msgid "contact_audience_nobody"
+msgstr ""
+
+msgid "contact_audience_withdraw_note"
+msgstr ""
+
 msgid "contact_message_short"
 msgstr ""
 

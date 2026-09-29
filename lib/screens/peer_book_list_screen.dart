@@ -247,18 +247,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     final nodeId = widget.nodeId;
     if (nodeId == null) return;
     final provider = context.read<HubDirectoryProvider>();
-    if (!provider.isHubEnabled) return;
 
-    // Decrypt contact blob from follow
-    final follow = provider.followFor(nodeId);
-    final blob = follow?.encryptedContact;
-    if (blob != null && blob.isNotEmpty) {
-      final plaintext = await provider.openContact(blob);
-      if (mounted && plaintext != null) {
-        // Legacy free-text blobs decode to a note (ADR-067 D2).
-        setState(() => _contactCard = ContactCard.decode(plaintext));
-      }
-    }
+    // The contact card is a library attribute, delivered through the follow
+    // whether or not the directory is switched on here.
+    final card = await provider.loadContactCardFor(nodeId);
+    if (mounted && card != null) setState(() => _contactCard = card);
+    if (!mounted || !provider.isHubEnabled) return;
 
     // Fetch hub profile for website and refresh cached display name
     try {

@@ -235,12 +235,8 @@ class HubFollowRequestTile extends StatelessWidget {
   });
 
   Future<void> _approve() async {
-    // Seal contact info for the follower if available
-    String? blob;
-    final key = follow.followerX25519PublicKey;
-    if (key != null && key.isNotEmpty) {
-      blob = await provider.sealContactFor(key);
-    }
+    // The card is attached only if this follower is in its audience.
+    final blob = await provider.contactBlobForApproval(follow);
     await provider.resolveFollow(follow.id, 'approve', encryptedContact: blob);
   }
 

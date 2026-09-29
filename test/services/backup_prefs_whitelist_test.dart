@@ -52,6 +52,14 @@ void main() {
     );
   });
 
+  test('the contact audience travels with the contact card', () {
+    // Both answer "what do I share, and with whom". Restoring the card
+    // without its audience would fall back to the legacy default (both
+    // audiences on) and could widen who receives it.
+    expect(kBackupPrefsWhitelist, contains('hub_contact_info'));
+    expect(kBackupPrefsWhitelist, contains('hub_contact_audience'));
+  });
+
   test('whitelist and blacklist do not overlap', () {
     final overlap = kBackupPrefsWhitelist.intersection(kBackupPrefsBlacklist);
     expect(

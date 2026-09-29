@@ -10787,7 +10787,7 @@ msgstr "連絡先がないと、貸し借りの場所も日時も相談できま
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "一度送ると取り消せません。"
+msgstr "後から取り下げることはできますが、ライブラリがすでに読んだ内容は消せません。"
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -10796,6 +10796,44 @@ msgstr "あなたをフォローしている図書館が、連絡できずにい
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "連絡先を追加する"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "連絡先"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "貸し出しの場所や日時を決めるためのものです。暗号化され、下でチェックしたライブラリにだけ送られます。"
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "受け取る相手"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "ペアリングしたライブラリ"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "招待、QRコード、ローカルネットワークでペアリングしたライブラリです。"
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "ディレクトリのフォロワー"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "ディレクトリでフォローリクエストを承認したすべてのライブラリです。"
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "誰も連絡先を受け取りません。"
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "チェックを外すとそのライブラリから取り下げられますが、すでに読まれた内容は消えません。"
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"

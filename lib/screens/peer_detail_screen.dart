@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
@@ -41,20 +42,14 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
 
   Future<void> _loadHubInfo() async {
     final provider = context.read<HubDirectoryProvider>();
-    if (!provider.isHubEnabled) return;
 
-    // Decrypt contact from follow relationship
+    // The contact card is a library attribute, delivered through the follow
+    // whether or not the directory is switched on here.
     if (_relation.isFollowing && !_relation.followPending) {
-      final follow = provider.followFor(_relation.nodeId);
-      final blob = follow?.encryptedContact;
-      if (blob != null && blob.isNotEmpty) {
-        final plaintext = await provider.openContact(blob);
-        if (mounted && plaintext != null) {
-          // Legacy free-text blobs decode to a note (ADR-067 D2).
-          setState(() => _contactCard = ContactCard.decode(plaintext));
-        }
-      }
+      final card = await provider.loadContactCardFor(_relation.nodeId);
+      if (mounted && card != null) setState(() => _contactCard = card);
     }
+    if (!provider.isHubEnabled) return;
 
     // Fetch hub profile for website and refresh cached display name + avatar
     try {
@@ -790,7 +785,14 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                   ),
                 );
                 if (confirm == true && context.mounted) {
-                  api.deletePeer(peer!.id);
+                  final hub = context.read<HubDirectoryProvider>();
+                  // Once the pairing is gone, the contact card projection
+                  // must drop it if it was the only reason to seal.
+                  unawaited(
+                    api
+                        .deletePeer(peer!.id)
+                        .then((_) => hub.reconcilePairedPeerFollows()),
+                  );
                   if (context.mounted) context.pop('deleted');
                 }
               },

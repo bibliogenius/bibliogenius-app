@@ -11233,7 +11233,7 @@ msgstr "İletişim bilgisi olmadan kimse sizinle ödünç verme için yer ya da 
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "Bir kez gönderildikten sonra geri alınamaz."
+msgstr "Onları daha sonra geri çekebilirsiniz, ancak bir kütüphanenin zaten okuduğunu silemezsiniz."
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -11242,6 +11242,44 @@ msgstr "Kütüphaneler sizi takip ediyor ama size ulaşamıyor."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "İletişim bilgilerimi ekle"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "İletişim bilgilerim"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "Bir ödünç için yer veya tarih kararlaştırmak için. Şifrelenir ve yalnızca aşağıda işaretlenen kütüphanelere gönderilir."
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "Kimler alır"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "Eşleştiğim kütüphaneler"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "Eşleştiğiniz kütüphaneler: davet, QR kodu veya yerel ağ."
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "Dizindeki takipçilerim"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "Dizinde takip isteğini kabul ettiğiniz her kütüphane."
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "İletişim bilgilerinizi kimse almayacak."
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "İşareti kaldırmak bilgileri bu kütüphanelerden geri çeker, ancak zaten okuduklarını silmez."
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"

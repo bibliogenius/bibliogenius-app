@@ -137,29 +137,9 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
 
   Future<void> _decryptContact() async {
     final provider = context.read<HubDirectoryProvider>();
-    final follow = provider.followFor(widget.nodeId);
-    debugPrint(
-      '[CONTACT-READ] followFor(${widget.nodeId.substring(0, 8)}...): '
-      '${follow != null ? "found id=${follow.id} status=${follow.status}" : "NOT FOUND"}',
-    );
-    if (follow != null) {
-      debugPrint(
-        '[CONTACT-READ] encryptedContact: ${follow.encryptedContact != null ? "${follow.encryptedContact!.length} chars" : "null"}',
-      );
-    }
-    final blob = follow?.encryptedContact;
-    if (blob == null || blob.isEmpty) {
-      debugPrint('[CONTACT-READ] no encrypted contact blob, returning');
-      return;
-    }
-
-    final plaintext = await provider.openContact(blob);
-    debugPrint(
-      '[CONTACT-READ] decrypted: ${plaintext != null ? "OK (${plaintext.length} chars)" : "FAILED"}',
-    );
-    if (mounted && plaintext != null) {
-      // Legacy free-text blobs decode to a note (ADR-067 D2).
-      setState(() => _contactCard = ContactCard.decode(plaintext));
+    final card = await provider.loadContactCardFor(widget.nodeId);
+    if (mounted && card != null) {
+      setState(() => _contactCard = card);
       _resolvePairing();
     }
   }

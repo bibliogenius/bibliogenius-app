@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
+import 'contact_audience_fields.dart';
 import 'contact_card_fields.dart';
 
 /// Invitation to fill the contact card, offered where its absence has a
@@ -56,9 +57,10 @@ Future<void> showContactCardSheet(BuildContext context) {
                     ),
                   ),
                 ),
-                // Said plainly rather than glossed over: an approved follower
-                // has already decrypted the card, so unfollowing cannot take
-                // it back. A reader who learns that here trusts the rest.
+                // Said plainly rather than glossed over: the card can be
+                // withdrawn from the hub, but what an approved follower has
+                // already decrypted stays read. A reader who learns that here
+                // trusts the rest.
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
                   child: Text(
@@ -72,6 +74,12 @@ Future<void> showContactCardSheet(BuildContext context) {
                   ),
                 ),
                 const ContactCardFields(showEncryptedNotice: false),
+                // Who receives it, in the same breath: filled from here with
+                // the default audience, a card could otherwise miss the very
+                // directory followers this prompt was shown for.
+                const ContactAudienceFields(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                   child: FilledButton(
@@ -174,7 +182,9 @@ class ContactPromptBanner extends StatelessWidget {
 /// Cheap checks first: the card being empty is local state, so the follower
 /// list is only fetched for the users who have not filled it in.
 bool shouldOfferContactPrompt(HubDirectoryProvider provider) {
-  if (!provider.isHubEnabled || !provider.isRegistered) return false;
+  // Registration, not the directory switch: paired peers follow us through
+  // the silent unlisted registration, so an empty card has victims either way.
+  if (!provider.isRegistered) return false;
   if (provider.contactCard.isNotEmpty) return false;
   return provider.followers.any((f) => f.isActive);
 }

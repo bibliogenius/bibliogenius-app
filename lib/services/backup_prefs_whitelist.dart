@@ -55,6 +55,10 @@ const Set<String> kBackupPrefsWhitelist = <String>{
   // drift test cannot see it: the key sits behind a const identifier, not a
   // literal `prefs.setString('...')` call.
   'hub_contact_info', // HubDirectoryProvider._kContactInfoKey
+  // Who receives that card. Travels with it: restoring the card alone would
+  // fall back to the legacy default (every follower) and could widen its
+  // audience. Same const-identifier blind spot as above.
+  'hub_contact_audience', // HubDirectoryProvider._kContactAudienceKey
   'hub_local_location_city_id',
   'hub_local_location_city_country',
 };

@@ -10787,7 +10787,7 @@ msgstr "没有联系方式，就无法与您商定借书的地点和时间。只
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "一旦发出便无法收回。"
+msgstr "您之后可以撤回，但无法抹去图书馆已读到的内容。"
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -10796,6 +10796,44 @@ msgstr "有图书馆关注了您，却联系不上您。"
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "添加我的联系方式"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "我的联系方式"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "用于商定借阅的地点或日期。经过加密，只发送给下方勾选的图书馆。"
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "谁会收到"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "已配对的图书馆"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "通过邀请、二维码或局域网与您配对的图书馆。"
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "名录中的关注者"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "您在名录中接受其关注请求的所有图书馆。"
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "没有人会收到您的联系方式。"
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "取消勾选会从这些图书馆撤回，但无法抹去它们已读到的内容。"
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"

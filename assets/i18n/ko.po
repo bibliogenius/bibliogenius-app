@@ -10787,7 +10787,7 @@ msgstr "연락처가 없으면 대출 장소도 날짜도 정할 수 없습니�
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "한번 보내면 되돌릴 수 없습니다."
+msgstr "나중에 철회할 수 있지만, 서재가 이미 읽은 내용은 지울 수 없습니다."
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -10796,6 +10796,44 @@ msgstr "회원님을 팔로우하는 도서관이 연락할 방법이 없습니�
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "연락처 추가하기"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "내 연락처"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "대출 장소나 날짜를 정하기 위한 것입니다. 암호화되어 아래에서 선택한 서재에만 전송됩니다."
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "받는 대상"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "페어링한 서재"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "초대, QR 코드 또는 로컬 네트워크로 페어링한 서재입니다."
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "디렉터리 팔로워"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "디렉터리에서 팔로우 요청을 수락한 모든 서재입니다."
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "아무도 연락처를 받지 않습니다."
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "선택을 해제하면 해당 서재에서 철회되지만, 이미 읽은 내용은 지워지지 않습니다."
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"

@@ -11241,7 +11241,7 @@ msgstr "Sem contatos, ninguém consegue combinar local nem data de um empréstim
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "Depois de enviados, não dá para retirar."
+msgstr "Você poderá retirá-los depois, mas não apagar o que uma biblioteca já leu."
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -11250,6 +11250,44 @@ msgstr "Bibliotecas seguem você, mas não conseguem falar com você."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Adicionar meus contatos"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "Meus dados de contato"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "Para combinar um local ou uma data de empréstimo. Criptografados, só são enviados às bibliotecas marcadas abaixo."
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "Quem os recebe"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "Minhas bibliotecas pareadas"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "Aquelas com quem você fez o pareamento: convite, código QR ou rede local."
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "Meus seguidores do diretório"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "Qualquer biblioteca cujo pedido para seguir você aceitou no diretório."
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "Ninguém receberá seus dados de contato."
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "Desmarcar os retira dessas bibliotecas, mas não apaga o que elas já leram."
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"

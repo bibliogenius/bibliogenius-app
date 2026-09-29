@@ -14,6 +14,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../widgets/contact_audience_fields.dart';
 import '../widgets/contact_card_fields.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
@@ -765,6 +766,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 16),
                 ],
+
+                // My contact details: a library attribute, shown whatever the
+                // directory switch says. Paired libraries receive it through
+                // the silent unlisted registration (ADR-053), so it must be
+                // editable without ever touching the directory.
+                if (_sectionVisible([
+                  'my_contact_details_title',
+                  'hub_contact_email_label',
+                  'hub_contact_phone_label',
+                  'contact_audience_title',
+                ]))
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ExpansionTile(
+                      key: ValueKey('contact_details_$_isSearching'),
+                      initiallyExpanded: _isSearching,
+                      leading: const Icon(Icons.contact_mail_outlined),
+                      title: Semantics(
+                        header: true,
+                        child: Text(
+                          TranslationService.translate(
+                            context,
+                            'my_contact_details_title',
+                          ),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+                          child: Text(
+                            TranslationService.translate(
+                              context,
+                              'my_contact_details_intro',
+                            ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                ),
+                          ),
+                        ),
+                        const ContactCardFields(showEncryptedNotice: false),
+                        const ContactAudienceFields(),
+                      ],
+                    ),
+                  ),
 
                 // Data Management
                 // Content accordion
@@ -2841,14 +2893,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // accept_from selector removed (non-functional)
                         ],
                       ),
-                      // Contact card, typed rather than parsed (ADR-067).
-                      // All three fields are optional: nothing gates listing on
-                      // a filled contact, and the reader side simply offers
-                      // fewer channels. The fields live in their own widget so
-                      // the prompt offered on the contacts tab writes the very
-                      // same form.
-                      const Divider(height: 1),
-                      const ContactCardFields(),
+                      // The contact card moved to its own "My contact
+                      // details" section: it is a library attribute, not a
+                      // directory one. Only the public website stays here.
                       // Website (optional, public)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 20, 16, 16),

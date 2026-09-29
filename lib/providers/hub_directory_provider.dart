@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/avatar_config.dart';
+import '../models/contact_audience.dart';
 import '../models/contact_card.dart';
 import '../models/hub_directory.dart';
 import '../services/api_service.dart';
@@ -67,6 +68,10 @@ const String _kDirectoryOnboardingSeenKey = 'hub_directory_onboarding_seen';
 
 /// SharedPreferences key for the local contact info (plaintext, never sent to hub).
 const String _kContactInfoKey = 'hub_contact_info';
+
+/// Who receives the contact card, as encoded by [ContactAudience.encode].
+/// Absent until the first load, which persists the default.
+const String _kContactAudienceKey = 'hub_contact_audience';
 
 /// SharedPreferences key for the local website URL (sent plaintext to hub profile).
 const String _kWebsiteKey = 'hub_website';
@@ -285,7 +290,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   }
 
   Future<void> _onNudgeEvent(FrbNudgeEvent _) async {
-    if (!_hubEnabled || !isRegistered) return;
+    // Registration, not the directory switch: a paired peer follows us
+    // through the silent unlisted registration too, and its follow request
+    // must be approved (ADR-053) whether or not we are listed.
+    if (!isRegistered) return;
     // A hub nudge is generic - we cannot tell whether it was caused by an
     // incoming follow request, an incoming borrow, or an update to our own
     // follows (e.g. another library just approved our pending request). Refresh
@@ -337,11 +345,41 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Typed view of the contact details (ADR-067).
   ContactCard get contactCard => _contactCard;
 
+  ContactAudience _contactAudience = ContactAudience.fresh;
+
+  /// Who receives the contact card.
+  ContactAudience get contactAudience => _contactAudience;
+
   Future<void> loadContactInfo() async {
     final prefs = await SharedPreferences.getInstance();
     _contactRaw = prefs.getString(_kContactInfoKey) ?? '';
     _contactCard = ContactCard.decode(_contactRaw);
+    final storedAudience = prefs.getString(_kContactAudienceKey);
+    if (storedAudience != null) {
+      _contactAudience = ContactAudience.decode(storedAudience);
+    } else {
+      // First load since audiences exist. A card already filled in has been
+      // sealed for every follower so far: keep it that way. Persisted now so
+      // the default is decided once, not re-derived from a card that may be
+      // emptied later.
+      _contactAudience = _contactRaw.isNotEmpty
+          ? ContactAudience.legacy
+          : ContactAudience.fresh;
+      await prefs.setString(_kContactAudienceKey, _contactAudience.encode());
+    }
     notifyListeners();
+  }
+
+  /// Stores who receives the card, then re-projects it on the hub right
+  /// away: a follower just excluded must lose the card now, not on the next
+  /// edit.
+  Future<void> setContactAudience(ContactAudience audience) async {
+    _contactAudience = audience;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kContactAudienceKey, audience.encode());
+    notifyListeners();
+    _contactSyncDebounce?.cancel();
+    await syncContactToFollowers();
   }
 
   Timer? _contactSyncDebounce;
@@ -1784,10 +1822,8 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (kDebugMode)
       debugPrint('HubDirectoryProvider: ensured keys + relay published');
 
-    // Now that our key is on the hub, sync contact blobs to followers
-    if (_contactRaw.isNotEmpty) {
-      await syncContactToFollowers();
-    }
+    // Now that our key is on the hub, re-project the contact card.
+    await syncContactToFollowers();
   }
 
   /// Whether borrowing is enabled in the current config.
@@ -2359,7 +2395,16 @@ class HubDirectoryProvider extends ChangeNotifier {
 
     _reconcilingFollows = true;
     try {
-      final pairedUuids = await _acceptedPairedPeerUuids(api);
+      final knownPaired = await _tryAcceptedPairedPeerUuids(api);
+      if (knownPaired == null) return;
+      // The contact card is sealed per audience, and "paired peers" is one of
+      // them: when the set of pairings moves (or on the first pass of this
+      // launch), the projection on the hub must follow.
+      if (!setEquals(knownPaired, _contactProjectedPaired)) {
+        _contactProjectedPaired = knownPaired;
+        await syncContactToFollowers(pairedUuids: knownPaired);
+      }
+      final pairedUuids = knownPaired;
       if (pairedUuids.isEmpty) return;
 
       if (refreshLists) {
@@ -2391,11 +2436,10 @@ class HubDirectoryProvider extends ChangeNotifier {
           .where((f) => pairedUuids.contains(f.followerNodeId))
           .toList();
       for (final req in fromPaired) {
-        String? blob;
-        final key = req.followerX25519PublicKey;
-        if (key != null && key.isNotEmpty) {
-          blob = await sealContactFor(key);
-        }
+        final blob = await contactBlobForApproval(
+          req,
+          pairedUuids: pairedUuids,
+        );
         debugPrint(
           '[ADR-053] auto-approve follow ${req.id} from paired peer '
           '${req.followerNodeId}',
@@ -2424,7 +2468,13 @@ class HubDirectoryProvider extends ChangeNotifier {
     return uuids.contains(nodeId);
   }
 
-  Future<Set<String>> _acceptedPairedPeerUuids(ApiService api) async {
+  Future<Set<String>> _acceptedPairedPeerUuids(ApiService api) async =>
+      await _tryAcceptedPairedPeerUuids(api) ?? <String>{};
+
+  /// Same as [_acceptedPairedPeerUuids], but null when the peers could not be
+  /// read. Callers that withdraw something from non-members (the contact
+  /// projection) must not mistake a failed read for "no pairing at all".
+  Future<Set<String>?> _tryAcceptedPairedPeerUuids(ApiService api) async {
     final uuids = <String>{};
     try {
       final res = await api.getPeers();
@@ -2442,6 +2492,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('[ADR-053] getPeers failed during reconcile: $e');
+      return null;
     }
     return uuids;
   }
@@ -2705,70 +2756,101 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
-  /// Re-seal contact info for all active followers and push to hub.
-  /// Call this after the user changes their contact info.
-  Future<void> syncContactToFollowers() async {
-    if (_contactRaw.isEmpty) {
-      debugPrint('[CONTACT-SYNC] skip: contact card is empty');
-      return;
+  /// Paired set the contact projection was last computed against, by
+  /// [reconcilePairedPeerFollows]. Null until the first pass of this launch,
+  /// so every launch re-projects once (pairings may have moved while the app
+  /// was closed).
+  Set<String>? _contactProjectedPaired;
+
+  /// Sealed blob to attach when approving [follow], or null when the card is
+  /// empty or the follower is outside the chosen audience. Shared by the
+  /// ADR-053 auto-approval and the manual approval, so both honor the same
+  /// audience.
+  Future<String?> contactBlobForApproval(
+    HubFollow follow, {
+    Set<String>? pairedUuids,
+  }) async {
+    final key = follow.followerX25519PublicKey;
+    if (_contactRaw.isEmpty || key == null || key.isEmpty) return null;
+    var paired = pairedUuids;
+    if (paired == null) {
+      final api = _apiService;
+      paired = api == null
+          ? <String>{}
+          : await _acceptedPairedPeerUuids(api);
     }
-    debugPrint('[CONTACT-SYNC] starting, ${_contactRaw.length} sealed chars');
+    if (!_contactAudience.includes(follow.followerNodeId, paired)) return null;
+    return sealContactFor(key);
+  }
+
+  /// Projects the contact card onto the hub: seals it for every active
+  /// follower in the audience, and withdraws it (empty blob) from those that
+  /// still hold one but no longer qualify, including everyone once the card
+  /// is emptied. Call after the card, the audience, or the pairings change.
+  ///
+  /// [pairedUuids] - pass it when the caller has just read the pairings.
+  /// When the pairings cannot be read, nothing is pushed: withdrawing on a
+  /// failed read would take the card back from every paired peer.
+  Future<void> syncContactToFollowers({Set<String>? pairedUuids}) async {
     try {
+      var paired = pairedUuids;
+      if (paired == null) {
+        final api = _apiService;
+        paired = api == null ? <String>{} : await _tryAcceptedPairedPeerUuids(api);
+      }
+      if (paired == null) {
+        debugPrint('[CONTACT-SYNC] skip: pairings unreadable');
+        return;
+      }
       final followersList = await _ffi.hubDirectoryListFollowers();
-      final followers = followersList.map(HubFollow.fromFrb).toList();
-      debugPrint(
-        '[CONTACT-SYNC] ${followers.length} followers total, '
-        '${followers.where((f) => f.isActive).length} active',
+      final plan = planContactSync(
+        followers: followersList.map(HubFollow.fromFrb).toList(),
+        pairedUuids: paired,
+        audience: _contactAudience,
+        hasCard: _contactRaw.isNotEmpty,
       );
+      if (plan.isEmpty) {
+        debugPrint('[CONTACT-SYNC] nothing to change');
+        return;
+      }
 
       final followIds = <int>[];
       final blobs = <String>[];
-
-      for (final f in followers) {
-        if (!f.isActive) {
-          debugPrint(
-            '[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... status=${f.status}, skipping',
-          );
-          continue;
-        }
-        final key = f.followerX25519PublicKey;
-        if (key == null || key.isEmpty) {
-          debugPrint(
-            '[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... has NO x25519 key, skipping',
-          );
-          continue;
-        }
-        debugPrint(
-          '[CONTACT-SYNC] follower ${f.followerNodeId.substring(0, 8)}... has key ${key.substring(0, 8)}..., sealing',
-        );
-        final blob = await sealContactFor(key);
-        if (blob != null) {
-          followIds.add(f.id);
-          blobs.add(blob);
-          debugPrint(
-            '[CONTACT-SYNC] sealed blob for follow_id=${f.id}, blob len=${blob.length}',
-          );
-        } else {
-          debugPrint(
-            '[CONTACT-SYNC] sealContactFor returned null for follower ${f.followerNodeId.substring(0, 8)}...',
-          );
-        }
+      for (final f in plan.seal) {
+        final blob = await sealContactFor(f.followerX25519PublicKey!);
+        if (blob == null) continue;
+        followIds.add(f.id);
+        blobs.add(blob);
       }
-
-      if (followIds.isNotEmpty) {
-        debugPrint(
-          '[CONTACT-SYNC] pushing ${followIds.length} blobs to hub...',
-        );
-        await _ffi.hubDirectorySyncContacts(followIds, blobs);
-        debugPrint('[CONTACT-SYNC] push done');
-      } else {
-        debugPrint(
-          '[CONTACT-SYNC] no blobs to push (0 eligible followers with keys)',
-        );
+      for (final f in plan.clear) {
+        followIds.add(f.id);
+        blobs.add('');
       }
+      if (followIds.isEmpty) return;
+
+      debugPrint(
+        '[CONTACT-SYNC] pushing ${blobs.where((b) => b.isNotEmpty).length} '
+        'sealed, ${plan.clear.length} withdrawn',
+      );
+      await _ffi.hubDirectorySyncContacts(followIds, blobs);
     } catch (e) {
       debugPrint('[CONTACT-SYNC] ERROR: $e');
     }
+  }
+
+  /// Decrypted contact card of the followed library [nodeId], or null when
+  /// there is none (no active follow, empty or withdrawn blob, undecryptable).
+  ///
+  /// Not gated on the directory switch: the card is a library attribute, and
+  /// a paired peer delivers it through the follow that ADR-053 establishes
+  /// regardless of listing.
+  Future<ContactCard?> loadContactCardFor(String nodeId) async {
+    final blob = followFor(nodeId)?.encryptedContact;
+    if (blob == null || blob.isEmpty) return null;
+    final plaintext = await openContact(blob);
+    if (plaintext == null) return null;
+    // Legacy free-text blobs decode to a note (ADR-067 D2).
+    return ContactCard.decode(plaintext);
   }
 
   // ---------------------------------------------------------------------------

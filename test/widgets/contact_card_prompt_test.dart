@@ -45,12 +45,14 @@ void main() {
     required String storedContact,
     required List<frb.FrbHubFollow> followers,
     bool hubEnabled = true,
+    bool registered = true,
   }) async {
     SharedPreferences.setMockInitialValues({
       'hub_contact_info': storedContact,
       'hub_directory_enabled': hubEnabled,
     });
     ffi = _MockFfiService()..followers = followers;
+    if (!registered) ffi.config = null;
     final p = HubDirectoryProvider(ffi: ffi);
     await p.loadHubEnabled();
     await p.loadConfig();
@@ -99,11 +101,23 @@ void main() {
     expect(shouldOfferContactPrompt(p), isFalse);
   });
 
-  test('not offered when the directory is off', () async {
+  test('offered with the directory off: the card is not a directory '
+      'attribute', () async {
+    // Paired peers follow us through the silent, unlisted registration, so
+    // an empty card has victims whether or not the directory switch is on.
     final p = await provider(
       storedContact: '',
       followers: [_follow(status: 'active')],
       hubEnabled: false,
+    );
+    expect(shouldOfferContactPrompt(p), isTrue);
+  });
+
+  test('not offered before registration on the hub', () async {
+    final p = await provider(
+      storedContact: '',
+      followers: [_follow(status: 'active')],
+      registered: false,
     );
     expect(shouldOfferContactPrompt(p), isFalse);
   });

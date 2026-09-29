@@ -11226,7 +11226,7 @@ msgstr "Senza recapiti nessuno può concordare con te un luogo o una data per un
 
 #. Contact prompt: what sharing cannot undo
 msgid "contact_prompt_irreversible"
-msgstr "Una volta inviati, non si possono ritirare."
+msgstr "Potrai ritirarli in seguito, ma non cancellare ciò che una biblioteca ha già letto."
 
 #. Contact prompt: one-line reason, on the banner
 msgid "contact_prompt_banner_body"
@@ -11235,6 +11235,44 @@ msgstr "Alcune biblioteche ti seguono, ma non possono contattarti."
 #. Contact prompt: button opening the form
 msgid "contact_prompt_action"
 msgstr "Aggiungi i miei recapiti"
+
+#. --- My contact details and their audience ---
+
+#. My contact details: settings section title
+msgid "my_contact_details_title"
+msgstr "I miei recapiti"
+
+#. My contact details: what they are for and who gets them
+msgid "my_contact_details_intro"
+msgstr "Per concordare un luogo o una data di prestito. Cifrati, vengono inviati solo alle biblioteche spuntate qui sotto."
+
+#. Contact audience: heading above the checkboxes
+msgid "contact_audience_title"
+msgstr "Chi li riceve"
+
+#. Contact audience: paired libraries checkbox
+msgid "contact_audience_paired"
+msgstr "Le mie biblioteche abbinate"
+
+#. Contact audience: paired libraries explanation
+msgid "contact_audience_paired_desc"
+msgstr "Quelle con cui hai effettuato l'abbinamento: invito, codice QR o rete locale."
+
+#. Contact audience: directory followers checkbox
+msgid "contact_audience_directory"
+msgstr "I miei follower della directory"
+
+#. Contact audience: directory followers explanation
+msgid "contact_audience_directory_desc"
+msgstr "Qualsiasi biblioteca di cui hai accettato la richiesta di seguirti nella directory."
+
+#. Contact audience: warning when both boxes are unticked
+msgid "contact_audience_nobody"
+msgstr "Nessuno riceverà i tuoi recapiti."
+
+#. Contact audience: what unticking does and does not undo
+msgid "contact_audience_withdraw_note"
+msgstr "Togliere la spunta li ritira a quelle biblioteche, ma non cancella ciò che hanno già letto."
 
 #. Prefilled text message about a book, {title}
 msgid "contact_message_short"
