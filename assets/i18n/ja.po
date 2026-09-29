@@ -1062,7 +1062,7 @@ msgstr "接続の承認"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "新しいライブラリがあなたのライブラリにアクセスする前に、あなたの承認を必須にします"
+msgstr "新しいライブラリがあなたに貸し出しを依頼したり同期したりする前に承認を求める"
 
 #. Address
 msgid "contact_address_label"
@@ -6861,7 +6861,7 @@ msgstr "Goodreads をインポート"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "ライブラリを共有"
+msgstr "招待"
 
 #. Country / Market
 msgid "settings_country"
@@ -7173,7 +7173,7 @@ msgstr "技術的な詳細"
 
 #. This link works on any network
 msgid "invite_works_everywhere"
-msgstr "このリンクはあらゆるネットワーク（WiFi、4G、5G）で機能します。受信者が近くにいる必要はありません。"
+msgstr "どこでも使えます：Wi-Fi、4G、5G。"
 
 #. Local network
 msgid "settings_network_local"
@@ -8199,7 +8199,7 @@ msgid "invite_card_subtitle"
 msgstr "招待リンクを送信"
 
 msgid "copy_invite_link"
-msgstr "リンクをコピー"
+msgstr "コピー"
 
 msgid "invite_link_copied"
 msgstr "招待リンクをコピーしました！"
@@ -8214,7 +8214,7 @@ msgid "tooltip_share_invite"
 msgstr "招待リンクを共有"
 
 msgid "share_invite_empty_state"
-msgstr "招待リンクを共有"
+msgstr "ライブラリを招待"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8226,7 +8226,7 @@ msgstr "招待リンクを生成しています..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "ライブラリを共有"
+msgstr "自分の招待"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
@@ -11180,3 +11180,75 @@ msgstr "この読書を記録できませんでした。"
 #. Snackbar action offering to add a contact; also names the add button of an empty profile section.
 msgid "add"
 msgstr "追加"
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "自分の招待"
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "対面で"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "相手のライブラリがアプリまたはカメラでこのコードを読み取ります。"
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "招待のQRコード"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "離れた場所から"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "リンクをメッセージで送ってください。相手のライブラリがそれを開いて接続します。"
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "自分のWi-Fi内のみ。それ以外から招待するには「リモートで接続可能」をオンにしてください。"
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "送信"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "招待を準備できません。"
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "貸し借りをして同期を保つために。"
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "BiblioGeniusのライブラリ"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "相手のコードを読み取る"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "隣にいるとき"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "連絡先を追加"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "アプリのない連絡先"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "手動で管理する貸し出し"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "誰かを招待"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "自分のコードと招待リンク"

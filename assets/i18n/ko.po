@@ -1062,7 +1062,7 @@ msgstr "연결 승인"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "새 서재가 내 서재에 접근하기 전에 승인을 요구합니다"
+msgstr "새 라이브러리가 대출을 요청하거나 동기화하기 전에 승인을 요구합니다"
 
 #. Address
 msgid "contact_address_label"
@@ -6861,7 +6861,7 @@ msgstr "Goodreads 가져오기"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "서재 공유"
+msgstr "초대"
 
 #. Country / Market
 msgid "settings_country"
@@ -7173,7 +7173,7 @@ msgstr "기술 세부 정보"
 
 #. This link works on any network
 msgid "invite_works_everywhere"
-msgstr "이 링크는 WiFi, 4G, 5G 등 모든 네트워크에서 작동합니다. 받는 사람이 가까이 있을 필요는 없습니다."
+msgstr "어디서나 작동: WiFi, 4G 또는 5G."
 
 #. Local network
 msgid "settings_network_local"
@@ -8199,7 +8199,7 @@ msgid "invite_card_subtitle"
 msgstr "초대 링크 보내기"
 
 msgid "copy_invite_link"
-msgstr "링크 복사"
+msgstr "복사"
 
 msgid "invite_link_copied"
 msgstr "초대 링크를 복사했습니다!"
@@ -8214,7 +8214,7 @@ msgid "tooltip_share_invite"
 msgstr "초대 링크 공유"
 
 msgid "share_invite_empty_state"
-msgstr "초대 링크 공유"
+msgstr "라이브러리 초대하기"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8226,7 +8226,7 @@ msgstr "초대 링크 생성 중..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "내 서재 공유하기"
+msgstr "내 초대"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
@@ -11180,3 +11180,75 @@ msgstr "이 독서를 기록하지 못했습니다."
 #. Snackbar action offering to add a contact; also names the add button of an empty profile section.
 msgid "add"
 msgstr "추가"
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "내 초대"
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "직접 만나서"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "상대 라이브러리가 앱이나 카메라로 이 코드를 스캔합니다."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "초대 QR 코드"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "원격으로"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "링크를 메시지로 보내세요. 상대 라이브러리가 열어서 연결합니다."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "내 WiFi에서만 작동합니다. 그 밖에서 초대하려면 \"원격 접속 가능\"을 켜세요."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "보내기"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "초대를 준비할 수 없습니다."
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "대출을 주고받고 동기화를 유지하기 위해."
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "BiblioGenius 라이브러리"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "상대 코드 스캔"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "나란히 있을 때"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "연락처 추가"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "앱이 없는 연락처"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "수동으로 관리하는 대출"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "누군가 초대하기"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "내 코드와 초대 링크"

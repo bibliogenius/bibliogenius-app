@@ -1062,7 +1062,7 @@ msgstr "Одобрение на свързване"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "Изисквайте вашето одобрение преди нови потребители да получат достъп до вашата библиотека"
+msgstr "Изисквайте вашето одобрение, преди нова библиотека да може да ви иска заеми или да се синхронизира с вас"
 
 #. Address
 msgid "contact_address_label"
@@ -6750,7 +6750,7 @@ msgstr "Импортиране от Goodreads"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "Споделяне на библиотека"
+msgstr "Покани"
 
 #. Country / Market
 msgid "settings_country"
@@ -7082,7 +7082,7 @@ msgstr "Технически подробности"
 
 #. This link works on any network
 msgid "invite_works_everywhere"
-msgstr "Тази връзка работи във всяка мрежа: WiFi, 4G или 5G. Получателят не е необходимо да е наблизо."
+msgstr "Работи навсякъде: WiFi, 4G или 5G."
 
 #. Local network
 msgid "settings_network_local"
@@ -8000,7 +8000,7 @@ msgid "invite_card_subtitle"
 msgstr "Изпратете връзка за покана"
 
 msgid "copy_invite_link"
-msgstr "Копиране на връзката"
+msgstr "Копирай"
 
 msgid "invite_link_copied"
 msgstr "Връзката за покана е копирана!"
@@ -8015,7 +8015,7 @@ msgid "tooltip_share_invite"
 msgstr "Споделяне на връзката за покана"
 
 msgid "share_invite_empty_state"
-msgstr "Споделяне на връзката за покана"
+msgstr "Покани библиотека"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8027,7 +8027,7 @@ msgstr "Създаване на връзка за покана..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "Споделяне на моята библиотека"
+msgstr "Моята покана"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
@@ -11898,3 +11898,75 @@ msgstr "%d подрафта"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Книгите остават в библиотеката ви; те само напускат този рафт."
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "Моята покана"
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "На живо"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "Другата библиотека сканира този код от приложението или с камерата."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "QR код на вашата покана"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "От разстояние"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "Изпратете връзката си със съобщение: другата библиотека я отваря, за да се свърже."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "Само във вашата WiFi мрежа. Включете „Достъпно отдалечено“, за да каните и отвъд нея."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "Изпрати"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "Поканата ви не може да бъде подготвена."
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "За да разменяте заеми и да останете синхронизирани."
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "Библиотека BiblioGenius"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "Сканирай кода ѝ"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "Един до друг сте"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "Добави контакт"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "Контакт без приложението"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "Заеми, водени на ръка"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "Покани някого"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "Вашият код и вашата връзка за покана"

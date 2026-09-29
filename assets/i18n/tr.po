@@ -1118,7 +1118,7 @@ msgstr "Bağlantı Onayı"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "Yeni eşlerin kütüphanenize erişebilmesi için onayınızı gerektirir"
+msgstr "Yeni bir kütüphanenin sizden ödünç istemesi veya sizinle eşitlenmesi için onayınızı gerektir"
 
 #. Address
 msgid "contact_address_label"
@@ -6660,7 +6660,7 @@ msgstr "Goodreads içe aktar"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "Kütüphaneyi paylaş"
+msgstr "Davet et"
 
 #. Country / Market
 msgid "settings_country"
@@ -6992,7 +6992,7 @@ msgstr "Teknik ayrıntılar"
 
 #. This link works on any network
 msgid "invite_works_everywhere"
-msgstr "Bu bağlantı her ağda çalışır: Wi-Fi, 4G veya 5G. Alıcının yakında olması gerekmez."
+msgstr "Her yerde çalışır: WiFi, 4G veya 5G."
 
 #. Local network
 msgid "settings_network_local"
@@ -7994,7 +7994,7 @@ msgid "invite_card_subtitle"
 msgstr "Bir davet bağlantısı gönderin"
 
 msgid "copy_invite_link"
-msgstr "Bağlantıyı kopyala"
+msgstr "Kopyala"
 
 msgid "invite_link_copied"
 msgstr "Davet bağlantısı kopyalandı!"
@@ -8009,7 +8009,7 @@ msgid "tooltip_share_invite"
 msgstr "Davet bağlantısını paylaş"
 
 msgid "share_invite_empty_state"
-msgstr "Davet bağlantısını paylaş"
+msgstr "Bir kütüphane davet et"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8021,7 +8021,7 @@ msgstr "Davet bağlantısı oluşturuluyor..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "Kütüphanemi paylaş"
+msgstr "Davetim"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
@@ -11898,3 +11898,75 @@ msgstr "%d alt raf"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Kitaplar kütüphanenizde kalır; yalnızca bu raftan çıkarlar."
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "Davetim"
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "Yüz yüze"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "Diğer kütüphane bu kodu uygulamadan veya kamerayla tarar."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "Davetinizin QR kodu"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "Uzaktan"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "Bağlantınızı mesajla gönderin: diğer kütüphane bağlanmak için onu açar."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "Yalnızca kendi WiFi ağınızda. Daha ötesine davet etmek için \"Uzaktan erişilebilir\" seçeneğini açın."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "Gönder"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "Davetiniz hazırlanamıyor."
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "Ödünç alışverişi yapmak ve eşitlenmiş kalmak için."
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "Bir BiblioGenius kütüphanesi"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "Kodunu tara"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "Yan yanasınız"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "Kişi ekle"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "Uygulaması olmayan bir kişi"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "Elle yönetilen ödünçler"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "Birini davet et"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "Kodunuz ve davet bağlantınız"

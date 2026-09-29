@@ -1256,7 +1256,7 @@ msgstr "Aprovação da Conexão"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "Requer sua aprovação antes que novos usuários possam acessar sua biblioteca"
+msgstr "Exigir sua aprovação antes que uma nova biblioteca possa pedir empréstimos ou sincronizar com você"
 
 #. Auto-approve loan requests
 msgid "auto_approve_loans_title"
@@ -5954,7 +5954,7 @@ msgstr "Importar Goodreads"
 
 #. Share library
 msgid "quick_share_library"
-msgstr "Compartilhar biblioteca"
+msgstr "Convidar"
 
 #. Country / Market
 msgid "settings_country"
@@ -6861,7 +6861,7 @@ msgstr "Detalhes técnicos"
 
 #. This link works on any network
 msgid "invite_works_everywhere"
-msgstr "Este link funciona em qualquer rede: Wi-Fi, 4G ou 5G. O destinatário não precisa estar por perto."
+msgstr "Funciona em qualquer rede: WiFi, 4G ou 5G."
 
 #. Local network
 msgid "settings_network_local"
@@ -8778,7 +8778,7 @@ msgid "invite_card_subtitle"
 msgstr "Envie um link de convite"
 
 msgid "copy_invite_link"
-msgstr "Copiar link"
+msgstr "Copiar"
 
 msgid "invite_link_copied"
 msgstr "Link de convite copiado!"
@@ -8793,7 +8793,7 @@ msgid "tooltip_share_invite"
 msgstr "Compartilhar link de convite"
 
 msgid "share_invite_empty_state"
-msgstr "Compartilhar link de convite"
+msgstr "Convidar uma biblioteca"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -8805,7 +8805,7 @@ msgstr "Gerando link de convite..."
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "Compartilhar minha biblioteca"
+msgstr "Meu convite"
 
 #. Operation Log Viewer - screen title
 msgid "admin_operation_log_title"
@@ -11906,3 +11906,75 @@ msgstr "%d subprateleiras"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Os livros continuam na sua biblioteca; eles apenas saem desta prateleira."
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "Meu convite"
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "Pessoalmente"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "A outra biblioteca escaneia este código, pelo app ou pela câmera."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "Código QR do seu convite"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "À distância"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "Envie seu link por mensagem: a outra biblioteca o abre para se conectar."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "Somente no seu WiFi. Ative \"Acessível remotamente\" para convidar além dele."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "Enviar"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "Não foi possível preparar seu convite."
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "Para trocar empréstimos e manter a sincronização."
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "Uma biblioteca BiblioGenius"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "Escanear o código dela"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "Vocês estão lado a lado"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "Adicionar um contato"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "Um contato sem o app"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "Empréstimos gerenciados manualmente"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "Convidar alguém"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "Seu código e seu link de convite"

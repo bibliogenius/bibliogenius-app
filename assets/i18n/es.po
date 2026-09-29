@@ -1146,7 +1146,7 @@ msgstr "Validación de conexión"
 
 #. Require your approval before new peers can access your library
 msgid "connection_validation_desc"
-msgstr "Acepta o rechaza las solicitudes de conexión entrantes"
+msgstr "Exigir tu aprobación antes de que una nueva biblioteca pueda pedirte préstamos o sincronizar contigo"
 
 #. Address
 msgid "contact_address_label"
@@ -6646,7 +6646,7 @@ msgid "invite_card_subtitle"
 msgstr "Invita a contactos a conectarse"
 
 msgid "copy_invite_link"
-msgstr "Copiar enlace"
+msgstr "Copiar"
 
 msgid "invite_link_copied"
 msgstr "¡Enlace de invitación copiado!"
@@ -6658,7 +6658,7 @@ msgid "tooltip_share_invite"
 msgstr "Compartir enlace de invitación"
 
 msgid "share_invite_empty_state"
-msgstr "Compartir enlace de invitación"
+msgstr "Invitar a una biblioteca"
 
 #. Invite share message (used when sharing via SMS/messaging)
 msgid "invite_share_message"
@@ -6666,7 +6666,7 @@ msgstr "Únete a {name} en BiblioGenius para compartir libros: {link}"
 
 #. Profile screen - share invite link
 msgid "profile_share_invite"
-msgstr "Compartir mi biblioteca"
+msgstr "Mi invitación"
 
 msgid "module_edition_browser"
 msgstr "Explorador de ediciones"
@@ -7193,7 +7193,7 @@ msgid "hub_website_label"
 msgstr "Sitio web (opcional)"
 
 msgid "invite_works_everywhere"
-msgstr "Este enlace funciona en cualquier red: WiFi, 4G o 5G. El destinatario no necesita estar cerca."
+msgstr "Funciona en cualquier red: WiFi, 4G o 5G."
 
 msgid "isbn_checksum_warning"
 msgstr "Este ISBN podria ser invalido (error de checksum)"
@@ -11786,3 +11786,75 @@ msgstr "%d subestanterías"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Los libros permanecen en tu biblioteca; solo salen de esta estantería."
+
+#. Title of the single invitation screen (QR code + link)
+msgid "invite_screen_title"
+msgstr "Mi invitación"
+
+#. Section: pairing in person with the QR code
+msgid "invite_in_person_title"
+msgstr "En persona"
+
+#. Hint under the in-person section
+msgid "invite_in_person_hint"
+msgstr "La otra biblioteca escanea este código, desde la app o con la cámara."
+
+#. Semantic label of the invitation QR code
+msgid "invite_qr_semantics"
+msgstr "Código QR de tu invitación"
+
+#. Section: pairing remotely with the link
+msgid "invite_remote_title"
+msgstr "A distancia"
+
+#. Hint under the remote section
+msgid "invite_remote_hint"
+msgstr "Envía tu enlace por mensaje: la otra biblioteca lo abre para conectarse."
+
+#. Note shown when the link only reaches the library on its own Wi-Fi
+msgid "invite_lan_only"
+msgstr "Solo en tu WiFi. Activa «Accesible a distancia» para invitar más allá."
+
+#. Primary button of the invitation screen: open the system share sheet
+msgid "invite_send"
+msgstr "Enviar"
+
+#. Error state of the invitation screen: neither WiFi nor remote access
+msgid "invite_unavailable_title"
+msgstr "No se puede preparar tu invitación."
+
+#. Intro of the "add a connection" sheet: what a connection gives
+msgid "add_connection_intro"
+msgstr "Para intercambiar préstamos y mantener la sincronización."
+
+#. Section header of the sheet: pairing with another BiblioGenius library
+msgid "add_connection_section"
+msgstr "Una biblioteca BiblioGenius"
+
+#. Card: scan the other library's QR code
+msgid "add_connection_scan"
+msgstr "Escanear su código"
+
+#. Subtitle of the scan tile
+msgid "add_connection_scan_hint"
+msgstr "Cara a cara"
+
+#. Button: open the form for a contact who does not have the app
+msgid "add_connection_contact"
+msgstr "Añadir un contacto"
+
+#. Section header of the sheet: a person managed by hand, without the app
+msgid "add_connection_contact_section"
+msgstr "Un contacto sin la app"
+
+#. Help line under the contact section
+msgid "add_connection_contact_hint"
+msgstr "Préstamos gestionados a mano"
+
+#. Full-width button: open my invitation (QR code + link)
+msgid "add_connection_invite"
+msgstr "Invitar a alguien"
+
+#. Subtitle of the invite tile
+msgid "add_connection_invite_hint"
+msgstr "Tu código y tu enlace de invitación"
