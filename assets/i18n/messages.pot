@@ -11863,3 +11863,27 @@ msgstr ""
 #. Household readers
 msgid "household_error"
 msgstr ""
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr ""
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr ""
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr ""
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr ""
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr ""
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr ""

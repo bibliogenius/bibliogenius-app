@@ -1761,6 +1761,13 @@ Future<void> setCurrentHouseholdReader({required String readerId}) => RustLib
 Future<void> clearCurrentHouseholdReader() =>
     RustLib.instance.api.crateApiFrbClearCurrentHouseholdReader();
 
+/// Merge the readings of a catalogue export (the JSON "Exporter mon catalogue"
+/// writes) into the shared library, for the reader of this device. Adds and
+/// records only: unlike the catalogue restore, nothing is wiped.
+Future<FrbReadingImportReport> importHouseholdReadings({
+  required String json,
+}) => RustLib.instance.api.crateApiFrbImportHouseholdReadings(json: json);
+
 Future<void> renameHouseholdReader({
   required String readerId,
   required String name,
@@ -3431,6 +3438,42 @@ class FrbReader {
           runtimeType == other.runtimeType &&
           id == other.id &&
           name == other.name;
+}
+
+/// What "import my readings" did, for the summary shown to the reader.
+class FrbReadingImportReport {
+  final int matched;
+  final int created;
+  final int ambiguous;
+  final List<String> ambiguousTitles;
+  final int skipped;
+
+  const FrbReadingImportReport({
+    required this.matched,
+    required this.created,
+    required this.ambiguous,
+    required this.ambiguousTitles,
+    required this.skipped,
+  });
+
+  @override
+  int get hashCode =>
+      matched.hashCode ^
+      created.hashCode ^
+      ambiguous.hashCode ^
+      ambiguousTitles.hashCode ^
+      skipped.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbReadingImportReport &&
+          runtimeType == other.runtimeType &&
+          matched == other.matched &&
+          created == other.created &&
+          ambiguous == other.ambiguous &&
+          ambiguousTitles == other.ambiguousTitles &&
+          skipped == other.skipped;
 }
 
 /// One recommendation: the book, its score, and the human-readable reasons

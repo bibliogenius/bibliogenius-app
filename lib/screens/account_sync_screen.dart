@@ -1,5 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io' as io;
 
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,7 +12,7 @@ import '../providers/account_sync_provider.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/theme_provider.dart';
 import '../services/ffi_service.dart';
-import '../src/rust/api/frb.dart' show FrbReader;
+import '../src/rust/api/frb.dart' show FrbReader, FrbReadingImportReport;
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
@@ -840,6 +844,87 @@ class _HouseholdSectionState extends State<_HouseholdSection> {
     await _run(() => FfiService().createHouseholdReader(name.trim()));
   }
 
+  /// Merge the readings of a catalogue export ("Exporter mon catalogue") into
+  /// the shared library for the current reader. Unlike the catalogue restore,
+  /// it wipes nothing: that restore would delete the shared library on every
+  /// synced device.
+  Future<void> _importReadings() async {
+    final picked = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['json'],
+      withData: kIsWeb,
+    );
+    if (picked == null || picked.files.isEmpty || !mounted) return;
+    final file = picked.files.first;
+
+    FrbReadingImportReport? report;
+    String? error;
+    setState(() => _busy = true);
+    try {
+      final bytes = kIsWeb
+          ? file.bytes!
+          : await io.File(file.path!).readAsBytes();
+      report = await FfiService().importHouseholdReadings(utf8.decode(bytes));
+      if (mounted) await _afterChange();
+    } catch (e) {
+      error = '$e';
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        String t(String key, [Map<String, String>? params]) =>
+            TranslationService.translate(ctx, key, params: params);
+        return AlertDialog(
+          title: Text(t('household_import_title')),
+          content: SingleChildScrollView(
+            child: report == null
+                ? Text(t('household_import_error', {'detail': '$error'}))
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t('household_import_summary', {
+                          'matched': '${report.matched}',
+                          'created': '${report.created}',
+                        }),
+                      ),
+                      if (report.ambiguous > 0) ...[
+                        const SizedBox(height: AppDesign.spacingSm),
+                        Text(
+                          t('household_import_ambiguous', {
+                            'count': '${report.ambiguous}',
+                          }),
+                        ),
+                        for (final title in report.ambiguousTitles)
+                          Text('• $title'),
+                      ],
+                      if (report.skipped > 0) ...[
+                        const SizedBox(height: AppDesign.spacingSm),
+                        Text(
+                          t('household_import_skipped', {
+                            'count': '${report.skipped}',
+                          }),
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(t('close')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -889,6 +974,15 @@ class _HouseholdSectionState extends State<_HouseholdSection> {
           ),
           style: accountSyncSecondaryActionStyle(context),
         ),
+        if (_currentId != null) ...[
+          const SizedBox(height: AppDesign.spacingSm),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.upload_file),
+            onPressed: _busy ? null : _importReadings,
+            label: Text(_t('household_import_button')),
+            style: accountSyncSecondaryActionStyle(context),
+          ),
+        ],
       ],
     );
   }

@@ -305,6 +305,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbReader dco_decode_frb_reader(dynamic raw);
 
   @protected
+  FrbReadingImportReport dco_decode_frb_reading_import_report(dynamic raw);
+
+  @protected
   FrbRecommendation dco_decode_frb_recommendation(dynamic raw);
 
   @protected
@@ -943,6 +946,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbReader sse_decode_frb_reader(SseDeserializer deserializer);
+
+  @protected
+  FrbReadingImportReport sse_decode_frb_reading_import_report(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FrbRecommendation sse_decode_frb_recommendation(SseDeserializer deserializer);
@@ -1773,6 +1781,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_reader(FrbReader self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_reading_import_report(
+    FrbReadingImportReport self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_frb_recommendation(

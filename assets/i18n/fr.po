@@ -12104,3 +12104,27 @@ msgstr "Lit sur cet appareil"
 #. Household readers
 msgid "household_error"
 msgstr "Le lecteur n'a pas pu être modifié. Réessayez."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "Importer mes lectures"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "Importer mes lectures"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "{matched} livres déjà dans la bibliothèque ont reçu votre lecture. {created} livres ont été ajoutés à la bibliothèque."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} livres correspondent à plusieurs livres de la bibliothèque et n'ont pas été modifiés :"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count} lignes inutilisables ont été ignorées."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "Le fichier n'a pas pu être importé : {detail}"
