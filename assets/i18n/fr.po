@@ -12072,3 +12072,35 @@ msgstr "%d sous-étagères"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Les livres restent dans votre bibliothèque ; ils quittent seulement cette étagère."
+
+#. Household readers
+msgid "household_title"
+msgstr "Lecteurs du foyer"
+
+#. Household readers
+msgid "household_note"
+msgstr "Tout le monde partage la bibliothèque de ce compte. Choisissez qui lit sur cet appareil : chacun garde ses propres statuts de lecture, dates et notes. La liste d'envies reste commune."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Créer mon lecteur"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Ajouter un lecteur sur cet appareil"
+
+#. Household readers
+msgid "household_name"
+msgstr "Prénom"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Créer"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Lit sur cet appareil"
+
+#. Household readers
+msgid "household_error"
+msgstr "Le lecteur n'a pas pu être modifié. Réessayez."

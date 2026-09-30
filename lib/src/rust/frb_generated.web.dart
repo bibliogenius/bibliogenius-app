@@ -80,6 +80,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbNoIsbnCluster dco_decode_box_autoadd_frb_no_isbn_cluster(dynamic raw);
 
   @protected
+  FrbReader dco_decode_box_autoadd_frb_reader(dynamic raw);
+
+  @protected
   FrbRegisterParams dco_decode_box_autoadd_frb_register_params(dynamic raw);
 
   @protected
@@ -299,6 +302,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbReadRecord dco_decode_frb_read_record(dynamic raw);
 
   @protected
+  FrbReader dco_decode_frb_reader(dynamic raw);
+
+  @protected
   FrbRecommendation dco_decode_frb_recommendation(dynamic raw);
 
   @protected
@@ -472,6 +478,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FrbPuzzleScore> dco_decode_list_frb_puzzle_score(dynamic raw);
 
   @protected
+  List<FrbReader> dco_decode_list_frb_reader(dynamic raw);
+
+  @protected
   List<FrbRecommendation> dco_decode_list_frb_recommendation(dynamic raw);
 
   @protected
@@ -534,6 +543,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbNoIsbnCluster? dco_decode_opt_box_autoadd_frb_no_isbn_cluster(dynamic raw);
+
+  @protected
+  FrbReader? dco_decode_opt_box_autoadd_frb_reader(dynamic raw);
 
   @protected
   FrbRelayConfig? dco_decode_opt_box_autoadd_frb_relay_config(dynamic raw);
@@ -652,6 +664,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbNoIsbnCluster sse_decode_box_autoadd_frb_no_isbn_cluster(
     SseDeserializer deserializer,
   );
+
+  @protected
+  FrbReader sse_decode_box_autoadd_frb_reader(SseDeserializer deserializer);
 
   @protected
   FrbRegisterParams sse_decode_box_autoadd_frb_register_params(
@@ -927,6 +942,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbReadRecord sse_decode_frb_read_record(SseDeserializer deserializer);
 
   @protected
+  FrbReader sse_decode_frb_reader(SseDeserializer deserializer);
+
+  @protected
   FrbRecommendation sse_decode_frb_recommendation(SseDeserializer deserializer);
 
   @protected
@@ -1158,6 +1176,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<FrbReader> sse_decode_list_frb_reader(SseDeserializer deserializer);
+
+  @protected
   List<FrbRecommendation> sse_decode_list_frb_recommendation(
     SseDeserializer deserializer,
   );
@@ -1240,6 +1261,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbNoIsbnCluster? sse_decode_opt_box_autoadd_frb_no_isbn_cluster(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbReader? sse_decode_opt_box_autoadd_frb_reader(
     SseDeserializer deserializer,
   );
 
@@ -1376,6 +1402,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_frb_no_isbn_cluster(
     FrbNoIsbnCluster self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_frb_reader(
+    FrbReader self,
     SseSerializer serializer,
   );
 
@@ -1740,6 +1772,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_frb_read_record(FrbReadRecord self, SseSerializer serializer);
 
   @protected
+  void sse_encode_frb_reader(FrbReader self, SseSerializer serializer);
+
+  @protected
   void sse_encode_frb_recommendation(
     FrbRecommendation self,
     SseSerializer serializer,
@@ -2031,6 +2066,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_frb_reader(
+    List<FrbReader> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_frb_recommendation(
     List<FrbRecommendation> self,
     SseSerializer serializer,
@@ -2132,6 +2173,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_frb_no_isbn_cluster(
     FrbNoIsbnCluster? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_reader(
+    FrbReader? self,
     SseSerializer serializer,
   );
 

@@ -10,7 +10,7 @@ part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `install_panic_hook`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `ServerStartDecision`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -1736,6 +1736,39 @@ Future<FrbImportCompletionReport> importCompleteFromRows({
 Future<FrbNoIsbnCluster?> importNoIsbnCluster() =>
     RustLib.instance.api.crateApiFrbImportNoIsbnCluster();
 
+/// Every reader of the household, oldest first. Empty until someone opts in.
+Future<List<FrbReader>> listHouseholdReaders() =>
+    RustLib.instance.api.crateApiFrbListHouseholdReaders();
+
+/// Who reads on this device. None: the device shows the shared book columns,
+/// exactly as before households existed.
+Future<FrbReader?> getCurrentHouseholdReader() =>
+    RustLib.instance.api.crateApiFrbGetCurrentHouseholdReader();
+
+/// Add a reader to the household and make them the reader of this device. The
+/// first reader of a household inherits the reading state already on the books.
+Future<FrbReader> createHouseholdReader({required String name}) =>
+    RustLib.instance.api.crateApiFrbCreateHouseholdReader(name: name);
+
+/// Make an existing reader the reader of this device.
+Future<void> setCurrentHouseholdReader({required String readerId}) => RustLib
+    .instance
+    .api
+    .crateApiFrbSetCurrentHouseholdReader(readerId: readerId);
+
+/// Put this device back on the shared reading state. Readers and their
+/// readings are kept.
+Future<void> clearCurrentHouseholdReader() =>
+    RustLib.instance.api.crateApiFrbClearCurrentHouseholdReader();
+
+Future<void> renameHouseholdReader({
+  required String readerId,
+  required String name,
+}) => RustLib.instance.api.crateApiFrbRenameHouseholdReader(
+  readerId: readerId,
+  name: name,
+);
+
 /// Subset of the manifest surfaced to the wizard's preview screen. Mirrors
 /// `ManifestSummary` field-by-field but flattened for FFI portability.
 /// Counts cross the FFI as `i64`.
@@ -3379,6 +3412,25 @@ sealed class FrbReadRecord with _$FrbReadRecord {
     required bool created,
     required bool wasAlreadyRead,
   }) = _FrbReadRecord;
+}
+
+/// A person of the household.
+class FrbReader {
+  final String id;
+  final String name;
+
+  const FrbReader({required this.id, required this.name});
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbReader &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name;
 }
 
 /// One recommendation: the book, its score, and the human-readable reasons

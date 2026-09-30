@@ -12077,3 +12077,35 @@ msgstr "%d sub-shelves"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "The books stay in your library; they just leave this shelf."
+
+#. Household readers
+msgid "household_title"
+msgstr "Household readers"
+
+#. Household readers
+msgid "household_note"
+msgstr "Everyone on this account shares the library. Choose who reads on this device: each person keeps their own reading status, dates and ratings. The wishlist stays shared."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Create my reader"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Add a reader on this device"
+
+#. Household readers
+msgid "household_name"
+msgstr "First name"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Create"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Reads on this device"
+
+#. Household readers
+msgid "household_error"
+msgstr "The reader could not be changed. Please try again."

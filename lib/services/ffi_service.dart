@@ -2365,4 +2365,45 @@ class FfiService {
       rethrow;
     }
   }
+
+  // ── Household readers ──────────────────────────────────────────────
+  // One shared library, one reading state per person. A device with no
+  // current reader keeps the shared state, exactly as before.
+
+  Future<List<frb.FrbReader>> listHouseholdReaders() async {
+    try {
+      return await frb.listHouseholdReaders();
+    } catch (e) {
+      debugPrint('FFI listHouseholdReaders error: $e');
+      rethrow;
+    }
+  }
+
+  Future<frb.FrbReader?> getCurrentHouseholdReader() async {
+    try {
+      return await frb.getCurrentHouseholdReader();
+    } catch (e) {
+      debugPrint('FFI getCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  /// Adds a reader and makes them the reader of this device.
+  Future<frb.FrbReader> createHouseholdReader(String name) async {
+    try {
+      return await frb.createHouseholdReader(name: name);
+    } catch (e) {
+      debugPrint('FFI createHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> setCurrentHouseholdReader(String readerId) async {
+    try {
+      await frb.setCurrentHouseholdReader(readerId: readerId);
+    } catch (e) {
+      debugPrint('FFI setCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
 }
