@@ -12165,7 +12165,7 @@ msgstr "Lecteurs du foyer"
 
 #. Household readers
 msgid "household_note"
-msgstr "Tout le monde partage la bibliothèque de ce compte. Choisissez qui lit sur cet appareil : chacun garde ses propres statuts de lecture, dates et notes. La liste d'envies reste commune."
+msgstr "Tout le monde partage la bibliothèque de ce compte. Choisissez qui lit sur cet appareil : chacun garde ses propres statuts de lecture, dates et notes. La liste de souhaits reste commune."
 
 #. Household readers
 msgid "household_create_me"

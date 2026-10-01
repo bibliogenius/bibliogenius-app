@@ -13,6 +13,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/household_reader_name_dialog.dart';
 
 /// Hub for the multi-device account sync feature.
 ///
@@ -804,40 +805,14 @@ class _HouseholdSectionState extends State<_HouseholdSection> {
   }
 
   Future<void> _addReader() async {
-    final controller = TextEditingController();
-    final name = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          TranslationService.translate(
-            ctx,
-            _readers.isEmpty ? 'household_create_me' : 'household_add_reader',
-          ),
-        ),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          textCapitalization: TextCapitalization.words,
-          decoration: InputDecoration(
-            labelText: TranslationService.translate(ctx, 'household_name'),
-          ),
-          onSubmitted: (v) => Navigator.of(ctx).pop(v),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: Text(TranslationService.translate(ctx, 'cancel')),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(ctx).pop(controller.text),
-            child: Text(TranslationService.translate(ctx, 'household_confirm')),
-          ),
-        ],
-      ),
+    final name = await showHouseholdReaderNameDialog(
+      context,
+      titleKey: _readers.isEmpty
+          ? 'household_create_me'
+          : 'household_add_reader',
     );
-    controller.dispose();
-    if (name == null || name.trim().isEmpty) return;
-    await _run(() => FfiService().createHouseholdReader(name.trim()));
+    if (name == null || !mounted) return;
+    await _run(() => FfiService().createHouseholdReader(name));
   }
 
   @override
