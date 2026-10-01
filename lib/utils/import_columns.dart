@@ -15,6 +15,8 @@
 /// "ISBN".
 library;
 
+import 'isbn_validator.dart';
+
 /// Column names that ARE the author column, in no particular order.
 const List<String> _exactAuthorNames = [
   'author',
@@ -232,5 +234,35 @@ ImportedIsbn cleanImportedIsbn(String? raw) {
   if (value.length == 10 || value.length == 13) {
     return (isbn: value, rejected: false);
   }
+  final embedded = _findEmbeddedIsbn(raw);
+  if (embedded != null) return (isbn: embedded, rejected: false);
   return (isbn: null, rejected: true);
+}
+
+/// A run of digits that may be an ISBN inside a longer cell: hyphens allowed
+/// between digits, a final X allowed, and neither a digit nor a letter on
+/// either side. A run hyphenated to further digits is part of a longer number
+/// (an inventory number, say) whose slice can pass the checksum by chance.
+final RegExp _isbnCandidate = RegExp(
+  r'(?<![\dA-Za-z])(?<!\d-)\d(?:-?\d){8,11}-?[\dXx](?![\dA-Za-z])(?!-\d)',
+);
+
+/// First checksum-valid ISBN in a cell that holds more than an ISBN, or null.
+///
+/// Catalogue exports label the number ("ISBN-10: ..."), append a binding note
+/// or a price, or list both forms of the same book. Gluing every digit of such
+/// a cell together gives the wrong length and the book lost its ISBN.
+///
+/// The checksum is required here, unlike for a cell that holds only an ISBN: a
+/// number picked out of other content is a guess until the checksum backs it.
+/// A cell containing `;` or a tab is left alone: it is a whole line read as
+/// one field, its other columns are lost too, and the rejection count is what
+/// tells the reader so.
+String? _findEmbeddedIsbn(String raw) {
+  if (raw.contains(';') || raw.contains('\t')) return null;
+  for (final match in _isbnCandidate.allMatches(raw)) {
+    final candidate = match.group(0)!.replaceAll('-', '').toUpperCase();
+    if (IsbnValidator.isValid(candidate)) return candidate;
+  }
+  return null;
 }

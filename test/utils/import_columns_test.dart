@@ -175,6 +175,57 @@ void main() {
       );
       expect(cleanImportedIsbn('12345'), (isbn: null, rejected: true));
     });
+
+    test('finds the ISBN in a cell that carries something else as well', () {
+      // A label whose digits used to be glued onto the ISBN.
+      expect(
+        cleanImportedIsbn('ISBN-10: 3518368540'),
+        (isbn: '3518368540', rejected: false),
+      );
+      // A binding note and a price, as library catalogues export them.
+      expect(
+        cleanImportedIsbn('978-3-518-36854-1 (kart.) : EUR 12.00'),
+        (isbn: '9783518368541', rejected: false),
+      );
+      // Both forms of the same book: the first one is kept.
+      expect(
+        cleanImportedIsbn('3518368540, 9783518368541'),
+        (isbn: '3518368540', rejected: false),
+      );
+      // The stray "x" of the note no longer counts as a check character.
+      expect(
+        cleanImportedIsbn('9783518368541 Lex.'),
+        (isbn: '9783518368541', rejected: false),
+      );
+    });
+
+    test('a number found among other content must pass its checksum', () {
+      // Right length, wrong check digit: picked out of a noisy cell, it is a
+      // guess, and a guessed ISBN is worse than none.
+      expect(
+        cleanImportedIsbn('ISBN-10: 3518368541'),
+        (isbn: null, rejected: true),
+      );
+      expect(
+        cleanImportedIsbn('Inv. 2017-0001234567'),
+        (isbn: null, rejected: true),
+      );
+      // The tail or the head of a longer hyphenated number is not a number
+      // of its own, even when its checksum happens to hold.
+      expect(
+        cleanImportedIsbn('Inv. 2017-0001234560'),
+        (isbn: null, rejected: true),
+      );
+      expect(
+        cleanImportedIsbn('Inv. 0001234560-2017'),
+        (isbn: null, rejected: true),
+      );
+      // Alone in its cell, the same mistyped ISBN is still kept as before.
+      expect(
+        cleanImportedIsbn('3518368541'),
+        (isbn: '3518368541', rejected: false),
+      );
+    });
   });
 
   group('splitting a payload into records', () {
