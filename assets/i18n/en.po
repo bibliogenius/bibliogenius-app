@@ -12163,3 +12163,35 @@ msgstr "You are side by side"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "Your code and your invite link"
+
+#. Household readers
+msgid "household_title"
+msgstr "Household readers"
+
+#. Household readers
+msgid "household_note"
+msgstr "Everyone on this account shares the library. Choose who reads on this device: each person keeps their own reading status, dates and ratings. The wishlist stays shared."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Create my reader"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Add a reader on this device"
+
+#. Household readers
+msgid "household_name"
+msgstr "First name"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Create"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Reads on this device"
+
+#. Household readers
+msgid "household_error"
+msgstr "The reader could not be changed. Please try again."

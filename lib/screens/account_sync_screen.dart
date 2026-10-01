@@ -5,8 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/account_sync_provider.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../providers/theme_provider.dart';
 import '../services/ffi_service.dart';
+import '../src/rust/api/frb.dart' show FrbReader;
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
@@ -494,9 +496,7 @@ class _SignedInView extends StatelessWidget {
         _SectionHeader(_t(context, 'account_sync_devices_title')),
         if (provider.devices.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppDesign.spacingSm,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: AppDesign.spacingSm),
             child: Text(
               _t(context, 'account_sync_no_devices'),
               style: Theme.of(context).textTheme.bodyMedium,
@@ -510,6 +510,7 @@ class _SignedInView extends StatelessWidget {
               busy: provider.busy,
             ),
           ),
+        const _HouseholdSection(),
         const SizedBox(height: AppDesign.spacingLg),
         FilledButton.icon(
           icon: const Icon(Icons.sync),
@@ -614,9 +615,9 @@ class _ConnectedCard extends StatelessWidget {
                     context,
                     'account_sync_signed_in_label',
                   ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -667,9 +668,9 @@ class _DeviceTile extends StatelessWidget {
           Expanded(
             child: Text(
               device.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -734,6 +735,161 @@ class _DeviceTile extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
+    );
+  }
+}
+
+/// Household readers: one shared library, one reading state per person.
+///
+/// Everyone enrolled in the account shares the catalogue; picking "who reads
+/// on this device" gives each person their own statuses, reading dates and
+/// ratings, while the wishlist stays common. Until a reader is picked the
+/// device keeps the shared state, exactly as before.
+class _HouseholdSection extends StatefulWidget {
+  const _HouseholdSection();
+
+  @override
+  State<_HouseholdSection> createState() => _HouseholdSectionState();
+}
+
+class _HouseholdSectionState extends State<_HouseholdSection> {
+  List<FrbReader> _readers = const [];
+  String? _currentId;
+  bool _busy = false;
+
+  String _t(String key) => TranslationService.translate(context, key);
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    try {
+      final readers = await FfiService().listHouseholdReaders();
+      final current = await FfiService().getCurrentHouseholdReader();
+      if (!mounted) return;
+      setState(() {
+        _readers = readers;
+        _currentId = current?.id;
+      });
+    } catch (_) {
+      // A section that cannot load stays empty: the account screen must not
+      // break over an optional feature.
+    }
+  }
+
+  /// Every list on screen shows the reading state of the current reader, so a
+  /// change of reader has to reach them all.
+  Future<void> _afterChange() async {
+    context.read<BookRefreshNotifier>().refresh();
+    await _load();
+  }
+
+  Future<void> _run(Future<void> Function() action) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    try {
+      await action();
+      if (mounted) await _afterChange();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_t('household_error'))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _addReader() async {
+    final controller = TextEditingController();
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(
+            ctx,
+            _readers.isEmpty ? 'household_create_me' : 'household_add_reader',
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          textCapitalization: TextCapitalization.words,
+          decoration: InputDecoration(
+            labelText: TranslationService.translate(ctx, 'household_name'),
+          ),
+          onSubmitted: (v) => Navigator.of(ctx).pop(v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(TranslationService.translate(ctx, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(controller.text),
+            child: Text(TranslationService.translate(ctx, 'household_confirm')),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (name == null || name.trim().isEmpty) return;
+    await _run(() => FfiService().createHouseholdReader(name.trim()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _SectionHeader(_t('household_title')),
+        _InfoNote(text: _t('household_note')),
+        const SizedBox(height: AppDesign.spacingSm),
+        RadioGroup<String>(
+          groupValue: _currentId,
+          onChanged: (id) {
+            if (id == null || _busy) return;
+            _run(() => FfiService().setCurrentHouseholdReader(id));
+          },
+          child: Column(
+            children: [
+              for (final reader in _readers)
+                Container(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: AppDesign.spacingXs,
+                  ),
+                  decoration: _syncCardDecoration(context),
+                  child: RadioListTile<String>(
+                    value: reader.id,
+                    title: Text(
+                      reader.name,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    subtitle: reader.id == _currentId
+                        ? Text(_t('household_reads_here'))
+                        : null,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppDesign.spacingSm),
+        OutlinedButton.icon(
+          icon: const Icon(Icons.person_add_alt),
+          onPressed: _busy ? null : _addReader,
+          label: Text(
+            _t(
+              _readers.isEmpty ? 'household_create_me' : 'household_add_reader',
+            ),
+          ),
+          style: accountSyncSecondaryActionStyle(context),
+        ),
+      ],
     );
   }
 }

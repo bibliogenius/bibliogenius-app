@@ -11906,3 +11906,35 @@ msgstr ""
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr ""
+
+#. Household readers
+msgid "household_title"
+msgstr ""
+
+#. Household readers
+msgid "household_note"
+msgstr ""
+
+#. Household readers
+msgid "household_create_me"
+msgstr ""
+
+#. Household readers
+msgid "household_add_reader"
+msgstr ""
+
+#. Household readers
+msgid "household_name"
+msgstr ""
+
+#. Household readers
+msgid "household_confirm"
+msgstr ""
+
+#. Household readers
+msgid "household_reads_here"
+msgstr ""
+
+#. Household readers
+msgid "household_error"
+msgstr ""
