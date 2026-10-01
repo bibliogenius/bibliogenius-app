@@ -1628,6 +1628,9 @@ msgstr ""
 msgid "delete_contact_title"
 msgstr ""
 
+msgid "delete_contact_unfollow_note"
+msgstr ""
+
 #. Delete
 msgid "delete_copy_btn"
 msgstr ""

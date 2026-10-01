@@ -1706,6 +1706,9 @@ msgstr "Êtes-vous sûr de vouloir supprimer ce contact ?"
 msgid "delete_contact_title"
 msgstr "Supprimer le contact"
 
+msgid "delete_contact_unfollow_note"
+msgstr "Vous cesserez aussi de suivre cette bibliothèque dans l'annuaire. Vous pourrez la suivre à nouveau depuis l'annuaire si elle y figure."
+
 #. Delete
 msgid "delete_copy_btn"
 msgstr "Supprimer l'exemplaire"

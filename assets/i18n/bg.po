@@ -1434,6 +1434,9 @@ msgstr "Сигурни ли сте, че искате да изтриете то
 msgid "delete_contact_title"
 msgstr "Изтриване на контакт"
 
+msgid "delete_contact_unfollow_note"
+msgstr "Ще спрете да следвате тази библиотека и в указателя. Можете да я последвате отново от указателя, ако е включена в него."
+
 #. Delete
 msgid "delete_copy_btn"
 msgstr "Изтриване"

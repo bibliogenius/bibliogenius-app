@@ -1490,6 +1490,9 @@ msgstr "Bu kişiyi silmek istediğinizden emin misiniz?"
 msgid "delete_contact_title"
 msgstr "Kişiyi Sil"
 
+msgid "delete_contact_unfollow_note"
+msgstr "Bu kütüphaneyi dizinde de takip etmeyi bırakacaksınız. Dizinde listeleniyorsa oradan yeniden takip edebilirsiniz."
+
 #. Delete
 msgid "delete_copy_btn"
 msgstr "Sil"

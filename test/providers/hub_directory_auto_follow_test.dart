@@ -106,12 +106,35 @@ class _MockApiService extends ApiService {
 
   final List<Map<String, dynamic>> peers;
 
+  /// When true, the local backend refuses the deletion (500, as the real
+  /// `deletePeer` reports any transport or server failure).
+  bool deleteFails = false;
+  final List<int> deletedPeerIds = [];
+
   @override
   Future<Response> getPeers() async => Response(
     requestOptions: RequestOptions(path: '/api/peers'),
     statusCode: 200,
     data: {'data': peers},
   );
+
+  @override
+  Future<Response> deletePeer(int id) async {
+    if (deleteFails) {
+      return Response(
+        requestOptions: RequestOptions(path: '/api/peers/$id'),
+        statusCode: 500,
+        data: {'error': 'refused'},
+      );
+    }
+    deletedPeerIds.add(id);
+    peers.removeWhere((p) => p['id'] == id);
+    return Response(
+      requestOptions: RequestOptions(path: '/api/peers/$id'),
+      statusCode: 200,
+      data: {'message': 'Peer deleted'},
+    );
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -121,6 +144,12 @@ class _MockApiService extends ApiService {
 Future<(HubDirectoryProvider, _MockFfiService)> _createProvider(
   List<Map<String, dynamic>> peers,
 ) async {
+  final (provider, ffi, _) = await _createProviderWithApi(peers);
+  return (provider, ffi);
+}
+
+Future<(HubDirectoryProvider, _MockFfiService, _MockApiService)>
+_createProviderWithApi(List<Map<String, dynamic>> peers) async {
   SharedPreferences.setMockInitialValues({
     'hub_directory_enabled': true,
     'libraryName': 'Test Library',
@@ -129,14 +158,23 @@ Future<(HubDirectoryProvider, _MockFfiService)> _createProvider(
   AuthService.storage = MockSecureStorage();
 
   final ffi = _MockFfiService();
+  final api = _MockApiService(peers);
   final provider = HubDirectoryProvider(
     ffi: ffi,
     deviceService: _MockDeviceService(),
-    apiService: _MockApiService(peers),
+    apiService: api,
   );
   await provider.loadConfig();
-  return (provider, ffi);
+  return (provider, ffi, api);
 }
+
+frb.FrbHubFollow _activeFollowOf(String nodeId) => frb.FrbHubFollow(
+  id: 1,
+  followerNodeId: _selfNode,
+  followedNodeId: nodeId,
+  status: 'active',
+  createdAt: '2026-07-01T00:00:00Z',
+);
 
 Map<String, dynamic> _peer({
   required String uuid,
@@ -294,6 +332,68 @@ void main() {
       await provider.reconcilePairedPeerFollows();
 
       expect(ffi.followedNodes, [_pairedNode]);
+    });
+  });
+
+  // The hub follow itself is revoked by the Rust side once the peers row is
+  // gone (ADR-053 follow-up); these tests lock what the provider must do
+  // around that call.
+  group('removePairing (ADR-053 follow-up)', () {
+    test('deletes the peer and drops the followed entry at once', () async {
+      // A second pairing stays, so the reconciliation runs its full pass.
+      final (provider, ffi, api) = await _createProviderWithApi([
+        _peer(uuid: _pairedNode),
+        {..._peer(uuid: 'other-node'), 'id': 2},
+      ]);
+      ffi.following = [
+        _activeFollowOf(_pairedNode),
+        _activeFollowOf('other-node'),
+      ];
+      await provider.loadFollowing();
+
+      final ok = await provider.removePairing(
+        peerId: 1,
+        nodeId: _pairedNode,
+      );
+
+      expect(ok, isTrue);
+      expect(api.deletedPeerIds, [1]);
+      expect(provider.following.map((f) => f.followedNodeId), ['other-node']);
+      // No refresh: the hub may still list the follow being revoked.
+      expect(ffi.listFollowingCalls, 1);
+    });
+
+    test('re-arms the auto-follow for a later re-pairing', () async {
+      final (provider, ffi, api) = await _createProviderWithApi([
+        _peer(uuid: _pairedNode),
+      ]);
+      await provider.reconcilePairedPeerFollows();
+      expect(ffi.followedNodes, [_pairedNode]);
+
+      await provider.removePairing(peerId: 1, nodeId: _pairedNode);
+      // Same session: the two devices pair again.
+      api.peers.add(_peer(uuid: _pairedNode));
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode, _pairedNode]);
+    });
+
+    test('a refused deletion changes nothing', () async {
+      final (provider, ffi, api) = await _createProviderWithApi([
+        _peer(uuid: _pairedNode),
+      ]);
+      ffi.following = [_activeFollowOf(_pairedNode)];
+      await provider.loadFollowing();
+      api.deleteFails = true;
+
+      final ok = await provider.removePairing(
+        peerId: 1,
+        nodeId: _pairedNode,
+      );
+
+      expect(ok, isFalse);
+      expect(api.deletedPeerIds, isEmpty);
+      expect(provider.following.map((f) => f.followedNodeId), [_pairedNode]);
     });
   });
 }

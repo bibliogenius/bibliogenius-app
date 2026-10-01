@@ -2698,7 +2698,8 @@ class _LibraryRelationCard extends StatelessWidget {
                           ),
                           content: Text(
                             '${TranslationService.translate(ctx, 'confirm_delete')} '
-                            '${relation.name}?',
+                            '${relation.name}?'
+                            '${relation.isFollowing ? '\n\n${TranslationService.translate(ctx, 'delete_contact_unfollow_note')}' : ''}',
                           ),
                           actions: [
                             TextButton(
@@ -2724,15 +2725,11 @@ class _LibraryRelationCard extends StatelessWidget {
                       );
                       if (confirm == true && context.mounted) {
                         onRemoved(relation.nodeId);
-                        final hub = context.read<HubDirectoryProvider>();
-                        // Once the pairing is gone, the contact card
-                        // projection must drop it if it was the only
-                        // reason to seal.
                         unawaited(
-                          context
-                              .read<ApiService>()
-                              .deletePeer(relation.peer!.id)
-                              .then((_) => hub.reconcilePairedPeerFollows()),
+                          context.read<HubDirectoryProvider>().removePairing(
+                            peerId: relation.peer!.id,
+                            nodeId: relation.nodeId,
+                          ),
                         );
                       }
                     },

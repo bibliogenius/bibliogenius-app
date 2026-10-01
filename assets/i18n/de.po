@@ -1549,6 +1549,9 @@ msgstr "Sind Sie sicher, dass Sie diesen Kontakt löschen möchten?"
 msgid "delete_contact_title"
 msgstr "Kontakt löschen"
 
+msgid "delete_contact_unfollow_note"
+msgstr "Sie folgen dieser Bibliothek dann auch nicht mehr im Verzeichnis. Sie können ihr über das Verzeichnis erneut folgen, wenn sie dort gelistet ist."
+
 #. Delete
 msgid "delete_copy_btn"
 msgstr "Löschen"

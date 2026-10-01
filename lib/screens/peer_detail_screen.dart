@@ -739,64 +739,61 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
     // Disconnect peer
     if (_relation.isPeer) {
       buttons.add(
-        Consumer<ApiService>(
-          builder: (context, api, _) => SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              icon: Icon(Icons.link_off, size: 18, color: cs.error),
-              label: Text(
-                TranslationService.translate(context, 'delete'),
-                style: TextStyle(color: cs.error),
-              ),
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
-              ),
-              onPressed: () async {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text(
-                      TranslationService.translate(ctx, 'delete_contact_title'),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            icon: Icon(Icons.link_off, size: 18, color: cs.error),
+            label: Text(
+              TranslationService.translate(context, 'delete'),
+              style: TextStyle(color: cs.error),
+            ),
+            style: OutlinedButton.styleFrom(
+              side: BorderSide(color: cs.error.withValues(alpha: 0.5)),
+            ),
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (ctx) => AlertDialog(
+                  title: Text(
+                    TranslationService.translate(ctx, 'delete_contact_title'),
+                  ),
+                  content: Text(
+                    '${TranslationService.translate(ctx, 'confirm_delete')} '
+                    '${_relation.name}?'
+                    '${_relation.isFollowing ? '\n\n${TranslationService.translate(ctx, 'delete_contact_unfollow_note')}' : ''}',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(ctx, false),
+                      child: Text(
+                        TranslationService.translate(ctx, 'cancel'),
+                      ),
                     ),
-                    content: Text(
-                      '${TranslationService.translate(ctx, 'confirm_delete')} '
-                      '${_relation.name}?',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: Text(
-                          TranslationService.translate(ctx, 'cancel'),
+                    TextButton(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                      ),
+                      onPressed: () => Navigator.pop(ctx, true),
+                      child: Text(
+                        TranslationService.translate(
+                          ctx,
+                          'delete_contact_btn',
                         ),
                       ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.red,
-                        ),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(
-                          TranslationService.translate(
-                            ctx,
-                            'delete_contact_btn',
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+              );
+              if (confirm == true && mounted) {
+                unawaited(
+                  context.read<HubDirectoryProvider>().removePairing(
+                    peerId: peer!.id,
+                    nodeId: _relation.nodeId,
                   ),
                 );
-                if (confirm == true && context.mounted) {
-                  final hub = context.read<HubDirectoryProvider>();
-                  // Once the pairing is gone, the contact card projection
-                  // must drop it if it was the only reason to seal.
-                  unawaited(
-                    api
-                        .deletePeer(peer!.id)
-                        .then((_) => hub.reconcilePairedPeerFollows()),
-                  );
-                  if (context.mounted) context.pop('deleted');
-                }
-              },
-            ),
+                if (mounted) context.pop('deleted');
+              }
+            },
           ),
         ),
       );

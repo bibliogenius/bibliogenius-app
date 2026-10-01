@@ -2468,6 +2468,40 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// Ends a pairing (ADR-053 follow-up).
+  ///
+  /// The Rust side deletes the local peers row and revokes, fire-and-forget,
+  /// the hub follow that materialised the pairing. This keeps the provider's
+  /// view in step without waiting for the hub: the followed entry disappears
+  /// at once, the auto-follow is re-armed so a later re-pairing in the same
+  /// session follows again, and the contact card projection drops the
+  /// ex-peer. Returns false, changing nothing, when the deletion is refused.
+  Future<bool> removePairing({
+    required int peerId,
+    required String nodeId,
+  }) async {
+    final api = _apiService;
+    if (api == null) return false;
+    try {
+      final res = await api.deletePeer(peerId);
+      final status = res.statusCode ?? 0;
+      if (status < 200 || status >= 300) {
+        debugPrint('[ADR-053] removePairing refused for peer $peerId: $status');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('[ADR-053] removePairing failed for peer $peerId: $e');
+      return false;
+    }
+    _autoFollowRequested.remove(nodeId);
+    _following.removeWhere((f) => f.followedNodeId == nodeId);
+    notifyListeners();
+    // The lists already loaded are reused on purpose: a refresh right now
+    // could still see the follow the hub is about to drop.
+    await reconcilePairedPeerFollows(refreshLists: false);
+    return true;
+  }
+
   /// Library uuids of accepted paired peers, excluding self and placeholder
   /// ids (peer rows created before the uuid handshake completed).
   /// Whether [nodeId] is also a P2P-paired peer.
