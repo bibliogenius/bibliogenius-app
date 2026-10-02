@@ -99,6 +99,33 @@ void main() {
     });
   });
 
+  group('wishers', () {
+    Book wished(String title, List<String>? by) => Book(
+      title: title,
+      owned: false,
+      readingStatus: 'wanting',
+      wishedBy: by,
+    );
+
+    test('names each wisher once, in order of appearance', () {
+      final books = [
+        wished('Dune', ['Alice']),
+        wished('Hyperion', ['Bruno', 'Alice']),
+        wished('Solaris', null),
+      ];
+      expect(wishersIn(books), ['Alice', 'Bruno']);
+    });
+
+    test('a person filter keeps their wishes, no filter keeps all', () {
+      final anonymous = wished('Solaris', null);
+      final alices = wished('Dune', ['Alice']);
+      expect(matchesWisherFilter(alices, 'Alice'), isTrue);
+      expect(matchesWisherFilter(alices, 'Bruno'), isFalse);
+      expect(matchesWisherFilter(anonymous, 'Alice'), isFalse);
+      expect(matchesWisherFilter(anonymous, null), isTrue);
+    });
+  });
+
   group('matchesStatusFilter', () {
     // The wishlist is shared between the readers of a library: a book one of
     // them wished for stays on it for a reader whose own status shows instead,

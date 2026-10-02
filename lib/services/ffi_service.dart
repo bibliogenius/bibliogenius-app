@@ -2409,6 +2409,26 @@ class FfiService {
     }
   }
 
+  /// Puts this device back on the shared reading state. Readers and their
+  /// readings are kept.
+  Future<void> clearCurrentHouseholdReader() async {
+    try {
+      await frb.clearCurrentHouseholdReader();
+    } catch (e) {
+      debugPrint('FFI clearCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> renameHouseholdReader(String readerId, String name) async {
+    try {
+      await frb.renameHouseholdReader(readerId: readerId, name: name);
+    } catch (e) {
+      debugPrint('FFI renameHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
   /// Takes a book off the shared wishlist without touching anyone's reading.
   Future<Book> removeBookFromWishlist(String bookId) async {
     try {

@@ -12017,3 +12017,55 @@ msgstr "Desiderato da {names}"
 #. Household readers: a reader with their own status drops the shared wish
 msgid "wishlist_remove_action"
 msgstr "Rimuovi dalla lista dei desideri"
+
+#. Household readers
+msgid "household_title"
+msgstr "Lettori"
+
+#. Household readers
+msgid "household_note"
+msgstr "Tutti in questo account condividono la biblioteca. Scegli chi legge su questo dispositivo: ognuno conserva i propri stati di lettura, date e valutazioni. La lista dei desideri resta in comune."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Crea il mio lettore"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Aggiungi un lettore su questo dispositivo"
+
+#. Household readers
+msgid "household_name"
+msgstr "Nome"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Crea"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Legge su questo dispositivo"
+
+#. Household readers
+msgid "household_error"
+msgstr "Impossibile modificare il lettore. Riprova."
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Rinomina il lettore"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Torna alla vista comune"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Aggiorna l'app su tutti i dispositivi di questo account prima di scegliere i lettori: una versione precedente non vedrebbe le loro letture."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "Questo account ha dei lettori. Scegli chi legge su questo dispositivo."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Scegli"

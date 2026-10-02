@@ -124,3 +124,20 @@ bool matchesStatusFilter(Book book, String status) {
   if (status == 'wanting') return book.isWished;
   return book.readingStatus == status;
 }
+
+/// The readers named on the wishlist, each once, in the order the books
+/// name them (oldest reader first). Feeds the per-person chips.
+List<String> wishersIn(Iterable<Book> books) {
+  final seen = <String>{};
+  final names = <String>[];
+  for (final book in books) {
+    for (final name in book.wishedBy ?? const <String>[]) {
+      if (seen.add(name)) names.add(name);
+    }
+  }
+  return names;
+}
+
+/// Whether [book] belongs to [wisher]'s wishes. A null wisher means everyone.
+bool matchesWisherFilter(Book book, String? wisher) =>
+    wisher == null || (book.wishedBy?.contains(wisher) ?? false);

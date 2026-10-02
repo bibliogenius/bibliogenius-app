@@ -12161,7 +12161,7 @@ msgstr "Votre code et votre lien d'invitation"
 
 #. Household readers
 msgid "household_title"
-msgstr "Lecteurs du foyer"
+msgstr "Lecteurs"
 
 #. Household readers
 msgid "household_note"
@@ -12198,3 +12198,23 @@ msgstr "Souhaité par {names}"
 #. Household readers: a reader with their own status drops the shared wish
 msgid "wishlist_remove_action"
 msgstr "Retirer des souhaits"
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Renommer le lecteur"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Revenir à la vue commune"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Mettez l'app à jour sur tous les appareils de ce compte avant de choisir des lecteurs : une version plus ancienne ne verrait pas leurs lectures."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "Des lecteurs existent sur ce compte. Choisissez qui lit sur cet appareil."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Choisir"

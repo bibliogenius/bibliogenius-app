@@ -12024,3 +12024,55 @@ msgstr "Пожелано от {names}"
 #. Household readers: a reader with their own status drops the shared wish
 msgid "wishlist_remove_action"
 msgstr "Премахване от списъка с желания"
+
+#. Household readers
+msgid "household_title"
+msgstr "Читатели"
+
+#. Household readers
+msgid "household_note"
+msgstr "Всички в този акаунт споделят библиотеката. Изберете кой чете на това устройство: всеки запазва своите статуси на четене, дати и оценки. Списъкът с желания остава общ."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Създай моя читател"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Добави читател на това устройство"
+
+#. Household readers
+msgid "household_name"
+msgstr "Име"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Създай"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Чете на това устройство"
+
+#. Household readers
+msgid "household_error"
+msgstr "Читателят не можа да бъде променен. Опитайте отново."
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Преименувай читателя"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Обратно към общия изглед"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Обновете приложението на всички устройства на този акаунт, преди да изберете читатели: по-стара версия няма да вижда техните четения."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "В този акаунт има читатели. Изберете кой чете на това устройство."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Избери"

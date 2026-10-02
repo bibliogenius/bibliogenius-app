@@ -5,15 +5,13 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/account_sync_provider.dart';
-import '../providers/book_refresh_notifier.dart';
 import '../providers/theme_provider.dart';
 import '../services/ffi_service.dart';
-import '../src/rust/api/frb.dart' show FrbReader;
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/genie_app_bar.dart';
-import '../widgets/household_reader_name_dialog.dart';
+import '../widgets/household_readers_section.dart';
 
 /// Hub for the multi-device account sync feature.
 ///
@@ -282,62 +280,6 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
 }
 
 /// Shared section header with the screen-reader header role.
-class _SectionHeader extends StatelessWidget {
-  final String text;
-  const _SectionHeader(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      header: true,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          top: AppDesign.spacingLg,
-          bottom: AppDesign.spacingSm,
-        ),
-        child: Text(
-          text.toUpperCase(),
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Contextual caption in a primary-tinted banner. The text follows the entry
-/// point: account benefits by default, join-with-passphrase guidance when the
-/// user came through "Partager l'accès".
-class _InfoNote extends StatelessWidget {
-  final String text;
-  const _InfoNote({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, size: 20, color: cs.primary),
-          const SizedBox(width: AppDesign.spacingSm),
-          Expanded(
-            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Shown only when the joined library actually carries duplicates (ADR-070).
 ///
 /// Joining an account from a device that already held its own copies leaves two
@@ -422,7 +364,7 @@ class _SignedOutView extends StatelessWidget {
         // intent needs the extra how-to caption here.
         if (shareIntent) ...[
           const SizedBox(height: AppDesign.spacingMd),
-          _InfoNote(text: _t(context, 'account_sync_share_note')),
+          AccountSyncInfoNote(text: _t(context, 'account_sync_share_note')),
         ],
         const SizedBox(height: AppDesign.spacingLg),
         FilledButton.icon(
@@ -487,14 +429,14 @@ class _SignedInView extends StatelessWidget {
           _DuplicateBanner(surplus: duplicateSurplus, onOpen: onOpenDuplicates),
         ],
         const SizedBox(height: AppDesign.spacingMd),
-        _InfoNote(
+        AccountSyncInfoNote(
           text: _t(
             context,
             shareIntent ? 'account_sync_share_note' : 'account_sync_intro_note',
           ),
         ),
         const SizedBox(height: AppDesign.spacingSm),
-        _SectionHeader(_t(context, 'account_sync_devices_title')),
+        AccountSyncSectionHeader(_t(context, 'account_sync_devices_title')),
         if (provider.devices.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppDesign.spacingSm),
@@ -511,7 +453,7 @@ class _SignedInView extends StatelessWidget {
               busy: provider.busy,
             ),
           ),
-        const _HouseholdSection(),
+        const HouseholdReadersSection(),
         const SizedBox(height: AppDesign.spacingLg),
         FilledButton.icon(
           icon: const Icon(Icons.sync),
@@ -545,18 +487,6 @@ class _SignedInView extends StatelessWidget {
 }
 
 /// Shared white surface used by the connected-account card and each device row.
-BoxDecoration _syncCardDecoration(BuildContext context) {
-  final cs = Theme.of(context).colorScheme;
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return BoxDecoration(
-    color: isDark ? cs.surfaceContainerHighest : Colors.white,
-    borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-    border: Border.all(
-      color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
-    ),
-  );
-}
-
 /// Rounded, primary-tinted badge that hosts an icon in the sync cards.
 Widget _syncIconBadge(BuildContext context, IconData icon) {
   final cs = Theme.of(context).colorScheme;
@@ -602,7 +532,7 @@ class _ConnectedCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: _syncCardDecoration(context),
+      decoration: accountSyncCardDecoration(context),
       child: Row(
         children: [
           _syncIconBadge(context, Icons.verified_user),
@@ -661,7 +591,7 @@ class _DeviceTile extends StatelessWidget {
     final tile = Container(
       margin: const EdgeInsets.symmetric(vertical: AppDesign.spacingXs),
       padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: _syncCardDecoration(context),
+      decoration: accountSyncCardDecoration(context),
       child: Row(
         children: [
           _syncIconBadge(context, _deviceIcon(device.name)),
@@ -736,135 +666,6 @@ class _DeviceTile extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-    );
-  }
-}
-
-/// Household readers: one shared library, one reading state per person.
-///
-/// Everyone enrolled in the account shares the catalogue; picking "who reads
-/// on this device" gives each person their own statuses, reading dates and
-/// ratings, while the wishlist stays common. Until a reader is picked the
-/// device keeps the shared state, exactly as before.
-class _HouseholdSection extends StatefulWidget {
-  const _HouseholdSection();
-
-  @override
-  State<_HouseholdSection> createState() => _HouseholdSectionState();
-}
-
-class _HouseholdSectionState extends State<_HouseholdSection> {
-  List<FrbReader> _readers = const [];
-  String? _currentId;
-  bool _busy = false;
-
-  String _t(String key) => TranslationService.translate(context, key);
-
-  @override
-  void initState() {
-    super.initState();
-    _load();
-  }
-
-  Future<void> _load() async {
-    try {
-      final readers = await FfiService().listHouseholdReaders();
-      final current = await FfiService().getCurrentHouseholdReader();
-      if (!mounted) return;
-      setState(() {
-        _readers = readers;
-        _currentId = current?.id;
-      });
-    } catch (_) {
-      // A section that cannot load stays empty: the account screen must not
-      // break over an optional feature.
-    }
-  }
-
-  /// Every list on screen shows the reading state of the current reader, so a
-  /// change of reader has to reach them all.
-  Future<void> _afterChange() async {
-    context.read<BookRefreshNotifier>().refresh();
-    await _load();
-  }
-
-  Future<void> _run(Future<void> Function() action) async {
-    if (_busy) return;
-    setState(() => _busy = true);
-    try {
-      await action();
-      if (mounted) await _afterChange();
-    } catch (_) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(_t('household_error'))));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  Future<void> _addReader() async {
-    final name = await showHouseholdReaderNameDialog(
-      context,
-      titleKey: _readers.isEmpty
-          ? 'household_create_me'
-          : 'household_add_reader',
-    );
-    if (name == null || !mounted) return;
-    await _run(() => FfiService().createHouseholdReader(name));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _SectionHeader(_t('household_title')),
-        _InfoNote(text: _t('household_note')),
-        const SizedBox(height: AppDesign.spacingSm),
-        RadioGroup<String>(
-          groupValue: _currentId,
-          onChanged: (id) {
-            if (id == null || _busy) return;
-            _run(() => FfiService().setCurrentHouseholdReader(id));
-          },
-          child: Column(
-            children: [
-              for (final reader in _readers)
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: AppDesign.spacingXs,
-                  ),
-                  decoration: _syncCardDecoration(context),
-                  child: RadioListTile<String>(
-                    value: reader.id,
-                    title: Text(
-                      reader.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: reader.id == _currentId
-                        ? Text(_t('household_reads_here'))
-                        : null,
-                  ),
-                ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AppDesign.spacingSm),
-        OutlinedButton.icon(
-          icon: const Icon(Icons.person_add_alt),
-          onPressed: _busy ? null : _addReader,
-          label: Text(
-            _t(
-              _readers.isEmpty ? 'household_create_me' : 'household_add_reader',
-            ),
-          ),
-          style: accountSyncSecondaryActionStyle(context),
-        ),
-      ],
     );
   }
 }

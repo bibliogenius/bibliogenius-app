@@ -11897,3 +11897,55 @@ msgstr "Gewünscht von {names}"
 #. Household readers: a reader with their own status drops the shared wish
 msgid "wishlist_remove_action"
 msgstr "Von der Wunschliste entfernen"
+
+#. Household readers
+msgid "household_title"
+msgstr "Leseprofile"
+
+#. Household readers
+msgid "household_note"
+msgstr "Alle in diesem Konto teilen sich die Bibliothek. Wähle, wer auf diesem Gerät liest: Jede Person behält ihren eigenen Lesestatus, ihre Daten und Bewertungen. Die Wunschliste bleibt gemeinsam."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Mein Leseprofil anlegen"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Leseprofil auf diesem Gerät hinzufügen"
+
+#. Household readers
+msgid "household_name"
+msgstr "Vorname"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Anlegen"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Liest auf diesem Gerät"
+
+#. Household readers
+msgid "household_error"
+msgstr "Das Leseprofil konnte nicht geändert werden. Bitte erneut versuchen."
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Leseprofil umbenennen"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Zurück zur gemeinsamen Ansicht"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Aktualisiere die App auf allen Geräten dieses Kontos, bevor du Leseprofile wählst: Eine ältere Version würde deren Lesestände nicht sehen."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "In diesem Konto gibt es Leseprofile. Wähle, wer auf diesem Gerät liest."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Wählen"

@@ -12166,7 +12166,7 @@ msgstr "Your code and your invite link"
 
 #. Household readers
 msgid "household_title"
-msgstr "Household readers"
+msgstr "Readers"
 
 #. Household readers
 msgid "household_note"
@@ -12203,3 +12203,23 @@ msgstr "Wished by {names}"
 #. Household readers: a reader with their own status drops the shared wish
 msgid "wishlist_remove_action"
 msgstr "Remove from wishlist"
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Rename the reader"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Back to the shared view"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Update the app on every device of this account before choosing readers: an older version would not see their readings."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "Readers exist on this account. Choose who reads on this device."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Choose"

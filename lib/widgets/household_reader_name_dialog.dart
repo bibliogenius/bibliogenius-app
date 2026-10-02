@@ -12,8 +12,10 @@ const int maxReaderNameLength = 50;
 Future<String?> showHouseholdReaderNameDialog(
   BuildContext context, {
   required String titleKey,
+  String confirmKey = 'household_confirm',
+  String initialName = '',
 }) async {
-  final controller = TextEditingController();
+  final controller = TextEditingController(text: initialName);
   // The dialog's route, to release the controller only once its subtree is
   // gone (see below).
   ModalRoute<Object?>? route;
@@ -21,7 +23,11 @@ Future<String?> showHouseholdReaderNameDialog(
     context: context,
     builder: (ctx) {
       route ??= ModalRoute.of(ctx);
-      return _ReaderNameDialog(titleKey: titleKey, controller: controller);
+      return _ReaderNameDialog(
+        titleKey: titleKey,
+        confirmKey: confirmKey,
+        controller: controller,
+      );
     },
   );
   // `showDialog` resolves on pop, while the TextField stays on screen for the
@@ -40,9 +46,14 @@ Future<String?> showHouseholdReaderNameDialog(
 
 class _ReaderNameDialog extends StatelessWidget {
   final String titleKey;
+  final String confirmKey;
   final TextEditingController controller;
 
-  const _ReaderNameDialog({required this.titleKey, required this.controller});
+  const _ReaderNameDialog({
+    required this.titleKey,
+    required this.confirmKey,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext ctx) {
@@ -65,7 +76,7 @@ class _ReaderNameDialog extends StatelessWidget {
         ),
         FilledButton(
           onPressed: () => Navigator.of(ctx).pop(controller.text),
-          child: Text(TranslationService.translate(ctx, 'household_confirm')),
+          child: Text(TranslationService.translate(ctx, confirmKey)),
         ),
       ],
     );
