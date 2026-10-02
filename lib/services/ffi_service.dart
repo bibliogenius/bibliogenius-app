@@ -845,6 +845,7 @@ class FfiService {
       // than coerced to false so the UI can tell "not lent" from "unknown".
       isBorrowed: fb.isBorrowed,
       isLent: fb.isLent,
+      wanted: fb.wanted,
     );
   }
 

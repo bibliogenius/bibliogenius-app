@@ -100,6 +100,28 @@ void main() {
   });
 
   group('matchesStatusFilter', () {
+    // The wishlist is shared between the readers of a library: a book one of
+    // them wished for stays on it for a reader whose own status shows instead,
+    // the wish then arriving as a flag.
+    test('a wished book appears under "wanting" behind a reader status', () {
+      final readAndWished = Book(
+        title: 'Le Livre',
+        owned: false,
+        readingStatus: 'read',
+        wanted: true,
+      );
+      expect(matchesStatusFilter(readAndWished, 'wanting'), isTrue);
+      expect(matchesStatusFilter(readAndWished, 'read'), isTrue);
+      expect(
+        matchesStatusFilter(book(owned: false, status: 'wanting'), 'wanting'),
+        isTrue,
+      );
+      expect(
+        matchesStatusFilter(book(owned: false, status: 'read'), 'wanting'),
+        isFalse,
+      );
+    });
+
     // The reported bug: a book borrowed from a peer, read, then given back stays
     // in the library as owned=false + read. It used to appear under no filter at
     // all, which made it look deleted.

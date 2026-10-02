@@ -120,5 +120,7 @@ bool matchesStatusFilter(Book book, String status) {
   if (status == 'uncategorized') {
     return book.readingStatus == null || book.readingStatus!.isEmpty;
   }
+  // The wish can sit behind a reader's own status (see [Book.isWished]).
+  if (status == 'wanting') return book.isWished;
   return book.readingStatus == status;
 }

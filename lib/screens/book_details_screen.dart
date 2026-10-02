@@ -2439,7 +2439,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Future<void> _showAcquisitionSheet(BuildContext context) async {
     final book = _book;
     if (book == null) return;
-    final wasWished = book.readingStatus == 'wanting';
+    final wasWished = book.isWished;
 
     await AcquisitionSheet.show(
       context,
@@ -2461,7 +2461,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   /// written on the option and why a copy that is out blocks it entirely:
   /// deleting it would leave a live loan pointing at nothing.
   Future<void> _showOwnershipSheet(BuildContext context, Book book) async {
-    final wasWished = book.readingStatus == 'wanting';
+    final wasWished = book.isWished;
     final blockedMessage = TranslationService.translate(
       context,
       'book_ownership_release_blocked',

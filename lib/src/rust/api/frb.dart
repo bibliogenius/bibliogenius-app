@@ -434,6 +434,11 @@ Future<PlatformInt64> countBooks() =>
 Future<FrbReadRecord> recordReadBook({required FrbBook book}) =>
     RustLib.instance.api.crateApiFrbRecordReadBook(book: book);
 
+/// Take a book off the wishlist without touching anyone's reading. The gesture
+/// of a household reader whose own status shows in place of the wish.
+Future<FrbBook> removeBookFromWishlist({required String bookId}) =>
+    RustLib.instance.api.crateApiFrbRemoveBookFromWishlist(bookId: bookId);
+
 /// What my library holds for these ISBNs, for the ones it holds at all.
 ///
 /// Reading someone else's shelves, the question is whether I already have this
@@ -1854,6 +1859,7 @@ sealed class FrbBook with _$FrbBook {
     String? hubCoverUploadFailedAt,
     bool? isBorrowed,
     bool? isLent,
+    bool? wanted,
   }) = _FrbBook;
 }
 

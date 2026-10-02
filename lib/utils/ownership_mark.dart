@@ -20,7 +20,7 @@ enum OwnershipMark { none, notOwned, wishedNotOwned }
 OwnershipMark ownershipMarkOf(Book book) => ownershipMarkFromFlags(
   owned: book.owned,
   onLoan: book.isOnLoan,
-  wished: book.readingStatus == 'wanting',
+  wished: book.isWished,
 );
 
 /// Same rule for surfaces that only carry flags (series frieze volumes,
@@ -52,6 +52,15 @@ OwnershipMark badgeMarkFor(
   }
   return mark;
 }
+
+/// [badgeMarkFor] for a full [Book]. The wish badge stands down only when the
+/// status badge itself tells the wish: a household reader's own status can
+/// stand in front of it, and the status badge then tells that status instead.
+OwnershipMark badgeMarkOf(Book book, {required bool statusBadgeShown}) =>
+    badgeMarkFor(
+      ownershipMarkOf(book),
+      statusBadgeShown: statusBadgeShown && book.readingStatus == 'wanting',
+    );
 
 /// Saturation kept on not-owned covers: low enough to stand out in a mixed
 /// grid, high enough to keep the artwork recognizable (ADR-063 rejects
