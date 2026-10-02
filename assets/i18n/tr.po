@@ -12016,3 +12016,11 @@ msgstr "Birini davet et"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "Kodunuz ve davet bağlantınız"
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "{names} istiyor"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "İstek listesinden kaldır"

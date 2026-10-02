@@ -846,6 +846,7 @@ class FfiService {
       isBorrowed: fb.isBorrowed,
       isLent: fb.isLent,
       wanted: fb.wanted,
+      wishedBy: fb.wishedBy,
     );
   }
 
@@ -2404,6 +2405,17 @@ class FfiService {
       await frb.setCurrentHouseholdReader(readerId: readerId);
     } catch (e) {
       debugPrint('FFI setCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  /// Takes a book off the shared wishlist without touching anyone's reading.
+  Future<Book> removeBookFromWishlist(String bookId) async {
+    try {
+      final fb = await frb.removeBookFromWishlist(bookId: bookId);
+      return _frbBookToBook(fb);
+    } catch (e) {
+      debugPrint('FFI removeBookFromWishlist error: $e');
       rethrow;
     }
   }

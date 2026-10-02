@@ -12009,3 +12009,11 @@ msgstr "Invita qualcuno"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "Il tuo codice e il tuo link di invito"
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "Desiderato da {names}"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "Rimuovi dalla lista dei desideri"

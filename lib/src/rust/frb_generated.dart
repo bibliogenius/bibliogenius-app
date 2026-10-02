@@ -8429,8 +8429,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbBook dco_decode_frb_book(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 27)
-      throw Exception('unexpected arr length: expect 27 but see ${arr.length}');
+    if (arr.length != 28)
+      throw Exception('unexpected arr length: expect 28 but see ${arr.length}');
     return FrbBook(
       id: dco_decode_opt_String(arr[0]),
       title: dco_decode_String(arr[1]),
@@ -8459,6 +8459,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       isBorrowed: dco_decode_opt_box_autoadd_bool(arr[24]),
       isLent: dco_decode_opt_box_autoadd_bool(arr[25]),
       wanted: dco_decode_opt_box_autoadd_bool(arr[26]),
+      wishedBy: dco_decode_opt_list_String(arr[27]),
     );
   }
 
@@ -10437,6 +10438,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_isBorrowed = sse_decode_opt_box_autoadd_bool(deserializer);
     var var_isLent = sse_decode_opt_box_autoadd_bool(deserializer);
     var var_wanted = sse_decode_opt_box_autoadd_bool(deserializer);
+    var var_wishedBy = sse_decode_opt_list_String(deserializer);
     return FrbBook(
       id: var_id,
       title: var_title,
@@ -10465,6 +10467,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       isBorrowed: var_isBorrowed,
       isLent: var_isLent,
       wanted: var_wanted,
+      wishedBy: var_wishedBy,
     );
   }
 
@@ -13089,6 +13092,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_box_autoadd_bool(self.isBorrowed, serializer);
     sse_encode_opt_box_autoadd_bool(self.isLent, serializer);
     sse_encode_opt_box_autoadd_bool(self.wanted, serializer);
+    sse_encode_opt_list_String(self.wishedBy, serializer);
   }
 
   @protected

@@ -12195,3 +12195,11 @@ msgstr "Reads on this device"
 #. Household readers
 msgid "household_error"
 msgstr "The reader could not be changed. Please try again."
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "Wished by {names}"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "Remove from wishlist"

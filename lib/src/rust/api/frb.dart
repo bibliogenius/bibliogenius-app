@@ -1860,6 +1860,7 @@ sealed class FrbBook with _$FrbBook {
     bool? isBorrowed,
     bool? isLent,
     bool? wanted,
+    List<String>? wishedBy,
   }) = _FrbBook;
 }
 

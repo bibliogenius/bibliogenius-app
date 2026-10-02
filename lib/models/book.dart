@@ -75,6 +75,11 @@ class Book {
   /// so does [wanted] behind a reader's own status.
   bool get isWished => readingStatus == 'wanting' || wanted == true;
 
+  /// Names of the readers of this library who put the book on the wishlist.
+  /// Null when the device has no reader, when the book is not wished for, or
+  /// when the wish predates the names. Local only: never sent to peers.
+  final List<String>? wishedBy;
+
   /// Whether the book sits on either side of a loan.
   ///
   /// An unknown flag reads as "no", not as "yes": a book whose possession was
@@ -108,6 +113,7 @@ class Book {
     this.isBorrowed,
     this.isLent,
     this.wanted,
+    this.wishedBy,
   }) : _coverUrl = coverUrl;
 
   /// Coerce a JSON value into a nullable int, tolerating numeric strings.
@@ -185,6 +191,7 @@ class Book {
           _asBoolOrNull(json['is_lent']) ?? _legacyLoanState(rawStatus, 'lent'),
       // Absent stays absent: no fallback on owned == false (see field doc).
       wanted: _asBoolOrNull(json['wanted']),
+      wishedBy: (json['wished_by'] as List?)?.map((e) => e.toString()).toList(),
       finishedReadingAt: json['finished_reading_at'] != null
           ? DateTime.tryParse(json['finished_reading_at'])
           : null,
@@ -288,6 +295,7 @@ class Book {
       isBorrowed: isBorrowed,
       isLent: isLent,
       wanted: wanted,
+      wishedBy: wishedBy,
     );
   }
 
@@ -349,6 +357,7 @@ class Book {
       isBorrowed: isBorrowed,
       isLent: isLent,
       wanted: wanted,
+      wishedBy: wishedBy,
     );
   }
 

@@ -58,6 +58,7 @@ import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
 import '../widgets/book_rating_row.dart';
+import '../widgets/wish_line.dart';
 import '../widgets/wishlist_seeker_card.dart';
 import 'record_sale_screen.dart';
 
@@ -1551,8 +1552,37 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
           alignment: Alignment.centerLeft,
           child: _buildStatusChip(context, book),
         ),
+        // The shared wish, when the pill cannot tell it or who made it.
+        if (WishLine.shows(book))
+          Align(
+            alignment: Alignment.centerLeft,
+            child: WishLine(book: book, onRemove: () => _removeWish(context)),
+          ),
       ],
     );
+  }
+
+  /// Takes the book off the shared wishlist. Offered on the wish line to a
+  /// reader whose own status stands in front of the wish: the status picker
+  /// cannot reach the wish for them.
+  Future<void> _removeWish(BuildContext context) async {
+    final id = _book?.id;
+    if (id == null) return;
+    try {
+      await FfiService().removeBookFromWishlist(id);
+      if (!context.mounted) return;
+      await _fetchBookDetails(forceRefresh: true);
+      _hasChanges = true;
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'error_updating_book'),
+          ),
+        ),
+      );
+    }
   }
 
   /// The book's shelves and collections as small pills.
