@@ -66,6 +66,72 @@ int findIsbnColumn(List<String> headers) {
   return normalized.indexWhere(_eanNames.contains);
 }
 
+/// Index of the first header in [headers] found in [names], or -1.
+int _firstExact(List<String> headers, List<String> names) {
+  final normalized = headers.map((h) => h.toLowerCase().trim()).toList();
+  for (final name in names) {
+    final i = normalized.indexOf(name);
+    if (i != -1) return i;
+  }
+  return -1;
+}
+
+/// The reading status column: Babelio `Statut`, Goodreads `Exclusive Shelf`
+/// (its `Bookshelves` mixes the reader's own shelves in, so it is not one).
+/// Exact names only: "status" alone is too common a word to guess with.
+int findReadingStatusColumn(List<String> headers) =>
+    _firstExact(headers, const [
+      'statut',
+      'statut de lecture',
+      'état de lecture',
+      'etat de lecture',
+      'exclusive shelf',
+      'reading status',
+      'reading_status',
+      'status',
+      'état',
+      'etat',
+    ]);
+
+/// The reader's rating: Babelio `Note`, Goodreads `My Rating`. Never
+/// `Average Rating`, which is everyone else's.
+int findRatingColumn(List<String> headers) => _firstExact(headers, const [
+  'note',
+  'ma note',
+  'my rating',
+  'rating',
+  'user_rating',
+  'user rating',
+  'évaluation',
+  'evaluation',
+]);
+
+/// The day a reading ended: Goodreads `Date Read`. A date the book was
+/// *added* is not one, and is deliberately absent.
+int findFinishedDateColumn(List<String> headers) => _firstExact(headers, const [
+  'date read',
+  'date de lecture',
+  'date de fin de lecture',
+  'date de fin',
+  'fin de lecture',
+  'lu le',
+  'date finished',
+  'finished',
+  'finished_reading_at',
+]);
+
+/// The day a reading began.
+int findStartedDateColumn(List<String> headers) => _firstExact(headers, const [
+  'date started',
+  'date de début',
+  'date de debut',
+  'date de début de lecture',
+  'début de lecture',
+  'debut de lecture',
+  'started',
+  'started_reading_at',
+]);
+
 /// The field separator a CSV header line uses: `;`, `\t` or `,`.
 ///
 /// Counted over the raw line, most frequent wins, comma on a tie. A header
