@@ -12104,3 +12104,27 @@ msgstr "{name} silinsin mi?"
 #. Household readers
 msgid "household_delete_body"
 msgstr "Okuma durumları, tarihleri ve puanları bu hesabın tüm cihazlarından silinecek. İstediği kitaplar istek listesinde kalır, adı olmadan."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "Okumalarımı içe aktar"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "Okumalarımı içe aktar"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "Kitaplıkta zaten bulunan {matched} kitaba okumanız eklendi. Kitaplığa {created} kitap eklendi."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} kitap, kitaplıktaki birden fazla kitapla eşleşiyor ve değiştirilmedi:"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "Kullanılamayan {count} satır atlandı."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "Dosya içe aktarılamadı: {detail}"

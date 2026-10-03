@@ -12112,3 +12112,27 @@ msgstr "Excluir {name}?"
 #. Household readers
 msgid "household_delete_body"
 msgstr "Os status de leitura, datas e avaliações dessa pessoa serão apagados em todos os dispositivos desta conta. Os livros que ela desejava continuam na lista de desejos, sem o nome dela."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "Importar minhas leituras"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "Importar minhas leituras"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "{matched} livros que já estavam na biblioteca receberam sua leitura. {created} livros foram adicionados à biblioteca."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} livros correspondem a vários livros da biblioteca e não foram alterados:"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count} linhas inutilizáveis foram ignoradas."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "Não foi possível importar o arquivo: {detail}"

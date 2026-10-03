@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:bibliogenius/providers/household_provider.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
-import 'package:bibliogenius/src/rust/api/frb.dart' show FrbReader;
+import 'package:bibliogenius/src/rust/api/frb.dart'
+    show FrbReader, FrbReadingImportReport;
 
 /// Fake FFI holding the readers in memory, the way the Rust side does.
 class _FakeFfi extends FfiService {
@@ -15,6 +16,18 @@ class _FakeFfi extends FfiService {
 
   void _maybeFail() {
     if (failWith != null) throw failWith!;
+  }
+
+  @override
+  Future<FrbReadingImportReport> importHouseholdReadings(String json) async {
+    _maybeFail();
+    return const FrbReadingImportReport(
+      matched: 1,
+      created: 2,
+      ambiguous: 0,
+      ambiguousTitles: [],
+      skipped: 0,
+    );
   }
 
   @override
@@ -110,6 +123,25 @@ void main() {
     // Picking a reader again re-arms the invitation for a later step back.
     expect(await relaunched.selectReader('r1'), isTrue);
     expect(relaunched.needsReaderChoice, isFalse);
+  });
+
+  test('importing readings hands back the report, or the refusal', () async {
+    final ffi = _FakeFfi();
+    final provider = HouseholdProvider(ffi: ffi);
+    await provider.load();
+
+    final report = await provider.importReadings('{}');
+    expect(report.created, 2);
+    expect(provider.busy, isFalse);
+
+    // The backend's message is what the summary shows: it must come through,
+    // and the provider must not stay busy behind it.
+    ffi.failWith = 'Unreadable catalogue export';
+    await expectLater(
+      provider.importReadings('{}'),
+      throwsA('Unreadable catalogue export'),
+    );
+    expect(provider.busy, isFalse);
   });
 
   test('creating and renaming a reader keep the list current', () async {

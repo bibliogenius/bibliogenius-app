@@ -8,7 +8,8 @@ import 'package:bibliogenius/providers/household_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
-import 'package:bibliogenius/src/rust/api/frb.dart' show FrbReader;
+import 'package:bibliogenius/src/rust/api/frb.dart'
+    show FrbReader, FrbReadingImportReport;
 import 'package:bibliogenius/widgets/household_readers_section.dart';
 
 class _FakeFfi extends FfiService {
@@ -16,6 +17,21 @@ class _FakeFfi extends FfiService {
 
   final List<FrbReader> readers = [];
   String? currentId;
+  String? importedJson;
+  Object? importFailure;
+
+  @override
+  Future<FrbReadingImportReport> importHouseholdReadings(String json) async {
+    if (importFailure != null) throw importFailure!;
+    importedJson = json;
+    return const FrbReadingImportReport(
+      matched: 2,
+      created: 1,
+      ambiguous: 1,
+      ambiguousTitles: ['Twice on the shelf'],
+      skipped: 0,
+    );
+  }
 
   @override
   Future<List<FrbReader>> listHouseholdReaders() async => List.of(readers);
@@ -70,6 +86,13 @@ void main() {
         'household_error': 'Failed',
         'household_delete_title': 'Delete {name}?',
         'household_delete_body': 'Their readings will be erased.',
+        'household_import_button': 'Import my readings',
+        'household_import_title': 'Import my readings',
+        'household_import_summary': '{matched} matched, {created} added.',
+        'household_import_ambiguous': '{count} ambiguous:',
+        'household_import_skipped': '{count} skipped.',
+        'household_import_error': 'Import failed: {detail}',
+        'close': 'Close',
         'delete': 'Delete',
         'rename': 'Rename',
         'save': 'Save',
@@ -84,8 +107,9 @@ void main() {
 
   Future<(HouseholdProvider, BookRefreshNotifier)> pump(
     WidgetTester tester,
-    _FakeFfi ffi,
-  ) async {
+    _FakeFfi ffi, {
+    Future<String?> Function()? pickExport,
+  }) async {
     final themeProvider = ThemeProvider()..setLocaleSync(const Locale('en'));
     final household = HouseholdProvider(ffi: ffi);
     final refresh = BookRefreshNotifier();
@@ -97,9 +121,11 @@ void main() {
           ChangeNotifierProvider<HouseholdProvider>.value(value: household),
           ChangeNotifierProvider<BookRefreshNotifier>.value(value: refresh),
         ],
-        child: const MaterialApp(
+        child: MaterialApp(
           home: Scaffold(
-            body: SingleChildScrollView(child: HouseholdReadersSection()),
+            body: SingleChildScrollView(
+              child: HouseholdReadersSection(pickExport: pickExport),
+            ),
           ),
         ),
       ),
@@ -210,6 +236,62 @@ void main() {
       ),
     );
     handle.dispose();
+  });
+
+  testWidgets('importing readings needs a reader and reports what it did', (
+    tester,
+  ) async {
+    final ffi = _FakeFfi()..readers.add(const FrbReader(id: 'r1', name: 'Alice'));
+    final (household, refresh) = await pump(
+      tester,
+      ffi,
+      pickExport: () async => '{"books": []}',
+    );
+    var refreshed = 0;
+    refresh.addListener(() => refreshed++);
+
+    // The readings would have nobody to belong to.
+    expect(find.text('Import my readings'), findsNothing);
+
+    await tester.tap(find.text('Alice'));
+    await tester.pumpAndSettle();
+    refreshed = 0;
+    await tester.tap(find.text('Import my readings'));
+    await tester.pumpAndSettle();
+
+    expect(ffi.importedJson, '{"books": []}');
+    expect(find.text('2 matched, 1 added.'), findsOneWidget);
+    expect(find.text('1 ambiguous:'), findsOneWidget);
+    expect(find.textContaining('Twice on the shelf'), findsOneWidget);
+    expect(find.textContaining('skipped'), findsNothing);
+    expect(refreshed, 1);
+    expect(household.busy, isFalse);
+
+    await tester.tap(find.widgetWithText(FilledButton, 'Close'));
+    await tester.pumpAndSettle();
+
+    // A refused file says why, and refreshes nothing.
+    ffi.importFailure = 'Unreadable catalogue export';
+    await tester.tap(find.text('Import my readings'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('Import failed: Unreadable catalogue export'),
+      findsOneWidget,
+    );
+    expect(refreshed, 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('a cancelled file choice imports nothing', (tester) async {
+    final ffi = _FakeFfi()
+      ..readers.add(const FrbReader(id: 'r1', name: 'Alice'))
+      ..currentId = 'r1';
+    await pump(tester, ffi, pickExport: () async => null);
+
+    await tester.tap(find.text('Import my readings'));
+    await tester.pumpAndSettle();
+    expect(ffi.importedJson, isNull);
+    expect(find.byType(AlertDialog), findsNothing);
   });
 
   testWidgets('deleting a reader asks first and removes them', (tester) async {

@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/book_refresh_notifier.dart';
 import '../providers/household_provider.dart';
 import '../services/translation_service.dart';
+import '../src/rust/api/frb.dart' show FrbReadingImportReport;
 import '../theme/app_design.dart';
 import 'account_sync_summary_sheet.dart';
 import 'household_reader_name_dialog.dart';
@@ -15,7 +19,11 @@ import 'household_reader_name_dialog.dart';
 /// ratings, while the wishlist stays common. Until a reader is picked the
 /// device keeps the shared state, exactly as before.
 class HouseholdReadersSection extends StatelessWidget {
-  const HouseholdReadersSection({super.key});
+  const HouseholdReadersSection({super.key, this.pickExport});
+
+  /// Returns the text of the catalogue export to import, null when the choice
+  /// is cancelled. Defaults to the system file picker; tests supply their own.
+  final Future<String?> Function()? pickExport;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +93,16 @@ class HouseholdReadersSection extends StatelessWidget {
           ),
           style: accountSyncSecondaryActionStyle(context),
         ),
+        // Readings need someone to belong to: the import comes with a reader.
+        if (currentId != null) ...[
+          const SizedBox(height: AppDesign.spacingSm),
+          OutlinedButton.icon(
+            icon: const Icon(Icons.upload_file),
+            onPressed: busy ? null : () => _importReadings(context),
+            label: Text(t('household_import_button')),
+            style: accountSyncSecondaryActionStyle(context),
+          ),
+        ],
         if (currentId != null)
           TextButton.icon(
             icon: const Icon(Icons.group_outlined),
@@ -157,6 +175,76 @@ class HouseholdReadersSection extends StatelessWidget {
     await _apply(context, () => provider.deleteReader(id));
   }
 
+  /// Merges the readings of a catalogue export ("Export my catalogue") into
+  /// the library for the current reader, then says what was done. Unlike the
+  /// catalogue restore it wipes nothing: that restore would delete the shared
+  /// library on every synced device.
+  Future<void> _importReadings(BuildContext context) async {
+    final provider = context.read<HouseholdProvider>();
+    FrbReadingImportReport? report;
+    String? error;
+    try {
+      final json = await (pickExport ?? _pickCatalogueExport)();
+      if (json == null) return;
+      report = await provider.importReadings(json);
+    } catch (e) {
+      error = '$e';
+    }
+    if (!context.mounted) return;
+    if (report != null) context.read<BookRefreshNotifier>().refresh();
+
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) {
+        String t(String key, [Map<String, String>? params]) =>
+            TranslationService.translate(ctx, key, params: params);
+        return AlertDialog(
+          title: Text(t('household_import_title')),
+          content: SingleChildScrollView(
+            child: report == null
+                ? Text(t('household_import_error', {'detail': '$error'}))
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        t('household_import_summary', {
+                          'matched': '${report.matched}',
+                          'created': '${report.created}',
+                        }),
+                      ),
+                      if (report.ambiguous > 0) ...[
+                        const SizedBox(height: AppDesign.spacingSm),
+                        Text(
+                          t('household_import_ambiguous', {
+                            'count': '${report.ambiguous}',
+                          }),
+                        ),
+                        for (final title in report.ambiguousTitles)
+                          Text('• $title'),
+                      ],
+                      if (report.skipped > 0) ...[
+                        const SizedBox(height: AppDesign.spacingSm),
+                        Text(
+                          t('household_import_skipped', {
+                            'count': '${report.skipped}',
+                          }),
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
+          actions: [
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(t('close')),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   /// Every list on screen shows the reading state of the current reader, so
   /// a change of reader has to reach them all.
   Future<void> _apply(
@@ -177,6 +265,17 @@ class HouseholdReadersSection extends StatelessWidget {
       );
     }
   }
+}
+
+/// Lets the user pick a catalogue export (JSON) and returns its text.
+Future<String?> _pickCatalogueExport() async {
+  final picked = await FilePicker.platform.pickFiles(
+    type: FileType.custom,
+    allowedExtensions: ['json'],
+    withData: true,
+  );
+  final bytes = picked?.files.firstOrNull?.bytes;
+  return bytes == null ? null : utf8.decode(bytes);
 }
 
 /// One reader of the account: a person, shown by their initial where the

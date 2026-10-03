@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/ffi_service.dart';
-import '../src/rust/api/frb.dart' show FrbReader;
+import '../src/rust/api/frb.dart' show FrbReader, FrbReadingImportReport;
 
 /// Who reads on this device, and who else could.
 ///
@@ -100,6 +100,21 @@ class HouseholdProvider extends ChangeNotifier {
   /// account. A device that had chosen them falls back to the shared view.
   Future<bool> deleteReader(String readerId) =>
       _run(() => _ffi.deleteHouseholdReader(readerId));
+
+  /// Merges the readings of a catalogue export into the library, for the
+  /// reader of this device. Nothing is wiped. A refusal of the backend is
+  /// rethrown: its message is what the summary shows.
+  Future<FrbReadingImportReport> importReadings(String json) async {
+    _busy = true;
+    notifyListeners();
+    try {
+      return await _ffi.importHouseholdReadings(json);
+    } finally {
+      await load();
+      _busy = false;
+      notifyListeners();
+    }
+  }
 
   /// Runs one change, then reloads. False when the backend refused it; the
   /// list is reloaded either way so the screen shows what actually holds.

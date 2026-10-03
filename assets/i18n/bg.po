@@ -12104,3 +12104,27 @@ msgstr "Да се изтрие ли {name}?"
 #. Household readers
 msgid "household_delete_body"
 msgstr "Статусите на четене, датите и оценките на този човек ще бъдат изтрити на всички устройства на този акаунт. Книгите, които е пожелал, остават в списъка с желания, без името му."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "Импортиране на моите четения"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "Импортиране на моите четения"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "{matched} книги, които вече са в библиотеката, получиха вашето четене. {created} книги бяха добавени в библиотеката."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} книги съвпадат с няколко книги от библиотеката и не бяха променени:"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count} неизползваеми реда бяха пропуснати."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "Файлът не можа да бъде импортиран: {detail}"

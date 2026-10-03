@@ -11977,3 +11977,27 @@ msgstr "{name} löschen?"
 #. Household readers
 msgid "household_delete_body"
 msgstr "Lesestatus, Daten und Bewertungen dieser Person werden auf allen Geräten dieses Kontos gelöscht. Die gewünschten Bücher bleiben auf der Wunschliste, ohne ihren Namen."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "Meine Lektüren importieren"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "Meine Lektüren importieren"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "{matched} Bücher, die bereits in der Bibliothek waren, haben deinen Lesestand erhalten. {created} Bücher wurden zur Bibliothek hinzugefügt."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} Bücher passen zu mehreren Büchern der Bibliothek und wurden nicht verändert:"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count} unbrauchbare Zeilen wurden übersprungen."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "Die Datei konnte nicht importiert werden: {detail}"
