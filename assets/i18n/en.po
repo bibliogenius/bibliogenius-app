@@ -12223,3 +12223,11 @@ msgstr "Readers exist on this account. Choose who reads on this device."
 #. Household readers
 msgid "household_pick_reader_action"
 msgstr "Choose"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "Delete {name}?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Their reading statuses, dates and ratings will be erased on every device of this account. The books they wished for stay on the wishlist, without their name."

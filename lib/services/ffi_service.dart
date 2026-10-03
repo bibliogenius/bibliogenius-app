@@ -2420,6 +2420,17 @@ class FfiService {
     }
   }
 
+  /// Removes a reader and every reading of theirs, on every device of the
+  /// account.
+  Future<void> deleteHouseholdReader(String readerId) async {
+    try {
+      await frb.deleteHouseholdReader(readerId: readerId);
+    } catch (e) {
+      debugPrint('FFI deleteHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
   Future<void> renameHouseholdReader(String readerId, String name) async {
     try {
       await frb.renameHouseholdReader(readerId: readerId, name: name);

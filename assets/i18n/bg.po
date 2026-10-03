@@ -12076,3 +12076,11 @@ msgstr "В този акаунт има читатели. Изберете ко�
 #. Household readers
 msgid "household_pick_reader_action"
 msgstr "Избери"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "Да се изтрие ли {name}?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Статусите на четене, датите и оценките на този човек ще бъдат изтрити на всички устройства на този акаунт. Книгите, които е пожелал, остават в списъка с желания, без името му."

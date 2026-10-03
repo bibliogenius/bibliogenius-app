@@ -12084,3 +12084,11 @@ msgstr "Esta conta tem leitores. Escolha quem lê neste dispositivo."
 #. Household readers
 msgid "household_pick_reader_action"
 msgstr "Escolher"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "Excluir {name}?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Os status de leitura, datas e avaliações dessa pessoa serão apagados em todos os dispositivos desta conta. Os livros que ela desejava continuam na lista de desejos, sem o nome dela."

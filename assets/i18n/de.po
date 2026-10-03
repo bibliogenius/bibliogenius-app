@@ -11949,3 +11949,11 @@ msgstr "In diesem Konto gibt es Leseprofile. Wähle, wer auf diesem Gerät liest
 #. Household readers
 msgid "household_pick_reader_action"
 msgstr "Wählen"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "{name} löschen?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Lesestatus, Daten und Bewertungen dieser Person werden auf allen Geräten dieses Kontos gelöscht. Die gewünschten Bücher bleiben auf der Wunschliste, ohne ihren Namen."

@@ -1766,6 +1766,11 @@ Future<void> setCurrentHouseholdReader({required String readerId}) => RustLib
 Future<void> clearCurrentHouseholdReader() =>
     RustLib.instance.api.crateApiFrbClearCurrentHouseholdReader();
 
+/// Remove a reader and every reading of theirs, on every device of the
+/// account. Their wishes stay on the books, unnamed.
+Future<void> deleteHouseholdReader({required String readerId}) =>
+    RustLib.instance.api.crateApiFrbDeleteHouseholdReader(readerId: readerId);
+
 Future<void> renameHouseholdReader({
   required String readerId,
   required String name,

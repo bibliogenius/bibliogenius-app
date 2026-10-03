@@ -12076,3 +12076,11 @@ msgstr "Bu hesapta okuyucular var. Bu cihazda kimin okuduğunu seçin."
 #. Household readers
 msgid "household_pick_reader_action"
 msgstr "Seç"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "{name} silinsin mi?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Okuma durumları, tarihleri ve puanları bu hesabın tüm cihazlarından silinecek. İstediği kitaplar istek listesinde kalır, adı olmadan."

@@ -58,6 +58,13 @@ class _FakeFfi extends FfiService {
     final i = readers.indexWhere((r) => r.id == readerId);
     readers[i] = FrbReader(id: readerId, name: name);
   }
+
+  @override
+  Future<void> deleteHouseholdReader(String readerId) async {
+    _maybeFail();
+    readers.removeWhere((r) => r.id == readerId);
+    if (currentId == readerId) currentId = null;
+  }
 }
 
 void main() {
@@ -116,6 +123,26 @@ void main() {
     expect(await provider.renameReader('r1', 'Alicia'), isTrue);
     expect(provider.currentReader?.name, 'Alicia');
   });
+
+  test(
+    'deleting the chosen reader puts the device on the shared view',
+    () async {
+      final ffi = _FakeFfi()
+        ..readers.addAll(const [
+          FrbReader(id: 'r1', name: 'Alice'),
+          FrbReader(id: 'r2', name: 'Bruno'),
+        ])
+        ..currentId = 'r1';
+      final provider = HouseholdProvider(ffi: ffi);
+      await provider.load();
+
+      expect(await provider.deleteReader('r1'), isTrue);
+      expect(provider.readers.single.name, 'Bruno');
+      expect(provider.currentReaderId, isNull);
+      // Not a choice to stay on the shared view: the invitation may show.
+      expect(provider.needsReaderChoice, isTrue);
+    },
+  );
 
   test('a refused change reports false and reloads what holds', () async {
     final ffi = _FakeFfi()

@@ -65,21 +65,29 @@ class HouseholdReadersSection extends StatelessWidget {
                     subtitle: reader.id == currentId
                         ? Text(t('household_reads_here'))
                         : null,
-                    // The visible control is an icon; assistive tech gets the
-                    // action and the name.
-                    secondary: Semantics(
-                      button: true,
-                      enabled: !busy,
-                      label: '${t('rename')}, ${reader.name}',
-                      child: ExcludeSemantics(
-                        child: IconButton(
-                          icon: const Icon(Icons.edit_outlined),
+                    // The visible controls are icons; assistive tech gets
+                    // the action and the name.
+                    secondary: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _ReaderAction(
+                          label: '${t('rename')}, ${reader.name}',
                           tooltip: t('rename'),
+                          icon: Icons.edit_outlined,
                           onPressed: busy
                               ? null
                               : () => _rename(context, reader.id, reader.name),
                         ),
-                      ),
+                        _ReaderAction(
+                          label: '${t('delete')}, ${reader.name}',
+                          tooltip: t('delete'),
+                          icon: Icons.delete_outline,
+                          color: Theme.of(context).colorScheme.error,
+                          onPressed: busy
+                              ? null
+                              : () => _delete(context, reader.id, reader.name),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -131,6 +139,42 @@ class HouseholdReadersSection extends StatelessWidget {
     await _apply(context, () => provider.renameReader(id, name));
   }
 
+  /// Removing a reader erases their readings on every device of the account,
+  /// and any device can do it: the consequence is spelled out before.
+  Future<void> _delete(BuildContext context, String id, String name) async {
+    final provider = context.read<HouseholdProvider>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(
+          TranslationService.translate(
+            ctx,
+            'household_delete_title',
+            params: {'name': name},
+          ),
+        ),
+        content: Text(
+          TranslationService.translate(ctx, 'household_delete_body'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(TranslationService.translate(ctx, 'cancel')),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(TranslationService.translate(ctx, 'delete')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !context.mounted) return;
+    await _apply(context, () => provider.deleteReader(id));
+  }
+
   /// Every list on screen shows the reading state of the current reader, so
   /// a change of reader has to reach them all.
   Future<void> _apply(
@@ -150,5 +194,39 @@ class HouseholdReadersSection extends StatelessWidget {
         ),
       );
     }
+  }
+}
+
+/// Icon action on a reader row, announced with the reader's name.
+class _ReaderAction extends StatelessWidget {
+  final String label;
+  final String tooltip;
+  final IconData icon;
+  final Color? color;
+  final VoidCallback? onPressed;
+
+  const _ReaderAction({
+    required this.label,
+    required this.tooltip,
+    required this.icon,
+    required this.onPressed,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      enabled: onPressed != null,
+      label: label,
+      child: ExcludeSemantics(
+        child: IconButton(
+          icon: Icon(icon),
+          tooltip: tooltip,
+          color: color,
+          onPressed: onPressed,
+        ),
+      ),
+    );
   }
 }

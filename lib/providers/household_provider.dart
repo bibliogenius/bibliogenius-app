@@ -96,6 +96,11 @@ class HouseholdProvider extends ChangeNotifier {
   Future<bool> renameReader(String readerId, String name) =>
       _run(() => _ffi.renameHouseholdReader(readerId, name));
 
+  /// Removes a reader and every reading of theirs, on every device of the
+  /// account. A device that had chosen them falls back to the shared view.
+  Future<bool> deleteReader(String readerId) =>
+      _run(() => _ffi.deleteHouseholdReader(readerId));
+
   /// Runs one change, then reloads. False when the backend refused it; the
   /// list is reloaded either way so the screen shows what actually holds.
   Future<bool> _run(Future<void> Function() action) async {

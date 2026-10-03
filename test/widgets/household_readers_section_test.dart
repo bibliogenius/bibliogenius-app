@@ -43,6 +43,12 @@ class _FakeFfi extends FfiService {
     final i = readers.indexWhere((r) => r.id == readerId);
     readers[i] = FrbReader(id: readerId, name: name);
   }
+
+  @override
+  Future<void> deleteHouseholdReader(String readerId) async {
+    readers.removeWhere((r) => r.id == readerId);
+    if (currentId == readerId) currentId = null;
+  }
 }
 
 void main() {
@@ -60,6 +66,9 @@ void main() {
         'household_rename_title': 'Rename the reader',
         'household_name': 'First name',
         'household_error': 'Failed',
+        'household_delete_title': 'Delete {name}?',
+        'household_delete_body': 'Their readings will be erased.',
+        'delete': 'Delete',
         'rename': 'Rename',
         'save': 'Save',
         'cancel': 'Cancel',
@@ -145,6 +154,32 @@ void main() {
     expect(find.text('Back to the shared view'), findsNothing);
     expect(find.text('Reads on this device'), findsNothing);
     expect(find.text('Bruno'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('deleting a reader asks first and removes them', (tester) async {
+    final ffi = _FakeFfi()
+      ..readers.addAll(const [
+        FrbReader(id: 'r1', name: 'Alice'),
+        FrbReader(id: 'r2', name: 'Bruno'),
+      ])
+      ..currentId = 'r1';
+    final (household, _) = await pump(tester, ffi);
+
+    // Cancelling changes nothing.
+    await tester.tap(find.byTooltip('Delete').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Delete Bruno?'), findsOneWidget);
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.pumpAndSettle();
+    expect(household.readers, hasLength(2));
+
+    await tester.tap(find.byTooltip('Delete').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+    await tester.pumpAndSettle();
+    expect(household.readers.single.name, 'Alice');
+    expect(find.text('Bruno'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }

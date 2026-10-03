@@ -11966,3 +11966,11 @@ msgstr ""
 #. Household readers
 msgid "household_pick_reader_action"
 msgstr ""
+
+#. Household readers
+msgid "household_delete_title"
+msgstr ""
+
+#. Household readers
+msgid "household_delete_body"
+msgstr ""
