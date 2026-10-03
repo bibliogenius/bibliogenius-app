@@ -12251,3 +12251,27 @@ msgstr "Delete {name}?"
 #. Household readers
 msgid "household_delete_body"
 msgstr "Their reading statuses, dates and ratings will be erased on every device of this account. The books they wished for stay on the wishlist, without their name."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "Import my readings"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "Import my readings"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "{matched} books already in the library received your reading. {created} books were added to the library."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} books match several books of the library and were left untouched:"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count} rows were unusable and skipped."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "The file could not be imported: {detail}"

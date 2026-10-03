@@ -14,6 +14,7 @@ import '../models/tag.dart';
 import '../models/contact.dart';
 import '../models/collection.dart'; // Collection module
 import '../utils/import_columns.dart';
+import '../utils/import_sources.dart';
 import '../utils/publication_year.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../src/rust/api/frb.dart' as frb;
@@ -2018,12 +2019,12 @@ class ApiService {
               isbnColumnIndex: isbnColumnIndex,
             );
           }
-          // Native: Read file from path
-          final file = File(fileSource);
-          csvContent = await file.readAsString();
+          // Native: Read file from path. Bytes, not readAsString: a Babelio
+          // export is Windows-1252, and the UTF-8 reader threw on its first
+          // accented letter.
+          csvContent = decodeImportText(await File(fileSource).readAsBytes());
         } else if (fileSource is List<int>) {
-          // Web: Convert bytes to string
-          csvContent = utf8.decode(fileSource);
+          csvContent = decodeImportText(fileSource);
         } else {
           throw Exception("Unsupported file source type");
         }
@@ -2068,7 +2069,10 @@ class ApiService {
             (h) =>
                 h.contains('year') ||
                 h.contains('année') ||
-                h.contains('annee'),
+                h.contains('annee') ||
+                // Babelio: "Date de publication", a full date.
+                h == 'date de publication' ||
+                h == 'publication date',
           );
         }
 
@@ -2089,11 +2093,26 @@ class ApiService {
 
         final send = sink ?? importBookSink;
 
+        final rows = [
+          for (int i = 1; i < lines.length; i++)
+            parseCsvLine(lines[i], delimiter: delimiter),
+        ];
+        // Status, rating and reading dates, and how this source writes its
+        // authors. The rating scale may need every value to be known.
+        final source = ImportSource.detect(headerLower);
+        final reading = ReadingColumns.resolve(
+          headerLower,
+          source: source,
+          ratingCells: (column) =>
+              rows.map((r) => column < r.length ? r[column] : null),
+        );
+
         int imported = 0;
         int withIsbn = 0;
         int rejectedIsbn = 0;
+        int withReading = 0;
         for (int i = 1; i < lines.length; i++) {
-          final values = parseCsvLine(lines[i], delimiter: delimiter);
+          final values = rows[i - 1];
           if (values.isEmpty ||
               (titleIdx < values.length &&
                   cleanImportedText(values[titleIdx]).isEmpty)) {
@@ -2109,6 +2128,7 @@ class ApiService {
             }
 
             final isbn = cleanImportedIsbn(getValueOrNull(isbnIdx));
+            final read = reading.read(getValueOrNull);
 
             final book = frb.FrbBook(
               // Whitespace is collapsed on the way in: these values come from
@@ -2120,9 +2140,11 @@ class ApiService {
                       maxChars: maxImportedTitleLength,
                     )
                   : 'Unknown',
-              author: cleanImportedTextOrNull(
-                getValueOrNull(authorIdx),
-                maxChars: maxImportedAuthorLength,
+              author: source.author(
+                cleanImportedTextOrNull(
+                  getValueOrNull(authorIdx),
+                  maxChars: maxImportedAuthorLength,
+                ),
               ),
               isbn: isbn.isbn,
               publisher: cleanImportedTextOrNull(
@@ -2132,12 +2154,18 @@ class ApiService {
               publicationYear: yearIdx >= 0 && yearIdx < values.length
                   ? parsePublicationYear(values[yearIdx])
                   : null,
-              owned: true,
+              readingStatus: read.status,
+              userRating: read.rating,
+              startedReadingAt: read.startedAt,
+              finishedReadingAt: read.finishedAt,
+              // A wish is a book the reader does not have yet.
+              owned: read.status != 'wanting',
               private: false,
             );
             await send(book);
             imported++;
             if (isbn.isbn != null) withIsbn++;
+            if (read.status != null || read.rating != null) withReading++;
             if (isbn.rejected) rejectedIsbn++;
           } catch (e) {
             debugPrint('Error importing book at line $i: $e');
@@ -2152,6 +2180,8 @@ class ApiService {
             'imported': imported,
             'with_isbn': withIsbn,
             'rejected_isbn': rejectedIsbn,
+            'with_reading': withReading,
+            'source': source.id,
             'message': 'Import successful',
           },
         );
@@ -2235,6 +2265,23 @@ class ApiService {
     return bytes[0] == 0x50 && bytes[1] == 0x4B;
   }
 
+  /// One XLSX cell as trimmed text, or null when it is empty. Numbers come out
+  /// as Dart prints them (9782253140191.0); the ISBN cleaner reads that back.
+  static String? _xlsxCellText(List<xlsx.Data?> row, int idx) {
+    if (idx < 0 || idx >= row.length) return null;
+    final cellValue = row[idx]?.value;
+    if (cellValue == null) return null;
+    final value = switch (cellValue) {
+      xlsx.TextCellValue() => cellValue.value.text ?? '',
+      xlsx.IntCellValue() => cellValue.value.toString(),
+      xlsx.DoubleCellValue() => cellValue.value.toString(),
+      xlsx.BoolCellValue() => cellValue.value.toString(),
+      _ => cellValue.toString(),
+    }.trim();
+    if (value.isEmpty || value == 'null') return null;
+    return value;
+  }
+
   /// Import books from an XLSX file (supports Gleeph export format)
   Future<Response> _importFromXlsx(
     dynamic fileSource,
@@ -2286,6 +2333,15 @@ class ApiService {
       final readIdx = headers.indexWhere((h) => h == 'read');
       final shelvesIdx = headers.indexWhere((h) => h == 'shelves');
       // Note: favorite column is parsed but not yet used
+
+      // Rating and reading dates, for any spreadsheet. The status column only
+      // speaks when the Gleeph flags are absent: they are the better source.
+      final hasGleephFlags = wishIdx >= 0 || readingIdx >= 0 || readIdx >= 0;
+      final reading = ReadingColumns.resolve(
+        headers,
+        ratingCells: (column) =>
+            sheet.rows.skip(1).map((r) => _xlsxCellText(r, column)),
+      );
 
       if (titleIdx == -1) {
         return Response(
@@ -2369,29 +2425,7 @@ class ApiService {
         if (row.isEmpty) continue;
 
         try {
-          // Get cell value safely - handles xlsx CellValue types
-          String? getCellValue(int idx) {
-            if (idx < 0 || idx >= row.length) return null;
-            final cell = row[idx];
-            if (cell == null || cell.value == null) return null;
-            final cellValue = cell.value;
-            String value;
-            // Handle different CellValue types from excel package
-            if (cellValue is xlsx.TextCellValue) {
-              value = cellValue.value.text ?? '';
-            } else if (cellValue is xlsx.IntCellValue) {
-              value = cellValue.value.toString();
-            } else if (cellValue is xlsx.DoubleCellValue) {
-              value = cellValue.value.toString();
-            } else if (cellValue is xlsx.BoolCellValue) {
-              value = cellValue.value.toString();
-            } else {
-              value = cellValue.toString();
-            }
-            value = value.trim();
-            if (value.isEmpty || value == 'null') return null;
-            return value;
-          }
+          String? getCellValue(int idx) => _xlsxCellText(row, idx);
 
           // Get boolean value from cell
           bool getBoolValue(int idx) {
@@ -2433,7 +2467,10 @@ class ApiService {
           final isReading = getBoolValue(readingIdx);
           final isRead = getBoolValue(readIdx);
 
-          if (isWish) {
+          final read = reading.read(getCellValue);
+          if (!hasGleephFlags && read.status != null) {
+            readingStatus = read.status!;
+          } else if (isWish) {
             // Wishlist: book is wanted but not necessarily owned
             readingStatus = 'wanting';
           } else if (isRead) {
@@ -2450,7 +2487,7 @@ class ApiService {
           // - wish=true → wishlist item → not owned
           // - wish=false → book in library → owned (default assumption)
           // - If own column is explicitly true, respect it
-          final owned = isOwn || (!isWish);
+          final owned = isOwn || (!isWish && readingStatus != 'wanting');
 
           // Get shelf name for this book
           String? shelfName;
@@ -2479,6 +2516,9 @@ class ApiService {
             ),
             isbn: isbn.isbn,
             readingStatus: readingStatus,
+            userRating: read.rating,
+            startedReadingAt: read.startedAt,
+            finishedReadingAt: read.finishedAt,
             owned: owned,
             subjects: shelfName != null ? jsonEncode([shelfName]) : null,
             private: false,

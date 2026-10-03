@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bibliogenius/services/api_service.dart';
@@ -159,5 +160,86 @@ void main() {
       expect(response.data['rejected_isbn'], 1);
       expect(created.single.isbn, isNull);
     });
+  });
+
+  group('a Babelio export', () {
+    // Shaped like the real "Biblio_export": semicolons, quoted cells, CRLF,
+    // Windows-1252, authors surname first, a 0 to 5 rating where 0.0 is none.
+    const babelio =
+        '"ISBN";"Titre";"Auteur";"Editeur";"Date de publication";'
+        '"Date d`entrée dans Babelio";"Statut";"Note"\r\n'
+        '"9782359251012";"La démocratie aux champs";"Zask Joëlle";'
+        '"Les Empêcheurs de penser en rond";"2016-02-11";'
+        '"2024-06-09 19:07:24";"Lu";"4.5"\r\n'
+        '"9782290430033";"De nos blessures un royaume";"Josse Gaëlle";'
+        '"J\'ai lu";"0000-00-00";"2026-09-05 13:41:30";"A lire";"0.0"\r\n'
+        '"9782070360024";"L\'étranger";"Camus Albert";"Folio";"1972-01-01";'
+        '"2024-06-09 19:07:24";"Pense-bête";"0.0"\r\n';
+
+    late List<frb.FrbBook> books;
+
+    setUp(() async {
+      final file = File('${tmp.path}/Biblio_export.csv');
+      await file.writeAsBytes(latin1.encode(babelio));
+      final response = await apiService.importBooks(file.path);
+      expect(response.statusCode, 200, reason: '${response.data}');
+      expect(response.data['source'], 'babelio');
+      expect(response.data['with_reading'], 3);
+      books = created;
+    });
+
+    test('is read despite its Windows-1252 encoding', () {
+      expect(books.map((b) => b.title), [
+        'La démocratie aux champs',
+        'De nos blessures un royaume',
+        "L'étranger",
+      ]);
+      expect(books.first.publisher, 'Les Empêcheurs de penser en rond');
+    });
+
+    test('authors arrive given name first', () {
+      expect(books.map((b) => b.author), [
+        'Joëlle Zask',
+        'Gaëlle Josse',
+        'Albert Camus',
+      ]);
+    });
+
+    test('carries the reading status and the rating, out of 10', () {
+      expect(books.map((b) => b.readingStatus), ['read', 'to_read', 'wanting']);
+      expect(books.map((b) => b.userRating), [9, null, null]);
+    });
+
+    test('a "Pense-bête" book is a wish, not a book on the shelf', () {
+      expect(books.map((b) => b.owned), [true, true, false]);
+    });
+
+    test('takes the year out of the publication date, none from 0000', () {
+      expect(books.map((b) => b.publicationYear), [2016, null, 1972]);
+    });
+
+    test('never turns the Babelio entry date into a reading date', () {
+      expect(books.map((b) => b.finishedReadingAt), everyElement(isNull));
+      expect(books.map((b) => b.startedReadingAt), everyElement(isNull));
+    });
+  });
+
+  test('a Goodreads export carries its shelf, rating and dates', () async {
+    final file = File('${tmp.path}/goodreads_library_export.csv');
+    await file.writeAsString(
+      'Title,Author,ISBN13,My Rating,Average Rating,Date Read,Date Added,'
+      'Exclusive Shelf\n'
+      'Martin Eden,Jack London,="9782264024848",4,4.12,2024/06/09,'
+      '2023/01/02,read\n'
+      'Fables,Jean de La Fontaine,="9782253010043",0,3.9,,2023/01/02,'
+      'currently-reading\n',
+    );
+    final response = await apiService.importBooks(file.path);
+    expect(response.data['source'], 'goodreads');
+    expect(created.map((b) => b.readingStatus), ['read', 'reading']);
+    expect(created.map((b) => b.userRating), [8, null]);
+    expect(created.first.finishedReadingAt, '2024-06-09T00:00:00.000');
+    // Not reversed: Goodreads writes given name first.
+    expect(created.last.author, 'Jean de La Fontaine');
   });
 }

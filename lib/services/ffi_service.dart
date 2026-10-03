@@ -2450,4 +2450,17 @@ class FfiService {
       rethrow;
     }
   }
+
+  /// Merges a catalogue export's readings into the shared library for the
+  /// reader of this device. Adds and records only, never wipes.
+  Future<frb.FrbReadingImportReport> importHouseholdReadings(
+    String json,
+  ) async {
+    try {
+      return await frb.importHouseholdReadings(json: json);
+    } catch (e) {
+      debugPrint('FFI importHouseholdReadings error: $e');
+      rethrow;
+    }
+  }
 }
