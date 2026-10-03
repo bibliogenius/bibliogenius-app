@@ -10469,6 +10469,15 @@ msgstr "Влезли сте като {email}"
 msgid "account_sync_devices_title"
 msgstr "Оторизирани устройства"
 
+msgid "account_sync_devices_subtitle"
+msgstr "Устройството дава достъп до акаунта."
+
+msgid "account_sync_account_section_title"
+msgstr "Акаунт"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "Акаунтът синхронизира библиотеката между вашите устройства, защитена с вашата тайна фраза."
+
 msgid "account_sync_no_devices"
 msgstr "Все още няма устройства. Обновете, за да заредите списъка."
 
@@ -12030,8 +12039,16 @@ msgid "household_title"
 msgstr "Читатели"
 
 #. Household readers
+msgid "household_subtitle"
+msgstr "Читателят е човек със собствено проследяване на четенето."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Докоснете име, за да изберете кой чете на това устройство."
+
+#. Household readers
 msgid "household_note"
-msgstr "Всички в този акаунт споделят библиотеката. Изберете кой чете на това устройство: всеки запазва своите статуси на четене, дати и оценки. Списъкът с желания остава общ."
+msgstr "Създайте по един читател за всеки човек: всеки запазва своите статуси на четене, дати и оценки. Библиотеката и списъкът с желания остават общи."
 
 #. Household readers
 msgid "household_create_me"
@@ -12051,7 +12068,7 @@ msgstr "Създай"
 
 #. Household readers
 msgid "household_reads_here"
-msgstr "Чете на това устройство"
+msgstr "Чете тук"
 
 #. Household readers
 msgid "household_error"

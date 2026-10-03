@@ -10517,6 +10517,15 @@ msgstr "Signed in as"
 msgid "account_sync_devices_title"
 msgstr "Authorized devices"
 
+msgid "account_sync_devices_subtitle"
+msgstr "A device gives access to the account."
+
+msgid "account_sync_account_section_title"
+msgstr "Account"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "The account keeps the library in sync across your devices, protected by your passphrase."
+
 msgid "account_sync_no_devices"
 msgstr "No devices yet. Refresh to load the list."
 
@@ -12169,8 +12178,16 @@ msgid "household_title"
 msgstr "Readers"
 
 #. Household readers
+msgid "household_subtitle"
+msgstr "A reader is a person, with their own reading record."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Tap a name to choose who reads on this device."
+
+#. Household readers
 msgid "household_note"
-msgstr "Everyone on this account shares the library. Choose who reads on this device: each person keeps their own reading status, dates and ratings. The wishlist stays shared."
+msgstr "Create one reader per person: each keeps their own reading status, dates and ratings. The library and the wishlist stay shared."
 
 #. Household readers
 msgid "household_create_me"
@@ -12190,7 +12207,7 @@ msgstr "Create"
 
 #. Household readers
 msgid "household_reads_here"
-msgstr "Reads on this device"
+msgstr "Reads here"
 
 #. Household readers
 msgid "household_error"

@@ -50,6 +50,25 @@ BoxDecoration accountSyncCardDecoration(BuildContext context) {
   );
 }
 
+/// One line under a section header saying what the section holds.
+class AccountSyncSectionSubtitle extends StatelessWidget {
+  final String text;
+  const AccountSyncSectionSubtitle(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDesign.spacingSm),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
 /// Uppercase section label of the account-sync screens, announced as a
 /// header to screen readers.
 class AccountSyncSectionHeader extends StatelessWidget {

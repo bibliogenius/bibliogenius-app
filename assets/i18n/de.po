@@ -10342,6 +10342,15 @@ msgstr "Angemeldet als {email}"
 msgid "account_sync_devices_title"
 msgstr "Autorisierte Geräte"
 
+msgid "account_sync_devices_subtitle"
+msgstr "Ein Gerät gibt Zugriff auf das Konto."
+
+msgid "account_sync_account_section_title"
+msgstr "Konto"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "Das Konto synchronisiert die Bibliothek zwischen deinen Geräten, geschützt durch deine Passphrase."
+
 msgid "account_sync_no_devices"
 msgstr "Noch keine Geräte. Aktualisieren Sie, um die Liste zu laden."
 
@@ -11903,8 +11912,16 @@ msgid "household_title"
 msgstr "Leseprofile"
 
 #. Household readers
+msgid "household_subtitle"
+msgstr "Ein Leseprofil gehört zu einer Person, mit ihrem eigenen Lesestand."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Tippe auf einen Namen, um zu wählen, wer auf diesem Gerät liest."
+
+#. Household readers
 msgid "household_note"
-msgstr "Alle in diesem Konto teilen sich die Bibliothek. Wähle, wer auf diesem Gerät liest: Jede Person behält ihren eigenen Lesestatus, ihre Daten und Bewertungen. Die Wunschliste bleibt gemeinsam."
+msgstr "Lege ein Leseprofil pro Person an: Jede behält ihren eigenen Lesestatus, ihre Daten und Bewertungen. Die Bibliothek und die Wunschliste bleiben gemeinsam."
 
 #. Household readers
 msgid "household_create_me"
@@ -11924,7 +11941,7 @@ msgstr "Anlegen"
 
 #. Household readers
 msgid "household_reads_here"
-msgstr "Liest auf diesem Gerät"
+msgstr "Liest hier"
 
 #. Household readers
 msgid "household_error"

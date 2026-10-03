@@ -10469,6 +10469,15 @@ msgstr "{email} olarak oturum açıldı"
 msgid "account_sync_devices_title"
 msgstr "Yetkili cihazlar"
 
+msgid "account_sync_devices_subtitle"
+msgstr "Bir cihaz hesaba erişim sağlar."
+
+msgid "account_sync_account_section_title"
+msgstr "Hesap"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "Hesap, kitaplığı cihazlarınız arasında eşitler ve gizli ifadenizle korur."
+
 msgid "account_sync_no_devices"
 msgstr "Henüz cihaz yok. Listeyi yüklemek için yenileyin."
 
@@ -12030,8 +12039,16 @@ msgid "household_title"
 msgstr "Okuyucular"
 
 #. Household readers
+msgid "household_subtitle"
+msgstr "Okuyucu bir kişidir ve kendi okuma takibi vardır."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Bu cihazda kimin okuduğunu seçmek için bir ada dokunun."
+
+#. Household readers
 msgid "household_note"
-msgstr "Bu hesaptaki herkes kitaplığı paylaşır. Bu cihazda kimin okuduğunu seçin: herkes kendi okuma durumlarını, tarihlerini ve puanlarını korur. İstek listesi ortak kalır."
+msgstr "Her kişi için bir okuyucu oluşturun: herkes kendi okuma durumlarını, tarihlerini ve puanlarını korur. Kitaplık ve istek listesi ortak kalır."
 
 #. Household readers
 msgid "household_create_me"
@@ -12051,7 +12068,7 @@ msgstr "Oluştur"
 
 #. Household readers
 msgid "household_reads_here"
-msgstr "Bu cihazda okuyor"
+msgstr "Burada okuyor"
 
 #. Household readers
 msgid "household_error"

@@ -57,11 +57,13 @@ void main() {
     TranslationService.setPoTranslationsForTest({
       'en': {
         'household_title': 'Readers',
-        'household_note': 'Shared library.',
+        'household_subtitle': 'A reader is a person.',
+        'household_note': 'One reader per person.',
         'household_update_note': 'Update every device.',
         'household_create_me': 'Create my reader',
         'household_add_reader': 'Add a reader',
-        'household_reads_here': 'Reads on this device',
+        'household_reads_here': 'Reads here',
+        'household_pick_prompt': 'Tap a name.',
         'household_leave_reader': 'Back to the shared view',
         'household_rename_title': 'Rename the reader',
         'household_name': 'First name',
@@ -109,7 +111,13 @@ void main() {
     tester,
   ) async {
     await pump(tester, _FakeFfi());
-    expect(find.text('Create my reader'), findsOneWidget);
+    expect(find.text('A reader is a person.'), findsOneWidget);
+    expect(find.text('One reader per person.'), findsOneWidget);
+    expect(
+      find.widgetWithText(OutlinedButton, 'Create my reader'),
+      findsOneWidget,
+    );
+    expect(find.byType(TextButton), findsNothing);
     expect(find.text('Update every device.'), findsNothing);
     expect(find.text('Back to the shared view'), findsNothing);
   });
@@ -128,7 +136,8 @@ void main() {
     refresh.addListener(() => refreshed++);
 
     expect(find.text('Update every device.'), findsOneWidget);
-    expect(find.text('Reads on this device'), findsOneWidget);
+    expect(find.text('Reads here'), findsOneWidget);
+    expect(find.text('Tap a name.'), findsNothing);
     expect(find.text('Add a reader'), findsOneWidget);
 
     // Rename Alice through the dialog.
@@ -152,9 +161,55 @@ void main() {
     await tester.pumpAndSettle();
     expect(household.currentReaderId, isNull);
     expect(find.text('Back to the shared view'), findsNothing);
-    expect(find.text('Reads on this device'), findsNothing);
+    expect(find.text('Reads here'), findsNothing);
     expect(find.text('Bruno'), findsOneWidget);
+    // Nobody reads here: the rows carry no radio, so the list says what a
+    // tap does.
+    expect(find.text('Tap a name.'), findsOneWidget);
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('readers show as people, the one reading here is marked', (
+    tester,
+  ) async {
+    final ffi = _FakeFfi()
+      ..readers.addAll(const [
+        FrbReader(id: 'r1', name: 'alice'),
+        FrbReader(id: 'r2', name: 'Bruno'),
+      ])
+      ..currentId = 'r1';
+    final handle = tester.ensureSemantics();
+    await pump(tester, ffi);
+
+    // The subtitle stays, the creation note gives way to the list.
+    expect(find.text('A reader is a person.'), findsOneWidget);
+    expect(find.text('One reader per person.'), findsNothing);
+    // Initials, not device glyphs.
+    expect(find.text('A'), findsOneWidget);
+    expect(find.text('B'), findsOneWidget);
+    // One marker, with its own icon, on the reader of this device.
+    expect(find.text('Reads here'), findsOneWidget);
+    expect(find.byIcon(Icons.menu_book), findsOneWidget);
+
+    // Assistive tech gets a single-choice list: name, marker, checked state.
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('alice, Reads here')),
+      containsSemantics(
+        hasCheckedState: true,
+        isChecked: true,
+        isInMutuallyExclusiveGroup: true,
+      ),
+    );
+    expect(
+      tester.getSemantics(find.bySemanticsLabel('Bruno')),
+      containsSemantics(
+        hasCheckedState: true,
+        isChecked: false,
+        isInMutuallyExclusiveGroup: true,
+        hasTapAction: true,
+      ),
+    );
+    handle.dispose();
   });
 
   testWidgets('deleting a reader asks first and removes them', (tester) async {

@@ -437,6 +437,9 @@ class _SignedInView extends StatelessWidget {
         ),
         const SizedBox(height: AppDesign.spacingSm),
         AccountSyncSectionHeader(_t(context, 'account_sync_devices_title')),
+        AccountSyncSectionSubtitle(
+          _t(context, 'account_sync_devices_subtitle'),
+        ),
         if (provider.devices.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppDesign.spacingSm),
@@ -453,20 +456,27 @@ class _SignedInView extends StatelessWidget {
               busy: provider.busy,
             ),
           ),
-        const HouseholdReadersSection(),
-        const SizedBox(height: AppDesign.spacingLg),
-        FilledButton.icon(
-          icon: const Icon(Icons.sync),
-          onPressed: provider.busy ? null : onSyncNow,
-          label: Text(_t(context, 'account_sync_sync_now')),
-          style: accountSyncPrimaryActionStyle(context),
-        ),
+        // Adding a device sits with the device list, apart from the readers.
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
           icon: const Icon(Icons.add_to_queue),
           onPressed: onAddDevice,
           label: Text(_t(context, 'account_sync_add_device')),
           style: accountSyncSecondaryActionStyle(context),
+        ),
+        const HouseholdReadersSection(),
+        // What follows applies to the whole account, not to the readers.
+        AccountSyncSectionHeader(
+          _t(context, 'account_sync_account_section_title'),
+        ),
+        AccountSyncSectionSubtitle(
+          _t(context, 'account_sync_account_section_subtitle'),
+        ),
+        FilledButton.icon(
+          icon: const Icon(Icons.sync),
+          onPressed: provider.busy ? null : onSyncNow,
+          label: Text(_t(context, 'account_sync_sync_now')),
+          style: accountSyncPrimaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(

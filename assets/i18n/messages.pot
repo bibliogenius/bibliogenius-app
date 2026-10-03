@@ -11111,6 +11111,15 @@ msgstr ""
 msgid "account_sync_devices_title"
 msgstr ""
 
+msgid "account_sync_devices_subtitle"
+msgstr ""
+
+msgid "account_sync_account_section_title"
+msgstr ""
+
+msgid "account_sync_account_section_subtitle"
+msgstr ""
+
 msgid "account_sync_no_devices"
 msgstr ""
 
@@ -11909,6 +11918,14 @@ msgstr ""
 
 #. Household readers
 msgid "household_title"
+msgstr ""
+
+#. Household readers
+msgid "household_subtitle"
+msgstr ""
+
+#. Household readers
+msgid "household_pick_prompt"
 msgstr ""
 
 #. Household readers

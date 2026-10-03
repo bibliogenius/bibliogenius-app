@@ -29,7 +29,44 @@ class HouseholdReadersSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         AccountSyncSectionHeader(t('household_title')),
-        AccountSyncInfoNote(text: t('household_note')),
+        AccountSyncSectionSubtitle(t('household_subtitle')),
+        // Before the first reader the section is one explanation and one
+        // button; the list and its notes come with the readers.
+        if (readers.isEmpty) AccountSyncInfoNote(text: t('household_note')),
+        // The rows carry no radio: while nobody reads here, say what a tap
+        // on a name does.
+        if (readers.isNotEmpty && currentId == null)
+          AccountSyncSectionSubtitle(t('household_pick_prompt')),
+        for (final reader in readers)
+          _ReaderRow(
+            name: reader.name,
+            selected: reader.id == currentId,
+            readsHereLabel: t('household_reads_here'),
+            onSelect: busy || reader.id == currentId
+                ? null
+                : () => _apply(context, () => provider.selectReader(reader.id)),
+            // The visible controls are icons; assistive tech gets the action
+            // and the name.
+            actions: [
+              _ReaderAction(
+                label: '${t('rename')}, ${reader.name}',
+                tooltip: t('rename'),
+                icon: Icons.edit_outlined,
+                onPressed: busy
+                    ? null
+                    : () => _rename(context, reader.id, reader.name),
+              ),
+              _ReaderAction(
+                label: '${t('delete')}, ${reader.name}',
+                tooltip: t('delete'),
+                icon: Icons.delete_outline,
+                color: Theme.of(context).colorScheme.error,
+                onPressed: busy
+                    ? null
+                    : () => _delete(context, reader.id, reader.name),
+              ),
+            ],
+          ),
         if (readers.isNotEmpty) ...[
           const SizedBox(height: AppDesign.spacingSm),
           // An older build on another device of the account cannot show these
@@ -39,61 +76,6 @@ class HouseholdReadersSection extends StatelessWidget {
             icon: Icons.system_update_alt,
           ),
         ],
-        const SizedBox(height: AppDesign.spacingSm),
-        RadioGroup<String>(
-          groupValue: currentId,
-          onChanged: (id) {
-            if (id == null || busy) return;
-            _apply(context, () => provider.selectReader(id));
-          },
-          child: Column(
-            children: [
-              for (final reader in readers)
-                Container(
-                  margin: const EdgeInsets.symmetric(
-                    vertical: AppDesign.spacingXs,
-                  ),
-                  decoration: accountSyncCardDecoration(context),
-                  child: RadioListTile<String>(
-                    value: reader.id,
-                    title: Text(
-                      reader.name,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    subtitle: reader.id == currentId
-                        ? Text(t('household_reads_here'))
-                        : null,
-                    // The visible controls are icons; assistive tech gets
-                    // the action and the name.
-                    secondary: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _ReaderAction(
-                          label: '${t('rename')}, ${reader.name}',
-                          tooltip: t('rename'),
-                          icon: Icons.edit_outlined,
-                          onPressed: busy
-                              ? null
-                              : () => _rename(context, reader.id, reader.name),
-                        ),
-                        _ReaderAction(
-                          label: '${t('delete')}, ${reader.name}',
-                          tooltip: t('delete'),
-                          icon: Icons.delete_outline,
-                          color: Theme.of(context).colorScheme.error,
-                          onPressed: busy
-                              ? null
-                              : () => _delete(context, reader.id, reader.name),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
           icon: const Icon(Icons.person_add_alt),
@@ -194,6 +176,129 @@ class HouseholdReadersSection extends StatelessWidget {
         ),
       );
     }
+  }
+}
+
+/// One reader of the account: a person, shown by their initial where the
+/// device rows show a device glyph. Tapping the name makes them the reader
+/// of this device; the row of the current one carries the "reads here" mark.
+class _ReaderRow extends StatelessWidget {
+  final String name;
+  final bool selected;
+  final String readsHereLabel;
+
+  /// Null while a request is in flight and on the current reader.
+  final VoidCallback? onSelect;
+  final List<Widget> actions;
+
+  const _ReaderRow({
+    required this.name,
+    required this.selected,
+    required this.readsHereLabel,
+    required this.onSelect,
+    required this.actions,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+    final initial = name.trim().characters.firstOrNull?.toUpperCase() ?? '?';
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: AppDesign.spacingXs),
+      decoration: accountSyncCardDecoration(context),
+      clipBehavior: Clip.antiAlias,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Row(
+          children: [
+            Expanded(
+              // The readers form a single-choice list: one node per reader
+              // with its checked state, the icon actions stay separate nodes.
+              child: Semantics(
+                container: true,
+                inMutuallyExclusiveGroup: true,
+                checked: selected,
+                label: selected ? '$name, $readsHereLabel' : name,
+                onTap: onSelect,
+                excludeSemantics: true,
+                child: InkWell(
+                  onTap: onSelect,
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppDesign.spacingMd),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: selected
+                                ? cs.primary
+                                : cs.primary.withValues(alpha: 0.12),
+                          ),
+                          // Decorative: the name next to it scales, the
+                          // initial stays inside its circle.
+                          child: Text(
+                            initial,
+                            textScaler: TextScaler.noScaling,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: selected ? cs.onPrimary : cs.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppDesign.spacingMd),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                name,
+                                style: theme.textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (selected) ...[
+                                const SizedBox(height: 2),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.menu_book,
+                                      size: 16,
+                                      color: cs.primary,
+                                    ),
+                                    const SizedBox(width: AppDesign.spacingXs),
+                                    Flexible(
+                                      child: Text(
+                                        readsHereLabel,
+                                        style: theme.textTheme.labelMedium
+                                            ?.copyWith(
+                                              color: cs.primary,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            ...actions,
+            const SizedBox(width: AppDesign.spacingXs),
+          ],
+        ),
+      ),
+    );
   }
 }
 

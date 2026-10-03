@@ -10357,6 +10357,15 @@ msgstr "Sesión iniciada como {email}"
 msgid "account_sync_devices_title"
 msgstr "Dispositivos autorizados"
 
+msgid "account_sync_devices_subtitle"
+msgstr "Un dispositivo da acceso a la cuenta."
+
+msgid "account_sync_account_section_title"
+msgstr "Cuenta"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "La cuenta sincroniza la biblioteca entre tus dispositivos, protegida por tu frase de contraseña."
+
 msgid "account_sync_no_devices"
 msgstr "Todavía no hay dispositivos. Actualiza para cargar la lista."
 
@@ -11918,8 +11927,16 @@ msgid "household_title"
 msgstr "Lectores"
 
 #. Household readers
+msgid "household_subtitle"
+msgstr "Un lector es una persona, con su propio seguimiento de lectura."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Toca un nombre para elegir quién lee en este dispositivo."
+
+#. Household readers
 msgid "household_note"
-msgstr "Todos los miembros de esta cuenta comparten la biblioteca. Elige quién lee en este dispositivo: cada persona conserva sus propios estados de lectura, fechas y valoraciones. La lista de deseos sigue siendo común."
+msgstr "Crea un lector por persona: cada uno conserva sus propios estados de lectura, fechas y valoraciones. La biblioteca y la lista de deseos siguen siendo comunes."
 
 #. Household readers
 msgid "household_create_me"
@@ -11939,7 +11956,7 @@ msgstr "Crear"
 
 #. Household readers
 msgid "household_reads_here"
-msgstr "Lee en este dispositivo"
+msgstr "Lee aquí"
 
 #. Household readers
 msgid "household_error"
