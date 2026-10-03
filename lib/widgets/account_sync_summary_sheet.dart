@@ -36,6 +36,100 @@ ButtonStyle accountSyncSecondaryActionStyle(BuildContext context) {
   );
 }
 
+/// Card surface of the account-sync screens: white (or the dark container),
+/// large radius, hairline border.
+BoxDecoration accountSyncCardDecoration(BuildContext context) {
+  final cs = Theme.of(context).colorScheme;
+  final isDark = Theme.of(context).brightness == Brightness.dark;
+  return BoxDecoration(
+    color: isDark ? cs.surfaceContainerHighest : Colors.white,
+    borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+    border: Border.all(
+      color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
+    ),
+  );
+}
+
+/// One line under a section header saying what the section holds.
+class AccountSyncSectionSubtitle extends StatelessWidget {
+  final String text;
+  const AccountSyncSectionSubtitle(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppDesign.spacingSm),
+      child: Text(
+        text,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
+      ),
+    );
+  }
+}
+
+/// Uppercase section label of the account-sync screens, announced as a
+/// header to screen readers.
+class AccountSyncSectionHeader extends StatelessWidget {
+  final String text;
+  const AccountSyncSectionHeader(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      header: true,
+      child: Padding(
+        padding: const EdgeInsets.only(
+          top: AppDesign.spacingLg,
+          bottom: AppDesign.spacingSm,
+        ),
+        child: Text(
+          text.toUpperCase(),
+          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.8,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Contextual caption in a primary-tinted banner.
+class AccountSyncInfoNote extends StatelessWidget {
+  final String text;
+  final IconData icon;
+  const AccountSyncInfoNote({
+    super.key,
+    required this.text,
+    this.icon = Icons.info_outline,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(AppDesign.spacingMd),
+      decoration: BoxDecoration(
+        color: cs.primary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 20, color: cs.primary),
+          const SizedBox(width: AppDesign.spacingSm),
+          Expanded(
+            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Springboard "read on my other devices" popin: a state-aware summary of the
 /// encrypted account, not full management. Signed out it offers create / join
 /// / pair (the same doors as the hub screen); signed in it shows the account,

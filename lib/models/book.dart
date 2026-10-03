@@ -60,13 +60,25 @@ class Book {
   /// See [isBorrowed] for the axis and the null semantics.
   final bool? isLent;
 
-  /// Peer catalog only: true when the OWNING PEER wants this book (their
-  /// wishlist, broadcast as an additive wire flag). Null means "not
-  /// stated" (older peer build, or simply not wanted) and must never be
-  /// inferred from [owned] being false, which also covers books the peer
-  /// merely borrowed. Round-trips through toJson so the peer-cache upload
-  /// (cachePeerBooks) preserves it.
+  /// The wish, when [readingStatus] cannot say it.
+  ///
+  /// On a peer catalog: true when the OWNING PEER wants this book (their
+  /// wishlist, broadcast as an additive wire flag). In the owner's library:
+  /// true when a reader's own status stands in front of the shared wish.
+  /// Null means "not stated" (older peer build, or simply not wanted) and
+  /// must never be inferred from [owned] being false, which also covers
+  /// books merely borrowed. Round-trips through toJson so the peer-cache
+  /// upload (cachePeerBooks) preserves it.
   final bool? wanted;
+
+  /// Whether the library wants this book: the `wanting` status says so, and
+  /// so does [wanted] behind a reader's own status.
+  bool get isWished => readingStatus == 'wanting' || wanted == true;
+
+  /// Names of the readers of this library who put the book on the wishlist.
+  /// Null when the device has no reader, when the book is not wished for, or
+  /// when the wish predates the names. Local only: never sent to peers.
+  final List<String>? wishedBy;
 
   /// Whether the book sits on either side of a loan.
   ///
@@ -101,6 +113,7 @@ class Book {
     this.isBorrowed,
     this.isLent,
     this.wanted,
+    this.wishedBy,
   }) : _coverUrl = coverUrl;
 
   /// Coerce a JSON value into a nullable int, tolerating numeric strings.
@@ -178,6 +191,7 @@ class Book {
           _asBoolOrNull(json['is_lent']) ?? _legacyLoanState(rawStatus, 'lent'),
       // Absent stays absent: no fallback on owned == false (see field doc).
       wanted: _asBoolOrNull(json['wanted']),
+      wishedBy: (json['wished_by'] as List?)?.map((e) => e.toString()).toList(),
       finishedReadingAt: json['finished_reading_at'] != null
           ? DateTime.tryParse(json['finished_reading_at'])
           : null,
@@ -281,6 +295,7 @@ class Book {
       isBorrowed: isBorrowed,
       isLent: isLent,
       wanted: wanted,
+      wishedBy: wishedBy,
     );
   }
 
@@ -312,7 +327,7 @@ class Book {
       : LocalCoverResolver.resolve(resolved, bookId: id);
 
   /// Whether this book has a cover URL explicitly persisted (not auto-derived from ISBN)
-  bool get hasPersistedCover => _coverUrl != null && _coverUrl!.isNotEmpty;
+  bool get hasPersistedCover => _coverUrl != null && _coverUrl.isNotEmpty;
 
   /// Create a copy with updated cover URL
   Book copyWithCoverUrl(String? newCoverUrl) {
@@ -342,6 +357,7 @@ class Book {
       isBorrowed: isBorrowed,
       isLent: isLent,
       wanted: wanted,
+      wishedBy: wishedBy,
     );
   }
 

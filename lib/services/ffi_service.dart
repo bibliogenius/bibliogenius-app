@@ -845,6 +845,8 @@ class FfiService {
       // than coerced to false so the UI can tell "not lent" from "unknown".
       isBorrowed: fb.isBorrowed,
       isLent: fb.isLent,
+      wanted: fb.wanted,
+      wishedBy: fb.wishedBy,
     );
   }
 
@@ -2362,6 +2364,89 @@ class FfiService {
       return await frb.countDuplicateSurplus();
     } catch (e) {
       debugPrint('FFI countDuplicateSurplus error: $e');
+      rethrow;
+    }
+  }
+
+  // ── Household readers ──────────────────────────────────────────────
+  // One shared library, one reading state per person. A device with no
+  // current reader keeps the shared state, exactly as before.
+
+  Future<List<frb.FrbReader>> listHouseholdReaders() async {
+    try {
+      return await frb.listHouseholdReaders();
+    } catch (e) {
+      debugPrint('FFI listHouseholdReaders error: $e');
+      rethrow;
+    }
+  }
+
+  Future<frb.FrbReader?> getCurrentHouseholdReader() async {
+    try {
+      return await frb.getCurrentHouseholdReader();
+    } catch (e) {
+      debugPrint('FFI getCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  /// Adds a reader and makes them the reader of this device.
+  Future<frb.FrbReader> createHouseholdReader(String name) async {
+    try {
+      return await frb.createHouseholdReader(name: name);
+    } catch (e) {
+      debugPrint('FFI createHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> setCurrentHouseholdReader(String readerId) async {
+    try {
+      await frb.setCurrentHouseholdReader(readerId: readerId);
+    } catch (e) {
+      debugPrint('FFI setCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  /// Puts this device back on the shared reading state. Readers and their
+  /// readings are kept.
+  Future<void> clearCurrentHouseholdReader() async {
+    try {
+      await frb.clearCurrentHouseholdReader();
+    } catch (e) {
+      debugPrint('FFI clearCurrentHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  /// Removes a reader and every reading of theirs, on every device of the
+  /// account.
+  Future<void> deleteHouseholdReader(String readerId) async {
+    try {
+      await frb.deleteHouseholdReader(readerId: readerId);
+    } catch (e) {
+      debugPrint('FFI deleteHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  Future<void> renameHouseholdReader(String readerId, String name) async {
+    try {
+      await frb.renameHouseholdReader(readerId: readerId, name: name);
+    } catch (e) {
+      debugPrint('FFI renameHouseholdReader error: $e');
+      rethrow;
+    }
+  }
+
+  /// Takes a book off the shared wishlist without touching anyone's reading.
+  Future<Book> removeBookFromWishlist(String bookId) async {
+    try {
+      final fb = await frb.removeBookFromWishlist(bookId: bookId);
+      return _frbBookToBook(fb);
+    } catch (e) {
+      debugPrint('FFI removeBookFromWishlist error: $e');
       rethrow;
     }
   }

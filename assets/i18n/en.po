@@ -10520,6 +10520,15 @@ msgstr "Signed in as"
 msgid "account_sync_devices_title"
 msgstr "Authorized devices"
 
+msgid "account_sync_devices_subtitle"
+msgstr "A device gives access to the account."
+
+msgid "account_sync_account_section_title"
+msgstr "Account"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "The account keeps the library in sync across your devices, protected by your passphrase."
+
 msgid "account_sync_no_devices"
 msgstr "No devices yet. Refresh to load the list."
 
@@ -12166,3 +12175,79 @@ msgstr "You are side by side"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "Your code and your invite link"
+
+#. Household readers
+msgid "household_title"
+msgstr "Readers"
+
+#. Household readers
+msgid "household_subtitle"
+msgstr "A reader is a person, with their own reading record."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Tap a name to choose who reads on this device."
+
+#. Household readers
+msgid "household_note"
+msgstr "Create one reader per person: each keeps their own reading status, dates and ratings. The library and the wishlist stay shared."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Create my reader"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Add a reader on this device"
+
+#. Household readers
+msgid "household_name"
+msgstr "First name"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Create"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Reads here"
+
+#. Household readers
+msgid "household_error"
+msgstr "The reader could not be changed. Please try again."
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "Wished by {names}"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "Remove from wishlist"
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Rename the reader"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Back to the shared view"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Update the app on every device of this account before choosing readers: an older version would not see their readings."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "Readers exist on this account. Choose who reads on this device."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Choose"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "Delete {name}?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Their reading statuses, dates and ratings will be erased on every device of this account. The books they wished for stay on the wishlist, without their name."

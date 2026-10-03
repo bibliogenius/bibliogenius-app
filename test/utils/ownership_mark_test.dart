@@ -2,11 +2,17 @@ import 'package:bibliogenius/models/book.dart';
 import 'package:bibliogenius/utils/ownership_mark.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-Book book({required bool owned, String? status, bool? isBorrowed}) => Book(
+Book book({
+  required bool owned,
+  String? status,
+  bool? isBorrowed,
+  bool? wanted,
+}) => Book(
   title: 'Le Livre',
   owned: owned,
   readingStatus: status,
   isBorrowed: isBorrowed,
+  wanted: wanted,
 );
 
 void main() {
@@ -37,6 +43,42 @@ void main() {
       expect(
         ownershipMarkOf(book(owned: false, status: 'read')),
         OwnershipMark.notOwned,
+      );
+    });
+  });
+
+  // A reader with a status of their own on a wished book gets the status
+  // from the backend plus the wish as a flag: the wish must still mark it.
+  group('a wish behind a reader status', () {
+    final readAndWished = book(owned: false, status: 'read', wanted: true);
+
+    test('is a wished book', () {
+      expect(readAndWished.isWished, isTrue);
+      expect(book(owned: false, status: 'wanting').isWished, isTrue);
+      expect(book(owned: false, status: 'read').isWished, isFalse);
+      expect(ownershipMarkOf(readAndWished), OwnershipMark.wishedNotOwned);
+    });
+
+    // The status badge shows "read" there, not the heart: the wish badge
+    // must not stand down, or nothing on the cover would tell the wish.
+    test('keeps its wish badge next to a status badge', () {
+      expect(
+        badgeMarkOf(readAndWished, statusBadgeShown: true),
+        OwnershipMark.wishedNotOwned,
+      );
+      expect(
+        badgeMarkOf(
+          book(owned: false, status: 'wanting'),
+          statusBadgeShown: true,
+        ),
+        OwnershipMark.none,
+      );
+      expect(
+        badgeMarkOf(
+          book(owned: false, status: 'wanting'),
+          statusBadgeShown: false,
+        ),
+        OwnershipMark.wishedNotOwned,
       );
     });
   });

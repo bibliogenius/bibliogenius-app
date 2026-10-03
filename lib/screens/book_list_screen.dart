@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../widgets/wisher_filter_chips.dart';
 import '../widgets/books_top_slot.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/suggestions_app_bar_action.dart';
@@ -77,6 +78,8 @@ class _BookListScreenState extends State<BookListScreen>
     with WidgetsBindingObserver {
   List<Book> _books = [];
   List<Book> _filteredBooks = [];
+  /// One reader's wishes only, on the wishlist (see `WisherFilterChips`).
+  String? _wisherFilter;
 
   // Global refresh notifier
   BookRefreshNotifier? _globalRefreshNotifier;
@@ -499,6 +502,15 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               _buildFilterBar(),
+              if (_selectedStatus == 'wanting')
+                WisherFilterChips(
+                  names: wishersIn(_books.where((b) => b.isWished)),
+                  selected: _wisherFilter,
+                  onChanged: (name) => setState(() {
+                    _wisherFilter = name;
+                    _filterBooks();
+                  }),
+                ),
               if (!_isLoading) BooksTopSlot(books: _books),
               Expanded(
                 child: NotificationListener<ScrollNotification>(
@@ -757,6 +769,15 @@ class _BookListScreenState extends State<BookListScreen>
             children: [
               // _buildHeader(context), // Header removed, avatar now in AppBar
               _buildFilterBar(),
+              if (_selectedStatus == 'wanting')
+                WisherFilterChips(
+                  names: wishersIn(_books.where((b) => b.isWished)),
+                  selected: _wisherFilter,
+                  onChanged: (name) => setState(() {
+                    _wisherFilter = name;
+                    _filterBooks();
+                  }),
+                ),
               if (!_isLoading) BooksTopSlot(books: _books),
               Expanded(
                 child: NotificationListener<ScrollNotification>(
@@ -942,6 +963,13 @@ class _BookListScreenState extends State<BookListScreen>
         debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
         tempBooks = tempBooks
             .where((book) => matchesStatusFilter(book, _selectedStatus!))
+            .toList();
+      }
+      // The person filter belongs to the wishlist alone.
+      if (_selectedStatus != 'wanting') _wisherFilter = null;
+      if (_wisherFilter != null) {
+        tempBooks = tempBooks
+            .where((book) => matchesWisherFilter(book, _wisherFilter))
             .toList();
         debugPrint(
           '🔍 _filterBooks: After status filter: ${tempBooks.length} books',

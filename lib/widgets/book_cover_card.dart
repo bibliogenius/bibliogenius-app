@@ -81,8 +81,8 @@ class BookCoverCard extends StatelessWidget {
     // badge (not the treatment) stands down for a wished book, whose heart
     // the status badge below already shows.
     final mark = ownershipMarkOf(book);
-    final badgeMark = badgeMarkFor(
-      mark,
+    final badgeMark = badgeMarkOf(
+      book,
       statusBadgeShown: hasReadingStatus(book.readingStatus),
     );
 

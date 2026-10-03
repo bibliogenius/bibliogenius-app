@@ -10472,6 +10472,15 @@ msgstr "Влезли сте като {email}"
 msgid "account_sync_devices_title"
 msgstr "Оторизирани устройства"
 
+msgid "account_sync_devices_subtitle"
+msgstr "Устройството дава достъп до акаунта."
+
+msgid "account_sync_account_section_title"
+msgstr "Акаунт"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "Акаунтът синхронизира библиотеката между вашите устройства, защитена с вашата тайна фраза."
+
 msgid "account_sync_no_devices"
 msgstr "Все още няма устройства. Обновете, за да заредите списъка."
 
@@ -12019,3 +12028,79 @@ msgstr "Покани някого"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "Вашият код и вашата връзка за покана"
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "Пожелано от {names}"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "Премахване от списъка с желания"
+
+#. Household readers
+msgid "household_title"
+msgstr "Читатели"
+
+#. Household readers
+msgid "household_subtitle"
+msgstr "Читателят е човек със собствено проследяване на четенето."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Докоснете име, за да изберете кой чете на това устройство."
+
+#. Household readers
+msgid "household_note"
+msgstr "Създайте по един читател за всеки човек: всеки запазва своите статуси на четене, дати и оценки. Библиотеката и списъкът с желания остават общи."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Създай моя читател"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Добави читател на това устройство"
+
+#. Household readers
+msgid "household_name"
+msgstr "Име"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Създай"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Чете тук"
+
+#. Household readers
+msgid "household_error"
+msgstr "Читателят не можа да бъде променен. Опитайте отново."
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Преименувай читателя"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Обратно към общия изглед"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Обновете приложението на всички устройства на този акаунт, преди да изберете читатели: по-стара версия няма да вижда техните четения."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "В този акаунт има читатели. Изберете кой чете на това устройство."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Избери"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "Да се изтрие ли {name}?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Статусите на четене, датите и оценките на този човек ще бъдат изтрити на всички устройства на този акаунт. Книгите, които е пожелал, остават в списъка с желания, без името му."

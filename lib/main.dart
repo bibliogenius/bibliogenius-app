@@ -109,6 +109,7 @@ import 'screens/notifications_screen.dart';
 import 'providers/book_note_provider.dart';
 import 'providers/hub_directory_provider.dart';
 import 'providers/flash_message_provider.dart';
+import 'providers/household_provider.dart';
 import 'providers/notification_provider.dart';
 import 'providers/sort_preference_provider.dart';
 import 'providers/ownership_preference_provider.dart';
@@ -786,6 +787,12 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<FlashMessageProvider>(
           create: (_) => FlashMessageProvider(),
+        ),
+        // Readers of the account (FFI only; the load leaves the list empty
+        // elsewhere). Loaded at start so the "pick your reader" flash can
+        // show on a device the other devices' readers reached first.
+        ChangeNotifierProvider<HouseholdProvider>(
+          create: (_) => HouseholdProvider()..load(),
         ),
         ChangeNotifierProvider<NotificationProvider>(
           create: (_) => NotificationProvider()..init(),
@@ -1651,6 +1658,24 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           excludedRoutes: ['/settings', '/onboarding', '/profile'],
           contentBuilder: (ctx, dismiss) =>
               _FlashPresetSelector(onDismiss: dismiss),
+        ),
+      );
+
+      // Readers exist on the account (created on another device) and this
+      // device still shows the shared state: invite to pick one. The
+      // condition reads the provider with listen so the bar follows the
+      // readers as they load. Session-only dismissal: the choice stays open.
+      flashProvider.register(
+        FlashMessageDefinition(
+          key: 'flash_household_pick_reader',
+          textKey: 'household_pick_reader_banner',
+          actionTextKey: 'household_pick_reader_action',
+          actionRoute: '/account-sync',
+          icon: Icons.people_outline,
+          persistDismissal: false,
+          condition: (ctx) =>
+              Provider.of<HouseholdProvider>(ctx).needsReaderChoice,
+          excludedRoutes: ['/account-sync', '/onboarding'],
         ),
       );
 

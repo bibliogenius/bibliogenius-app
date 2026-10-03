@@ -346,8 +346,8 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                   // The badge stands down for a wished book:
                                   // the wanting status pill in the info
                                   // column already shows the wish.
-                                  if (badgeMarkFor(
-                                        ownershipMarkOf(widget.book),
+                                  if (badgeMarkOf(
+                                        widget.book,
                                         statusBadgeShown: hasReadingStatus(
                                           widget.book.readingStatus,
                                         ),
@@ -630,8 +630,8 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                       // Shared ownership badge (ADR-063). It stands down for
                       // a wished book when the wanting status badge is shown:
                       // that badge already carries the heart.
-                      if (badgeMarkFor(
-                            ownershipMarkOf(widget.book),
+                      if (badgeMarkOf(
+                            widget.book,
                             statusBadgeShown:
                                 widget.showStatus &&
                                 hasReadingStatus(widget.book.readingStatus),

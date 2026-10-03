@@ -11,6 +11,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/household_readers_section.dart';
 
 /// Hub for the multi-device account sync feature.
 ///
@@ -279,62 +280,6 @@ class _AccountSyncScreenState extends State<AccountSyncScreen> {
 }
 
 /// Shared section header with the screen-reader header role.
-class _SectionHeader extends StatelessWidget {
-  final String text;
-  const _SectionHeader(this.text);
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      header: true,
-      child: Padding(
-        padding: const EdgeInsets.only(
-          top: AppDesign.spacingLg,
-          bottom: AppDesign.spacingSm,
-        ),
-        child: Text(
-          text.toUpperCase(),
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.8,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Contextual caption in a primary-tinted banner. The text follows the entry
-/// point: account benefits by default, join-with-passphrase guidance when the
-/// user came through "Partager l'accès".
-class _InfoNote extends StatelessWidget {
-  final String text;
-  const _InfoNote({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: BoxDecoration(
-        color: cs.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, size: 20, color: cs.primary),
-          const SizedBox(width: AppDesign.spacingSm),
-          Expanded(
-            child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Shown only when the joined library actually carries duplicates (ADR-070).
 ///
 /// Joining an account from a device that already held its own copies leaves two
@@ -419,7 +364,7 @@ class _SignedOutView extends StatelessWidget {
         // intent needs the extra how-to caption here.
         if (shareIntent) ...[
           const SizedBox(height: AppDesign.spacingMd),
-          _InfoNote(text: _t(context, 'account_sync_share_note')),
+          AccountSyncInfoNote(text: _t(context, 'account_sync_share_note')),
         ],
         const SizedBox(height: AppDesign.spacingLg),
         FilledButton.icon(
@@ -484,19 +429,20 @@ class _SignedInView extends StatelessWidget {
           _DuplicateBanner(surplus: duplicateSurplus, onOpen: onOpenDuplicates),
         ],
         const SizedBox(height: AppDesign.spacingMd),
-        _InfoNote(
+        AccountSyncInfoNote(
           text: _t(
             context,
             shareIntent ? 'account_sync_share_note' : 'account_sync_intro_note',
           ),
         ),
         const SizedBox(height: AppDesign.spacingSm),
-        _SectionHeader(_t(context, 'account_sync_devices_title')),
+        AccountSyncSectionHeader(_t(context, 'account_sync_devices_title')),
+        AccountSyncSectionSubtitle(
+          _t(context, 'account_sync_devices_subtitle'),
+        ),
         if (provider.devices.isEmpty)
           Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppDesign.spacingSm,
-            ),
+            padding: const EdgeInsets.symmetric(vertical: AppDesign.spacingSm),
             child: Text(
               _t(context, 'account_sync_no_devices'),
               style: Theme.of(context).textTheme.bodyMedium,
@@ -510,19 +456,27 @@ class _SignedInView extends StatelessWidget {
               busy: provider.busy,
             ),
           ),
-        const SizedBox(height: AppDesign.spacingLg),
-        FilledButton.icon(
-          icon: const Icon(Icons.sync),
-          onPressed: provider.busy ? null : onSyncNow,
-          label: Text(_t(context, 'account_sync_sync_now')),
-          style: accountSyncPrimaryActionStyle(context),
-        ),
+        // Adding a device sits with the device list, apart from the readers.
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
           icon: const Icon(Icons.add_to_queue),
           onPressed: onAddDevice,
           label: Text(_t(context, 'account_sync_add_device')),
           style: accountSyncSecondaryActionStyle(context),
+        ),
+        const HouseholdReadersSection(),
+        // What follows applies to the whole account, not to the readers.
+        AccountSyncSectionHeader(
+          _t(context, 'account_sync_account_section_title'),
+        ),
+        AccountSyncSectionSubtitle(
+          _t(context, 'account_sync_account_section_subtitle'),
+        ),
+        FilledButton.icon(
+          icon: const Icon(Icons.sync),
+          onPressed: provider.busy ? null : onSyncNow,
+          label: Text(_t(context, 'account_sync_sync_now')),
+          style: accountSyncPrimaryActionStyle(context),
         ),
         const SizedBox(height: AppDesign.spacingSm),
         OutlinedButton.icon(
@@ -543,18 +497,6 @@ class _SignedInView extends StatelessWidget {
 }
 
 /// Shared white surface used by the connected-account card and each device row.
-BoxDecoration _syncCardDecoration(BuildContext context) {
-  final cs = Theme.of(context).colorScheme;
-  final isDark = Theme.of(context).brightness == Brightness.dark;
-  return BoxDecoration(
-    color: isDark ? cs.surfaceContainerHighest : Colors.white,
-    borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
-    border: Border.all(
-      color: isDark ? Colors.white12 : Colors.black.withValues(alpha: 0.06),
-    ),
-  );
-}
-
 /// Rounded, primary-tinted badge that hosts an icon in the sync cards.
 Widget _syncIconBadge(BuildContext context, IconData icon) {
   final cs = Theme.of(context).colorScheme;
@@ -600,7 +542,7 @@ class _ConnectedCard extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: _syncCardDecoration(context),
+      decoration: accountSyncCardDecoration(context),
       child: Row(
         children: [
           _syncIconBadge(context, Icons.verified_user),
@@ -614,9 +556,9 @@ class _ConnectedCard extends StatelessWidget {
                     context,
                     'account_sync_signed_in_label',
                   ),
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: cs.onSurfaceVariant,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -659,7 +601,7 @@ class _DeviceTile extends StatelessWidget {
     final tile = Container(
       margin: const EdgeInsets.symmetric(vertical: AppDesign.spacingXs),
       padding: const EdgeInsets.all(AppDesign.spacingMd),
-      decoration: _syncCardDecoration(context),
+      decoration: accountSyncCardDecoration(context),
       child: Row(
         children: [
           _syncIconBadge(context, _deviceIcon(device.name)),
@@ -667,9 +609,9 @@ class _DeviceTile extends StatelessWidget {
           Expanded(
             child: Text(
               device.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
               overflow: TextOverflow.ellipsis,
             ),
           ),

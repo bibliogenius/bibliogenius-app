@@ -10480,6 +10480,15 @@ msgstr "Conectado como {email}"
 msgid "account_sync_devices_title"
 msgstr "Dispositivos autorizados"
 
+msgid "account_sync_devices_subtitle"
+msgstr "Um dispositivo dá acesso à conta."
+
+msgid "account_sync_account_section_title"
+msgstr "Conta"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "A conta sincroniza a biblioteca entre seus dispositivos, protegida pela sua frase secreta."
+
 msgid "account_sync_no_devices"
 msgstr "Nenhum dispositivo ainda. Atualize para carregar a lista."
 
@@ -12027,3 +12036,79 @@ msgstr "Convidar alguém"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "Seu código e seu link de convite"
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "Desejado por {names}"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "Remover da lista de desejos"
+
+#. Household readers
+msgid "household_title"
+msgstr "Leitores"
+
+#. Household readers
+msgid "household_subtitle"
+msgstr "Um leitor é uma pessoa, com seu próprio acompanhamento de leitura."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "Toque em um nome para escolher quem lê neste dispositivo."
+
+#. Household readers
+msgid "household_note"
+msgstr "Crie um leitor por pessoa: cada um mantém seus próprios status de leitura, datas e avaliações. A biblioteca e a lista de desejos continuam compartilhadas."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "Criar meu leitor"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "Adicionar um leitor neste dispositivo"
+
+#. Household readers
+msgid "household_name"
+msgstr "Primeiro nome"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "Criar"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "Lê aqui"
+
+#. Household readers
+msgid "household_error"
+msgstr "Não foi possível alterar o leitor. Tente novamente."
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "Renomear o leitor"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "Voltar à visão compartilhada"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "Atualize o app em todos os dispositivos desta conta antes de escolher leitores: uma versão antiga não veria as leituras deles."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "Esta conta tem leitores. Escolha quem lê neste dispositivo."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "Escolher"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "Excluir {name}?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "Os status de leitura, datas e avaliações dessa pessoa serão apagados em todos os dispositivos desta conta. Os livros que ela desejava continuam na lista de desejos, sem o nome dela."

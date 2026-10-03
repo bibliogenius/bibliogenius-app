@@ -11114,6 +11114,15 @@ msgstr ""
 msgid "account_sync_devices_title"
 msgstr ""
 
+msgid "account_sync_devices_subtitle"
+msgstr ""
+
+msgid "account_sync_account_section_title"
+msgstr ""
+
+msgid "account_sync_account_section_subtitle"
+msgstr ""
+
 msgid "account_sync_no_devices"
 msgstr ""
 
@@ -11908,4 +11917,80 @@ msgstr ""
 
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
+msgstr ""
+
+#. Household readers
+msgid "household_title"
+msgstr ""
+
+#. Household readers
+msgid "household_subtitle"
+msgstr ""
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr ""
+
+#. Household readers
+msgid "household_note"
+msgstr ""
+
+#. Household readers
+msgid "household_create_me"
+msgstr ""
+
+#. Household readers
+msgid "household_add_reader"
+msgstr ""
+
+#. Household readers
+msgid "household_name"
+msgstr ""
+
+#. Household readers
+msgid "household_confirm"
+msgstr ""
+
+#. Household readers
+msgid "household_reads_here"
+msgstr ""
+
+#. Household readers
+msgid "household_error"
+msgstr ""
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr ""
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr ""
+
+#. Household readers
+msgid "household_rename_title"
+msgstr ""
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr ""
+
+#. Household readers
+msgid "household_update_note"
+msgstr ""
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr ""
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr ""
+
+#. Household readers
+msgid "household_delete_title"
+msgstr ""
+
+#. Household readers
+msgid "household_delete_body"
 msgstr ""

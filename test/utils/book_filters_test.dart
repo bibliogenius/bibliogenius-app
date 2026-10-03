@@ -99,7 +99,56 @@ void main() {
     });
   });
 
+  group('wishers', () {
+    Book wished(String title, List<String>? by) => Book(
+      title: title,
+      owned: false,
+      readingStatus: 'wanting',
+      wishedBy: by,
+    );
+
+    test('names each wisher once, in order of appearance', () {
+      final books = [
+        wished('Dune', ['Alice']),
+        wished('Hyperion', ['Bruno', 'Alice']),
+        wished('Solaris', null),
+      ];
+      expect(wishersIn(books), ['Alice', 'Bruno']);
+    });
+
+    test('a person filter keeps their wishes, no filter keeps all', () {
+      final anonymous = wished('Solaris', null);
+      final alices = wished('Dune', ['Alice']);
+      expect(matchesWisherFilter(alices, 'Alice'), isTrue);
+      expect(matchesWisherFilter(alices, 'Bruno'), isFalse);
+      expect(matchesWisherFilter(anonymous, 'Alice'), isFalse);
+      expect(matchesWisherFilter(anonymous, null), isTrue);
+    });
+  });
+
   group('matchesStatusFilter', () {
+    // The wishlist is shared between the readers of a library: a book one of
+    // them wished for stays on it for a reader whose own status shows instead,
+    // the wish then arriving as a flag.
+    test('a wished book appears under "wanting" behind a reader status', () {
+      final readAndWished = Book(
+        title: 'Le Livre',
+        owned: false,
+        readingStatus: 'read',
+        wanted: true,
+      );
+      expect(matchesStatusFilter(readAndWished, 'wanting'), isTrue);
+      expect(matchesStatusFilter(readAndWished, 'read'), isTrue);
+      expect(
+        matchesStatusFilter(book(owned: false, status: 'wanting'), 'wanting'),
+        isTrue,
+      );
+      expect(
+        matchesStatusFilter(book(owned: false, status: 'read'), 'wanting'),
+        isFalse,
+      );
+    });
+
     // The reported bug: a book borrowed from a peer, read, then given back stays
     // in the library as owned=false + read. It used to appear under no filter at
     // all, which made it look deleted.
