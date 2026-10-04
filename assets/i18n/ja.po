@@ -11298,3 +11298,55 @@ msgstr "誰かを招待"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "自分のコードと招待リンク"
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr "本を選択"
+
+#. Select all
+msgid "select_all"
+msgstr "すべて選択"
+
+#. Deselect all
+msgid "deselect_all"
+msgstr "選択を解除"
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr "追加先…"
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr "すべてを追加…"
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr "{count}冊を整理"
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr "{count}冊を整理"
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr "「{name}」から外す"
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr "追加"
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr "移動"
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr "{count}冊を整理しました"
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr "{count}冊を整理しました"
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr "これらの本はすでにそこにあります"

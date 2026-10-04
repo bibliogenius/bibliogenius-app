@@ -27,6 +27,7 @@ import '../widgets/collection_stack_widget.dart';
 import '../widgets/premium_empty_state.dart';
 import '../widgets/book_cover_grid.dart';
 import '../widgets/premium_book_card.dart';
+import '../widgets/selectable_book_tile.dart';
 import '../widgets/wishlist_availability_badge.dart';
 import '../utils/ownership_status_flow.dart';
 import '../theme/app_design.dart';
@@ -36,6 +37,7 @@ import '../providers/favorites_provider.dart';
 import '../providers/sort_preference_provider.dart';
 import '../providers/ownership_preference_provider.dart';
 import '../utils/book_filters.dart';
+import '../utils/bulk_shelving.dart';
 import '../utils/book_sort.dart';
 import '../utils/book_status.dart';
 
@@ -123,6 +125,15 @@ class _BookListScreenState extends State<BookListScreen>
   Timer? _searchDebounce;
   bool _isSearching = false;
   bool _isReordering = false;
+
+  /// Ids picked in selection mode (bulk filing onto shelves and into
+  /// collections); null outside it.
+  Set<String>? _selectedIds;
+
+  /// The view selection mode replaced with the covers grid, restored on
+  /// exit. The grouped view in particular is not offered by the view menu,
+  /// so a reader taken out of it could not go back on their own.
+  ViewMode? _viewModeBeforeSelection;
   String? _libraryName; // Store library name for title
 
   // Wishlist availability (wanting filter only): isbn -> provider names.
@@ -501,7 +512,7 @@ class _BookListScreenState extends State<BookListScreen>
                   child: Row(children: [Expanded(child: _buildSearchField())]),
                 ),
 
-              _buildFilterBar(),
+              _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
                   names: wishersIn(_books.where((b) => b.isWished)),
@@ -598,6 +609,8 @@ class _BookListScreenState extends State<BookListScreen>
                 onPressed: () {
                   setState(() {
                     _isReordering = true;
+                    _selectedIds = null;
+                    _viewModeBeforeSelection = null;
                     _viewMode = ViewMode.list; // Force list view for reordering
                   });
                 },
@@ -768,7 +781,7 @@ class _BookListScreenState extends State<BookListScreen>
           child: Column(
             children: [
               // _buildHeader(context), // Header removed, avatar now in AppBar
-              _buildFilterBar(),
+              _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
                   names: wishersIn(_books.where((b) => b.isWished)),
@@ -1903,7 +1916,201 @@ class _BookListScreenState extends State<BookListScreen>
           // 6. View Mode Selector - trailing edge, to the right of the count.
           const SizedBox(width: 8),
           _buildViewModeSelector(),
+          // 7. Selection mode entry: the long press on a book is not
+          // discoverable (nor reachable without a pointer), so the bar
+          // carries a plain button for it.
+          if (_filteredBooks.isNotEmpty && !_isReordering) ...[
+            const SizedBox(width: 8),
+            _buildSelectButton(),
+          ],
         ],
+      ),
+    );
+  }
+
+  bool get _isSelecting => _selectedIds != null;
+
+  /// The selected books that the current filters still show: the count and
+  /// the action only ever cover what is on screen.
+  List<String> get _visibleSelectedIds {
+    final selected = _selectedIds;
+    if (selected == null) return const [];
+    return [
+      for (final book in _filteredBooks)
+        if (book.id != null && selected.contains(book.id)) book.id!,
+    ];
+  }
+
+  void _enterSelection([Book? first]) {
+    if (_isReordering) return;
+    setState(() {
+      _selectedIds = {if (first?.id != null) first!.id!};
+      // Only the covers grid and the list draw selection marks.
+      if (_viewMode != ViewMode.coverGrid && _viewMode != ViewMode.list) {
+        _viewModeBeforeSelection = _viewMode;
+        _viewMode = ViewMode.coverGrid;
+      }
+    });
+  }
+
+  void _exitSelection() {
+    final previous = _viewModeBeforeSelection;
+    setState(() {
+      _selectedIds = null;
+      _viewModeBeforeSelection = null;
+      if (previous != null) _viewMode = previous;
+    });
+    // Filing may have changed which books sit in which collection.
+    if (previous == ViewMode.groupedCollections) _fetchCollectionGroups();
+  }
+
+  void _toggleSelected(Book book) {
+    final id = book.id;
+    final selected = _selectedIds;
+    if (id == null || selected == null) return;
+    setState(() {
+      if (!selected.remove(id)) selected.add(id);
+    });
+  }
+
+  bool get _allVisibleSelected =>
+      _filteredBooks.isNotEmpty &&
+      _visibleSelectedIds.length ==
+          _filteredBooks.where((b) => b.id != null).length;
+
+  void _toggleSelectAll() {
+    final all = _allVisibleSelected;
+    setState(() {
+      _selectedIds = all
+          ? <String>{}
+          : {
+              for (final book in _filteredBooks)
+                if (book.id != null) book.id!,
+            };
+    });
+  }
+
+  /// The shelf being browsed, as the place a selection can be moved out of.
+  BulkShelvingSource? get _selectionSource {
+    final shelf = _currentShelf ?? Tag.byName(_allTags, _tagFilter);
+    if (shelf != null) {
+      return BulkShelvingSource.shelf(
+        label: shelf.name,
+        shelfPaths: {shelf.fullPath, shelf.name}.toList(),
+      );
+    }
+    final tag = _tagFilter;
+    if (tag == null) return null;
+    return BulkShelvingSource.shelf(label: tag, shelfPaths: [tag]);
+  }
+
+  Future<void> _fileSelection() async {
+    final ids = _visibleSelectedIds;
+    if (ids.isEmpty) return;
+    final filed = await showBulkShelvingFlow(
+      context,
+      bookIds: ids,
+      source: _selectionSource,
+    );
+    if (!filed || !mounted) return;
+    // No reload here: the flow notifies BookRefreshNotifier, which this
+    // screen already listens to.
+    _exitSelection();
+  }
+
+  Widget _buildSelectButton() {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final label = TranslationService.translate(context, 'select_books');
+    return Tooltip(
+      message: label,
+      excludeFromSemantics: true,
+      child: Semantics(
+        button: true,
+        label: label,
+        child: InkWell(
+          key: const Key('selectBooksButton'),
+          onTap: _enterSelection,
+          borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+          child: Container(
+            height: 36,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: isDark ? theme.cardColor : Colors.white,
+              borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
+              border: Border.all(
+                color: isDark
+                    ? Colors.white24
+                    : Colors.grey.withValues(alpha: 0.3),
+              ),
+            ),
+            child: Icon(Icons.checklist, size: 18, color: theme.primaryColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Replaces the filter bar in selection mode: count, select all, and the
+  /// filing action.
+  Widget _buildSelectionBar() {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final count = _visibleSelectedIds.length;
+    return PopScope(
+      // Back leaves selection mode before it leaves the screen.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop) _exitSelection();
+      },
+      child: Container(
+        color: scheme.primaryContainer,
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        child: Row(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.close),
+              color: scheme.onPrimaryContainer,
+              tooltip: TranslationService.translate(context, 'cancel'),
+              onPressed: _exitSelection,
+            ),
+            Expanded(
+              child: Semantics(
+                liveRegion: true,
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    'selected_books_count',
+                  ).replaceAll('{count}', '$count'),
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: scheme.onPrimaryContainer,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            IconButton(
+              key: const Key('selectAllBooksButton'),
+              icon: Icon(
+                _allVisibleSelected ? Icons.deselect : Icons.select_all,
+              ),
+              color: scheme.onPrimaryContainer,
+              tooltip: TranslationService.translate(
+                context,
+                _allVisibleSelected ? 'deselect_all' : 'select_all',
+              ),
+              onPressed: _toggleSelectAll,
+            ),
+            const SizedBox(width: 4),
+            FilledButton.icon(
+              key: const Key('bulkAssignButton'),
+              onPressed: count == 0 ? null : _fileSelection,
+              icon: const Icon(Icons.drive_file_move_outline, size: 18),
+              label: Text(TranslationService.translate(context, 'bulk_add_to')),
+            ),
+            const SizedBox(width: 8),
+          ],
+        ),
       ),
     );
   }
@@ -2381,6 +2588,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   Future<void> _onBookTap(Book book) async {
     if (book.id == null) return;
+    if (_isSelecting) {
+      _toggleSelected(book);
+      return;
+    }
     final result = await context.push('/books/${book.id}', extra: book);
     if (result == true) {
       // The list stays mounted under the details screen, so refreshing without
@@ -2724,6 +2935,8 @@ class _BookListScreenState extends State<BookListScreen>
             // fresh books is an all-new subset, and the band must survive.
             showNewBadge: newBadgeIsInformative(_books),
             favoriteIds: favoriteIds,
+            selectedIds: _selectedIds,
+            onBookLongPress: _isReordering ? null : _enterSelection,
           ),
         );
       case ViewMode.spineShelf:
@@ -2751,6 +2964,7 @@ class _BookListScreenState extends State<BookListScreen>
             // Full-library rule, same reason as the plain covers grid above.
             showNewBadge: newBadgeIsInformative(_books),
             favoriteIds: favoriteIds,
+            onBookLongPress: _enterSelection,
           ),
         );
     }
@@ -2819,20 +3033,29 @@ class _BookListScreenState extends State<BookListScreen>
         );
         return Padding(
           padding: const EdgeInsets.only(bottom: 16),
-          child: availabilityLabel == null
-              ? card
-              : Stack(
-                  children: [
-                    card,
-                    Positioned(
-                      bottom: 8,
-                      left: 8,
-                      child: WishlistAvailabilityBadge(
-                        label: availabilityLabel,
+          child: SelectableBookTile(
+            selected: _selectedIds?.contains(book.id),
+            semanticLabel: [
+              book.title,
+              if (book.author != null) book.author!,
+            ].join(', '),
+            onToggle: () => _toggleSelected(book),
+            onLongPress: () => _enterSelection(book),
+            child: availabilityLabel == null
+                ? card
+                : Stack(
+                    children: [
+                      card,
+                      Positioned(
+                        bottom: 8,
+                        left: 8,
+                        child: WishlistAvailabilityBadge(
+                          label: availabilityLabel,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+          ),
         );
       },
     );

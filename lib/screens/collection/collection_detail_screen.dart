@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 
 import 'package:go_router/go_router.dart';
 import 'package:file_picker/file_picker.dart';
+import '../../utils/bulk_shelving.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/recommendation_display.dart';
 import '../../widgets/genie_app_bar.dart';
@@ -492,6 +493,22 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
     }
   }
 
+  /// File every book of this collection onto shelves or into other
+  /// collections, optionally taking them out of this one.
+  Future<void> _fileAllBooks() async {
+    final books = _localOrder ?? await _booksFuture;
+    if (!mounted) return;
+    final filed = await showBulkShelvingFlow(
+      context,
+      bookIds: books.map((b) => b.bookId).toList(),
+      source: BulkShelvingSource.collection(
+        label: collectionDisplayName(context, _collection),
+        collectionId: _collection.id,
+      ),
+    );
+    if (filed && mounted) _refreshBooks();
+  }
+
   Future<void> _addBook() async {
     final result = await context.push(
       '/books/add',
@@ -591,6 +608,18 @@ class _CollectionDetailScreenState extends State<CollectionDetailScreen> {
                       _renameCollection();
                     },
                   ),
+                QuickActionCard(
+                  icon: Icons.drive_file_move_outline,
+                  color: Colors.teal.shade800,
+                  label: TranslationService.translate(
+                    sheetContext,
+                    'bulk_add_all_to',
+                  ),
+                  onTap: () {
+                    Navigator.pop(sheetContext);
+                    _fileAllBooks();
+                  },
+                ),
                 QuickActionCard(
                   icon: Icons.delete,
                   color: Colors.red,

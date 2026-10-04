@@ -101,6 +101,14 @@ class _FakeCollectionRepository implements CollectionRepository {
   @override
   Future<void> removeBookFromCollection(String c, String b) async {}
   @override
+  Future<int> assignBooks({
+    required List<String> bookIds,
+    List<String> addShelves = const [],
+    List<String> addCollectionIds = const [],
+    List<String> removeShelves = const [],
+    List<String> removeCollectionIds = const [],
+  }) async => 0;
+  @override
   Future<void> markCollectionAsSeries(String c, bool isSeries) async {}
   @override
   Future<bool> toggleFavoriteBook(String bookId) async => false;

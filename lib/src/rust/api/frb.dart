@@ -1427,6 +1427,24 @@ Future<void> setBookVolumeNumber({
   volumeNumber: volumeNumber,
 );
 
+/// Files a selection of books onto shelves and into collections in one
+/// transaction, optionally removing them from the shelf or collection they
+/// were selected from. Additions are idempotent. Returns how many books
+/// actually changed.
+Future<int> assignBooksToShelvesAndCollections({
+  required List<String> bookIds,
+  required List<String> addShelves,
+  required List<String> addCollectionIds,
+  required List<String> removeShelves,
+  required List<String> removeCollectionIds,
+}) => RustLib.instance.api.crateApiFrbAssignBooksToShelvesAndCollections(
+  bookIds: bookIds,
+  addShelves: addShelves,
+  addCollectionIds: addCollectionIds,
+  removeShelves: removeShelves,
+  removeCollectionIds: removeCollectionIds,
+);
+
 /// Get library view statistics (peer and follower views).
 /// Returns a JSON string with total_peer, total_follower, total, and daily breakdown.
 Future<String> getLibraryViewStats() =>

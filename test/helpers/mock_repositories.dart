@@ -186,6 +186,35 @@ class MockCollectionRepository implements CollectionRepository {
     String bookId,
   ) async {}
 
+  /// The arguments of the last `assignBooks` call, so a test can assert on
+  /// what a bulk-filing flow actually sends.
+  Map<String, List<String>>? lastAssignment;
+
+  /// What `assignBooks` reports as changed; null means "every book".
+  int? mockAssignedCount;
+
+  /// When set, `assignBooks` throws it.
+  Object? assignError;
+
+  @override
+  Future<int> assignBooks({
+    required List<String> bookIds,
+    List<String> addShelves = const [],
+    List<String> addCollectionIds = const [],
+    List<String> removeShelves = const [],
+    List<String> removeCollectionIds = const [],
+  }) async {
+    if (assignError != null) throw assignError!;
+    lastAssignment = {
+      'bookIds': bookIds,
+      'addShelves': addShelves,
+      'addCollectionIds': addCollectionIds,
+      'removeShelves': removeShelves,
+      'removeCollectionIds': removeCollectionIds,
+    };
+    return mockAssignedCount ?? bookIds.length;
+  }
+
   @override
   Future<void> markCollectionAsSeries(
     String collectionId,

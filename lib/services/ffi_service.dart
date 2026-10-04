@@ -1321,6 +1321,30 @@ class FfiService {
     }
   }
 
+  /// File a selection of books onto shelves and into collections in one
+  /// transaction, optionally removing them from where they were selected.
+  /// Returns how many books actually changed.
+  Future<int> assignBooks({
+    required List<String> bookIds,
+    List<String> addShelves = const [],
+    List<String> addCollectionIds = const [],
+    List<String> removeShelves = const [],
+    List<String> removeCollectionIds = const [],
+  }) async {
+    try {
+      return await frb.assignBooksToShelvesAndCollections(
+        bookIds: bookIds,
+        addShelves: addShelves,
+        addCollectionIds: addCollectionIds,
+        removeShelves: removeShelves,
+        removeCollectionIds: removeCollectionIds,
+      );
+    } catch (e) {
+      debugPrint('FFI assignBooks error: $e');
+      rethrow;
+    }
+  }
+
   /// Remove a book from a collection.
   Future<void> removeBookFromCollection(
     String collectionId,

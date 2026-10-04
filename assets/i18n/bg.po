@@ -12128,3 +12128,55 @@ msgstr "{count} неизползваеми реда бяха пропуснат�
 #. Household readers: import my readings
 msgid "household_import_error"
 msgstr "Файлът не можа да бъде импортиран: {detail}"
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr "Избиране на книги"
+
+#. Select all
+msgid "select_all"
+msgstr "Избери всички"
+
+#. Deselect all
+msgid "deselect_all"
+msgstr "Премахни избора"
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr "Добави към…"
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr "Добави всички към…"
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr "Подреждане на {count} книга"
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr "Подреждане на {count} книги"
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr "Премахни от „{name}“"
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr "Добави"
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr "Премести"
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr "{count} книга е подредена"
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr "{count} книги са подредени"
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr "Тези книги вече бяха там"

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/book.dart';
 import 'book_cover_card.dart';
+import 'selectable_book_tile.dart';
 
 /// Whether the "new" band differentiates anything: when every book is new
 /// (fresh import, brand new library), tagging them all is pure noise.
@@ -29,6 +30,15 @@ class BookCoverGrid extends StatelessWidget {
   /// FavoritesProvider cache. Null renders no ribbon (peer grids, tests).
   final Set<String>? favoriteIds;
 
+  /// Ids of the selected books while the grid is in selection mode; null
+  /// (the default) outside it. In selection mode a tap toggles the book
+  /// through [onBookTap] instead of opening it.
+  final Set<String>? selectedIds;
+
+  /// Long press on a book outside selection mode (enters it). Null disables
+  /// the gesture.
+  final void Function(Book book)? onBookLongPress;
+
   const BookCoverGrid({
     super.key,
     required this.books,
@@ -37,6 +47,8 @@ class BookCoverGrid extends StatelessWidget {
     this.availabilityLabels,
     this.showNewBadge,
     this.favoriteIds,
+    this.selectedIds,
+    this.onBookLongPress,
   });
 
   @override
@@ -70,16 +82,27 @@ class BookCoverGrid extends StatelessWidget {
       itemCount: books.length,
       itemBuilder: (context, index) {
         final book = books[index];
-        return BookCoverCard(
-          book: book,
-          onTap: () => onBookTap(book),
-          onStatusChanged: onStatusChanged != null
-              ? (status) => onStatusChanged!(book, status)
+        return SelectableBookTile(
+          selected: selectedIds?.contains(book.id),
+          semanticLabel: [
+            book.title,
+            if (book.author != null) book.author!,
+          ].join(', '),
+          onToggle: () => onBookTap(book),
+          onLongPress: onBookLongPress != null
+              ? () => onBookLongPress!(book)
               : null,
-          // Map lookup with a null ISBN just returns null (no badge).
-          availabilityLabel: availabilityLabels?[book.isbn],
-          showNewBadge: showNewBadge ?? newBadgeIsInformative(books),
-          isFavorite: favoriteIds?.contains(book.id) ?? false,
+          child: BookCoverCard(
+            book: book,
+            onTap: () => onBookTap(book),
+            onStatusChanged: onStatusChanged != null
+                ? (status) => onStatusChanged!(book, status)
+                : null,
+            // Map lookup with a null ISBN just returns null (no badge).
+            availabilityLabel: availabilityLabels?[book.isbn],
+            showNewBadge: showNewBadge ?? newBadgeIsInformative(books),
+            isFavorite: favoriteIds?.contains(book.id) ?? false,
+          ),
         );
       },
     );

@@ -11298,3 +11298,55 @@ msgstr "邀请某人"
 #. Subtitle of the invite tile
 msgid "add_connection_invite_hint"
 msgstr "您的二维码和邀请链接"
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr "选择图书"
+
+#. Select all
+msgid "select_all"
+msgstr "全选"
+
+#. Deselect all
+msgid "deselect_all"
+msgstr "取消全选"
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr "添加到…"
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr "全部添加到…"
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr "整理 {count} 本书"
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr "整理 {count} 本书"
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr "从“{name}”中移除"
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr "添加"
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr "移动"
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr "已整理 {count} 本书"
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr "已整理 {count} 本书"
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr "这些书已在其中"

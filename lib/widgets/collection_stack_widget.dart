@@ -12,6 +12,7 @@ import 'book_cover_card.dart';
 import 'book_cover_grid.dart';
 import 'cached_book_cover.dart';
 import 'favorite_ribbon.dart';
+import 'selectable_book_tile.dart';
 
 // ---------------------------------------------------------------------------
 // Data model
@@ -1057,12 +1058,17 @@ class CollectionGroupGrid extends StatelessWidget {
   /// FavoritesProvider cache. Null renders no ribbon.
   final Set<String>? favoriteIds;
 
+  /// Long press on an uncollected book (enters selection mode in the
+  /// library). Null disables the gesture; stacks do not react to it.
+  final void Function(Book book)? onBookLongPress;
+
   const CollectionGroupGrid({
     super.key,
     required this.groups,
     required this.onBookTap,
     this.showNewBadge,
     this.favoriteIds,
+    this.onBookLongPress,
   });
 
   @override
@@ -1087,11 +1093,18 @@ class CollectionGroupGrid extends StatelessWidget {
         // Uncollected single book: render as a regular cover card.
         if (group.collection == null && group.books.length == 1) {
           final book = group.books.first;
-          return BookCoverCard(
-            book: book,
-            onTap: () => onBookTap(book),
-            showNewBadge: showNew,
-            isFavorite: favoriteIds?.contains(book.id) ?? false,
+          return SelectableBookTile(
+            selected: null,
+            semanticLabel: book.title,
+            onLongPress: onBookLongPress != null
+                ? () => onBookLongPress!(book)
+                : null,
+            child: BookCoverCard(
+              book: book,
+              onTap: () => onBookTap(book),
+              showNewBadge: showNew,
+              isFavorite: favoriteIds?.contains(book.id) ?? false,
+            ),
           );
         }
         // Collection with books: render as stacked covers.

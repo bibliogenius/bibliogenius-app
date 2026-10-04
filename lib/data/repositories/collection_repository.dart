@@ -35,6 +35,18 @@ abstract class CollectionRepository {
 
   Future<void> removeBookFromCollection(String collectionId, String bookId);
 
+  /// File a selection of books onto shelves (by path) and into collections
+  /// in one atomic call, optionally removing them from the shelf or
+  /// collection they were selected from. Additions are idempotent. Returns
+  /// how many books actually changed.
+  Future<int> assignBooks({
+    required List<String> bookIds,
+    List<String> addShelves = const [],
+    List<String> addCollectionIds = const [],
+    List<String> removeShelves = const [],
+    List<String> removeCollectionIds = const [],
+  });
+
   /// Mark a collection as a series (ordered reading list) or revert it to a
   /// plain manual collection.
   Future<void> markCollectionAsSeries(String collectionId, bool isSeries);

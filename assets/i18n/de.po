@@ -12001,3 +12001,55 @@ msgstr "{count} unbrauchbare Zeilen wurden übersprungen."
 #. Household readers: import my readings
 msgid "household_import_error"
 msgstr "Die Datei konnte nicht importiert werden: {detail}"
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr "Bücher auswählen"
+
+#. Select all
+msgid "select_all"
+msgstr "Alle auswählen"
+
+#. Deselect all
+msgid "deselect_all"
+msgstr "Auswahl aufheben"
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr "Hinzufügen zu…"
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr "Alle hinzufügen zu…"
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr "{count} Buch einordnen"
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr "{count} Bücher einordnen"
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr "Aus „{name}“ entfernen"
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr "Hinzufügen"
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr "Verschieben"
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr "{count} Buch eingeordnet"
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr "{count} Bücher eingeordnet"
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr "Diese Bücher waren bereits dort"

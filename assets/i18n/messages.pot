@@ -12017,3 +12017,55 @@ msgstr ""
 #. Household readers: import my readings
 msgid "household_import_error"
 msgstr ""
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr ""
+
+#. Select all
+msgid "select_all"
+msgstr ""
+
+#. Deselect all
+msgid "deselect_all"
+msgstr ""
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr ""
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr ""
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr ""
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr ""
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr ""
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr ""
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr ""
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr ""
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr ""
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr ""

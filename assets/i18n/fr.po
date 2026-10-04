@@ -12270,3 +12270,55 @@ msgstr "{count} lignes inutilisables ont été ignorées."
 #. Household readers: import my readings
 msgid "household_import_error"
 msgstr "Le fichier n'a pas pu être importé : {detail}"
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr "Sélectionner des livres"
+
+#. Select all
+msgid "select_all"
+msgstr "Tout sélectionner"
+
+#. Deselect all
+msgid "deselect_all"
+msgstr "Tout désélectionner"
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr "Ajouter à…"
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr "Tout ajouter à…"
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr "Ranger {count} livre"
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr "Ranger {count} livres"
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr "Retirer de « {name} »"
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr "Ajouter"
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr "Déplacer"
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr "{count} livre rangé"
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr "{count} livres rangés"
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr "Ces livres y étaient déjà"

@@ -52,6 +52,21 @@ class CollectionRepositoryImpl implements CollectionRepository {
       _ffi.removeBookFromCollection(collectionId, bookId);
 
   @override
+  Future<int> assignBooks({
+    required List<String> bookIds,
+    List<String> addShelves = const [],
+    List<String> addCollectionIds = const [],
+    List<String> removeShelves = const [],
+    List<String> removeCollectionIds = const [],
+  }) => _ffi.assignBooks(
+    bookIds: bookIds,
+    addShelves: addShelves,
+    addCollectionIds: addCollectionIds,
+    removeShelves: removeShelves,
+    removeCollectionIds: removeCollectionIds,
+  );
+
+  @override
   Future<void> markCollectionAsSeries(String collectionId, bool isSeries) =>
       _ffi.markCollectionAsSeries(collectionId, isSeries);
 

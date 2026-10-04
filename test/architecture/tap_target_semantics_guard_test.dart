@@ -96,6 +96,9 @@ import 'package:bibliogenius/services/backup_scheduler_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/sync_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/widgets/book_cover_grid.dart';
+import 'package:bibliogenius/widgets/collection_selector.dart';
+import 'package:bibliogenius/widgets/collection_stack_widget.dart';
 import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
 
 import '../helpers/mock_classes.dart';
@@ -803,6 +806,16 @@ final _probes = <_Probe>[
       await _settle(t);
     },
   ),
+  // Selection mode swaps the filter bar for its own, and turns every book
+  // tile into a toggle.
+  _Probe(
+    'library, selection mode',
+    '/books',
+    reach: (t) async {
+      await _tap(t, find.byKey(const Key('selectBooksButton')));
+      await _tap(t, find.byKey(const Key('selectAllBooksButton')));
+    },
+  ),
   const _Probe('library, shelves tab', '/shelves'),
   const _Probe('library, sub-shelves', '/shelves?tag=Genre'),
   // The collections module is off for a new reader and on for many others:
@@ -857,7 +870,7 @@ final _probes = <_Probe>[
 ];
 
 /// Renders [probe] and leaves it settled on the state under audit.
-Future<void> _render(WidgetTester tester, _Probe probe) async {
+Future<_Harness> _render(WidgetTester tester, _Probe probe) async {
   tester.view.physicalSize = probe.size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -883,6 +896,7 @@ Future<void> _render(WidgetTester tester, _Probe probe) async {
   await tester.pumpWidget(harness.app(probe.location));
   await _settle(tester);
   await probe.reach?.call(tester);
+  return harness;
 }
 
 Future<void> _setUpAll() async {
@@ -921,6 +935,112 @@ void main() {
     await _render(tester, _probes.firstWhere((p) => p.name == 'network'));
     expect(find.byKey(const Key('memberTile_k1')), findsOneWidget);
     expect(find.byKey(const Key('memberTile_k2')), findsOneWidget);
+  });
+
+  // Not semantics checks either. Selection mode lives in the list body, and
+  // `/books` renders the branch of the book list that has no app bar of its
+  // own: only the real route proves the mode is mounted where the reader is.
+  group('library selection mode on the real route', () {
+    final selectButton = find.byKey(const Key('selectBooksButton'));
+    final selectAll = find.byKey(const Key('selectAllBooksButton'));
+    final addTo = find.byKey(const Key('bulkAssignButton'));
+
+    /// Picks the fixture collection in the destination sheet and confirms.
+    Future<void> fileIntoSummerReads(WidgetTester tester) async {
+      final field = find.descendant(
+        of: find.byType(CollectionSelector),
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(field, 'Summer reads');
+      await _tap(
+        tester,
+        find.descendant(
+          of: find.byType(CollectionSelector),
+          matching: find.byIcon(Icons.add),
+        ),
+      );
+      await _tap(tester, find.byKey(const Key('bulkAssignConfirmButton')));
+    }
+
+    testWidgets('files every visible book and leaves the mode', (tester) async {
+      final harness = await _render(
+        tester,
+        _probes.firstWhere((p) => p.name == 'library, books tab'),
+      );
+
+      await _tap(tester, selectButton);
+      expect(find.text('0 selected'), findsOneWidget);
+      // The wished-for book is outside the default view: three remain.
+      await _tap(tester, selectAll);
+      expect(find.text('3 selected'), findsOneWidget);
+
+      await _tap(tester, addTo);
+      await fileIntoSummerReads(tester);
+
+      final sent = harness.collections.lastAssignment!;
+      expect(sent['bookIds']!.toSet(), {'b1', 'b2', 'b3'});
+      expect(sent['addCollectionIds'], ['c1']);
+      expect(sent['removeShelves'], isEmpty);
+      expect(addTo, findsNothing);
+      expect(selectButton, findsOneWidget);
+    });
+
+    testWidgets('back leaves the mode before it leaves the library', (
+      tester,
+    ) async {
+      await _render(
+        tester,
+        _probes.firstWhere((p) => p.name == 'library, books tab'),
+      );
+      await _tap(tester, selectButton);
+      expect(addTo, findsOneWidget);
+
+      await tester.binding.handlePopRoute();
+      await _settle(tester);
+
+      expect(addTo, findsNothing);
+      expect(selectButton, findsOneWidget);
+    });
+
+    testWidgets('leaving the mode gives the grouped view back', (
+      tester,
+    ) async {
+      // The view menu does not offer the grouped view: a reader moved to the
+      // covers grid for the selection has no other way back to it.
+      await _render(
+        tester,
+        _probes.firstWhere(
+          (p) => p.name == 'library, books grouped by collection',
+        ),
+      );
+      expect(find.byType(CollectionGroupGrid), findsOneWidget);
+
+      await _tap(tester, selectButton);
+      expect(find.byType(BookCoverGrid), findsOneWidget);
+      expect(find.byType(CollectionGroupGrid), findsNothing);
+
+      await tester.binding.handlePopRoute();
+      await _settle(tester);
+      expect(find.byType(CollectionGroupGrid), findsOneWidget);
+    });
+
+    testWidgets('an open shelf can be moved out of', (tester) async {
+      final harness = await _render(
+        tester,
+        const _Probe('shelf', '/books?tag=Novel'),
+      );
+      await _tap(tester, selectButton);
+      await _tap(tester, selectAll);
+      expect(find.text('1 selected'), findsOneWidget);
+
+      await _tap(tester, addTo);
+      await _tap(tester, find.text('Remove from “Novel”'));
+      await fileIntoSummerReads(tester);
+
+      final sent = harness.collections.lastAssignment!;
+      expect(sent['bookIds'], ['b1']);
+      expect(sent['removeShelves'], ['Novel']);
+    });
   });
 
   for (final probe in _probes) {

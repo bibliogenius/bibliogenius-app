@@ -12128,3 +12128,55 @@ msgstr "Kullanılamayan {count} satır atlandı."
 #. Household readers: import my readings
 msgid "household_import_error"
 msgstr "Dosya içe aktarılamadı: {detail}"
+
+#. Select books (enter multi-selection in the library)
+msgid "select_books"
+msgstr "Kitap seç"
+
+#. Select all
+msgid "select_all"
+msgstr "Tümünü seç"
+
+#. Deselect all
+msgid "deselect_all"
+msgstr "Seçimi kaldır"
+
+#. Add to... (file the selected books on a shelf or in a collection)
+msgid "bulk_add_to"
+msgstr "Şuraya ekle…"
+
+#. Add all to... (file every book of a collection elsewhere)
+msgid "bulk_add_all_to"
+msgstr "Tümünü şuraya ekle…"
+
+#. File {count} book (singular)
+msgid "bulk_assign_title"
+msgstr "{count} kitabı yerleştir"
+
+#. File {count} books
+msgid "bulk_assign_title_plural"
+msgstr "{count} kitabı yerleştir"
+
+#. Remove from "{name}" (turns the addition into a move)
+msgid "bulk_assign_remove_from"
+msgstr "“{name}” içinden çıkar"
+
+#. Add
+msgid "bulk_assign_confirm"
+msgstr "Ekle"
+
+#. Move
+msgid "bulk_assign_confirm_move"
+msgstr "Taşı"
+
+#. {count} book filed (singular)
+msgid "bulk_assign_done"
+msgstr "{count} kitap yerleştirildi"
+
+#. {count} books filed
+msgid "bulk_assign_done_plural"
+msgstr "{count} kitap yerleştirildi"
+
+#. These books were already there
+msgid "bulk_assign_nothing_changed"
+msgstr "Bu kitaplar zaten oradaydı"
