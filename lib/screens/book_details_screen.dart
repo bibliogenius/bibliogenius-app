@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 
 import '../utils/book_primary_action.dart';
 import '../utils/ownership_actions.dart';
+import '../utils/borrowed_copy_display.dart';
 import '../utils/borrowed_copy_payload.dart';
 import '../utils/cover_camera_helper.dart';
 import '../utils/loan_return_feedback.dart';
@@ -54,6 +55,7 @@ import '../widgets/series_frieze_widget.dart';
 import '../widgets/plus_one_animation.dart';
 import '../services/milestone_celebration.dart';
 import '../widgets/cover_picker_dialog.dart';
+import '../widgets/lender_picker_dialog.dart';
 import '../widgets/loan_dialog.dart';
 import '../widgets/metadata_refresh_dialog.dart';
 import '../widgets/speech_note_button.dart';
@@ -1717,7 +1719,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Widget _buildLoanStatusSection(BuildContext context) {
-    if (_activeLoans.isEmpty) return const SizedBox.shrink();
+    if (_activeLoans.isEmpty && !_hasBorrowedCopies) {
+      return const SizedBox.shrink();
+    }
 
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final canBorrow = themeProvider.canBorrowBooks;
@@ -1736,10 +1740,32 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       rows.add(
         _buildLoanRow(
           context,
-          loan,
+          counterpartName: loan.contactName,
+          dueDate: loan.dueDate,
           isOutgoing: isOutgoing,
           copyNumber: _copies.length > 1 ? copyIndex + 1 : null,
           notes: _loanContactNotes[loan.contactId],
+        ),
+      );
+    }
+
+    // A borrow recorded by hand (a library, a place, a contact) has no loan
+    // row: the lender and due date live on the copy itself (ADR-034).
+    final loanCopyIds = _activeLoans.map((l) => l.copyId).toSet();
+    for (var i = 0; i < _copies.length; i++) {
+      final copy = _copies[i];
+      if (!canBorrow || copy.status != 'borrowed') continue;
+      if (loanCopyIds.contains(copy.id)) continue;
+      final display = BorrowedCopyDisplay.fromCopy(copy);
+      if (display.lenderName.isEmpty) continue;
+      if (rows.isNotEmpty) rows.add(const SizedBox(height: 6));
+      rows.add(
+        _buildLoanRow(
+          context,
+          counterpartName: display.lenderName,
+          dueDate: display.dueDate,
+          isOutgoing: false,
+          copyNumber: _copies.length > 1 ? i + 1 : null,
         ),
       );
     }
@@ -1752,15 +1778,16 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   }
 
   Widget _buildLoanRow(
-    BuildContext context,
-    Loan loan, {
+    BuildContext context, {
+    required String counterpartName,
+    required String dueDate,
     required bool isOutgoing,
     int? copyNumber,
     String? notes,
   }) {
     final cs = Theme.of(context).colorScheme;
-    final dueDate = DateTime.tryParse(loan.dueDate);
-    final daysLeft = dueDate?.difference(DateTime.now()).inDays;
+    final parsedDueDate = DateTime.tryParse(dueDate);
+    final daysLeft = parsedDueDate?.difference(DateTime.now()).inDays;
     final isOverdue = daysLeft != null && daysLeft < 0;
     final accentColor = isOutgoing ? const Color(0xFFE67E22) : cs.tertiary;
     final dateColor = _loanDateColor(daysLeft, cs);
@@ -1773,12 +1800,12 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     final copyPrefix = copyNumber != null
         ? '${TranslationService.translate(context, 'copy_number') ?? 'Copy #'}$copyNumber · '
         : '';
-    final titleText = '$copyPrefix$directionLabel ${loan.contactName}';
+    final titleText = '$copyPrefix$directionLabel $counterpartName';
 
     final dateLabel =
         TranslationService.translate(context, 'due_date_label') ?? 'Due date';
-    final dateText = dueDate != null
-        ? '$dateLabel : ${_formatLoanDate(context, dueDate)}'
+    final dateText = parsedDueDate != null
+        ? '$dateLabel : ${_formatLoanDate(context, parsedDueDate)}'
         : '';
     final overdueLabel =
         TranslationService.translate(context, 'loan_overdue') ?? 'Overdue';
@@ -3811,9 +3838,14 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     }
   }
 
-  /// Borrow a book from a contact - creates a copy with 'borrowed' status
+  /// Records a manual borrow: a library, a contact or a place lent the book.
+  /// Creates a copy with 'borrowed' status.
   Future<void> _borrowBook(BuildContext context) async {
     final contactRepo = Provider.of<ContactRepository>(context, listen: false);
+    final portals = Provider.of<ThemeProvider>(
+      context,
+      listen: false,
+    ).myLibraryPortals;
 
     try {
       final bookId = _book?.id;
@@ -3822,83 +3854,20 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       // 1. Fetch contacts, annotating with has_book if the book has an ISBN.
       final contactsList = await contactRepo.getContacts(bookIsbn: _book?.isbn);
 
-      if (contactsList.isEmpty) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                TranslationService.translate(
-                      context,
-                      'no_contacts_to_borrow',
-                    ) ??
-                    'Add contacts first to track who you borrowed from',
-              ),
-            ),
-          );
-        }
-        return;
-      }
-
-      // Sort: contacts who have the book first, then alphabetically within each group.
-      final sorted = [...contactsList]
-        ..sort((a, b) {
-          final aHas = a.hasBook == true;
-          final bHas = b.hasBook == true;
-          if (aHas != bHas) return aHas ? -1 : 1;
-          return a.displayName.compareTo(b.displayName);
-        });
-
-      // 2. Show contact picker dialog
+      // 2. Pick the lender, then an optional due date.
       if (!context.mounted) return;
-      final selectedContact = await showDialog<Contact>(
-        context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text(
-            TranslationService.translate(dialogContext, 'select_lender') ??
-                'Who are you borrowing from?',
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: sorted.length,
-              itemBuilder: (_, index) {
-                final contact = sorted[index];
-                final hasBook = contact.hasBook == true;
-                return ListTile(
-                  leading: const Icon(Icons.person),
-                  title: Text(contact.displayName),
-                  subtitle: hasBook
-                      ? Text(
-                          TranslationService.translate(
-                                dialogContext,
-                                'contact_has_book',
-                              ) ??
-                              'Has this book',
-                          style: TextStyle(
-                            color: Theme.of(dialogContext).colorScheme.primary,
-                            fontSize: 12,
-                          ),
-                        )
-                      : null,
-                  onTap: () => Navigator.pop(dialogContext, contact),
-                );
-              },
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text(
-                TranslationService.translate(dialogContext, 'cancel') ??
-                    'Cancel',
-              ),
-            ),
-          ],
-        ),
+      final lenderName = await pickLenderName(
+        context,
+        portals: portals,
+        contacts: contactsList,
+        createContact: () async {
+          final result = await context.push<Object?>('/contacts/add');
+          return result is Contact ? result : null;
+        },
       );
-
-      if (selectedContact == null) return;
+      if (lenderName == null || !context.mounted) return;
+      final dueDate = await pickBorrowDueDate(context);
+      if (!context.mounted) return;
 
       // 3. Create a copy with 'borrowed' status.
       // ADR-034: send structured loan metadata; the backend stores it on
@@ -3907,7 +3876,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       await copyRepo.createCopy(
         contactLoanCopyPayload(
           bookId: bookId,
-          lenderDisplayName: selectedContact.fullName,
+          lenderDisplayName: lenderName,
+          acquisitionDate: DateTime.now().toIso8601String().split('T')[0],
+          borrowDueDate: dueDate,
         ),
       );
 
@@ -3915,7 +3886,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${TranslationService.translate(context, 'book_borrowed_from') ?? 'Borrowed from'} ${selectedContact.fullName}',
+              '${TranslationService.translate(context, 'book_borrowed_from')} $lenderName',
             ),
           ),
         );

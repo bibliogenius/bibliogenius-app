@@ -5918,9 +5918,9 @@ msgstr "Select an edition"
 msgid "select_from_tree"
 msgstr "Select from Tree"
 
-#. Select who is lending you this book
+#. Who did you borrow this book from?
 msgid "select_lender"
-msgstr "Select who is lending you this book"
+msgstr "Who did you borrow it from?"
 
 #. Select new parent:
 msgid "select_new_parent"
@@ -11833,9 +11833,6 @@ msgstr "Name"
 msgid "no_contacts"
 msgstr "No contacts yet"
 
-#. Snackbar when no contact is available to borrow from.
-msgid "no_contacts_to_borrow"
-msgstr "Add contacts first to track who you borrowed from"
 
 #. Dismiss button of a confirmation dialog.
 msgid "ok"
@@ -12327,3 +12324,35 @@ msgstr "{count} books filed"
 #. These books were already there
 msgid "bulk_assign_nothing_changed"
 msgstr "These books were already there"
+
+#. Lender picker section: the libraries the user connected
+msgid "lender_section_libraries"
+msgstr "Connected libraries"
+
+#. Lender picker action: create a contact and borrow from them
+msgid "lender_new_contact"
+msgstr "New contact"
+
+#. Lender picker action: type the name of a library or place
+msgid "lender_other_place"
+msgstr "A library or another place"
+
+#. Label of the free-text lender name field
+msgid "lender_place_name_label"
+msgstr "Place name"
+
+#. Example shown in the free-text lender name field
+msgid "lender_place_name_hint"
+msgstr "Library, little free library…"
+
+#. Error when the free-text lender name is empty
+msgid "lender_place_name_required"
+msgstr "Enter a name"
+
+#. Optional due date step after picking a lender (no reminder is sent)
+msgid "borrow_due_date_title"
+msgstr "Return date (optional)"
+
+#. Skip the optional due date step
+msgid "borrow_due_date_skip"
+msgstr "Skip"

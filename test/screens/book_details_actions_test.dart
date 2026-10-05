@@ -15,6 +15,7 @@ import 'package:bibliogenius/data/repositories/recommendation_repository.dart';
 import 'package:bibliogenius/models/book.dart';
 import 'package:bibliogenius/models/copy.dart';
 import 'package:bibliogenius/models/discovery.dart';
+import 'package:bibliogenius/models/loan.dart';
 import 'package:bibliogenius/models/recommendation.dart';
 import 'package:bibliogenius/providers/book_note_provider.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
@@ -310,6 +311,57 @@ void main() {
 
     expect(find.text('Give this book back'), findsOneWidget);
     expect(find.text('Mark as Finished'), findsNothing);
+  });
+
+  testWidgets('a borrow recorded by hand names its lender on the page', (
+    tester,
+  ) async {
+    copies.mockCopies = [
+      Copy(
+        id: 'c1',
+        bookId: 'b1',
+        libraryId: 1,
+        status: 'borrowed',
+        lenderDisplayName: 'Médiathèque du centre',
+        borrowDueDate: '2026-11-15',
+        borrowSource: 'contact',
+      ),
+    ];
+    await tester.pumpWidget(harness(book(readingStatus: 'reading')));
+    await settle(tester);
+
+    expect(find.textContaining('Médiathèque du centre'), findsOneWidget);
+  });
+
+  testWidgets('a borrow that has a loan row is not named twice', (
+    tester,
+  ) async {
+    copies.mockCopies = [
+      Copy(
+        id: 'c1',
+        bookId: 'b1',
+        libraryId: 1,
+        status: 'borrowed',
+        lenderDisplayName: 'Alice Martin',
+        borrowSource: 'peer',
+      ),
+    ];
+    loans.mockLoans = [
+      Loan(
+        copyId: 'c1',
+        contactId: 'p1',
+        libraryId: 1,
+        loanDate: '2026-10-01',
+        dueDate: '2026-11-15',
+        status: 'active',
+        contactName: 'Alice Martin',
+        bookTitle: 'Book',
+      ),
+    ];
+    await tester.pumpWidget(harness(book(readingStatus: 'reading')));
+    await settle(tester);
+
+    expect(find.textContaining('Alice Martin'), findsOneWidget);
   });
 
   testWidgets('delete and update left the page body for the bar menu', (

@@ -4742,9 +4742,9 @@ msgstr "版を選択"
 msgid "select_from_tree"
 msgstr "ツリーから選択"
 
-#. Select who is lending you this book
+#. Who did you borrow this book from?
 msgid "select_lender"
-msgstr "この本を貸してくれる人を選択"
+msgstr "どこで、または誰から借りましたか？"
 
 #. Select new parent:
 msgid "select_new_parent"
@@ -11350,3 +11350,35 @@ msgstr "{count}冊を整理しました"
 #. These books were already there
 msgid "bulk_assign_nothing_changed"
 msgstr "これらの本はすでにそこにあります"
+
+#. Lender picker section: the libraries the user connected
+msgid "lender_section_libraries"
+msgstr "接続済みの図書館"
+
+#. Lender picker action: create a contact and borrow from them
+msgid "lender_new_contact"
+msgstr "新しい連絡先"
+
+#. Lender picker action: type the name of a library or place
+msgid "lender_other_place"
+msgstr "図書館やその他の場所"
+
+#. Label of the free-text lender name field
+msgid "lender_place_name_label"
+msgstr "場所の名前"
+
+#. Example shown in the free-text lender name field
+msgid "lender_place_name_hint"
+msgstr "図書館、まちの本棚など"
+
+#. Error when the free-text lender name is empty
+msgid "lender_place_name_required"
+msgstr "名前を入力してください"
+
+#. Optional due date step after picking a lender (no reminder is sent)
+msgid "borrow_due_date_title"
+msgstr "返却日（任意）"
+
+#. Skip the optional due date step
+msgid "borrow_due_date_skip"
+msgstr "スキップ"

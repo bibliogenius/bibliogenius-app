@@ -1,3 +1,5 @@
+import '../models/copy.dart';
+
 /// Resolves the lender name and due date that a borrowed-copy tile should
 /// display, whichever format the backend returned.
 ///
@@ -36,4 +38,12 @@ class BorrowedCopyDisplay {
 
     return BorrowedCopyDisplay(lenderName: name, dueDate: due);
   }
+
+  /// Same reading for a copy loaded on the book page.
+  factory BorrowedCopyDisplay.fromCopy(Copy copy) =>
+      BorrowedCopyDisplay.fromBookMap({
+        'lender_display_name': copy.lenderDisplayName,
+        'borrow_due_date': copy.borrowDueDate,
+        'notes': copy.notes,
+      });
 }

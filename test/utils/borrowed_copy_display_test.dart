@@ -1,3 +1,4 @@
+import 'package:bibliogenius/models/copy.dart';
 import 'package:bibliogenius/utils/borrowed_copy_display.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -71,6 +72,38 @@ void main() {
       final display = BorrowedCopyDisplay.fromBookMap({});
       expect(display.lenderName, '');
       expect(display.dueDate, '');
+    });
+  });
+
+  group('BorrowedCopyDisplay.fromCopy', () {
+    test('reads the lender and due date stored on the copy', () {
+      final display = BorrowedCopyDisplay.fromCopy(
+        Copy(
+          bookId: 'b1',
+          libraryId: 1,
+          status: 'borrowed',
+          lenderDisplayName: 'Médiathèque du centre',
+          borrowDueDate: '2026-11-15',
+          borrowSource: 'contact',
+        ),
+      );
+
+      expect(display.lenderName, 'Médiathèque du centre');
+      expect(display.dueDate, '2026-11-15');
+    });
+
+    test('falls back to legacy notes like the borrowed list does', () {
+      final display = BorrowedCopyDisplay.fromCopy(
+        Copy(
+          bookId: 'b1',
+          libraryId: 1,
+          status: 'borrowed',
+          notes: "Emprunté de Charlie jusqu'au 2026-11-15",
+        ),
+      );
+
+      expect(display.lenderName, 'Charlie');
+      expect(display.dueDate, '2026-11-15');
     });
   });
 }

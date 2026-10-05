@@ -5041,9 +5041,9 @@ msgstr "Bir edisyon seç"
 msgid "select_from_tree"
 msgstr "Ağaçtan Seç"
 
-#. Select who is lending you this book
+#. Who did you borrow this book from?
 msgid "select_lender"
-msgstr "Bu kitabı size kimin ödünç verdiğini seçin"
+msgstr "Kimden ödünç aldınız?"
 
 #. Select new parent:
 msgid "select_new_parent"
@@ -11772,9 +11772,6 @@ msgstr "Ad"
 msgid "no_contacts"
 msgstr "Henüz kişi yok"
 
-#. Snackbar when no contact is available to borrow from.
-msgid "no_contacts_to_borrow"
-msgstr "Kimden ödünç aldığınızı takip etmek için önce kişi ekleyin"
 
 #. Dismiss button of a confirmation dialog.
 msgid "ok"
@@ -12180,3 +12177,35 @@ msgstr "{count} kitap yerleştirildi"
 #. These books were already there
 msgid "bulk_assign_nothing_changed"
 msgstr "Bu kitaplar zaten oradaydı"
+
+#. Lender picker section: the libraries the user connected
+msgid "lender_section_libraries"
+msgstr "Bağlı kütüphaneler"
+
+#. Lender picker action: create a contact and borrow from them
+msgid "lender_new_contact"
+msgstr "Yeni kişi"
+
+#. Lender picker action: type the name of a library or place
+msgid "lender_other_place"
+msgstr "Bir kütüphane veya başka bir yer"
+
+#. Label of the free-text lender name field
+msgid "lender_place_name_label"
+msgstr "Yerin adı"
+
+#. Example shown in the free-text lender name field
+msgid "lender_place_name_hint"
+msgstr "Kütüphane, kitap kutusu…"
+
+#. Error when the free-text lender name is empty
+msgid "lender_place_name_required"
+msgstr "Bir ad girin"
+
+#. Optional due date step after picking a lender (no reminder is sent)
+msgid "borrow_due_date_title"
+msgstr "İade tarihi (isteğe bağlı)"
+
+#. Skip the optional due date step
+msgid "borrow_due_date_skip"
+msgstr "Atla"

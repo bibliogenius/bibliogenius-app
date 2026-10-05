@@ -118,10 +118,11 @@ class _AddContactScreenState extends State<AddContactScreen> {
         'is_active': true,
       };
 
+      Contact? created;
       if (widget.contact != null) {
         await contactRepo.updateContact(widget.contact!.id!, contactData);
       } else {
-        await contactRepo.createContact(contactData);
+        created = await contactRepo.createContact(contactData);
       }
 
       if (mounted) {
@@ -135,7 +136,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
             ),
           ),
         );
-        context.pop(true); // Return true to indicate refresh needed
+        // A creation returns the new contact so the caller can use it
+        // directly (manual borrow); an edit returns true. Both mean refresh.
+        context.pop(created ?? true);
       }
     } catch (e) {
       setState(() => _isSaving = false);

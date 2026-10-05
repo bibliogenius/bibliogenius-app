@@ -6756,9 +6756,9 @@ msgstr "Selecione uma edição"
 msgid "select_from_tree"
 msgstr "Selecione da Árvore"
 
-#. Select who is lending you this book
+#. Who did you borrow this book from?
 msgid "select_lender"
-msgstr "Selecione quem está emprestando esse livro"
+msgstr "De quem você pegou emprestado?"
 
 #. Select new parent:
 msgid "select_new_parent"
@@ -11780,9 +11780,6 @@ msgstr "Nome"
 msgid "no_contacts"
 msgstr "Nenhum contato ainda"
 
-#. Snackbar when no contact is available to borrow from.
-msgid "no_contacts_to_borrow"
-msgstr "Adicione contatos primeiro para registrar de quem você pegou emprestado"
 
 #. Dismiss button of a confirmation dialog.
 msgid "ok"
@@ -12188,3 +12185,35 @@ msgstr "{count} livros organizados"
 #. These books were already there
 msgid "bulk_assign_nothing_changed"
 msgstr "Estes livros já estavam lá"
+
+#. Lender picker section: the libraries the user connected
+msgid "lender_section_libraries"
+msgstr "Bibliotecas conectadas"
+
+#. Lender picker action: create a contact and borrow from them
+msgid "lender_new_contact"
+msgstr "Novo contato"
+
+#. Lender picker action: type the name of a library or place
+msgid "lender_other_place"
+msgstr "Uma biblioteca ou outro lugar"
+
+#. Label of the free-text lender name field
+msgid "lender_place_name_label"
+msgstr "Nome do lugar"
+
+#. Example shown in the free-text lender name field
+msgid "lender_place_name_hint"
+msgstr "Biblioteca, ponto de troca de livros…"
+
+#. Error when the free-text lender name is empty
+msgid "lender_place_name_required"
+msgstr "Digite um nome"
+
+#. Optional due date step after picking a lender (no reminder is sent)
+msgid "borrow_due_date_title"
+msgstr "Data de devolução (opcional)"
+
+#. Skip the optional due date step
+msgid "borrow_due_date_skip"
+msgstr "Pular"

@@ -4742,9 +4742,9 @@ msgstr "选择版本"
 msgid "select_from_tree"
 msgstr "从树状结构中选择"
 
-#. Select who is lending you this book
+#. Who did you borrow this book from?
 msgid "select_lender"
-msgstr "选择将此书借给您的人"
+msgstr "您是从哪里借到这本书的？"
 
 #. Select new parent:
 msgid "select_new_parent"
@@ -11350,3 +11350,35 @@ msgstr "已整理 {count} 本书"
 #. These books were already there
 msgid "bulk_assign_nothing_changed"
 msgstr "这些书已在其中"
+
+#. Lender picker section: the libraries the user connected
+msgid "lender_section_libraries"
+msgstr "已连接的图书馆"
+
+#. Lender picker action: create a contact and borrow from them
+msgid "lender_new_contact"
+msgstr "新联系人"
+
+#. Lender picker action: type the name of a library or place
+msgid "lender_other_place"
+msgstr "图书馆或其他地点"
+
+#. Label of the free-text lender name field
+msgid "lender_place_name_label"
+msgstr "地点名称"
+
+#. Example shown in the free-text lender name field
+msgid "lender_place_name_hint"
+msgstr "图书馆、图书漂流点等"
+
+#. Error when the free-text lender name is empty
+msgid "lender_place_name_required"
+msgstr "请输入名称"
+
+#. Optional due date step after picking a lender (no reminder is sent)
+msgid "borrow_due_date_title"
+msgstr "归还日期（可选）"
+
+#. Skip the optional due date step
+msgid "borrow_due_date_skip"
+msgstr "跳过"

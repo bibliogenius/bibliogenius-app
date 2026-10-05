@@ -4742,9 +4742,9 @@ msgstr "에디션 선택"
 msgid "select_from_tree"
 msgstr "트리에서 선택"
 
-#. Select who is lending you this book
+#. Who did you borrow this book from?
 msgid "select_lender"
-msgstr "이 책을 빌려주는 사람을 선택하세요"
+msgstr "어디서 또는 누구에게 빌렸나요?"
 
 #. Select new parent:
 msgid "select_new_parent"
@@ -11350,3 +11350,35 @@ msgstr "{count}권을 정리했습니다"
 #. These books were already there
 msgid "bulk_assign_nothing_changed"
 msgstr "이 책들은 이미 그곳에 있습니다"
+
+#. Lender picker section: the libraries the user connected
+msgid "lender_section_libraries"
+msgstr "연결된 도서관"
+
+#. Lender picker action: create a contact and borrow from them
+msgid "lender_new_contact"
+msgstr "새 연락처"
+
+#. Lender picker action: type the name of a library or place
+msgid "lender_other_place"
+msgstr "도서관 또는 다른 장소"
+
+#. Label of the free-text lender name field
+msgid "lender_place_name_label"
+msgstr "장소 이름"
+
+#. Example shown in the free-text lender name field
+msgid "lender_place_name_hint"
+msgstr "도서관, 공유 책장 등"
+
+#. Error when the free-text lender name is empty
+msgid "lender_place_name_required"
+msgstr "이름을 입력하세요"
+
+#. Optional due date step after picking a lender (no reminder is sent)
+msgid "borrow_due_date_title"
+msgstr "반납일 (선택)"
+
+#. Skip the optional due date step
+msgid "borrow_due_date_skip"
+msgstr "건너뛰기"

@@ -106,7 +106,7 @@ class _NetworkScreenState extends State<NetworkScreen>
         onEnterAddress: () async {
           Navigator.pop(sheetContext);
           final result = await context.push('/contacts/add');
-          if (result == true) {
+          if (result == true || result is Contact) {
             _myNetworkKey.currentState?.reloadMembers();
           }
         },
