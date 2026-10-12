@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+
 import '../../models/book.dart';
 import '../../services/api_service.dart';
 import '../../utils/local_cover_resolver.dart';
@@ -44,7 +46,16 @@ class BookRepositoryImpl implements BookRepository {
         }
       }
     }
-    throw Exception('Failed to create book (status: ${response.statusCode})');
+    throw _failure('Failed to create book', response);
+  }
+
+  /// In FFI mode the service answers a backend exception with a synthetic
+  /// 500 whose `statusMessage` is the only copy of the cause. Carry it: a
+  /// bare "status: 500" left a user and the support with nothing to go on.
+  Exception _failure(String what, Response response) {
+    final cause = response.statusMessage;
+    final suffix = cause == null || cause.isEmpty ? '' : ': $cause';
+    return Exception('$what (status: ${response.statusCode})$suffix');
   }
 
   @override
@@ -61,7 +72,7 @@ class BookRepositoryImpl implements BookRepository {
       // Response may not contain the full book — re-fetch
       return _apiService.getBook(uuid);
     }
-    throw Exception('Failed to update book (status: ${response.statusCode})');
+    throw _failure('Failed to update book', response);
   }
 
   /// Stores a freshly captured cover by its device-independent basename.
@@ -93,7 +104,7 @@ class BookRepositoryImpl implements BookRepository {
   Future<void> deleteBook(String uuid) async {
     final response = await _apiService.deleteBook(uuid);
     if (response.statusCode != 200) {
-      throw Exception('Failed to delete book (status: ${response.statusCode})');
+      throw _failure('Failed to delete book', response);
     }
   }
 

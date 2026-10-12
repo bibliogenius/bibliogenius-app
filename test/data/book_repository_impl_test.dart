@@ -90,4 +90,94 @@ void main() {
       );
     });
   });
+
+  // In FFI mode `ApiService` turns a backend exception into a synthetic 500
+  // whose `statusMessage` holds the only copy of the cause. A store user saw
+  // "Failed to update book (status: 500)" on every save for an afternoon and
+  // nobody, them included, could tell why: the cause has to reach the message.
+  group('BookRepositoryImpl surfaces the backend failure', () {
+    late _FailingApiService failing;
+
+    setUp(() {
+      failing = _FailingApiService();
+      repo = BookRepositoryImpl(failing);
+    });
+
+    test('updateBook names the cause carried by the response', () async {
+      expect(
+        () => repo.updateBook('42', {'title': 'T'}),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            allOf(contains('status: 500'), contains('database is locked')),
+          ),
+        ),
+      );
+    });
+
+    test('createBook names the cause carried by the response', () async {
+      expect(
+        () => repo.createBook({'title': 'T'}),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            allOf(contains('status: 500'), contains('database is locked')),
+          ),
+        ),
+      );
+    });
+
+    test('deleteBook names the cause carried by the response', () async {
+      expect(
+        () => repo.deleteBook('42'),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            allOf(contains('status: 500'), contains('database is locked')),
+          ),
+        ),
+      );
+    });
+
+    test('a response without a message keeps the status alone', () async {
+      failing.statusMessage = null;
+      expect(
+        () => repo.updateBook('42', {'title': 'T'}),
+        throwsA(
+          isA<Exception>().having(
+            (e) => e.toString(),
+            'message',
+            'Exception: Failed to update book (status: 500)',
+          ),
+        ),
+      );
+    });
+  });
+}
+
+class _FailingApiService extends MockApiService {
+  String? statusMessage = 'Exception: database is locked';
+
+  Response _failure(String path) => Response(
+    requestOptions: RequestOptions(path: path),
+    statusCode: 500,
+    statusMessage: statusMessage,
+  );
+
+  @override
+  Future<Response> createBook(Map<String, dynamic> bookData) async =>
+      _failure('/api/books');
+
+  @override
+  Future<Response> updateBook(
+    String uuid,
+    Map<String, dynamic> bookData,
+  ) async => _failure('/api/books/$uuid');
+
+  @override
+  Future<Response> deleteBook(String uuid) async =>
+      _failure('/api/books/$uuid');
 }

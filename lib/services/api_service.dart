@@ -456,16 +456,23 @@ class ApiService {
           },
         );
       } catch (e) {
-        debugPrint('FFI createBook error: $e');
-        // Return 500 on failure to alert caller
-        return Response(
-          requestOptions: RequestOptions(path: '/api/books'),
-          statusCode: 500,
-          statusMessage: e.toString(),
-        );
+        return ffiFailure('createBook', '/api/books', e);
       }
     }
     return await _dio.post('/api/books', data: bookData);
+  }
+
+  /// The synthetic 500 the FFI book writes answer with when the backend
+  /// throws. The cause travels in `statusMessage`: release builds write no
+  /// Rust log, so the message the user sees is the only trace of it.
+  @visibleForTesting
+  Response ffiFailure(String operation, String path, Object error) {
+    debugPrint('FFI $operation error: $error');
+    return Response(
+      requestOptions: RequestOptions(path: path),
+      statusCode: 500,
+      statusMessage: error.toString(),
+    );
   }
 
   /// Update a book addressed by its uuid (cross-device identity).
@@ -578,12 +585,7 @@ class ApiService {
           },
         );
       } catch (e) {
-        debugPrint('FFI updateBook error: $e');
-        return Response(
-          requestOptions: RequestOptions(path: '/api/books/$uuid'),
-          statusCode: 500,
-          statusMessage: e.toString(),
-        );
+        return ffiFailure('updateBook', '/api/books/$uuid', e);
       }
     }
     return await _dio.put('/api/books/$uuid', data: bookData);
@@ -601,12 +603,7 @@ class ApiService {
           data: {'message': 'Book deleted successfully'},
         );
       } catch (e) {
-        debugPrint('FFI deleteBook error: $e');
-        return Response(
-          requestOptions: RequestOptions(path: '/api/books/$uuid'),
-          statusCode: 500,
-          statusMessage: e.toString(),
-        );
+        return ffiFailure('deleteBook', '/api/books/$uuid', e);
       }
     }
     return await _dio.delete('/api/books/$uuid');
