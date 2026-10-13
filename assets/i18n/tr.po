@@ -4924,9 +4924,9 @@ msgstr "ISBN barkodu tara"
 msgid "scan_isbn_title"
 msgstr "ISBN Tara"
 
-#. Or scan a QR Code
+#. Scan a QR Code
 msgid "scan_qr_code"
-msgstr "Veya bir QR Kodu tara"
+msgstr "Bir QR Kodu tara"
 
 #. Scan to connect
 msgid "scan_to_connect"

@@ -4625,9 +4625,9 @@ msgstr "扫描 ISBN 条形码"
 msgid "scan_isbn_title"
 msgstr "扫描 ISBN"
 
-#. Or scan a QR Code
+#. Scan a QR Code
 msgid "scan_qr_code"
-msgstr "或扫描二维码"
+msgstr "扫描二维码"
 
 #. Scan to connect
 msgid "scan_to_connect"

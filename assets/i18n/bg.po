@@ -4871,9 +4871,9 @@ msgstr "Сканиране на ISBN баркод"
 msgid "scan_isbn_title"
 msgstr "Сканиране на ISBN"
 
-#. Or scan a QR Code
+#. Scan a QR Code
 msgid "scan_qr_code"
-msgstr "Или сканирайте QR код"
+msgstr "Сканирайте QR код"
 
 #. Scan to connect
 msgid "scan_to_connect"

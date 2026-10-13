@@ -5797,9 +5797,9 @@ msgstr "Scan ISBN barcode"
 msgid "scan_isbn_title"
 msgstr "Scan ISBN"
 
-#. Or scan a QR Code
+#. Scan a QR Code
 msgid "scan_qr_code"
-msgstr "Or scan a QR Code"
+msgstr "Scan a QR Code"
 
 #. Scan to connect
 msgid "scan_to_connect"

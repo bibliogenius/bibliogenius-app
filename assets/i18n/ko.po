@@ -4625,9 +4625,9 @@ msgstr "ISBN 바코드 스캔"
 msgid "scan_isbn_title"
 msgstr "ISBN 스캔"
 
-#. Or scan a QR Code
+#. Scan a QR Code
 msgid "scan_qr_code"
-msgstr "또는 QR 코드 스캔"
+msgstr "QR 코드 스캔"
 
 #. Scan to connect
 msgid "scan_to_connect"
