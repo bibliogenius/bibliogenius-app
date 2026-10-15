@@ -9,6 +9,7 @@
 library;
 
 import '../models/book.dart';
+import 'search_text.dart';
 
 /// Books shown when no status filter is selected: the ones the user physically
 /// has. Wishlist and read-but-not-owned books are excluded on purpose.
@@ -100,10 +101,12 @@ int shelfBooksHiddenByOwnership({
 /// The two MUST evaluate the same rule on the same corpus (ADR-063):
 /// diverging predicates let a book appear as a suggestion while the grid
 /// behind it says "no books found".
+///
+/// Case- and diacritic-insensitive: `rene` finds `René Barjavel`.
 bool matchesSearchQuery(Book book, String query) {
-  final q = query.toLowerCase();
-  return book.title.toLowerCase().contains(q) ||
-      (book.author?.toLowerCase().contains(q) ?? false);
+  final q = foldForSearch(query);
+  return foldForSearch(book.title).contains(q) ||
+      (book.author != null && foldForSearch(book.author!).contains(q));
 }
 
 /// Books shown when [status] is explicitly selected in the dropdown.

@@ -14,6 +14,7 @@ import '../utils/borrow_eligibility.dart';
 import '../utils/library_mark.dart';
 import '../utils/cover_url_resolver.dart';
 import '../utils/isbn_validator.dart';
+import '../utils/search_text.dart';
 import '../models/contact_card.dart';
 import '../models/hub_directory.dart';
 import '../widgets/book_cover_card.dart';
@@ -1043,9 +1044,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   bool _matchesSearch(Book book, String query) {
     if (query.isEmpty) return true;
-    final q = query.toLowerCase();
-    return book.title.toLowerCase().contains(q) ||
-        (book.author?.toLowerCase().contains(q) ?? false);
+    final q = foldForSearch(query);
+    return foldForSearch(book.title).contains(q) ||
+        (book.author != null && foldForSearch(book.author!).contains(q));
   }
 
   /// Refresh from hub catalog: if the peer pushed updates to the hub while
@@ -2839,10 +2840,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                     trailing: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        ...?_libraryMarkTrailing(
-                                          context,
-                                          book,
-                                        ),
+                                        ...?_libraryMarkTrailing(context, book),
                                         if (canBorrowModule)
                                           ElevatedButton(
                                             onPressed: _canBorrow(book)

@@ -61,7 +61,8 @@ void main() {
           showBorrowed: true,
         ),
         0,
-        reason: 'Under "all" the list already shows them, so there is no '
+        reason:
+            'Under "all" the list already shows them, so there is no '
             'dead end to explain.',
       );
     });
@@ -503,6 +504,26 @@ void main() {
 
     test('a missing author never matches an author query', () {
       expect(matchesSearchQuery(book(owned: true), 'coher'), isFalse);
+    });
+
+    test('ignores diacritics on both sides', () {
+      final barjavel = book(owned: true, author: 'René Barjavel');
+      expect(matchesSearchQuery(barjavel, 'Rene'), isTrue);
+      expect(matchesSearchQuery(barjavel, 'RENÉ'), isTrue);
+      expect(
+        matchesSearchQuery(
+          book(owned: true, title: 'Le Rouge et le Noir'),
+          'noïr',
+        ),
+        isTrue,
+      );
+      expect(
+        matchesSearchQuery(
+          book(owned: true, title: 'Œuvres complètes'),
+          'oeuvres comp',
+        ),
+        isTrue,
+      );
     });
   });
 }
