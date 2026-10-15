@@ -481,6 +481,25 @@ void main() {
   // search different corpuses, and a wishlist book could appear in the
   // dropdown while the grid said "no books found" (ADR-063).
   group('matchesSearchQuery', () {
+    test('drops combining marks of decomposed text', () {
+      final barjavel = book(owned: true, author: 'Rene\u0301 Barjavel');
+      expect(matchesSearchQuery(barjavel, 'rene b'), isTrue);
+      expect(matchesSearchQuery(barjavel, 'René B'), isTrue);
+    });
+
+    test('folds Turkish letters', () {
+      final pamuk = book(
+        owned: true,
+        author: 'Orhan Pamuk',
+        title: 'Kırmızı Saçlı Kadın',
+      );
+      expect(matchesSearchQuery(pamuk, 'kirmizi sacli'), isTrue);
+      expect(
+        matchesSearchQuery(book(owned: true, title: 'İstanbul'), 'istanbul'),
+        isTrue,
+      );
+    });
+
     test('matches on title, case-insensitive', () {
       expect(
         matchesSearchQuery(book(owned: true, title: 'Vaincre à Rome'), 'rome'),

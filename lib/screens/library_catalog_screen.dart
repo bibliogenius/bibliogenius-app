@@ -16,6 +16,7 @@ import '../providers/theme_provider.dart';
 import '../utils/app_constants.dart';
 import '../utils/book_display.dart';
 import '../utils/publication_year.dart';
+import '../utils/search_text.dart';
 import '../widgets/book_cover_card.dart';
 import '../widgets/contact_actions_sheet.dart';
 import '../widgets/genie_app_bar.dart';
@@ -60,10 +61,10 @@ class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
 
   List<FrbCatalogEntry> get _filteredEntries {
     if (_searchQuery.isEmpty) return _entries;
-    final q = _searchQuery.toLowerCase();
+    final q = foldForSearch(_searchQuery);
     return _entries.where((e) {
-      return e.title.toLowerCase().contains(q) ||
-          (e.author?.toLowerCase().contains(q) ?? false) ||
+      return foldForSearch(e.title).contains(q) ||
+          (e.author != null && foldForSearch(e.author!).contains(q)) ||
           e.isbn.contains(q);
     }).toList();
   }
