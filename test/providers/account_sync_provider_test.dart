@@ -464,4 +464,61 @@ void main() {
     }
     expect(AccountSyncProvider.failedLaneCount('{"failed":4}'), 4);
   });
+
+  group('onRemoteChangesApplied', () {
+    late int calls;
+
+    setUp(() {
+      calls = 0;
+      provider = AccountSyncProvider(
+        ffi: ffi,
+        onRemoteChangesApplied: () => calls++,
+      );
+    });
+
+    Future<void> signIn() async {
+      ffi.statusJson =
+          '{"signed_in":true,"email":"a@b.co","account_id":"acc","device_id":"d1"}';
+      await provider.refreshStatus();
+    }
+
+    test('fires when an automatic cycle brought other devices\' changes',
+        () async {
+      // A newly joined device: its first cycle brings the readers.
+      await signIn();
+      ffi.syncNowJson = '{"synced":true,"applied":5,"pushed":0}';
+
+      await provider.autoSyncTick();
+
+      expect(calls, 1);
+    });
+
+    test('fires on a manual cycle that applied changes', () async {
+      ffi.syncNowJson = '{"synced":true,"applied":1,"pushed":0}';
+
+      await provider.syncNow();
+
+      expect(calls, 1);
+    });
+
+    test('stays quiet when nothing came in, even if this device pushed',
+        () async {
+      await signIn();
+      ffi.syncNowJson = '{"synced":true,"applied":0,"pushed":3}';
+
+      await provider.autoSyncTick();
+      await provider.syncNow();
+
+      expect(calls, 0);
+    });
+
+    test('stays quiet when the cycle failed', () async {
+      await signIn();
+      ffi.syncNowError = Exception('hub down');
+
+      await provider.autoSyncTick();
+
+      expect(calls, 0);
+    });
+  });
 }

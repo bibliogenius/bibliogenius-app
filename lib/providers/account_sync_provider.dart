@@ -137,9 +137,16 @@ class AccountSignupException implements Exception {
 /// this layer sees plaintext metadata, the live strength meter, the device
 /// list, and the one-time recovery phrase.
 class AccountSyncProvider extends ChangeNotifier {
-  AccountSyncProvider({FfiService? ffi}) : _ffi = ffi ?? FfiService();
+  AccountSyncProvider({FfiService? ffi, this.onRemoteChangesApplied})
+    : _ffi = ffi ?? FfiService();
 
   final FfiService _ffi;
+
+  /// Called after a cycle, manual or automatic, that wrote other devices'
+  /// changes into this device's database. Screens that loaded their state once
+  /// (the household readers, read at start before the first cycle of a newly
+  /// joined device brought them) reload it from here.
+  final VoidCallback? onRemoteChangesApplied;
 
   AccountStatus _status = const AccountStatus.signedOut();
   List<AccountDevice> _devices = const [];
@@ -344,6 +351,7 @@ class AccountSyncProvider extends ChangeNotifier {
     notifyListeners();
     try {
       final result = await _ffi.accountSyncNow();
+      _notifyIfApplied(result);
       await refreshDevices();
       return result;
     } catch (e) {
@@ -367,16 +375,28 @@ class AccountSyncProvider extends ChangeNotifier {
   /// turn a successful cycle into a reported failure, so an absent, non-numeric
   /// or malformed `failed` reads as zero.
   @visibleForTesting
-  static int failedLaneCount(String statusJson) {
+  static int failedLaneCount(String statusJson) =>
+      _countIn(statusJson, 'failed');
+
+  /// Changes from other devices a cycle wrote locally, read from a sync-status
+  /// payload. Same tolerance as [failedLaneCount]: unreadable reads as zero.
+  @visibleForTesting
+  static int appliedCount(String statusJson) => _countIn(statusJson, 'applied');
+
+  static int _countIn(String statusJson, String key) {
     try {
       final json = jsonDecode(statusJson);
       if (json is Map<String, dynamic>) {
-        return (json['failed'] as num?)?.toInt() ?? 0;
+        return (json[key] as num?)?.toInt() ?? 0;
       }
     } catch (_) {
-      // Fall through: an unreadable payload is not evidence of a skipped lane.
+      // Fall through: an unreadable payload is not evidence of anything.
     }
     return 0;
+  }
+
+  void _notifyIfApplied(String statusJson) {
+    if (appliedCount(statusJson) > 0) onRemoteChangesApplied?.call();
   }
 
   /// Runs one manual sync cycle and maps the backend's raw JSON to the i18n
@@ -431,6 +451,7 @@ class AccountSyncProvider extends ChangeNotifier {
     _autoSyncInFlight = true;
     try {
       final result = await _ffi.accountSyncNow();
+      _notifyIfApplied(result);
       // Silent in the UI, never in the log. A cycle can succeed while lanes were
       // skipped (ADR-056), and auto-sync is the dominant path: without this the
       // count would only ever surface on a manual sync. The engine already warns

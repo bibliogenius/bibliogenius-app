@@ -664,6 +664,10 @@ class MyApp extends StatelessWidget {
     // Run async, don't block app startup
     apiService.cleanupStalePeerBooksCache();
 
+    // Readers of the account, loaded at start; reloaded after a sync cycle
+    // that brought other devices' changes (see AccountSyncProvider below).
+    final householdProvider = HouseholdProvider()..load();
+
     // Enrich missing covers in background (async, don't block startup)
     final bookRefreshNotifier = BookRefreshNotifier();
     apiService.enrichMissingCovers().then((count) {
@@ -760,7 +764,15 @@ class MyApp extends StatelessWidget {
           create: (_) => MetadataFillProvider(),
         ),
         ChangeNotifierProvider<AccountSyncProvider>(
-          create: (_) => AccountSyncProvider(),
+          create: (_) => AccountSyncProvider(
+            // A cycle that brought other devices' changes: reload what was
+            // read once at start. On a newly joined device, the readers only
+            // arrive with the first cycle, after the household was loaded.
+            onRemoteChangesApplied: () {
+              unawaited(householdProvider.load());
+              bookRefreshNotifier.refresh();
+            },
+          ),
         ),
         // Automatic account-sync triggers (periodic + on-resume). Eager
         // (`lazy: false`) so it boots with the app; it probes the build
@@ -791,8 +803,8 @@ class MyApp extends StatelessWidget {
         // Readers of the account (FFI only; the load leaves the list empty
         // elsewhere). Loaded at start so the "pick your reader" flash can
         // show on a device the other devices' readers reached first.
-        ChangeNotifierProvider<HouseholdProvider>(
-          create: (_) => HouseholdProvider()..load(),
+        ChangeNotifierProvider<HouseholdProvider>.value(
+          value: householdProvider,
         ),
         ChangeNotifierProvider<NotificationProvider>(
           create: (_) => NotificationProvider()..init(),
