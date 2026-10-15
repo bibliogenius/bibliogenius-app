@@ -9,6 +9,7 @@ import '../widgets/scaffold_with_nav.dart';
 import '../services/help_registry.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
+import '../utils/accessible_color.dart';
 
 class HelpScreen extends StatefulWidget {
   /// Optional topic id to expand on first display (deep link target).
@@ -21,9 +22,6 @@ class HelpScreen extends StatefulWidget {
 }
 
 class _HelpScreenState extends State<HelpScreen> {
-  // Fits the icon plus a two-line label at the default text scale.
-  static const double _actionCardMinHeight = 116;
-
   int? _expandedIndex;
   late List<HelpTopic> _topics;
   final ScrollController _scrollController = ScrollController();
@@ -86,7 +84,7 @@ class _HelpScreenState extends State<HelpScreen> {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: AppDesign.primaryGradient,
+                  gradient: _readableUnderWhite(AppDesign.primaryGradient),
                   borderRadius: BorderRadius.circular(AppDesign.radiusLarge),
                   boxShadow: AppDesign.cardShadow,
                 ),
@@ -105,15 +103,18 @@ class _HelpScreenState extends State<HelpScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    Text(
-                      TranslationService.translate(
-                        context,
-                        'help_welcome_title',
-                      ),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Semantics(
+                      header: true,
+                      child: Text(
+                        TranslationService.translate(
+                          context,
+                          'help_welcome_title',
+                        ),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -123,9 +124,9 @@ class _HelpScreenState extends State<HelpScreen> {
                         'help_welcome_subtitle',
                       ),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -137,12 +138,7 @@ class _HelpScreenState extends State<HelpScreen> {
               // Section title
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                child: Text(
-                  TranslationService.translate(context, 'help_faq_title'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _sectionTitle(context, 'help_faq_title'),
               ),
 
               // Help Topics
@@ -175,62 +171,75 @@ class _HelpScreenState extends State<HelpScreen> {
     int index,
     bool isExpanded,
   ) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _expandedIndex = isExpanded ? null : index;
-        });
-      },
-      child: AnimatedContainer(
-        duration: AppDesign.standardDuration,
-        curve: AppDesign.standardCurve,
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-          boxShadow: isExpanded ? AppDesign.cardShadow : AppDesign.subtleShadow,
-          border: Border.all(
-            color: isExpanded
-                ? (topic.gradient.colors.first).withValues(alpha: 0.5)
-                : Colors.grey.withValues(alpha: 0.1),
-            width: isExpanded ? 2 : 1,
-          ),
+    final radius = BorderRadius.circular(AppDesign.radiusMedium);
+    return AnimatedContainer(
+      duration: AppDesign.standardDuration,
+      curve: AppDesign.standardCurve,
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: radius,
+        boxShadow: isExpanded ? AppDesign.cardShadow : AppDesign.subtleShadow,
+        border: Border.all(
+          color: isExpanded
+              ? (topic.gradient.colors.first).withValues(alpha: 0.5)
+              : Colors.grey.withValues(alpha: 0.1),
+          width: isExpanded ? 2 : 1,
         ),
+      ),
+      // Transparent Material so the header's ink and focus highlight paint
+      // above the card colour instead of under it.
+      child: Material(
+        type: MaterialType.transparency,
         child: Column(
           children: [
-            // Header
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      // Flat solid badge, consistent with the section header
-                      // icons elsewhere in the app (no gradient).
-                      color: topic.gradient.colors.first,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(topic.icon, color: Colors.white, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      TranslationService.translate(context, topic.titleKey),
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+            // Header: the only tap target, so the CTA below keeps its own.
+            Semantics(
+              button: true,
+              expanded: isExpanded,
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    _expandedIndex = isExpanded ? null : index;
+                  });
+                },
+                borderRadius: isExpanded
+                    ? BorderRadius.vertical(top: radius.topLeft)
+                    : radius,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          // Flat solid badge, consistent with the section header
+                          // icons elsewhere in the app (no gradient).
+                          color: topic.gradient.colors.first,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(topic.icon, color: Colors.white, size: 20),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          TranslationService.translate(context, topic.titleKey),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      AnimatedRotation(
+                        turns: isExpanded ? 0.5 : 0,
+                        duration: AppDesign.quickDuration,
+                        child: Icon(
+                          Icons.keyboard_arrow_down,
+                          color: Colors.grey[400],
+                        ),
+                      ),
+                    ],
                   ),
-                  AnimatedRotation(
-                    turns: isExpanded ? 0.5 : 0,
-                    duration: AppDesign.quickDuration,
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: Colors.grey[400],
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
 
@@ -276,7 +285,10 @@ class _HelpScreenState extends State<HelpScreen> {
                                 '',
                           ),
                           style: TextButton.styleFrom(
-                            foregroundColor: topic.gradient.colors.first,
+                            foregroundColor: _ctaInk(
+                              context,
+                              topic.gradient.colors.first,
+                            ),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
@@ -297,6 +309,32 @@ class _HelpScreenState extends State<HelpScreen> {
         ),
       ),
     );
+  }
+
+  Widget _sectionTitle(BuildContext context, String key) {
+    return Semantics(
+      header: true,
+      child: Text(
+        TranslationService.translate(context, key),
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  /// The topic colour as CTA text, deepened until it reads on the card.
+  ///
+  /// [inkOn] only darkens, which suits the light card. On a dark card the
+  /// topic colours mostly read as they are; one that does not falls back to
+  /// the theme's text colour rather than being lightened by hand.
+  Color _ctaInk(BuildContext context, Color topicColor) {
+    final theme = Theme.of(context);
+    final card = theme.cardColor;
+    if (card.computeLuminance() > 0.5) return inkOn(card, topicColor);
+    return contrastRatio(topicColor, card) >= 4.5
+        ? topicColor
+        : theme.colorScheme.onSurface;
   }
 
   /// The online guides exist in French (site root) and English only, so any
@@ -322,12 +360,7 @@ class _HelpScreenState extends State<HelpScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Text(
-            TranslationService.translate(context, 'help_quick_actions'),
-            style: Theme.of(
-              context,
-            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
+          child: _sectionTitle(context, 'help_quick_actions'),
         ),
         // First row: Quick Tour + Contact Us. IntrinsicHeight + stretch keep
         // both cards the same height when one label wraps.
@@ -427,6 +460,7 @@ class _HelpScreenState extends State<HelpScreen> {
             icon: Icons.menu_book,
             label: TranslationService.translate(context, 'help_online_docs'),
             gradient: AppDesign.darkGradient,
+            hint: TranslationService.translate(context, 'open_in_browser'),
             onTap: () async {
               final Uri docsUri = Uri.parse(_docsUrlForLocale(context));
               if (await canLaunchUrl(docsUri)) {
@@ -444,12 +478,7 @@ class _HelpScreenState extends State<HelpScreen> {
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-                child: Text(
-                  TranslationService.translate(context, 'help_tests_title'),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _sectionTitle(context, 'help_tests_title'),
               ),
               _buildActionCard(
                 context,
@@ -472,36 +501,113 @@ class _HelpScreenState extends State<HelpScreen> {
     BuildContext context, {
     required IconData icon,
     required String label,
-    required Gradient gradient,
+    required LinearGradient gradient,
     required VoidCallback onTap,
+    String? hint,
   }) {
-    return GestureDetector(
+    return _QuickActionCard(
+      icon: icon,
+      label: label,
+      gradient: _readableUnderWhite(gradient),
       onTap: onTap,
+      hint: hint,
+    );
+  }
+}
+
+/// [gradient] with each stop deepened just enough for white text to clear AA.
+///
+/// The shared gradients stay as they are: elsewhere they carry no text, or
+/// large text that only needs 3:1.
+LinearGradient _readableUnderWhite(LinearGradient gradient) {
+  return LinearGradient(
+    begin: gradient.begin,
+    end: gradient.end,
+    colors: [
+      for (final color in gradient.colors)
+        shiftUntilReadable(color, Colors.white),
+    ],
+  );
+}
+
+/// A gradient shortcut card: a button for screen readers, reachable and
+/// activable from the keyboard, with a focus ring drawn on the card itself
+/// since the default ink highlight barely shows on a saturated gradient.
+class _QuickActionCard extends StatefulWidget {
+  // Fits the icon plus a two-line label at the default text scale.
+  static const double _minHeight = 116;
+
+  final IconData icon;
+  final String label;
+  final LinearGradient gradient;
+  final VoidCallback onTap;
+  final String? hint;
+
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.gradient,
+    required this.onTap,
+    this.hint,
+  });
+
+  @override
+  State<_QuickActionCard> createState() => _QuickActionCardState();
+}
+
+class _QuickActionCardState extends State<_QuickActionCard> {
+  bool _focused = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final radius = BorderRadius.circular(AppDesign.radiusMedium);
+    return Semantics(
+      button: true,
+      hint: widget.hint,
       child: Container(
-        // Shared floor so single-line cards match the height of a card whose
-        // label wraps on two lines; the content stays centered vertically.
-        constraints: const BoxConstraints(minHeight: _actionCardMinHeight),
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: gradient,
-          borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+          gradient: widget.gradient,
+          borderRadius: radius,
           boxShadow: AppDesign.cardShadow,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Colors.white, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w600,
+        foregroundDecoration: _focused
+            ? BoxDecoration(
+                borderRadius: radius,
+                border: Border.all(color: Colors.white, width: 3),
+              )
+            : null,
+        // Transparent Material so the ripple paints above the gradient.
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            onTap: widget.onTap,
+            onFocusChange: (focused) => setState(() => _focused = focused),
+            borderRadius: radius,
+            child: Container(
+              // Shared floor so single-line cards match the height of a card
+              // whose label wraps on two lines; content stays centered.
+              constraints: const BoxConstraints(
+                minHeight: _QuickActionCard._minHeight,
+              ),
+              alignment: Alignment.center,
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(widget.icon, color: Colors.white, size: 28),
+                  const SizedBox(height: 8),
+                  Text(
+                    widget.label,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
+          ),
         ),
       ),
     );
