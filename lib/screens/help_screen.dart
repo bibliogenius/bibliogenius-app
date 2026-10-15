@@ -21,6 +21,9 @@ class HelpScreen extends StatefulWidget {
 }
 
 class _HelpScreenState extends State<HelpScreen> {
+  // Fits the icon plus a two-line label at the default text scale.
+  static const double _actionCardMinHeight = 116;
+
   int? _expandedIndex;
   late List<HelpTopic> _topics;
   final ScrollController _scrollController = ScrollController();
@@ -326,92 +329,111 @@ class _HelpScreenState extends State<HelpScreen> {
             ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
           ),
         ),
-        // First row: Quick Tour + Contact Us
-        Row(
-          children: [
-            Expanded(
-              child: _buildActionCard(
-                context,
-                icon: Icons.explore,
-                label: TranslationService.translate(context, 'help_quick_tour'),
-                gradient: AppDesign.primaryGradient,
-                onTap: () => context.push('/onboarding'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildActionCard(
-                context,
-                icon: Icons.mail_outline,
-                label: TranslationService.translate(context, 'help_contact_us'),
-                gradient: AppDesign.oceanGradient,
-                onTap: () async {
-                  final String subject = TranslationService.translate(
+        // First row: Quick Tour + Contact Us. IntrinsicHeight + stretch keep
+        // both cards the same height when one label wraps.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildActionCard(
+                  context,
+                  icon: Icons.explore,
+                  label: TranslationService.translate(
                     context,
-                    'help_contact_subject',
-                  );
-                  // Build the query manually so the space encodes as %20, not
-                  // the form-style '+' that Uri.queryParameters produces (mail
-                  // clients render that literally, e.g. 'BiblioGenius+-+Contact').
-                  final Uri emailUri = Uri(
-                    scheme: 'mailto',
-                    path: 'contact@bibliogenius.org',
-                    query: 'subject=${Uri.encodeComponent(subject)}',
-                  );
-                  if (await canLaunchUrl(emailUri)) {
-                    await launchUrl(emailUri);
-                  }
-                },
+                    'help_quick_tour',
+                  ),
+                  gradient: AppDesign.primaryGradient,
+                  onTap: () => context.push('/onboarding'),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  context,
+                  icon: Icons.mail_outline,
+                  label: TranslationService.translate(
+                    context,
+                    'help_contact_us',
+                  ),
+                  gradient: AppDesign.oceanGradient,
+                  onTap: () async {
+                    final String subject = TranslationService.translate(
+                      context,
+                      'help_contact_subject',
+                    );
+                    // Build the query manually so the space encodes as %20, not
+                    // the form-style '+' that Uri.queryParameters produces (mail
+                    // clients render that literally, e.g. 'BiblioGenius+-+Contact').
+                    final Uri emailUri = Uri(
+                      scheme: 'mailto',
+                      path: 'contact@bibliogenius.org',
+                      query: 'subject=${Uri.encodeComponent(subject)}',
+                    );
+                    if (await canLaunchUrl(emailUri)) {
+                      await launchUrl(emailUri);
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
 
         const SizedBox(height: 12),
 
         // Second row: Report a Problem & Import from App
-        Row(
-          children: [
-            Expanded(
-              child: _buildActionCard(
-                context,
-                icon: Icons.bug_report,
-                label: TranslationService.translate(
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: _buildActionCard(
                   context,
-                  'help_report_problem',
+                  icon: Icons.bug_report,
+                  label: TranslationService.translate(
+                    context,
+                    'help_report_problem',
+                  ),
+                  gradient: AppDesign.warningGradient,
+                  onTap: () => context.push('/feedback'),
                 ),
-                gradient: AppDesign.warningGradient,
-                onTap: () => context.push('/feedback'),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildActionCard(
-                context,
-                icon: Icons.input_rounded,
-                label: TranslationService.translate(context, 'help_import_app'),
-                gradient: AppDesign.accentGradient,
-                onTap: () => context.push('/settings/migration-wizard'),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildActionCard(
+                  context,
+                  icon: Icons.input_rounded,
+                  label: TranslationService.translate(
+                    context,
+                    'help_import_app',
+                  ),
+                  gradient: AppDesign.accentGradient,
+                  onTap: () => context.push('/settings/migration-wizard'),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
 
         const SizedBox(height: 12),
 
         // Third row: the online guides. Full width, since it opens the
         // browser rather than an in-app screen like the four cards above.
-        _buildActionCard(
-          context,
-          icon: Icons.menu_book,
-          label: TranslationService.translate(context, 'help_online_docs'),
-          gradient: AppDesign.darkGradient,
-          onTap: () async {
-            final Uri docsUri = Uri.parse(_docsUrlForLocale(context));
-            if (await canLaunchUrl(docsUri)) {
-              await launchUrl(docsUri, mode: LaunchMode.externalApplication);
-            }
-          },
+        SizedBox(
+          width: double.infinity,
+          child: _buildActionCard(
+            context,
+            icon: Icons.menu_book,
+            label: TranslationService.translate(context, 'help_online_docs'),
+            gradient: AppDesign.darkGradient,
+            onTap: () async {
+              final Uri docsUri = Uri.parse(_docsUrlForLocale(context));
+              if (await canLaunchUrl(docsUri)) {
+                await launchUrl(docsUri, mode: LaunchMode.externalApplication);
+              }
+            },
+          ),
         ),
 
         // Developer Tools Section (only shown if SHOW_DEV_TOOLS=true in .env)
@@ -456,6 +478,10 @@ class _HelpScreenState extends State<HelpScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        // Shared floor so single-line cards match the height of a card whose
+        // label wraps on two lines; the content stays centered vertically.
+        constraints: const BoxConstraints(minHeight: _actionCardMinHeight),
+        alignment: Alignment.center,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: gradient,
@@ -463,6 +489,7 @@ class _HelpScreenState extends State<HelpScreen> {
           boxShadow: AppDesign.cardShadow,
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(icon, color: Colors.white, size: 28),
             const SizedBox(height: 8),
