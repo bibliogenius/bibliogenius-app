@@ -465,14 +465,14 @@ void main() {
     expect(AccountSyncProvider.failedLaneCount('{"failed":4}'), 4);
   });
 
-  group('onRemoteChangesApplied', () {
+  group('onLocalDataMayHaveChanged', () {
     late int calls;
 
     setUp(() {
       calls = 0;
       provider = AccountSyncProvider(
         ffi: ffi,
-        onRemoteChangesApplied: () => calls++,
+        onLocalDataMayHaveChanged: () => calls++,
       );
     });
 
@@ -512,9 +512,28 @@ void main() {
       expect(calls, 0);
     });
 
-    test('stays quiet when the cycle failed', () async {
+    test('fires when an automatic cycle failed: it may have applied first',
+        () async {
+      // The readers were pulled and committed, then the push dropped: the
+      // count is lost and the next cycle has nothing new to apply.
       await signIn();
-      ffi.syncNowError = Exception('hub down');
+      ffi.syncNowError = Exception('push: connection reset');
+
+      await provider.autoSyncTick();
+
+      expect(calls, 1);
+    });
+
+    test('fires when a manual cycle failed, and still rethrows', () async {
+      ffi.syncNowError = Exception('push: connection reset');
+
+      await expectLater(provider.syncNow(), throwsException);
+
+      expect(calls, 1);
+    });
+
+    test('stays quiet when signed out: no cycle ran', () async {
+      ffi.syncNowJson = '{"synced":true,"applied":5,"pushed":0}';
 
       await provider.autoSyncTick();
 

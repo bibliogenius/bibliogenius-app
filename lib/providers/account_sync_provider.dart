@@ -137,16 +137,20 @@ class AccountSignupException implements Exception {
 /// this layer sees plaintext metadata, the live strength meter, the device
 /// list, and the one-time recovery phrase.
 class AccountSyncProvider extends ChangeNotifier {
-  AccountSyncProvider({FfiService? ffi, this.onRemoteChangesApplied})
+  AccountSyncProvider({FfiService? ffi, this.onLocalDataMayHaveChanged})
     : _ffi = ffi ?? FfiService();
 
   final FfiService _ffi;
 
   /// Called after a cycle, manual or automatic, that wrote other devices'
-  /// changes into this device's database. Screens that loaded their state once
-  /// (the household readers, read at start before the first cycle of a newly
-  /// joined device brought them) reload it from here.
-  final VoidCallback? onRemoteChangesApplied;
+  /// changes into this device's database, or may have: a cycle that fails
+  /// does so after pulling, so what it applied is committed and its count is
+  /// lost (the push dropped mid-way, a later pull page timed out). The next
+  /// cycle has nothing new to apply, so this is the only chance to show it.
+  /// Screens that loaded their state once (the household readers, read at
+  /// start before the first cycle of a newly joined device brought them)
+  /// reload it from here.
+  final VoidCallback? onLocalDataMayHaveChanged;
 
   AccountStatus _status = const AccountStatus.signedOut();
   List<AccountDevice> _devices = const [];
@@ -355,6 +359,7 @@ class AccountSyncProvider extends ChangeNotifier {
       await refreshDevices();
       return result;
     } catch (e) {
+      onLocalDataMayHaveChanged?.call();
       _error = e.toString();
       debugPrint('AccountSyncProvider.syncNow error: $e');
       rethrow;
@@ -396,7 +401,7 @@ class AccountSyncProvider extends ChangeNotifier {
   }
 
   void _notifyIfApplied(String statusJson) {
-    if (appliedCount(statusJson) > 0) onRemoteChangesApplied?.call();
+    if (appliedCount(statusJson) > 0) onLocalDataMayHaveChanged?.call();
   }
 
   /// Runs one manual sync cycle and maps the backend's raw JSON to the i18n
@@ -466,6 +471,7 @@ class AccountSyncProvider extends ChangeNotifier {
       }
       return true;
     } catch (e) {
+      onLocalDataMayHaveChanged?.call();
       // Silent by design: do not set _error or notify; just trace it.
       debugPrint('AccountSyncProvider.autoSyncTick (silent) error: $e');
       return false;

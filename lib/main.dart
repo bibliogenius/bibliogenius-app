@@ -665,7 +665,8 @@ class MyApp extends StatelessWidget {
     apiService.cleanupStalePeerBooksCache();
 
     // Readers of the account, loaded at start; reloaded after a sync cycle
-    // that brought other devices' changes (see AccountSyncProvider below).
+    // that may have brought other devices' changes (see AccountSyncProvider
+    // below).
     final householdProvider = HouseholdProvider()..load();
 
     // Enrich missing covers in background (async, don't block startup)
@@ -765,10 +766,11 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AccountSyncProvider>(
           create: (_) => AccountSyncProvider(
-            // A cycle that brought other devices' changes: reload what was
-            // read once at start. On a newly joined device, the readers only
-            // arrive with the first cycle, after the household was loaded.
-            onRemoteChangesApplied: () {
+            // A cycle that brought other devices' changes, or failed after
+            // bringing some: reload what was read once at start. On a newly
+            // joined device, the readers only arrive with the first cycle,
+            // after the household was loaded.
+            onLocalDataMayHaveChanged: () {
               unawaited(householdProvider.load());
               bookRefreshNotifier.refresh();
             },
