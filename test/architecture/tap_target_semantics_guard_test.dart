@@ -869,8 +869,13 @@ final _probes = <_Probe>[
   const _Probe('navigation rail', '/books', size: _desktop),
 ];
 
-/// Renders [probe] and leaves it settled on the state under audit.
-Future<_Harness> _render(WidgetTester tester, _Probe probe) async {
+/// Renders [probe] and leaves it settled on the state under audit. [books]
+/// replaces the fixture library.
+Future<_Harness> _render(
+  WidgetTester tester,
+  _Probe probe, {
+  List<Book>? books,
+}) async {
   tester.view.physicalSize = probe.size;
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
@@ -884,6 +889,7 @@ Future<_Harness> _render(WidgetTester tester, _Probe probe) async {
   };
   addTearDown(() => FlutterError.onError = reportError);
   final harness = _Harness(await SharedPreferences.getInstance());
+  if (books != null) harness.books.mockBooks = books;
   // Both setters also push the module list to a server that is not there
   // under test; the flag itself is set before that call and is all the
   // screens read.
@@ -935,6 +941,49 @@ void main() {
     await _render(tester, _probes.firstWhere((p) => p.name == 'network'));
     expect(find.byKey(const Key('memberTile_k1')), findsOneWidget);
     expect(find.byKey(const Key('memberTile_k2')), findsOneWidget);
+  });
+
+  // The "To Read" header counts the whole pile, while its row shows at most
+  // ten covers; a screen reader hears the count in words, not the middle dot.
+  testWidgets('the dashboard to-read header counts every book to read', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await _render(
+      tester,
+      _probes.firstWhere((p) => p.name == 'dashboard'),
+      books: [
+        for (var i = 1; i <= 12; i++)
+          Book(
+            id: 'tr$i',
+            title: 'Pile book $i',
+            author: 'Author $i',
+            readingStatus: 'to_read',
+          ),
+      ],
+    );
+
+    final header = find.text('To Read · 12');
+    await tester.ensureVisible(header);
+    await _settle(tester);
+    expect(header, findsOneWidget);
+    expect(
+      tester.getSemantics(header),
+      containsSemantics(label: 'To Read, 12 books', isHeader: true),
+    );
+
+    final row = tester.widget<ListView>(
+      find.descendant(
+        of: find.ancestor(of: header, matching: find.byType(Column)).first,
+        matching: find.byType(ListView),
+      ),
+    );
+    final delegate = row.childrenDelegate as SliverChildBuilderDelegate;
+    expect(delegate.childCount, 10);
+    semantics.dispose();
+    // With the FFI down, the completeness card retries its stats four times,
+    // two seconds apart: let the last retry fire before the test ends.
+    await tester.pump(const Duration(seconds: 10));
   });
 
   // Not semantics checks either. Selection mode lives in the list body, and

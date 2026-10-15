@@ -1542,6 +1542,14 @@ msgstr "책 %d권"
 msgid "displayed_books_count_plural"
 msgstr "책 %d권"
 
+#. Dashboard section header, screen reader: %d book
+msgid "dashboard_books_count"
+msgstr "%d권"
+
+#. Dashboard section header, screen reader: %d books
+msgid "dashboard_books_count_plural"
+msgstr "%d권"
+
 #. %d collection
 msgid "displayed_collections_count"
 msgstr "컬렉션 %d개"

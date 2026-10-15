@@ -935,6 +935,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                         seeAllRoute: '/books?status=to_read',
                         showStatus: false,
+                        showCount: true,
                       ),
 
                     // Suggestions for you (ADR-059): unread books scored
@@ -1307,12 +1308,16 @@ class _DashboardScreenState extends State<DashboardScreen>
     required String seeAllLabel,
     required String seeAllRoute,
     bool showStatus = true,
+    bool showCount = false,
     IconData? icon,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(context, title, icon: icon),
+        if (showCount)
+          _buildCountedSectionTitle(context, title, books.length, icon: icon)
+        else
+          _buildSectionTitle(context, title, icon: icon),
         const SizedBox(height: 16),
         SectionCard(
           child: Column(
@@ -1752,6 +1757,28 @@ class _DashboardScreenState extends State<DashboardScreen>
     }
 
     return SectionHeader(icon: resolved, title: title);
+  }
+
+  /// Section header showing the size of the whole list ("To Read · 23"), not
+  /// the number of covers in the row. A screen reader would announce the
+  /// middle dot, so the header reads "To Read, 23 books" instead; the visible
+  /// text is excluded so it is not read twice.
+  Widget _buildCountedSectionTitle(
+    BuildContext context,
+    String title,
+    int count, {
+    IconData? icon,
+  }) {
+    final booksCount = TranslationService.translate(
+      context,
+      count == 1 ? 'dashboard_books_count' : 'dashboard_books_count_plural',
+    ).replaceAll('%d', '$count');
+    return Semantics(
+      header: true,
+      label: '$title, $booksCount',
+      excludeSemantics: true,
+      child: _buildSectionTitle(context, '$title · $count', icon: icon),
+    );
   }
 
   Widget _buildBookList(

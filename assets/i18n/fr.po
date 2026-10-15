@@ -1837,6 +1837,14 @@ msgstr "%d livre"
 msgid "displayed_books_count_plural"
 msgstr "%d livres"
 
+#. Dashboard section header, screen reader: %d book
+msgid "dashboard_books_count"
+msgstr "%d livre"
+
+#. Dashboard section header, screen reader: %d books
+msgid "dashboard_books_count_plural"
+msgstr "%d livres"
+
 #. %d collection
 msgid "displayed_collections_count"
 msgstr "%d collection"

@@ -1542,6 +1542,14 @@ msgstr "%d 冊"
 msgid "displayed_books_count_plural"
 msgstr "%d 冊"
 
+#. Dashboard section header, screen reader: %d book
+msgid "dashboard_books_count"
+msgstr "%d 冊"
+
+#. Dashboard section header, screen reader: %d books
+msgid "dashboard_books_count_plural"
+msgstr "%d 冊"
+
 #. %d collection
 msgid "displayed_collections_count"
 msgstr "%d 件のコレクション"

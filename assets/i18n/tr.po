@@ -1601,6 +1601,14 @@ msgstr "%d kitap"
 msgid "displayed_books_count_plural"
 msgstr "%d kitap"
 
+#. Dashboard section header, screen reader: %d book
+msgid "dashboard_books_count"
+msgstr "%d kitap"
+
+#. Dashboard section header, screen reader: %d books
+msgid "dashboard_books_count_plural"
+msgstr "%d kitap"
+
 #. %d collection
 msgid "displayed_collections_count"
 msgstr "%d koleksiyon"
