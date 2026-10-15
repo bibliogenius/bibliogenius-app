@@ -31,9 +31,13 @@ class MockBookRepository implements BookRepository {
   Future<Book> getBook(String uuid) async =>
       mockBook ?? (throw Exception('Book not found'));
 
+  /// The payload of the last `createBook` call.
+  Map<String, dynamic>? lastCreate;
+
   @override
   Future<Book> createBook(Map<String, dynamic> bookData) async {
     calls.add('createBook:${bookData['isbn']}');
+    lastCreate = bookData;
     return mockBook ?? Book(id: '1', title: bookData['title'] ?? 'Test');
   }
 

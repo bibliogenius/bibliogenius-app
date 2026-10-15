@@ -4266,6 +4266,10 @@ msgstr "Recusar"
 msgid "tooltip_add_author"
 msgstr "Adicionar autor"
 
+#. Screen reader announcement once a typed name becomes an author
+msgid "author_added_announcement"
+msgstr "Autor adicionado: {name}"
+
 #. Toggle flashlight / torch
 msgid "tooltip_toggle_flashlight"
 msgstr "Ligar/desligar lanterna"

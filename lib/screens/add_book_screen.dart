@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_router/go_router.dart';
@@ -88,6 +89,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool _isDuplicate = false;
   bool _isAddingCopy = false; // Guard against double-tap on "Add copy"
   final FocusNode _titleFocusNode = FocusNode();
+  final FocusNode _authorFocusNode = FocusNode();
   List<String> _allAuthors = []; // For autocomplete
   final List<String> _selectedDigitalFormats = ['paper']; // Default to paper
   bool _isOwned = true; // Ownership status
@@ -98,6 +100,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   @override
   void initState() {
     super.initState();
+    _authorFocusNode.addListener(_onAuthorFocusChange);
     if (widget.isbn != null) {
       _isbnController.text = widget.isbn!;
       _fetchBookDetails(widget.isbn!);
@@ -194,6 +197,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     _pageCountController.dispose();
     _priceController.dispose();
     _titleFocusNode.dispose();
+    _authorFocusNode.dispose();
     super.dispose();
   }
 
@@ -336,8 +340,6 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 }
               }
             }
-            // Also set text controller for fallback/display if needed
-            _authorController.text = _authors.join(', ');
           }
 
           if (_publisherController.text.isEmpty)
@@ -393,22 +395,36 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  void _onAuthorFocusChange() {
+    if (!_authorFocusNode.hasFocus) _commitPendingAuthor();
+  }
+
+  /// Turns the name left in the author field into an author: typing a name is
+  /// enough, "+" only chains several.
+  void _commitPendingAuthor() {
+    if (!mounted) return;
+    final pending = _authorController.text.trim();
+    if (pending.isEmpty) return;
+    setState(() {
+      if (!_authors.contains(pending)) _authors.add(pending);
+      _authorController.clear();
+    });
+    // The field empties itself: say where the name went.
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      TranslationService.translate(
+        context,
+        'author_added_announcement',
+        params: {'name': pending},
+      ),
+      Directionality.of(context),
+    );
+  }
+
   Future<void> _saveBook() async {
     if (!_formKey.currentState!.validate()) return;
 
-    // Sync authors: if user cleared the text field, clear the authors list too
-    if (_authorController.text.trim().isEmpty) {
-      _authors.clear();
-    } else {
-      final pendingRaw = _authorController.text;
-      // Only add if it's not already joined string of all authors (avoid duplication)
-      if (pendingRaw != _authors.join(', ')) {
-        final pending = pendingRaw.trim();
-        if (!_authors.contains(pending)) {
-          _authors.add(pending);
-        }
-      }
-    }
+    _commitPendingAuthor();
 
     setState(() => _isSaving = true);
 
@@ -416,9 +432,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     final apiService = Provider.of<ApiService>(context, listen: false);
     final book = Book(
       title: _titleController.text,
-      author: _authors.isNotEmpty
-          ? _authors.join(', ')
-          : _authorController.text,
+      author: _authors.join(', '),
       publisher: _publisherController.text,
       publicationYear: int.tryParse(_publicationYearController.text),
       isbn: IsbnValidator.clean(_isbnController.text),
@@ -524,6 +538,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   bool get _hasFormData =>
       _titleController.text.isNotEmpty ||
       _isbnController.text.isNotEmpty ||
+      _authors.isNotEmpty ||
       _authorController.text.isNotEmpty;
 
   void _showDiscardDialog() {
@@ -1247,6 +1262,9 @@ class _AddBookScreenState extends State<AddBookScreen> {
                 icon: Icons.person_outline,
               ),
               Autocomplete<String>(
+                textEditingController: _authorController,
+                focusNode: _authorFocusNode,
+                onSelected: (_) => _commitPendingAuthor(),
                 optionsBuilder: (TextEditingValue textEditingValue) {
                   if (textEditingValue.text.isEmpty) {
                     return const Iterable<String>.empty();
@@ -1264,13 +1282,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       focusNode,
                       onFieldSubmitted,
                     ) {
-                      // Keep reference to controller for manual adding
-                      if (_authorController != textEditingController) {
-                        // If we are replacing the controller, we should copy the text if any
-                        // But usually Autocomplete creates its own.
-                        // Let's just use the one provided by Autocomplete for the input
-                      }
                       return TextFormField(
+                        key: const Key('authorField'),
                         controller: textEditingController,
                         focusNode: focusNode,
                         decoration: _buildInputDecoration(
@@ -1286,33 +1299,14 @@ class _AddBookScreenState extends State<AddBookScreen> {
                               context,
                               'tooltip_add_author',
                             ),
-                            onPressed: () {
-                              if (textEditingController.text
-                                  .trim()
-                                  .isNotEmpty) {
-                                setState(() {
-                                  final val = textEditingController.text.trim();
-                                  if (!_authors.contains(val)) {
-                                    _authors.add(val);
-                                  }
-                                  textEditingController.clear();
-                                });
-                              }
-                            },
+                            onPressed: _commitPendingAuthor,
                           ),
                         ),
                         onFieldSubmitted: (String value) {
-                          final trimmed = value.trim();
-                          if (trimmed.isNotEmpty) {
-                            setState(() {
-                              if (!_authors.contains(trimmed)) {
-                                _authors.add(trimmed);
-                              }
-                              textEditingController.clear();
-                            });
-                            // Keep focus for next entry
-                            focusNode.requestFocus();
-                          }
+                          if (value.trim().isEmpty) return;
+                          _commitPendingAuthor();
+                          // Keep focus for next entry
+                          focusNode.requestFocus();
                         },
                       );
                     },
@@ -1327,10 +1321,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       label: Text(author),
                       deleteIcon: const Icon(Icons.close, size: 18),
                       onDeleted: () {
-                        setState(() {
-                          _authors.remove(author);
-                          _authorController.text = _authors.join(', ');
-                        });
+                        setState(() => _authors.remove(author));
                       },
                     );
                   }).toList(),
@@ -2317,15 +2308,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _titleController.text = selection['title'];
       }
 
-      // Handle authors
+      // Handle authors: the suggestion replaces them, half-typed name included
       if (selection['authors'] != null && selection['authors'] is List) {
         _authors.clear();
+        _authorController.clear();
         final list = selection['authors'] as List;
         _authors.addAll(list.map((e) => e.toString()));
-        _authorController.text = _authors.join(', ');
       } else if (selection['author'] != null) {
-        _authorController.text = selection['author'];
         _authors.clear();
+        _authorController.clear();
         _authors.add(selection['author']);
       }
 

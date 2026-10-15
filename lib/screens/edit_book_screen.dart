@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
@@ -64,8 +65,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
   List<Collection> _selectedCollections = []; // Add this
   List<String> _authors = []; // Multiple authors support
   List<String> _allAuthors = []; // For autocomplete
-  TextEditingController?
-  _authorAutocompleteController; // Autocomplete's own controller
+  // Holds the name being typed, not yet one of `_authors`.
+  final _authorAutocompleteController = TextEditingController();
 
   String _readingStatus = 'to_read';
   String?
@@ -112,7 +113,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
     // Initialize FocusNodes
     _titleFocusNode = FocusNode();
-    _authorFocusNode = FocusNode();
+    _authorFocusNode = FocusNode()..addListener(_onAuthorFocusChange);
 
     _isbnController = TextEditingController(text: widget.book.isbn ?? '');
     _publisherController = TextEditingController(
@@ -366,6 +367,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     _isbnController.removeListener(_onIsbnChanged);
     _titleController.dispose();
     _authorController.dispose();
+    _authorAutocompleteController.dispose();
     _publisherController.dispose();
     _yearController.dispose();
     _isbnController.dispose();
@@ -461,6 +463,32 @@ class _EditBookScreenState extends State<EditBookScreen> {
     );
   }
 
+  void _onAuthorFocusChange() {
+    if (!_authorFocusNode.hasFocus) _commitPendingAuthor();
+  }
+
+  /// Turns the name left in the author field into an author: typing a name is
+  /// enough, "+" only chains several.
+  void _commitPendingAuthor() {
+    if (!mounted) return;
+    final pending = _authorAutocompleteController.text.trim();
+    if (pending.isEmpty) return;
+    setState(() {
+      if (!_authors.contains(pending)) _authors.add(pending);
+      _authorAutocompleteController.clear();
+    });
+    // The field empties itself: say where the name went.
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      TranslationService.translate(
+        context,
+        'author_added_announcement',
+        params: {'name': pending},
+      ),
+      Directionality.of(context),
+    );
+  }
+
   Future<void> _saveBook() async {
     // Force the IME to commit any pending composition before we read the
     // text controllers. Without this, on iOS/Android the user can tap
@@ -479,14 +507,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
       }
     }
 
-    // Sync authors: capture any pending text in the Autocomplete field
-    final pendingAuthor = _authorAutocompleteController?.text.trim() ?? '';
-    if (pendingAuthor.isNotEmpty && !_authors.contains(pendingAuthor)) {
-      setState(() {
-        _authors.add(pendingAuthor);
-        _authorAutocompleteController?.clear();
-      });
-    }
+    _commitPendingAuthor();
 
     if (!_formKey.currentState!.validate()) return;
 
@@ -851,6 +872,9 @@ class _EditBookScreenState extends State<EditBookScreen> {
                 icon: Icons.person_outline,
               ),
               Autocomplete<String>(
+                textEditingController: _authorAutocompleteController,
+                focusNode: _authorFocusNode,
+                onSelected: (_) => _commitPendingAuthor(),
                 optionsBuilder: (TextEditingValue textEditingValue) {
                   if (textEditingValue.text.isEmpty) {
                     return const Iterable<String>.empty();
@@ -868,8 +892,8 @@ class _EditBookScreenState extends State<EditBookScreen> {
                       focusNode,
                       onFieldSubmitted,
                     ) {
-                      _authorAutocompleteController = textEditingController;
                       return TextFormField(
+                        key: const Key('authorField'),
                         controller: textEditingController,
                         focusNode: focusNode,
                         decoration: _buildInputDecoration(
@@ -890,32 +914,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
                               context,
                               'tooltip_add_author',
                             ),
-                            onPressed: () {
-                              if (textEditingController.text
-                                  .trim()
-                                  .isNotEmpty) {
-                                setState(() {
-                                  final val = textEditingController.text.trim();
-                                  if (!_authors.contains(val)) {
-                                    _authors.add(val);
-                                  }
-                                  textEditingController.clear();
-                                });
-                              }
-                            },
+                            onPressed: _commitPendingAuthor,
                           ),
                         ),
                         onFieldSubmitted: (String value) {
-                          final trimmed = value.trim();
-                          if (trimmed.isNotEmpty) {
-                            setState(() {
-                              if (!_authors.contains(trimmed)) {
-                                _authors.add(trimmed);
-                              }
-                              textEditingController.clear();
-                            });
-                            focusNode.requestFocus();
-                          }
+                          if (value.trim().isEmpty) return;
+                          _commitPendingAuthor();
+                          focusNode.requestFocus();
                         },
                       );
                     },

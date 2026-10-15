@@ -10380,6 +10380,10 @@ msgstr ""
 msgid "tooltip_add_author"
 msgstr ""
 
+#. Screen reader announcement once a typed name becomes an author
+msgid "author_added_announcement"
+msgstr ""
+
 #. Toggle flashlight / torch
 msgid "tooltip_toggle_flashlight"
 msgstr ""

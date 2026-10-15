@@ -9579,6 +9579,10 @@ msgstr "Отхвърляне"
 msgid "tooltip_add_author"
 msgstr "Добавяне на автор"
 
+#. Screen reader announcement once a typed name becomes an author
+msgid "author_added_announcement"
+msgstr "Добавен автор: {name}"
+
 #. Toggle flashlight / torch
 msgid "tooltip_toggle_flashlight"
 msgstr "Превключване на фенерчето"
