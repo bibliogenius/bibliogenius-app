@@ -12109,3 +12109,11 @@ msgstr "Fecha de devolución (opcional)"
 #. Skip the optional due date step
 msgid "borrow_due_date_skip"
 msgstr "Saltar"
+
+#. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
+msgid "hub_catalog_key_unavailable"
+msgstr "El catálogo de esta biblioteca está cifrado y tu clave para leerlo aún no ha llegado. Se abrirá cuando su propietario vuelva a conectarse."
+
+#. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
+msgid "hub_catalog_invalid"
+msgstr "No se ha podido verificar el catálogo en línea de esta biblioteca. Se actualizará cuando su propietario vuelva a conectarse."

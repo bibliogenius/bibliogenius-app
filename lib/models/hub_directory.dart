@@ -123,6 +123,14 @@ class HubFollow {
   /// X25519 public key of the follower (for encrypting contact info).
   final String? followerX25519PublicKey;
 
+  /// App version of the follower (followers and pending lists), the signal
+  /// for whether it can read an encrypted catalog (ADR-072 D8).
+  final String? followerAppVersion;
+
+  /// The followed library's catalog key wrapped for this follower (following
+  /// list, ADR-072 D3). Opaque here: the Rust side opens it.
+  final String? encryptedCatalogKey;
+
   const HubFollow({
     required this.id,
     required this.followerNodeId,
@@ -133,6 +141,8 @@ class HubFollow {
     this.followerDisplayName,
     this.encryptedContact,
     this.followerX25519PublicKey,
+    this.followerAppVersion,
+    this.encryptedCatalogKey,
   });
 
   factory HubFollow.fromFrb(frb.FrbHubFollow f) => HubFollow(
@@ -145,6 +155,8 @@ class HubFollow {
     followerDisplayName: f.followerDisplayName,
     encryptedContact: f.encryptedContact,
     followerX25519PublicKey: f.followerX25519PublicKey,
+    followerAppVersion: f.followerAppVersion,
+    encryptedCatalogKey: f.encryptedCatalogKey,
   );
 
   bool get isPending => status == 'pending';

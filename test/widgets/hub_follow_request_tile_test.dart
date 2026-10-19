@@ -50,6 +50,7 @@ class _MockFfiService extends FfiService {
     int followId,
     String resolution, {
     String? encryptedContact,
+    String? followerX25519PublicKey,
   }) async {
     resolved.add((id: followId, resolution: resolution));
     final target = pending.firstWhere((f) => f.id == followId);

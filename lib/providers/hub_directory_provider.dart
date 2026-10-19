@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/avatar_config.dart';
 import '../models/contact_audience.dart';
 import '../models/contact_card.dart';
+import '../models/catalog_push_mode.dart';
 import '../models/hub_directory.dart';
 import '../services/api_service.dart';
 import '../services/auth_service.dart';
@@ -2350,15 +2351,29 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadFollowers() async {
+  /// Reloads the followers list. Returns false when the hub could not be
+  /// read, in which case the list is left as it was.
+  ///
+  /// An active follower that vanished since the last load has unfollowed
+  /// (ADR-072 D4, "unfollow seen"): the catalog key is rotated before the
+  /// next push so the ex-reader never opens a newer catalog.
+  Future<bool> loadFollowers() async {
     try {
       final raw = await _ffi.hubDirectoryListFollowers();
+      final before = _followers.where((f) => f.isActive).map((f) => f.id).toSet();
       _followers = raw.map(HubFollow.fromFrb).toList();
+      final after = _followers.where((f) => f.isActive).map((f) => f.id).toSet();
+      if (before.difference(after).isNotEmpty) {
+        _onCatalogReaderLost('follower left');
+      }
       _resolveNames(_followers.map((f) => f.followerNodeId).toList());
     } catch (e) {
       debugPrint('HubDirectoryProvider loadFollowers error: $e');
+      notifyListeners();
+      return false;
     }
     notifyListeners();
+    return true;
   }
 
   /// Load pending incoming follow requests (badge count).
@@ -2496,6 +2511,10 @@ class HubDirectoryProvider extends ChangeNotifier {
     _autoFollowRequested.remove(nodeId);
     _following.removeWhere((f) => f.followedNodeId == nodeId);
     notifyListeners();
+    // The ex-peer held a wrap of the catalog key: rotate before the next
+    // push (ADR-072 D4). The followers list is not refreshed here either,
+    // the hub may still show the follow it is about to drop.
+    _onCatalogReaderLost('pairing removed');
     // The lists already loaded are reused on purpose: a refresh right now
     // could still see the follow the hub is about to drop.
     await reconcilePairedPeerFollows(refreshLists: false);
@@ -2568,14 +2587,29 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      // The follower's key lets the Rust side wrap the catalog key for it
+      // (ADR-072 D3); a library pushing in clear holds no key and sends none.
+      final followerKey = _pendingRequests
+          .where((f) => f.id == followId)
+          .map((f) => f.followerX25519PublicKey)
+          .firstOrNull;
       final result = await _ffi.hubDirectoryResolveFollow(
         followId,
         resolution,
         encryptedContact: encryptedContact,
+        followerX25519PublicKey: followerKey,
       );
       if (result != null) {
         // Refresh pending list and followers after resolution.
         await Future.wait([loadPendingRequests(), loadFollowers()]);
+        if (resolution == 'approve' &&
+            _lastCatalogPushMode == CatalogPushMode.encrypted) {
+          // A new reader may not read an encrypted catalog (D8): re-decide
+          // now rather than at the next launch. No debounce timer here, the
+          // keyed digest makes an unchanged decision a local skip.
+          _catalogDirty = true;
+          unawaited(syncCatalog());
+        }
         return true;
       }
       return false;
@@ -2605,22 +2639,80 @@ class HubDirectoryProvider extends ChangeNotifier {
     });
   }
 
-  /// Push the full ISBN catalog to the hub.
+  /// Mode of the last successful catalog push, null before the first one.
+  CatalogPushMode? get lastCatalogPushMode => _lastCatalogPushMode;
+  CatalogPushMode? _lastCatalogPushMode;
+
+  /// True once every active follower received its wrap of the current
+  /// catalog key during this session (ADR-072 D3). Reset when the key
+  /// rotates; approvals wrap on their own.
+  bool _catalogKeysSynced = false;
+
+  /// A reader left since the last push: the catalog key must rotate before
+  /// the next one (ADR-072 D4).
+  bool _catalogReaderLost = false;
+
+  void _onCatalogReaderLost(String reason) {
+    debugPrint('[ADR-072] catalog reader lost ($reason), rotation pending');
+    _catalogReaderLost = true;
+    markCatalogDirty();
+  }
+
+  /// Push the full ISBN catalog to the hub, in clear or encrypted
+  /// (ADR-072 D8: encrypted only when every current reader can open it).
   /// Returns the number of ISBNs pushed, or -1 on error.
   Future<int> syncCatalog() async {
     if (!isRegistered) return 0;
     try {
-      final count = await _ffi.hubDirectorySyncCatalog();
+      // Deciding reloads the followers, which is also where a reader that
+      // left is noticed: the rotation check must come after it, so the
+      // push never goes out under a key the ex-reader still holds.
+      final mode = await _decideCatalogPushMode();
+      if (_catalogReaderLost) {
+        // Rotation re-wraps the remaining readers on its own; the push below
+        // goes out under the new key because the keyed digest changed.
+        if (await _ffi.hubDirectoryRotateCatalogKey()) {
+          _catalogReaderLost = false;
+          _catalogKeysSynced = true;
+        }
+      }
+      final count = mode == CatalogPushMode.encrypted
+          ? await _ffi.hubDirectorySyncCatalogEncrypted()
+          : await _ffi.hubDirectorySyncCatalog();
       if (count >= 0) {
         _catalogDirty = false;
+        _lastCatalogPushMode = mode;
         await _recordCatalogPush();
+        if (mode == CatalogPushMode.encrypted && !_catalogKeysSynced) {
+          _catalogKeysSynced = await _ffi.hubDirectorySyncCatalogKeys() >= 0;
+        }
       }
-      debugPrint('HubDirectoryProvider syncCatalog: pushed $count ISBNs');
+      debugPrint(
+        'HubDirectoryProvider syncCatalog: pushed $count ISBNs (${mode.name})',
+      );
       return count;
     } catch (e) {
       debugPrint('HubDirectoryProvider syncCatalog error: $e');
       return -1;
     }
+  }
+
+  /// Clear or encrypted for the next push. A public library needs no
+  /// followers list; any other reads it fresh, and pushes in clear when the
+  /// hub cannot be read: a catalog must never be encrypted for readers the
+  /// owner cannot see.
+  Future<CatalogPushMode> _decideCatalogPushMode() async {
+    final config = _config;
+    if (config == null) return CatalogPushMode.clear;
+    if (config.isListed && !config.requiresApproval) {
+      return CatalogPushMode.clear;
+    }
+    if (!await loadFollowers()) return CatalogPushMode.clear;
+    return decideCatalogPushMode(
+      isListed: config.isListed,
+      requiresApproval: config.requiresApproval,
+      followers: _followers,
+    );
   }
 
   /// Persist the wall-clock time of a successful catalog push so the keep-alive

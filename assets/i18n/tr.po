@@ -12221,3 +12221,11 @@ msgstr "İade tarihi (isteğe bağlı)"
 #. Skip the optional due date step
 msgid "borrow_due_date_skip"
 msgstr "Atla"
+
+#. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
+msgid "hub_catalog_key_unavailable"
+msgstr "Bu kütüphanenin kataloğu şifrelidir ve okumanız için gereken anahtar henüz ulaşmadı. Sahibi tekrar çevrimiçi olduğunda açılacak."
+
+#. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
+msgid "hub_catalog_invalid"
+msgstr "Bu kütüphanenin çevrimiçi kataloğu doğrulanamadı. Sahibi tekrar çevrimiçi olduğunda yenilenecek."

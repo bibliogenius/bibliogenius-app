@@ -11390,3 +11390,11 @@ msgstr "返却日（任意）"
 #. Skip the optional due date step
 msgid "borrow_due_date_skip"
 msgstr "スキップ"
+
+#. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
+msgid "hub_catalog_key_unavailable"
+msgstr "このライブラリのカタログは暗号化されており、読むための鍵がまだ届いていません。所有者が再びオンラインになると開けるようになります。"
+
+#. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
+msgid "hub_catalog_invalid"
+msgstr "このライブラリのオンラインカタログを検証できませんでした。所有者が再びオンラインになると更新されます。"

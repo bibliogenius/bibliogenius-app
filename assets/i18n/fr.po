@@ -12363,3 +12363,11 @@ msgstr "Date de retour (facultatif)"
 #. Skip the optional due date step
 msgid "borrow_due_date_skip"
 msgstr "Passer"
+
+#. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
+msgid "hub_catalog_key_unavailable"
+msgstr "Le catalogue de cette bibliothèque est chiffré et votre clé pour le lire n'est pas encore arrivée. Il s'ouvrira quand son propriétaire se reconnectera."
+
+#. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
+msgid "hub_catalog_invalid"
+msgstr "Le catalogue en ligne de cette bibliothèque n'a pas pu être vérifié. Il sera rafraîchi quand son propriétaire se reconnectera."

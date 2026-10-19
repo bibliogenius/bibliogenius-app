@@ -1624,6 +1624,42 @@ class FfiService {
     }
   }
 
+  /// Same push as [hubDirectorySyncCatalog], as a ciphertext under this
+  /// library's catalog key (ADR-072). The caller decides when every reader
+  /// can open it. Returns the number of entries pushed, or -1 on error.
+  Future<int> hubDirectorySyncCatalogEncrypted() async {
+    try {
+      return await frb.hubDirectorySyncCatalogEncrypted();
+    } catch (e) {
+      debugPrint('FFI hubDirectorySyncCatalogEncrypted error: $e');
+      return -1;
+    }
+  }
+
+  /// Hands every active follower its wrap of the current catalog key
+  /// (ADR-072 D3). Returns the number of follow rows updated, or -1 on error.
+  Future<int> hubDirectorySyncCatalogKeys() async {
+    try {
+      return await frb.hubDirectorySyncCatalogKeys();
+    } catch (e) {
+      debugPrint('FFI hubDirectorySyncCatalogKeys error: $e');
+      return -1;
+    }
+  }
+
+  /// Retires the catalog key after a reader left and re-wraps the new one
+  /// for the readers that remain (ADR-072 D4). The next catalog push goes
+  /// out under the new key. Returns false on error.
+  Future<bool> hubDirectoryRotateCatalogKey() async {
+    try {
+      await frb.hubDirectoryRotateCatalogKey();
+      return true;
+    } catch (e) {
+      debugPrint('FFI hubDirectoryRotateCatalogKey error: $e');
+      return false;
+    }
+  }
+
   /// List libraries in the public directory (paginated). ADR-035 Phase 2:
   /// optional [country] / [cityId] filters narrow the result set; either
   /// can be combined with [search] for "voltaire in Paris" style queries.
@@ -1762,12 +1798,14 @@ class FfiService {
     int followId,
     String resolution, {
     String? encryptedContact,
+    String? followerX25519PublicKey,
   }) async {
     try {
       return await frb.hubDirectoryResolveFollow(
         followId: followId,
         resolution: resolution,
         encryptedContact: encryptedContact,
+        followerX25519PublicKey: followerX25519PublicKey,
       );
     } catch (e) {
       debugPrint('FFI hubDirectoryResolveFollow error: $e');
@@ -1786,12 +1824,15 @@ class FfiService {
   }
 
   /// List libraries that follow this library.
+  ///
+  /// Throws when the hub cannot be read: an owner deciding how to push its
+  /// catalog must tell "no follower" from "followers unknown" (ADR-072 D8).
   Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async {
     try {
       return await frb.hubDirectoryListFollowers();
     } catch (e) {
       debugPrint('FFI hubDirectoryListFollowers error: $e');
-      return [];
+      rethrow;
     }
   }
 

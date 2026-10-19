@@ -138,7 +138,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
 
   /// Why the hub could not serve this library's catalog (see
   /// FrbHubCatalogResult.errorCode): "follow_required", "catalog_unavailable",
-  /// "not_found", `http_<status>` or "network". Null when the hub answered.
+  /// "catalog_key_unavailable", "catalog_invalid", "not_found",
+  /// `http_<status>` or "network". Null when the hub answered.
   /// Drives an honest empty state instead of a bare "no books found".
   String? _hubErrorCode;
 
@@ -202,6 +203,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   String? get _hubEmptyStateKey => switch (_hubErrorCode) {
     'follow_required' => 'hub_catalog_follow_required',
     'catalog_unavailable' => 'hub_catalog_unavailable',
+    'catalog_key_unavailable' => 'hub_catalog_key_unavailable',
+    'catalog_invalid' => 'hub_catalog_invalid',
     _ => null,
   };
 
