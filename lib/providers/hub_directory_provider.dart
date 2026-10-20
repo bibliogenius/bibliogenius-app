@@ -1877,6 +1877,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     _configLoading = true;
     _configError = null;
     notifyListeners();
+    final previousConfig = _config;
 
     // Retry a previously failed Keychain backup before making a new hub call.
     if (_keychainBackupPending) {
@@ -2018,8 +2019,27 @@ class HubDirectoryProvider extends ChangeNotifier {
       return false;
     } finally {
       _configLoading = false;
+      _pushCatalogIfAudienceChanged(previousConfig, _config);
       notifyListeners();
     }
+  }
+
+  /// Listing and approval decide who may read the hub catalog, hence its
+  /// mode (ADR-072 D8): when either changes, the copy on the hub is in the
+  /// wrong mode until the next push. Leaving the directory would otherwise
+  /// keep a clear copy readable by anyone who knows the node id, so the
+  /// push starts now, not after the edit debounce.
+  void _pushCatalogIfAudienceChanged(
+    DirectoryConfig? before,
+    DirectoryConfig? after,
+  ) {
+    if (before == null || after == null) return;
+    if (before.isListed == after.isListed &&
+        before.requiresApproval == after.requiresApproval) {
+      return;
+    }
+    _catalogDirty = true;
+    unawaited(syncCatalog());
   }
 
   // ---------------------------------------------------------------------------
@@ -2660,7 +2680,39 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Push the full ISBN catalog to the hub, in clear or encrypted
   /// (ADR-072 D8: encrypted only when every current reader can open it).
   /// Returns the number of ISBNs pushed, or -1 on error.
-  Future<int> syncCatalog() async {
+  ///
+  /// Pushes never overlap: two in flight would upload the covers twice and,
+  /// around a rotation, could land the wraps of one key after the catalog
+  /// encrypted under the next. A call made while one runs queues a single
+  /// rerun, shared by further calls, which reads the latest state anyway.
+  Future<int> syncCatalog() {
+    final queued = _catalogSyncQueued;
+    if (queued != null) return queued;
+    final running = _catalogSyncRunning;
+    if (running == null) return _startCatalogSync();
+    final rerun = running.then((_) {
+      _catalogSyncQueued = null;
+      return _startCatalogSync();
+    });
+    _catalogSyncQueued = rerun;
+    return rerun;
+  }
+
+  Future<int>? _catalogSyncRunning;
+  Future<int>? _catalogSyncQueued;
+
+  Future<int> _startCatalogSync() {
+    final run = _syncCatalogOnce();
+    _catalogSyncRunning = run;
+    unawaited(
+      run.whenComplete(() {
+        if (identical(_catalogSyncRunning, run)) _catalogSyncRunning = null;
+      }),
+    );
+    return run;
+  }
+
+  Future<int> _syncCatalogOnce() async {
     if (!isRegistered) return 0;
     try {
       // Deciding reloads the followers, which is also where a reader that
