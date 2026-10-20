@@ -49,8 +49,11 @@ class _MockFfiService extends FfiService {
 
   int clearPushes = 0;
   int encryptedPushes = 0;
-  int keySyncs = 0;
   int rotations = 0;
+
+  /// The Rust side hands out the wraps after the ciphertext; an encrypted
+  /// push that cannot deliver them reports a failure.
+  bool failEncryptedPush = false;
 
   /// Every catalog call in order, to pin what happens before what.
   final List<String> events = [];
@@ -104,14 +107,7 @@ class _MockFfiService extends FfiService {
   Future<int> hubDirectorySyncCatalogEncrypted() async {
     encryptedPushes++;
     events.add('push:encrypted');
-    return 3;
-  }
-
-  @override
-  Future<int> hubDirectorySyncCatalogKeys() async {
-    keySyncs++;
-    events.add('keys');
-    return followers.length;
+    return failEncryptedPush ? -1 : 3;
   }
 
   @override
@@ -184,8 +180,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   group('syncCatalog push mode (ADR-072 D8)', () {
-    test('encrypts when every active follower can read, then hands out the keys',
-        () async {
+    test('encrypts when every active follower can read', () async {
       final (p, ffi) = await _provider();
       ffi.followers = [_follower(id: 1, node: _readerNode)];
 
@@ -195,10 +190,23 @@ void main() {
       expect(p.lastCatalogPushMode, CatalogPushMode.encrypted);
       expect(ffi.encryptedPushes, 1);
       expect(ffi.clearPushes, 0);
-      expect(ffi.keySyncs, 1, reason: 'wraps follow the first encrypted push');
+    });
 
-      await p.syncCatalog();
-      expect(ffi.keySyncs, 1, reason: 'wraps are not re-sent every push');
+    test('an encrypted push whose wraps failed keeps the catalog dirty',
+        () async {
+      final (p, ffi) = await _provider();
+      ffi.followers = [_follower(id: 1, node: _readerNode)];
+      ffi.failEncryptedPush = true;
+
+      final count = await p.syncCatalog();
+
+      expect(count, -1);
+      expect(p.lastCatalogPushMode, isNull);
+      // Still dirty: the lifecycle hook pushes (and wraps) again.
+      ffi.failEncryptedPush = false;
+      await p.syncCatalogIfDirty();
+      expect(ffi.encryptedPushes, 2);
+      expect(p.lastCatalogPushMode, CatalogPushMode.encrypted);
     });
 
     test('one reader on an older build keeps the catalog in clear', () async {
@@ -213,7 +221,6 @@ void main() {
       expect(p.lastCatalogPushMode, CatalogPushMode.clear);
       expect(ffi.clearPushes, 1);
       expect(ffi.encryptedPushes, 0);
-      expect(ffi.keySyncs, 0);
     });
 
     test('a public library pushes in clear without reading its followers',
@@ -274,12 +281,7 @@ void main() {
 
       expect(ffi.rotations, 1);
       expect(ffi.encryptedPushes, 2);
-      expect(ffi.events, [
-        'push:encrypted',
-        'keys',
-        'rotate',
-        'push:encrypted',
-      ]);
+      expect(ffi.events, ['push:encrypted', 'rotate', 'push:encrypted']);
     });
 
     test('ending a pairing rotates the key before the next push', () async {

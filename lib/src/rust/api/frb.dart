@@ -1211,7 +1211,11 @@ Future<int> hubDirectorySyncCatalog() =>
 /// when every current reader runs a build that can decrypt); this function
 /// never falls back on its own. Covers are uploaded exactly as for a clear
 /// push (D5), and their book ids travel in clear so the hub can garbage
-/// collect them. Returns the number of entries pushed.
+/// collect them. After a push the hub stored, every active follower with a
+/// published X25519 key receives its wrap of the key (D3); a skipped push
+/// leaves the wraps as they are. Returns the number of entries pushed, or
+/// an error when the ciphertext went out but the wraps did not (the next
+/// sync then pushes again).
 Future<int> hubDirectorySyncCatalogEncrypted() =>
     RustLib.instance.api.crateApiFrbHubDirectorySyncCatalogEncrypted();
 
@@ -1277,12 +1281,6 @@ Future<FrbHubFollow> hubDirectoryResolveFollow({
   encryptedContact: encryptedContact,
   followerX25519PublicKey: followerX25519PublicKey,
 );
-
-/// Hands every active follower its wrap of the current catalog key
-/// (ADR-072 D3). No-op when this library holds no catalog key. Returns the
-/// number of follow rows the hub updated.
-Future<int> hubDirectorySyncCatalogKeys() =>
-    RustLib.instance.api.crateApiFrbHubDirectorySyncCatalogKeys();
 
 /// Rotates the catalog key after a reader left (ADR-072 D4): retires the
 /// current key, generates a new one and re-wraps it for the readers that

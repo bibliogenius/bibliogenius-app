@@ -1636,17 +1636,6 @@ class FfiService {
     }
   }
 
-  /// Hands every active follower its wrap of the current catalog key
-  /// (ADR-072 D3). Returns the number of follow rows updated, or -1 on error.
-  Future<int> hubDirectorySyncCatalogKeys() async {
-    try {
-      return await frb.hubDirectorySyncCatalogKeys();
-    } catch (e) {
-      debugPrint('FFI hubDirectorySyncCatalogKeys error: $e');
-      return -1;
-    }
-  }
-
   /// Retires the catalog key after a reader left and re-wraps the new one
   /// for the readers that remain (ADR-072 D4). The next catalog push goes
   /// out under the new key. Returns false on error.

@@ -2643,11 +2643,6 @@ class HubDirectoryProvider extends ChangeNotifier {
   CatalogPushMode? get lastCatalogPushMode => _lastCatalogPushMode;
   CatalogPushMode? _lastCatalogPushMode;
 
-  /// True once every active follower received its wrap of the current
-  /// catalog key during this session (ADR-072 D3). Reset when the key
-  /// rotates; approvals wrap on their own.
-  bool _catalogKeysSynced = false;
-
   /// A reader left since the last push: the catalog key must rotate before
   /// the next one (ADR-072 D4).
   bool _catalogReaderLost = false;
@@ -2673,9 +2668,12 @@ class HubDirectoryProvider extends ChangeNotifier {
         // goes out under the new key because the keyed digest changed.
         if (await _ffi.hubDirectoryRotateCatalogKey()) {
           _catalogReaderLost = false;
-          _catalogKeysSynced = true;
         }
       }
+      // An encrypted push hands every active follower its wrap of the key
+      // on the Rust side, once the hub confirms it holds the ciphertext
+      // (D3); a failed hand-out comes back as an error and keeps the
+      // catalog dirty, so the next sync contacts the hub and wraps again.
       final count = mode == CatalogPushMode.encrypted
           ? await _ffi.hubDirectorySyncCatalogEncrypted()
           : await _ffi.hubDirectorySyncCatalog();
@@ -2683,9 +2681,6 @@ class HubDirectoryProvider extends ChangeNotifier {
         _catalogDirty = false;
         _lastCatalogPushMode = mode;
         await _recordCatalogPush();
-        if (mode == CatalogPushMode.encrypted && !_catalogKeysSynced) {
-          _catalogKeysSynced = await _ffi.hubDirectorySyncCatalogKeys() >= 0;
-        }
       }
       debugPrint(
         'HubDirectoryProvider syncCatalog: pushed $count ISBNs (${mode.name})',
