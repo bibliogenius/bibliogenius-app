@@ -218,6 +218,20 @@ Future<String> createInviteLink(
   return encodeInviteLink(payload, hubBaseUrl: hubBaseUrl);
 }
 
+/// A link or scanned string as it may appear in a log: scheme, host and
+/// path only. An invite carries the inviter's relay write token in its `d`
+/// payload, and a short invite id resolves to that payload, so neither the
+/// query nor the short id is ever printed (SECURITY_GUIDELINES A2).
+String describeLinkForLog(String? link) {
+  if (link == null) return 'null';
+  final uri = Uri.tryParse(link);
+  if (uri == null || uri.scheme.isEmpty) return '<${link.length} chars>';
+  final segments = uri.pathSegments;
+  final path = segments.length == 2 && segments[0] == 'i' ? '/i/' : uri.path;
+  final query = uri.hasQuery ? ' (query omitted)' : '';
+  return '${uri.scheme}://${uri.host}$path$query';
+}
+
 /// Parse a QR code / scanned string into a normalized invite payload.
 ///
 /// Supports three formats:
@@ -280,7 +294,7 @@ Future<Map<String, dynamic>?> resolveShortInvite(String shortUrl) async {
         receiveTimeout: const Duration(seconds: 5),
       ),
     );
-    debugPrint('resolveShortInvite: fetching $shortUrl');
+    debugPrint('resolveShortInvite: fetching ${describeLinkForLog(shortUrl)}');
     final response = await dio.get(shortUrl);
     final html = response.data.toString();
     debugPrint(

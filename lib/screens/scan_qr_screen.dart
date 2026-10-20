@@ -66,9 +66,7 @@ class _ScanContactViewState extends State<ScanContactView> {
     for (final barcode in barcodes) {
       final raw = barcode.rawValue;
       if (raw == null) continue;
-      debugPrint(
-        '📷 [SCAN] Barcode detected: ${raw.length > 80 ? '${raw.substring(0, 80)}...' : raw}',
-      );
+      debugPrint('📷 [SCAN] Barcode detected: ${describeLinkForLog(raw)}');
 
       final payload = parseScannedInvite(
         raw,
@@ -150,7 +148,8 @@ class _ScanContactViewState extends State<ScanContactView> {
         relayWriteToken: relayWriteToken,
       );
       debugPrint(
-        '📷 [CONNECT] Response: status=${response.statusCode}, data=${response.data}',
+        // The body carries the peer's relay write token: status only.
+        '📷 [CONNECT] Response: status=${response.statusCode}',
       );
 
       // connectLocalPeer returns error responses instead of throwing

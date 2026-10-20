@@ -4064,9 +4064,8 @@ class ApiService {
           data: {'name': myName, 'url': myUrl, if (myKeys != null) ...myKeys},
         );
 
-        debugPrint(
-          'P2P Handshake Success: ${response.statusCode} - ${response.data}',
-        );
+        // The body carries the peer's relay write token: status only.
+        debugPrint('P2P Handshake Success: ${response.statusCode}');
 
         // Extract the remote peer's keys and relay info from the handshake response
         // Prefer handshake response values, fall back to invite payload values
@@ -5105,9 +5104,8 @@ class ApiService {
         '/api/auth/pairing/verify',
         data: {'code': code},
       );
-      debugPrint(
-        '🔗 Pairing: Response status=${response.statusCode}, data=${response.data}',
-      );
+      // The body carries the pairing session secret: status only.
+      debugPrint('🔗 Pairing: Response status=${response.statusCode}');
       return response;
     } on DioException catch (e) {
       debugPrint('🔗 Pairing ERROR: ${e.type} - ${e.message}');
@@ -5212,7 +5210,8 @@ class ApiService {
           data: {'relay_url': relayUrl},
         );
       }
-      debugPrint('Relay setup: ${resp.statusCode} ${resp.data}');
+      // The body carries the mailbox write token: status only.
+      debugPrint('Relay setup: ${resp.statusCode}');
       return resp;
     } catch (e) {
       debugPrint('Relay setup failed: $e');

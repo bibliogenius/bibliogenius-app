@@ -1792,11 +1792,15 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
     // app_links plugin (works on iOS/Android, not reliable on macOS)
     _appLinks.getInitialLink().then((uri) {
-      debugPrint('Deep link: getInitialLink returned ${uri ?? "null"}');
+      debugPrint(
+        'Deep link: getInitialLink returned ${describeLinkForLog(uri?.toString())}',
+      );
       if (uri != null) _handleDeepLink(uri);
     });
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
-      debugPrint('Deep link: uriLinkStream received $uri');
+      debugPrint(
+        'Deep link: uriLinkStream received ${describeLinkForLog(uri.toString())}',
+      );
       _handleDeepLink(uri);
     });
 
@@ -1848,7 +1852,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
   }
 
   void _handleDeepLink(Uri uri) {
-    debugPrint('Deep link: _handleDeepLink called with $uri');
+    debugPrint(
+      'Deep link: _handleDeepLink called with ${describeLinkForLog(uri.toString())}',
+    );
     // Dedup: avoid processing the same link twice
     final key = uri.toString();
     if (_lastHandledDeepLink == key) {
@@ -1859,7 +1865,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
 
     final payload = _parseInviteUri(uri);
     if (payload == null) {
-      debugPrint('Deep link: _parseInviteUri returned null for $uri');
+      debugPrint(
+        'Deep link: _parseInviteUri returned null for ${describeLinkForLog(uri.toString())}',
+      );
       return;
     }
     debugPrint('Deep link: parsed invite for "${payload['name']}"');

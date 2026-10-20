@@ -204,4 +204,37 @@ void main() {
       expect(result!.payload['u'], '');
     });
   });
+
+  group('describeLinkForLog', () {
+    test('drops the payload of a long invite link', () {
+      final d = 'eyJuIjoiRnJlZCIsInd0Ijoid3JpdGUtdG9rZW4ifQ';
+      final described = describeLinkForLog(
+        'https://hub.example.org/invite?d=$d',
+      );
+      expect(described, isNot(contains(d)));
+      expect(described, contains('https://hub.example.org/invite'));
+    });
+
+    test('drops the payload of a custom scheme invite', () {
+      final described = describeLinkForLog('bibliogenius://invite?d=secret123');
+      expect(described, isNot(contains('secret123')));
+      expect(described, contains('bibliogenius://invite'));
+    });
+
+    test('drops the id of a short invite link, which resolves to the payload',
+        () {
+      final described = describeLinkForLog('https://hub.example.org/i/AbC123');
+      expect(described, isNot(contains('AbC123')));
+      expect(described, contains('https://hub.example.org/i/'));
+    });
+
+    test('never echoes a raw payload that is not a link', () {
+      final described = describeLinkForLog('{"n":"Fred","wt":"write-token"}');
+      expect(described, isNot(contains('write-token')));
+    });
+
+    test('null stays readable', () {
+      expect(describeLinkForLog(null), 'null');
+    });
+  });
 }
