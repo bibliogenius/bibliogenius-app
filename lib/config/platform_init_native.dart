@@ -7,6 +7,7 @@ import '../src/rust/frb_generated.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
+import '../utils/hub_url_mismatch.dart';
 import '../utils/local_cover_resolver.dart';
 
 const _migrationFlag = 'db_migration_completed_v1';
@@ -44,6 +45,13 @@ Future<bool> initializePlatform() async {
     // Rust reads HUB_URL via std::env::var and cannot see Flutter's dotenv map.
     await frb.setHubUrlFfi(hubUrl: ApiService.hubUrl);
     if (kDebugMode) debugPrint('FFI: HUB_URL configured');
+    if (!kReleaseMode) {
+      logHubUrlMismatch(
+        envHubUrl: ApiService.hubUrl,
+        readEffectiveHubUrl: frb.hubEffectiveUrl,
+        log: debugPrint,
+      );
+    }
     debugPrint('FFI: useFfi set to TRUE');
 
     // Flip the singleton flag every `ffi.isInitialized` guard reads. The
