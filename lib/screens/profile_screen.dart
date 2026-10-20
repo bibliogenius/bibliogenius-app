@@ -1430,10 +1430,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 nodeId: hubConfig.nodeId,
                 displayName: result,
                 bookCount: bookCount,
-                isListed: hubConfig.isListed,
-                requiresApproval: hubConfig.requiresApproval,
                 acceptFrom: hubConfig.acceptFrom,
-                allowBorrowing: hubConfig.allowBorrowing,
                 locationCountry: themeProvider.country,
               );
             }

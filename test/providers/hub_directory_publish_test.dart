@@ -62,10 +62,10 @@ class _MockFfiService extends FfiService {
     if (!registerOk) return null;
     return frb.FrbDirectoryConfig(
       nodeId: params.nodeId,
-      isListed: params.isListed,
-      requiresApproval: params.requiresApproval,
+      isListed: params.isListed ?? false,
+      requiresApproval: params.requiresApproval ?? true,
       acceptFrom: params.acceptFrom,
-      allowBorrowing: params.allowBorrowing,
+      allowBorrowing: params.allowBorrowing ?? false,
     );
   }
 

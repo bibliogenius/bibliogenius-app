@@ -60,10 +60,13 @@ class _MockFfiService extends FfiService {
     if (!registerOk) return null;
     final next = frb.FrbDirectoryConfig(
       nodeId: params.nodeId,
-      isListed: params.isListed,
-      requiresApproval: params.requiresApproval,
+      // Like the hub: a flag left out keeps the stored value.
+      isListed: params.isListed ?? existingConfig?.isListed ?? false,
+      requiresApproval:
+          params.requiresApproval ?? existingConfig?.requiresApproval ?? true,
       acceptFrom: params.acceptFrom,
-      allowBorrowing: params.allowBorrowing,
+      allowBorrowing:
+          params.allowBorrowing ?? existingConfig?.allowBorrowing ?? false,
     );
     existingConfig = next;
     return next;
@@ -157,11 +160,15 @@ void main() {
         final params = ffi.registerParamsLog.single;
         expect(params.nodeId, '2e69adfd-3f28-43d3-92a5-a22e3e8e2501');
         expect(params.locationCountry, 'BE');
-        // Existing config fields must be preserved across the country change.
-        expect(params.isListed, true);
-        expect(params.requiresApproval, true);
+        // A country change leaves the visibility flags out: the hub keeps
+        // the owner's settings, and the local config mirrors its answer.
+        expect(params.isListed, isNull);
+        expect(params.requiresApproval, isNull);
         expect(params.acceptFrom, 'mutual');
-        expect(params.allowBorrowing, false);
+        expect(params.allowBorrowing, isNull);
+        expect(provider.config?.isListed, true);
+        expect(provider.config?.requiresApproval, true);
+        expect(provider.config?.allowBorrowing, false);
         // Display name is pulled from prefs so the hub does not blank it.
         expect(params.displayName, 'Bibliothèque de SM-A405FN #JDD8');
         // Device/relay fields included so the hub does not overwrite them.

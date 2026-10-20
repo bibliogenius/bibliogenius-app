@@ -574,8 +574,8 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// True when the current config was recovered from Keychain (not from
   /// a fresh hub registration).  If the first hub call after recovery returns
-  /// 401, we purge both config + Keychain and retry immediately without
-  /// incrementing the backoff counter.
+  /// 401, we purge the config and this hub's Keychain slot and retry
+  /// immediately without incrementing the backoff counter.
   bool _tokenRecoveredFromKeychain = false;
 
   /// Attempts to back up the hub write_token to Keychain.
@@ -908,6 +908,18 @@ class HubDirectoryProvider extends ChangeNotifier {
         );
       }
       if (isRegistered) {
+        // A registration restored from the Keychain wrote a default row
+        // (unlisted, approval required): re-register once, without any
+        // visibility flag, so the local copy mirrors the hub before the
+        // catalog push decides between clear and encrypted. Without it a
+        // public library could push a ciphertext its visitors cannot open
+        // until some later profile update. The relay publication below may
+        // upsert the profile again right after: two flag-less upserts, once
+        // per reinstall, is the accepted price for a correct local copy
+        // even when the relay is disabled.
+        if (_tokenRecoveredFromKeychain) {
+          await _ensureSilentRegistration();
+        }
         // Ensure relay credentials are published on the hub profile.
         // Fixes ~50% of installs where relay was missing due to race condition
         // or ensureKeysPublished overwriting without relay params.
@@ -1007,10 +1019,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         nodeId: cfg.nodeId,
         displayName: libraryName,
         bookCount: bookCount,
-        isListed: cfg.isListed,
-        requiresApproval: cfg.requiresApproval,
         acceptFrom: cfg.acceptFrom,
-        allowBorrowing: cfg.allowBorrowing,
         // Re-assert location: this method runs on every cold start (and
         // on retry) - omitting cityId would silently wipe the user's city
         // each time, which production logs caught as the root cause of
@@ -1111,10 +1120,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       nodeId: cfg.nodeId,
       displayName: displayName,
       bookCount: bookCount,
-      isListed: cfg.isListed,
-      requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
-      allowBorrowing: cfg.allowBorrowing,
       // Re-assert location: the Rust serializer always emits cityId, so
       // omitting it here would wipe the user's city on the hub on every
       // rename. Country is preserved when null (Rust omits null country).
@@ -1225,10 +1231,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       nodeId: cfg.nodeId,
       displayName: displayName,
       bookCount: bookCount,
-      isListed: cfg.isListed,
-      requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
-      allowBorrowing: cfg.allowBorrowing,
       // Caller's [locationCountry] wins (this method exists to set it).
       locationCountry: locationCountry,
       // Re-assert local cityId to avoid wiping it on a country-only update.
@@ -1347,8 +1350,8 @@ class HubDirectoryProvider extends ChangeNotifier {
       return (cityId: null, country: null);
     }
     // Deliberately NOT also gated on [isListed]. It reads as a free extra
-    // guarantee, but `_ensureSilentRegistration` re-registers with
-    // is_listed=false after a config purge or Keychain recovery, and blanking
+    // guarantee, but `_ensureSilentRegistration` re-registers (without any
+    // visibility flag) after a config purge or Keychain recovery, and blanking
     // the hub city there is exactly the loss that path already goes out of
     // its way to prevent. Withdrawal from the directory is handled where the
     // user performs it: the un-listing flow calls [setShareCity] with false,
@@ -1523,10 +1526,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       nodeId: cfg.nodeId,
       displayName: displayName,
       bookCount: bookCount,
-      isListed: cfg.isListed,
-      requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
-      allowBorrowing: cfg.allowBorrowing,
       // null country is omitted from the JSON body by the Rust serializer
       // (hub_directory_service::build_register_body), so the previously
       // stored hub country survives a city-only push or a city clear.
@@ -1811,10 +1811,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       nodeId: cfg.nodeId,
       displayName: displayName,
       bookCount: bookCount,
-      isListed: cfg.isListed,
-      requiresApproval: cfg.requiresApproval,
       acceptFrom: cfg.acceptFrom,
-      allowBorrowing: cfg.allowBorrowing,
       // Re-assert location: this path republishes keys/relay and would
       // otherwise wipe the user's city on every contact-sync flow.
       locationCountry: loc.country,
@@ -1850,14 +1847,20 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// public number from the catalog it pushes, so the library header can never
   /// announce books a follower cannot see. The parameter is kept because the
   /// FFI struct still carries the field.
+  /// The three visibility flags are the owner's settings: pass them only
+  /// from a settings change or the publish flow. Left null, the hub keeps
+  /// what it holds and the local config mirrors its answer, so a
+  /// registration made for another reason (relay credentials, rename,
+  /// location, silent registration after a purge) never unlists a
+  /// published library or reopens a gated one.
   Future<bool> register({
     required String nodeId,
     required String displayName,
     required int bookCount,
-    required bool isListed,
-    required bool requiresApproval,
+    bool? isListed,
+    bool? requiresApproval,
     required String acceptFrom,
-    required bool allowBorrowing,
+    bool? allowBorrowing,
     String? description,
     String? locationCountry,
     int? locationCityId,
@@ -2102,9 +2105,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   // Follow / unfollow
   // ---------------------------------------------------------------------------
 
-  /// Register silently with is_listed=false to obtain a write_token
-  /// without appearing in the public directory. This allows following
-  /// other libraries without being listed.
+  /// Register silently to obtain a write_token. No visibility flag is sent:
+  /// a brand-new profile takes the hub's defaults (unlisted, approval
+  /// required), an existing one keeps the owner's settings. This allows
+  /// following other libraries without being listed.
   Future<bool> _ensureSilentRegistration() async {
     try {
       final libraryUuid = await _authService.getOrCreateLibraryUuid();
@@ -2129,14 +2133,14 @@ class HubDirectoryProvider extends ChangeNotifier {
       final relay = await _getRelayCredentials();
       final loc = await _currentLocationForRegister();
 
+      // No visibility flag: after a purge (hub switch, 401 recovery) the
+      // hub still holds the owner's settings, and sending defaults here
+      // used to unlist a published library on its way back.
       return await register(
         nodeId: libraryUuid,
         displayName: libraryName,
         bookCount: bookCount,
-        isListed: false,
-        requiresApproval: false,
-        acceptFrom: 'anyone',
-        allowBorrowing: false,
+        acceptFrom: 'everyone',
         // Silent re-registration must not blank the city: a user who set
         // it via Settings before a config-purge / Keychain recovery would
         // otherwise lose it on the next silent re-register.
@@ -2156,8 +2160,8 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
-  /// Auto-register with is_listed=false if not yet registered.
-  /// Enables catalog push for known peers without public listing.
+  /// Auto-register (silently, without any visibility flag) if not yet
+  /// registered. Enables catalog push for known peers without public listing.
   /// Skips silently when in 401 cooldown to avoid hammering the hub.
   Future<bool> ensureRegistered() async {
     if (isRegistered) return true;
@@ -2282,7 +2286,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // Auto-register with is_listed=false if not yet registered
+      // Auto-register silently if not yet registered
       if (_config == null) {
         final ok = await _ensureSilentRegistration();
         if (!ok) {

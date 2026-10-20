@@ -9254,7 +9254,7 @@ $FrbBookCopyWith<$Res> get book {
 /// @nodoc
 mixin _$FrbRegisterParams {
 
- String get nodeId; String get displayName; int get bookCount; bool get isListed; bool get requiresApproval; String get acceptFrom; String? get description; String? get locationCountry; PlatformInt64? get locationCityId; bool get allowBorrowing; String? get x25519PublicKey; String? get website; String? get deviceModel; String? get deviceFingerprint; String? get appVersion; String? get relayUrl; String? get relayMailboxId; String? get relayWriteToken; String? get avatarConfig;
+ String get nodeId; String get displayName; int get bookCount; bool? get isListed; bool? get requiresApproval; String get acceptFrom; String? get description; String? get locationCountry; PlatformInt64? get locationCityId; bool? get allowBorrowing; String? get x25519PublicKey; String? get website; String? get deviceModel; String? get deviceFingerprint; String? get appVersion; String? get relayUrl; String? get relayMailboxId; String? get relayWriteToken; String? get avatarConfig;
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -9285,7 +9285,7 @@ abstract mixin class $FrbRegisterParamsCopyWith<$Res>  {
   factory $FrbRegisterParamsCopyWith(FrbRegisterParams value, $Res Function(FrbRegisterParams) _then) = _$FrbRegisterParamsCopyWithImpl;
 @useResult
 $Res call({
- String nodeId, String displayName, int bookCount, bool isListed, bool requiresApproval, String acceptFrom, String? description, String? locationCountry, PlatformInt64? locationCityId, bool allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint, String? appVersion, String? relayUrl, String? relayMailboxId, String? relayWriteToken, String? avatarConfig
+ String nodeId, String displayName, int bookCount, bool? isListed, bool? requiresApproval, String acceptFrom, String? description, String? locationCountry, PlatformInt64? locationCityId, bool? allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint, String? appVersion, String? relayUrl, String? relayMailboxId, String? relayWriteToken, String? avatarConfig
 });
 
 
@@ -9302,19 +9302,19 @@ class _$FrbRegisterParamsCopyWithImpl<$Res>
 
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? locationCityId = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,Object? appVersion = freezed,Object? relayUrl = freezed,Object? relayMailboxId = freezed,Object? relayWriteToken = freezed,Object? avatarConfig = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = freezed,Object? requiresApproval = freezed,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? locationCityId = freezed,Object? allowBorrowing = freezed,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,Object? appVersion = freezed,Object? relayUrl = freezed,Object? relayMailboxId = freezed,Object? relayWriteToken = freezed,Object? avatarConfig = freezed,}) {
   return _then(_self.copyWith(
 nodeId: null == nodeId ? _self.nodeId : nodeId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,bookCount: null == bookCount ? _self.bookCount : bookCount // ignore: cast_nullable_to_non_nullable
-as int,isListed: null == isListed ? _self.isListed : isListed // ignore: cast_nullable_to_non_nullable
-as bool,requiresApproval: null == requiresApproval ? _self.requiresApproval : requiresApproval // ignore: cast_nullable_to_non_nullable
-as bool,acceptFrom: null == acceptFrom ? _self.acceptFrom : acceptFrom // ignore: cast_nullable_to_non_nullable
+as int,isListed: freezed == isListed ? _self.isListed : isListed // ignore: cast_nullable_to_non_nullable
+as bool?,requiresApproval: freezed == requiresApproval ? _self.requiresApproval : requiresApproval // ignore: cast_nullable_to_non_nullable
+as bool?,acceptFrom: null == acceptFrom ? _self.acceptFrom : acceptFrom // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,locationCountry: freezed == locationCountry ? _self.locationCountry : locationCountry // ignore: cast_nullable_to_non_nullable
 as String?,locationCityId: freezed == locationCityId ? _self.locationCityId : locationCityId // ignore: cast_nullable_to_non_nullable
-as PlatformInt64?,allowBorrowing: null == allowBorrowing ? _self.allowBorrowing : allowBorrowing // ignore: cast_nullable_to_non_nullable
-as bool,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
+as PlatformInt64?,allowBorrowing: freezed == allowBorrowing ? _self.allowBorrowing : allowBorrowing // ignore: cast_nullable_to_non_nullable
+as bool?,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,website: freezed == website ? _self.website : website // ignore: cast_nullable_to_non_nullable
 as String?,deviceModel: freezed == deviceModel ? _self.deviceModel : deviceModel // ignore: cast_nullable_to_non_nullable
 as String?,deviceFingerprint: freezed == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable
@@ -9405,7 +9405,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  PlatformInt64? locationCityId,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? appVersion,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken,  String? avatarConfig)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool? isListed,  bool? requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  PlatformInt64? locationCityId,  bool? allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? appVersion,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken,  String? avatarConfig)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbRegisterParams() when $default != null:
 return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.locationCityId,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint,_that.appVersion,_that.relayUrl,_that.relayMailboxId,_that.relayWriteToken,_that.avatarConfig);case _:
@@ -9426,7 +9426,7 @@ return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  PlatformInt64? locationCityId,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? appVersion,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken,  String? avatarConfig)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String nodeId,  String displayName,  int bookCount,  bool? isListed,  bool? requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  PlatformInt64? locationCityId,  bool? allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? appVersion,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken,  String? avatarConfig)  $default,) {final _that = this;
 switch (_that) {
 case _FrbRegisterParams():
 return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.locationCityId,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint,_that.appVersion,_that.relayUrl,_that.relayMailboxId,_that.relayWriteToken,_that.avatarConfig);}
@@ -9443,7 +9443,7 @@ return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_t
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String nodeId,  String displayName,  int bookCount,  bool isListed,  bool requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  PlatformInt64? locationCityId,  bool allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? appVersion,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken,  String? avatarConfig)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String nodeId,  String displayName,  int bookCount,  bool? isListed,  bool? requiresApproval,  String acceptFrom,  String? description,  String? locationCountry,  PlatformInt64? locationCityId,  bool? allowBorrowing,  String? x25519PublicKey,  String? website,  String? deviceModel,  String? deviceFingerprint,  String? appVersion,  String? relayUrl,  String? relayMailboxId,  String? relayWriteToken,  String? avatarConfig)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbRegisterParams() when $default != null:
 return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_that.requiresApproval,_that.acceptFrom,_that.description,_that.locationCountry,_that.locationCityId,_that.allowBorrowing,_that.x25519PublicKey,_that.website,_that.deviceModel,_that.deviceFingerprint,_that.appVersion,_that.relayUrl,_that.relayMailboxId,_that.relayWriteToken,_that.avatarConfig);case _:
@@ -9458,19 +9458,19 @@ return $default(_that.nodeId,_that.displayName,_that.bookCount,_that.isListed,_t
 
 
 class _FrbRegisterParams implements FrbRegisterParams {
-  const _FrbRegisterParams({required this.nodeId, required this.displayName, required this.bookCount, required this.isListed, required this.requiresApproval, required this.acceptFrom, this.description, this.locationCountry, this.locationCityId, required this.allowBorrowing, this.x25519PublicKey, this.website, this.deviceModel, this.deviceFingerprint, this.appVersion, this.relayUrl, this.relayMailboxId, this.relayWriteToken, this.avatarConfig});
+  const _FrbRegisterParams({required this.nodeId, required this.displayName, required this.bookCount, this.isListed, this.requiresApproval, required this.acceptFrom, this.description, this.locationCountry, this.locationCityId, this.allowBorrowing, this.x25519PublicKey, this.website, this.deviceModel, this.deviceFingerprint, this.appVersion, this.relayUrl, this.relayMailboxId, this.relayWriteToken, this.avatarConfig});
   
 
 @override final  String nodeId;
 @override final  String displayName;
 @override final  int bookCount;
-@override final  bool isListed;
-@override final  bool requiresApproval;
+@override final  bool? isListed;
+@override final  bool? requiresApproval;
 @override final  String acceptFrom;
 @override final  String? description;
 @override final  String? locationCountry;
 @override final  PlatformInt64? locationCityId;
-@override final  bool allowBorrowing;
+@override final  bool? allowBorrowing;
 @override final  String? x25519PublicKey;
 @override final  String? website;
 @override final  String? deviceModel;
@@ -9511,7 +9511,7 @@ abstract mixin class _$FrbRegisterParamsCopyWith<$Res> implements $FrbRegisterPa
   factory _$FrbRegisterParamsCopyWith(_FrbRegisterParams value, $Res Function(_FrbRegisterParams) _then) = __$FrbRegisterParamsCopyWithImpl;
 @override @useResult
 $Res call({
- String nodeId, String displayName, int bookCount, bool isListed, bool requiresApproval, String acceptFrom, String? description, String? locationCountry, PlatformInt64? locationCityId, bool allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint, String? appVersion, String? relayUrl, String? relayMailboxId, String? relayWriteToken, String? avatarConfig
+ String nodeId, String displayName, int bookCount, bool? isListed, bool? requiresApproval, String acceptFrom, String? description, String? locationCountry, PlatformInt64? locationCityId, bool? allowBorrowing, String? x25519PublicKey, String? website, String? deviceModel, String? deviceFingerprint, String? appVersion, String? relayUrl, String? relayMailboxId, String? relayWriteToken, String? avatarConfig
 });
 
 
@@ -9528,19 +9528,19 @@ class __$FrbRegisterParamsCopyWithImpl<$Res>
 
 /// Create a copy of FrbRegisterParams
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = null,Object? requiresApproval = null,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? locationCityId = freezed,Object? allowBorrowing = null,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,Object? appVersion = freezed,Object? relayUrl = freezed,Object? relayMailboxId = freezed,Object? relayWriteToken = freezed,Object? avatarConfig = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? nodeId = null,Object? displayName = null,Object? bookCount = null,Object? isListed = freezed,Object? requiresApproval = freezed,Object? acceptFrom = null,Object? description = freezed,Object? locationCountry = freezed,Object? locationCityId = freezed,Object? allowBorrowing = freezed,Object? x25519PublicKey = freezed,Object? website = freezed,Object? deviceModel = freezed,Object? deviceFingerprint = freezed,Object? appVersion = freezed,Object? relayUrl = freezed,Object? relayMailboxId = freezed,Object? relayWriteToken = freezed,Object? avatarConfig = freezed,}) {
   return _then(_FrbRegisterParams(
 nodeId: null == nodeId ? _self.nodeId : nodeId // ignore: cast_nullable_to_non_nullable
 as String,displayName: null == displayName ? _self.displayName : displayName // ignore: cast_nullable_to_non_nullable
 as String,bookCount: null == bookCount ? _self.bookCount : bookCount // ignore: cast_nullable_to_non_nullable
-as int,isListed: null == isListed ? _self.isListed : isListed // ignore: cast_nullable_to_non_nullable
-as bool,requiresApproval: null == requiresApproval ? _self.requiresApproval : requiresApproval // ignore: cast_nullable_to_non_nullable
-as bool,acceptFrom: null == acceptFrom ? _self.acceptFrom : acceptFrom // ignore: cast_nullable_to_non_nullable
+as int,isListed: freezed == isListed ? _self.isListed : isListed // ignore: cast_nullable_to_non_nullable
+as bool?,requiresApproval: freezed == requiresApproval ? _self.requiresApproval : requiresApproval // ignore: cast_nullable_to_non_nullable
+as bool?,acceptFrom: null == acceptFrom ? _self.acceptFrom : acceptFrom // ignore: cast_nullable_to_non_nullable
 as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,locationCountry: freezed == locationCountry ? _self.locationCountry : locationCountry // ignore: cast_nullable_to_non_nullable
 as String?,locationCityId: freezed == locationCityId ? _self.locationCityId : locationCityId // ignore: cast_nullable_to_non_nullable
-as PlatformInt64?,allowBorrowing: null == allowBorrowing ? _self.allowBorrowing : allowBorrowing // ignore: cast_nullable_to_non_nullable
-as bool,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
+as PlatformInt64?,allowBorrowing: freezed == allowBorrowing ? _self.allowBorrowing : allowBorrowing // ignore: cast_nullable_to_non_nullable
+as bool?,x25519PublicKey: freezed == x25519PublicKey ? _self.x25519PublicKey : x25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,website: freezed == website ? _self.website : website // ignore: cast_nullable_to_non_nullable
 as String?,deviceModel: freezed == deviceModel ? _self.deviceModel : deviceModel // ignore: cast_nullable_to_non_nullable
 as String?,deviceFingerprint: freezed == deviceFingerprint ? _self.deviceFingerprint : deviceFingerprint // ignore: cast_nullable_to_non_nullable

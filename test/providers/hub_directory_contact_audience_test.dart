@@ -116,10 +116,10 @@ class _MockFfiService extends FfiService {
     frb.FrbRegisterParams params,
   ) async => frb.FrbDirectoryConfig(
     nodeId: params.nodeId,
-    isListed: params.isListed,
-    requiresApproval: params.requiresApproval,
+    isListed: params.isListed ?? false,
+    requiresApproval: params.requiresApproval ?? true,
     acceptFrom: params.acceptFrom,
-    allowBorrowing: params.allowBorrowing,
+    allowBorrowing: params.allowBorrowing ?? false,
   );
 
   @override

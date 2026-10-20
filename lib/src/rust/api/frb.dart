@@ -27,6 +27,13 @@ Future<String> initBackend({required String dbPath}) =>
 Future<void> setHubUrlFfi({required String hubUrl}) =>
     RustLib.instance.api.crateApiFrbSetHubUrlFfi(hubUrl: hubUrl);
 
+/// The hub this process actually talks to: the persisted relay URL when
+/// one exists, the `.env` default otherwise (see [`set_hub_url_ffi`]), as
+/// updated by a relay setup since. The app keys its Keychain copies of the
+/// hub credentials on it, so a token is always filed under the hub that
+/// issued it. `None` before [`set_hub_url_ffi`] ran.
+String? hubEffectiveUrl() => RustLib.instance.api.crateApiFrbHubEffectiveUrl();
+
 /// Check if the FFI backend is healthy
 String healthCheck() => RustLib.instance.api.crateApiFrbHealthCheck();
 
@@ -1211,11 +1218,12 @@ Future<int> hubDirectorySyncCatalog() =>
 /// when every current reader runs a build that can decrypt); this function
 /// never falls back on its own. Covers are uploaded exactly as for a clear
 /// push (D5), and their book ids travel in clear so the hub can garbage
-/// collect them. After a push the hub stored, every active follower with a
-/// published X25519 key receives its wrap of the key (D3); a skipped push
+/// collect them. Once the hub confirms it holds the ciphertext (stored, or
+/// 304 on an unchanged digest), every active follower with a published
+/// X25519 key receives its wrap of the key (D3); a locally skipped push
 /// leaves the wraps as they are. Returns the number of entries pushed, or
 /// an error when the ciphertext went out but the wraps did not (the next
-/// sync then pushes again).
+/// sync then contacts the hub again and wraps).
 Future<int> hubDirectorySyncCatalogEncrypted() =>
     RustLib.instance.api.crateApiFrbHubDirectorySyncCatalogEncrypted();
 
@@ -3634,13 +3642,13 @@ sealed class FrbRegisterParams with _$FrbRegisterParams {
     required String nodeId,
     required String displayName,
     required int bookCount,
-    required bool isListed,
-    required bool requiresApproval,
+    bool? isListed,
+    bool? requiresApproval,
     required String acceptFrom,
     String? description,
     String? locationCountry,
     PlatformInt64? locationCityId,
-    required bool allowBorrowing,
+    bool? allowBorrowing,
     String? x25519PublicKey,
     String? website,
     String? deviceModel,

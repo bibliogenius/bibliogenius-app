@@ -46,10 +46,7 @@ void _showRenameLibraryDialog(
           nodeId: hubConfig.nodeId,
           displayName: name,
           bookCount: bookCount,
-          isListed: hubConfig.isListed,
-          requiresApproval: hubConfig.requiresApproval,
           acceptFrom: hubConfig.acceptFrom,
-          allowBorrowing: hubConfig.allowBorrowing,
           locationCountry: themeProvider.country,
         );
       } catch (e) {

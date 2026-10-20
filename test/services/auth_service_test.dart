@@ -62,6 +62,146 @@ void main() {
     });
   });
 
+  // Hub credentials live in one slot per hub URL, so switching a build
+  // between hubs (production, staging) never restores the wrong token and
+  // triggers a 401 recovery that re-registers the library from scratch.
+  group('hub credentials are scoped per hub', () {
+    const hubA = 'https://hub-a.example.org';
+    const hubB = 'https://hub-b.example.org';
+
+    // The storage is a static: swap it in for this group only, the groups
+    // below rely on the platform mock.
+    late SecureStorageInterface previousStorage;
+
+    setUp(() {
+      previousStorage = AuthService.storage;
+      AuthService.storage = MockSecureStorage();
+      AuthService.hubUrlResolver = () async => hubA;
+    });
+
+    tearDown(() {
+      AuthService.storage = previousStorage;
+      AuthService.resetHubUrlResolverForTest();
+    });
+
+    test('scope is stable across trailing slash and case', () {
+      final a = AuthService.hubCredentialScope(hubA);
+      expect(a, AuthService.hubCredentialScope('$hubA/'));
+      expect(a, AuthService.hubCredentialScope('HTTPS://HUB-A.EXAMPLE.ORG'));
+      expect(a, isNot(AuthService.hubCredentialScope(hubB)));
+      expect(a.length, 16);
+    });
+
+    test('a token saved on one hub is not read on another', () async {
+      final auth = AuthService();
+      await auth.saveHubWriteToken('token-a');
+      await auth.saveHubRecoveryCode('code-a');
+
+      AuthService.hubUrlResolver = () async => hubB;
+      expect(await auth.getHubWriteToken(), isNull);
+      expect(await auth.getHubRecoveryCode(), isNull);
+
+      AuthService.hubUrlResolver = () async => hubA;
+      expect(await auth.getHubWriteToken(), 'token-a');
+      expect(await auth.getHubRecoveryCode(), 'code-a');
+    });
+
+    test('each hub keeps its own token across switches', () async {
+      final auth = AuthService();
+      await auth.saveHubWriteToken('token-a');
+      AuthService.hubUrlResolver = () async => hubB;
+      await auth.saveHubWriteToken('token-b');
+
+      AuthService.hubUrlResolver = () async => hubA;
+      expect(await auth.getHubWriteToken(), 'token-a');
+      AuthService.hubUrlResolver = () async => hubB;
+      expect(await auth.getHubWriteToken(), 'token-b');
+    });
+
+    test('an installation with the unscoped slot only still finds its token',
+        () async {
+      // Existing installs wrote one unscoped value, for whichever hub they
+      // last registered on (production for every store build).
+      await AuthService.storage.write(key: 'hub_write_token', value: 'legacy');
+      await AuthService.storage.write(key: 'hub_recovery_code', value: 'rc');
+      final auth = AuthService();
+
+      expect(await auth.getHubWriteToken(), 'legacy');
+      expect(await auth.getHubRecoveryCode(), 'rc');
+      // Read-through only: the slot of the hub is written by the next
+      // successful registration, not by a read.
+      expect(
+        await AuthService.storage.read(
+          key: 'hub_write_token_${AuthService.hubCredentialScope(hubA)}',
+        ),
+        isNull,
+      );
+    });
+
+    test('the scoped slot wins over the unscoped one', () async {
+      await AuthService.storage.write(key: 'hub_write_token', value: 'legacy');
+      final auth = AuthService();
+      await auth.saveHubWriteToken('token-a');
+
+      expect(await auth.getHubWriteToken(), 'token-a');
+    });
+
+    test('deleting the token on a 401 only touches the current hub',
+        () async {
+      await AuthService.storage.write(key: 'hub_write_token', value: 'legacy');
+      final auth = AuthService();
+      await auth.saveHubWriteToken('token-a');
+      AuthService.hubUrlResolver = () async => hubB;
+      await auth.saveHubWriteToken('token-b');
+
+      await auth.deleteHubWriteToken();
+
+      // Hub B falls back to the unscoped value, hub A is untouched.
+      expect(await auth.getHubWriteToken(), 'legacy');
+      AuthService.hubUrlResolver = () async => hubA;
+      expect(await auth.getHubWriteToken(), 'token-a');
+      expect(
+        await AuthService.storage.read(key: 'hub_write_token'),
+        'legacy',
+        reason: 'the unscoped slot may belong to another hub',
+      );
+    });
+
+    test('an explicit recovery code deletion forgets both slots', () async {
+      await AuthService.storage.write(key: 'hub_recovery_code', value: 'rc');
+      final auth = AuthService();
+      await auth.saveHubRecoveryCode('code-a');
+
+      await auth.deleteHubRecoveryCode();
+
+      expect(await auth.getHubRecoveryCode(), isNull);
+      expect(await AuthService.storage.read(key: 'hub_recovery_code'), isNull);
+    });
+
+    test('the scope follows the hub the Rust side calls, not the .env', () {
+      // A debug build can persist a relay URL that differs from .env; the
+      // token must be filed under the hub that will receive it.
+      expect(AuthService.effectiveHubUrl(hubB, () => hubA), hubB);
+      expect(AuthService.effectiveHubUrl(null, () => hubA), hubA);
+      expect(AuthService.effectiveHubUrl('  ', () => hubA), hubA);
+      // The configured hub is not even read when the Rust side knows it.
+      expect(
+        AuthService.effectiveHubUrl(hubB, () => throw StateError('no env')),
+        hubB,
+      );
+    });
+
+    test('without a resolvable hub URL the unscoped slot is used', () async {
+      AuthService.hubUrlResolver = () async => throw StateError('dotenv not loaded');
+      final auth = AuthService();
+
+      await auth.saveHubWriteToken('token');
+
+      expect(await auth.getHubWriteToken(), 'token');
+      expect(await AuthService.storage.read(key: 'hub_write_token'), 'token');
+    });
+  });
+
   // Pure reconciliation logic for the macOS Keychain <-> NSUserDefaults swing
   // (see e2ee_identity_storage_fragility.md). Platform-independent, so these
   // run everywhere.

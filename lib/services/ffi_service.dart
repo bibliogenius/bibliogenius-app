@@ -1555,6 +1555,17 @@ class FfiService {
     }
   }
 
+  /// The hub the Rust side actually talks to (persisted relay URL first,
+  /// `.env` default otherwise). Null when the backend is not initialized.
+  String? hubEffectiveUrl() {
+    try {
+      return frb.hubEffectiveUrl();
+    } catch (e) {
+      debugPrint('FFI hubEffectiveUrl error: $e');
+      return null;
+    }
+  }
+
   /// Purges the local hub_directory_config, forcing fresh registration.
   Future<bool> hubDirectoryPurgeConfig() async {
     try {

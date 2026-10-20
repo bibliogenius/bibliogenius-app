@@ -1,12 +1,17 @@
 import 'dart:async' show Completer;
+import 'dart:convert' show utf8;
 import 'dart:io' show Platform;
 
+import 'package:crypto/crypto.dart' show sha256;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter/foundation.dart'
     show debugPrint, immutable, kDebugMode, visibleForTesting;
 import 'package:flutter/services.dart' show PlatformException;
+
+import 'api_service.dart' show ApiService;
+import 'ffi_service.dart' show FfiService;
 
 abstract class SecureStorageInterface {
   Future<void> write({required String key, required String? value});
@@ -262,39 +267,140 @@ class AuthService {
   }
 
   // ============ Hub Write Token (Keychain backup for reinstall recovery) ===
+  //
+  // Both credentials are issued by one hub and only valid there. They are
+  // kept in one slot per hub: a build switched from production to a
+  // staging hub and back (same data directory, same Keychain) would
+  // otherwise restore the staging token on production, take a 401, purge
+  // its registration and re-register as a new library, losing its
+  // followers. The unscoped slot is what installations wrote before the
+  // per-hub slots existed; it is read as a fallback and never written
+  // again. An installation that never registers again (nothing to update)
+  // keeps reading it, which is correct: it only ever knew one hub.
   static const _hubWriteTokenKey = 'hub_write_token';
   static const _hubRecoveryCodeKey = 'hub_recovery_code';
 
+  /// The hub the credentials belong to: the one the Rust side actually
+  /// calls (persisted relay URL first, `.env` default otherwise), which is
+  /// where the next request carrying the token goes. `ApiService.hubUrl`
+  /// alone would mislabel a token when the two differ, which a debug build
+  /// allows by typing a relay URL in the settings.
+  @visibleForTesting
+  static Future<String> Function() hubUrlResolver = _defaultHubUrl;
+
+  static Future<String> _defaultHubUrl() async =>
+      effectiveHubUrl(FfiService().hubEffectiveUrl(), () => ApiService.hubUrl);
+
+  /// The Rust side's hub when known (backend initialized), the app's
+  /// configured hub otherwise. The fallback is read lazily: it throws when
+  /// the environment is not loaded, which must not matter when the Rust
+  /// side already knows the hub.
+  @visibleForTesting
+  static String effectiveHubUrl(
+    String? rustHubUrl,
+    String Function() configuredHubUrl,
+  ) {
+    if (rustHubUrl != null && rustHubUrl.trim().isNotEmpty) return rustHubUrl;
+    return configuredHubUrl();
+  }
+
+  @visibleForTesting
+  static void resetHubUrlResolverForTest() {
+    hubUrlResolver = _defaultHubUrl;
+    _unscopedFallbackReported = false;
+  }
+
+  /// Slot suffix for a hub URL: a truncated digest of the normalized URL.
+  /// The digest is key hygiene (fixed length, safe characters), not
+  /// secrecy: the hub URL is public. Normalizing keeps a trailing slash or
+  /// a case difference from splitting one hub into two slots.
+  @visibleForTesting
+  static String hubCredentialScope(String hubUrl) {
+    final normalized = hubUrl.trim().toLowerCase().replaceAll(
+      RegExp(r'/+$'),
+      '',
+    );
+    return sha256.convert(utf8.encode(normalized)).toString().substring(0, 16);
+  }
+
+  static bool _unscopedFallbackReported = false;
+
+  /// The current hub's scope, or null when no hub URL can be resolved
+  /// (backend not initialized and environment not loaded): the unscoped
+  /// slot is then used, as before.
+  static Future<String?> _currentHubScope() async {
+    try {
+      return hubCredentialScope(await hubUrlResolver());
+    } catch (e) {
+      if (!_unscopedFallbackReported) {
+        _unscopedFallbackReported = true;
+        debugPrint(
+          'AuthService: hub URL unavailable, unscoped credentials: $e',
+        );
+      }
+      return null;
+    }
+  }
+
+  static String _scopedKey(String base, String scope) => '${base}_$scope';
+
+  /// The current hub's slot, or the unscoped one when no hub is known.
+  static Future<String> _currentKeyFor(String base) async {
+    final scope = await _currentHubScope();
+    return scope == null ? base : _scopedKey(base, scope);
+  }
+
+  Future<void> _writeHubCredential(String base, String value) async {
+    await storage.write(key: await _currentKeyFor(base), value: value);
+  }
+
+  /// The current hub's slot first, then the unscoped slot of older installs.
+  Future<String?> _readHubCredential(String base) async {
+    final scope = await _currentHubScope();
+    if (scope != null) {
+      final scoped = await storage.read(key: _scopedKey(base, scope));
+      if (scoped != null && scoped.isNotEmpty) return scoped;
+    }
+    return await storage.read(key: base);
+  }
+
   /// Back up the hub write_token to Keychain so it survives reinstalls.
   Future<void> saveHubWriteToken(String token) async {
-    await storage.write(key: _hubWriteTokenKey, value: token);
+    await _writeHubCredential(_hubWriteTokenKey, token);
   }
 
   /// Retrieve the hub write_token from Keychain (post-reinstall recovery).
   Future<String?> getHubWriteToken() async {
-    return await storage.read(key: _hubWriteTokenKey);
+    return await _readHubCredential(_hubWriteTokenKey);
   }
 
-  /// Delete only the hub write_token from Keychain (401 recovery).
+  /// Delete the hub write_token of the current hub from Keychain (401
+  /// recovery). The unscoped slot is left alone: it may hold the token of
+  /// another hub, and a 401 only proves the token wrong on this one.
   Future<void> deleteHubWriteToken() async {
-    await storage.delete(key: _hubWriteTokenKey);
+    await storage.delete(key: await _currentKeyFor(_hubWriteTokenKey));
   }
 
   /// Back up the hub recovery_code to Keychain. Must survive config purges
   /// so the user can reclaim their profile after token invalidation.
   Future<void> saveHubRecoveryCode(String code) async {
-    await storage.write(key: _hubRecoveryCodeKey, value: code);
+    await _writeHubCredential(_hubRecoveryCodeKey, code);
   }
 
   /// Retrieve the hub recovery_code from Keychain (e.g. to recover a stale
   /// profile when the local config was purged).
   Future<String?> getHubRecoveryCode() async {
-    return await storage.read(key: _hubRecoveryCodeKey);
+    return await _readHubCredential(_hubRecoveryCodeKey);
   }
 
-  /// Delete the recovery_code from Keychain. Only call on explicit user
-  /// opt-out (e.g. account deletion); never during 401 recovery.
+  /// Delete the recovery_code from Keychain, the current hub's slot and the
+  /// unscoped one. Only call on explicit user opt-out (e.g. account
+  /// deletion); never during 401 recovery.
   Future<void> deleteHubRecoveryCode() async {
+    final scope = await _currentHubScope();
+    if (scope != null) {
+      await storage.delete(key: _scopedKey(_hubRecoveryCodeKey, scope));
+    }
     await storage.delete(key: _hubRecoveryCodeKey);
   }
 
