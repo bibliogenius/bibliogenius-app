@@ -2921,6 +2921,12 @@ class _BookListScreenState extends State<BookListScreen>
     // One favorites lookup per screen build (ADR-064): the set comes from
     // the provider cache and each card checks membership in O(1).
     final favoriteIds = context.watch<FavoritesProvider>().favoriteIds;
+    final coverExtent = context.select<ThemeProvider, double>(
+      (t) => t.homeCoverExtent,
+    );
+    final groupByReadingStatus = context.select<ThemeProvider, bool>(
+      (t) => t.groupByReadingStatus,
+    );
 
     switch (_viewMode) {
       case ViewMode.coverGrid:
@@ -2937,6 +2943,19 @@ class _BookListScreenState extends State<BookListScreen>
             favoriteIds: favoriteIds,
             selectedIds: _selectedIds,
             onBookLongPress: _isReordering ? null : _enterSelection,
+            maxCoverExtent: coverExtent,
+            // Sections only while browsing the whole library: under a
+            // status filter, a search or a tag, the truncated sections would
+            // hide results.
+            groupByReadingStatus:
+                groupByReadingStatus &&
+                _selectedStatus == null &&
+                _searchQuery.isEmpty &&
+                _tagFilter == null,
+            onSeeAllStatus: (status) => setState(() {
+              _selectedStatus = status;
+              _filterBooks();
+            }),
           ),
         );
       case ViewMode.spineShelf:
@@ -2965,6 +2984,7 @@ class _BookListScreenState extends State<BookListScreen>
             showNewBadge: newBadgeIsInformative(_books),
             favoriteIds: favoriteIds,
             onBookLongPress: _enterSelection,
+            maxCoverExtent: coverExtent,
           ),
         );
     }

@@ -12121,3 +12121,39 @@ msgstr "No se ha podido verificar el catálogo en línea de esta biblioteca. Se 
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
 msgstr "Esta biblioteca ha cambiado sus claves de seguridad, seguramente tras una reinstalación. Para recuperarla, elimínala de tus contactos y vuelve a escanear su código QR."
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr "Página de inicio"
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr "Tamaño de las portadas"
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr "Pequeñas"
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr "Medianas"
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr "Grandes"
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr "Otros libros"
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr "Agrupar por estado de lectura"
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr "Muestra los libros de la página de inicio por secciones: leyendo, por leer, leído."
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
+msgstr "Ver todo"

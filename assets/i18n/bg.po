@@ -12233,3 +12233,39 @@ msgstr "Онлайн каталогът на тази библиотека не 
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
 msgstr "Тази библиотека смени ключовете си за сигурност, вероятно след преинсталиране. За да я откриете отново, премахнете я от контактите си и сканирайте отново нейния QR код."
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr "Начална страница"
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr "Размер на кориците"
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr "Малки"
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr "Средни"
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr "Големи"
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr "Други книги"
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr "Групиране по статус на четене"
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr "Показва книгите на началната страница в раздели: чета, за четене, прочетени."
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
+msgstr "Виж всички"

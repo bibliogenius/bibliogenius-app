@@ -11402,3 +11402,39 @@ msgstr "このライブラリのオンラインカタログを検証できませ
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
 msgstr "このライブラリのセキュリティ鍵が変わりました。再インストールされたためと思われます。再びつながるには、連絡先から削除してから、QRコードをもう一度スキャンしてください。"
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr "ホーム画面"
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr "表紙のサイズ"
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr "小"
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr "中"
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr "大"
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr "その他の本"
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr "読書状況でグループ化"
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr "ホーム画面の本を「読書中」「積読」「読了」のセクションに分けて表示します。"
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
+msgstr "すべて表示"

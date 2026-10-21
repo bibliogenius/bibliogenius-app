@@ -252,6 +252,19 @@ class ThemeProvider with ChangeNotifier {
   bool _carouselHiddenPeerLib = false;
   bool get carouselHiddenPeerLib => _carouselHiddenPeerLib;
 
+  // Maximum width of a cover in the library's grids (home page). The grid
+  // fits as many columns as this width allows, so a smaller value means
+  // smaller covers and more of them per row.
+  static const List<double> homeCoverExtentSteps = [110, 150, 200];
+  static const double _homeCoverExtentDefault = 150;
+  double _homeCoverExtent = _homeCoverExtentDefault;
+  double get homeCoverExtent => _homeCoverExtent;
+
+  // Home page covers grid split into sections by reading status (reading,
+  // read, to read, other). Off by default: one flat grid.
+  bool _groupByReadingStatus = false;
+  bool get groupByReadingStatus => _groupByReadingStatus;
+
   // Collapsed state: shows a thin bar with the count instead of the full strip.
   // Not persisted beyond the session — auto-collapse on scroll should not
   // contaminate the next visit.
@@ -479,6 +492,9 @@ class ThemeProvider with ChangeNotifier {
     _shareGamificationStats = prefs.getBool('shareGamificationStats') ?? false;
     _carouselHiddenOwnLib = prefs.getBool('carousel_hidden_own_lib') ?? false;
     _carouselHiddenPeerLib = prefs.getBool('carousel_hidden_peer_lib') ?? false;
+    _homeCoverExtent =
+        prefs.getDouble('homeCoverExtent') ?? _homeCoverExtentDefault;
+    _groupByReadingStatus = prefs.getBool('groupByReadingStatus') ?? false;
     _showViewCount = prefs.getBool('showViewCount') ?? true;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _groupByCollections = prefs.getBool('groupByCollections') ?? true;
@@ -1247,6 +1263,20 @@ class ThemeProvider with ChangeNotifier {
     _carouselHiddenPeerLib = hidden;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('carousel_hidden_peer_lib', hidden);
+    notifyListeners();
+  }
+
+  Future<void> setHomeCoverExtent(double extent) async {
+    _homeCoverExtent = extent;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble('homeCoverExtent', extent);
+    notifyListeners();
+  }
+
+  Future<void> setGroupByReadingStatus(bool enabled) async {
+    _groupByReadingStatus = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('groupByReadingStatus', enabled);
     notifyListeners();
   }
 

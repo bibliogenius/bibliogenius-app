@@ -11402,3 +11402,39 @@ msgstr "이 서재의 온라인 카탈로그를 확인할 수 없습니다. 소�
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
 msgstr "이 서재의 보안 키가 바뀌었습니다. 재설치 때문인 것으로 보입니다. 다시 연결하려면 연락처에서 삭제한 뒤 QR 코드를 다시 스캔하세요."
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr "홈 화면"
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr "표지 크기"
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr "작게"
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr "보통"
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr "크게"
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr "기타 도서"
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr "읽기 상태별로 묶기"
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr "홈 화면의 책을 읽는 중, 읽을 책, 읽음 섹션으로 나누어 표시합니다."
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
+msgstr "모두 보기"

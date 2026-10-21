@@ -12233,3 +12233,39 @@ msgstr "Bu kütüphanenin çevrimiçi kataloğu doğrulanamadı. Sahibi tekrar �
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
 msgstr "Bu kütüphane güvenlik anahtarlarını değiştirdi, muhtemelen yeniden yüklendiği için. Yeniden bulmak için kişilerinizden kaldırın ve QR kodunu tekrar tarayın."
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr "Ana sayfa"
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr "Kapak boyutu"
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr "Küçük"
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr "Orta"
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr "Büyük"
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr "Diğer kitaplar"
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr "Okuma durumuna göre grupla"
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr "Ana sayfadaki kitapları bölümler halinde gösterir: okunuyor, okunacak, okundu."
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
+msgstr "Tümünü gör"

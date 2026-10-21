@@ -1062,6 +1062,9 @@ class CollectionGroupGrid extends StatelessWidget {
   /// library). Null disables the gesture; stacks do not react to it.
   final void Function(Book book)? onBookLongPress;
 
+  /// Maximum width of a tile; the grid fits as many columns as it allows.
+  final double maxCoverExtent;
+
   const CollectionGroupGrid({
     super.key,
     required this.groups,
@@ -1069,6 +1072,7 @@ class CollectionGroupGrid extends StatelessWidget {
     this.showNewBadge,
     this.favoriteIds,
     this.onBookLongPress,
+    this.maxCoverExtent = 150,
   });
 
   @override
@@ -1081,8 +1085,8 @@ class CollectionGroupGrid extends StatelessWidget {
         newBadgeIsInformative([for (final g in groups) ...g.books]);
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 150,
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: maxCoverExtent,
         childAspectRatio: 0.72,
         crossAxisSpacing: 16,
         mainAxisSpacing: 16,

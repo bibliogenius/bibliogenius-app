@@ -11402,3 +11402,39 @@ msgstr "无法验证该书库的在线目录。当其所有者重新上线时将
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
 msgstr "该书库的安全密钥已更改，可能是重新安装所致。要重新找回它，请将其从联系人中删除，然后重新扫描其二维码。"
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr "主页"
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr "封面大小"
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr "小"
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr "中"
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr "大"
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr "其他书籍"
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr "按阅读状态分组"
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr "将主页的书籍分区显示：在读、想读、已读。"
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
+msgstr "查看全部"

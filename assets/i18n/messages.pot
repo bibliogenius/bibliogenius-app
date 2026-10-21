@@ -12117,6 +12117,41 @@ msgstr ""
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
+
+#. Home page display section in Theme settings
+msgid "home_page_display"
+msgstr ""
+
+#. Size of the covers in the home page grid
+msgid "home_cover_size"
+msgstr ""
+
+#. Small covers
+msgid "home_cover_size_small"
+msgstr ""
+
+#. Medium covers
+msgid "home_cover_size_medium"
+msgstr ""
+
+#. Large covers
+msgid "home_cover_size_large"
+msgstr ""
+
+#. Home page section for books without a reading/read/to-read status
+msgid "books_group_other"
+msgstr ""
+
+#. Settings toggle: group home page covers by reading status
+msgid "home_group_by_reading_status"
+msgstr ""
+
+#. Description of the group-by-reading-status toggle
+msgid "home_group_by_reading_status_desc"
+msgstr ""
+
+#. Link beside a home page reading-status section title, opens the library filtered on that status
+msgid "books_group_see_all"
 msgstr ""
 
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again

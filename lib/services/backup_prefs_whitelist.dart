@@ -119,6 +119,7 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'avatarId',
   'bannerColor',
   'currency',
+  'homeCoverExtent',
   'textScaleFactor',
 
   // Feature toggles (could be promoted later). Each candidate needs an
@@ -140,6 +141,7 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'gamesEnabled',
   'gamificationEnabled',
   'groupByCollections',
+  'groupByReadingStatus',
   'hangmanEnabled',
   'inventoryStatusesEnabled',
   'mcpEnabled',

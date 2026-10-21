@@ -1027,6 +1027,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Theme accordion (theme + text size)
                 if (_sectionVisible([
                   'theme_title',
+                  'home_page_display',
+                  'carousel_own_lib_title',
+                  'carousel_own_lib_desc',
+                  'home_cover_size',
+                  'home_group_by_reading_status',
+                  'home_group_by_reading_status_desc',
                   if (showNavStyle) ...[
                     'nav_style_label',
                     'nav_style_side_menu',
@@ -1058,6 +1064,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               _buildThemeSelector(context, themeProvider),
                               const SizedBox(height: 24),
                               _buildTextScaleSlider(context, themeProvider),
+                              const SizedBox(height: 24),
+                              _buildHomeDisplaySection(context, themeProvider),
                               if (showNavStyle) ...[
                                 const SizedBox(height: 24),
                                 _buildNavStyleSelector(context, themeProvider),
@@ -1321,15 +1329,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               value ? OwnershipScope.all : null,
                             ),
                           ),
-                        ),
-                        _buildModuleToggle(
-                          context,
-                          'carousel_own_lib_title',
-                          'carousel_own_lib_desc',
-                          Icons.new_releases_outlined,
-                          !themeProvider.carouselHiddenOwnLib,
-                          (value) =>
-                              themeProvider.setCarouselHiddenOwnLib(!value),
                         ),
                         _buildModuleToggle(
                           context,
@@ -3959,6 +3958,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Home page display: the top strip (Activity / suggestions), the grouping
+  /// of the covers grid by reading status and the size of the covers.
+  Widget _buildHomeDisplaySection(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    const sizeKeys = [
+      'home_cover_size_small',
+      'home_cover_size_medium',
+      'home_cover_size_large',
+    ];
+    const sizeIcons = [Icons.apps, Icons.grid_view, Icons.crop_portrait];
+    final steps = ThemeProvider.homeCoverExtentSteps;
+    // A stored value outside the steps snaps to the closest one.
+    var selected = steps.first;
+    for (final step in steps) {
+      if ((step - themeProvider.homeCoverExtent).abs() <
+          (selected - themeProvider.homeCoverExtent).abs()) {
+        selected = step;
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          TranslationService.translate(context, 'home_page_display'),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          secondary: const Icon(Icons.new_releases_outlined),
+          title: Text(
+            TranslationService.translate(context, 'carousel_own_lib_title'),
+          ),
+          subtitle: Text(
+            TranslationService.translate(context, 'carousel_own_lib_desc'),
+          ),
+          value: !themeProvider.carouselHiddenOwnLib,
+          onChanged: (value) => themeProvider.setCarouselHiddenOwnLib(!value),
+        ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          secondary: const Icon(Icons.view_agenda_outlined),
+          title: Text(
+            TranslationService.translate(
+              context,
+              'home_group_by_reading_status',
+            ),
+          ),
+          subtitle: Text(
+            TranslationService.translate(
+              context,
+              'home_group_by_reading_status_desc',
+            ),
+          ),
+          value: themeProvider.groupByReadingStatus,
+          onChanged: themeProvider.setGroupByReadingStatus,
+        ),
+        const SizedBox(height: 8),
+        Text(TranslationService.translate(context, 'home_cover_size')),
+        const SizedBox(height: 8),
+        SizedBox(
+          width: double.infinity,
+          child: SegmentedButton<double>(
+            showSelectedIcon: false,
+            segments: [
+              for (var i = 0; i < steps.length; i++)
+                ButtonSegment<double>(
+                  value: steps[i],
+                  icon: Icon(sizeIcons[i]),
+                  label: Text(
+                    TranslationService.translate(context, sizeKeys[i]),
+                  ),
+                ),
+            ],
+            selected: {selected},
+            onSelectionChanged: (values) {
+              HapticFeedback.lightImpact();
+              themeProvider.setHomeCoverExtent(values.first);
+            },
           ),
         ),
       ],

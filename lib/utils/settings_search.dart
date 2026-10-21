@@ -27,7 +27,9 @@ const Map<String, String> settingsSearchSynonyms = {
       'inventory assurance',
   'theme_title':
       'theme apparence couleur dark mode sombre clair police texte taille '
-      'font lisibilite',
+      'font lisibilite accueil home vignette vignettes couverture couvertures '
+      'cover covers grille grid bandeau activite activity grouper group '
+      'etat status lecture reading lu read',
   'settings_network_title':
       'reseau network wifi lan connexion pair peer relais relay annuaire '
       'directory portee reachability',
