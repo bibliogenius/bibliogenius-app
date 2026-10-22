@@ -12,6 +12,7 @@ import '../utils/ownership_actions.dart';
 import '../utils/borrowed_copy_display.dart';
 import '../utils/borrowed_copy_payload.dart';
 import '../utils/cover_camera_helper.dart';
+import '../widgets/cover_scan_tips_dialog.dart';
 import '../utils/loan_return_feedback.dart';
 import '../utils/returned_book.dart';
 
@@ -834,6 +835,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   Future<void> _takeCoverPhoto(Book book) async {
     if (book.id == null) return;
+    if (!await showCoverScanTipsIfNeeded(context)) return;
 
     try {
       final path = await CoverCameraHelper.takePhotoAndSave(bookId: book.id);

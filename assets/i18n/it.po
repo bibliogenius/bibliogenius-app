@@ -12262,3 +12262,27 @@ msgstr "Mostra i libri della pagina iniziale in sezioni: in lettura, da leggere,
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "Vedi tutto"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "Foto della copertina"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "Se possibile, appoggia il libro su una superficie chiara e uniforme. Dopo aver scattato la foto, puoi regolare il ritaglio automatico toccando la piccola miniatura in basso a sinistra."
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "Se possibile, appoggia il libro su una superficie chiara e uniforme. Dopo aver scattato la foto, puoi regolare il ritaglio automatico dalla schermata di anteprima prima di confermare."
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "Non mostrare più questo messaggio"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "Ritaglio automatico delle copertine"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "Quando scatti la foto di una copertina, rileva il libro, lo ritaglia e lo raddrizza. Disattiva per usare la fotocamera normale."

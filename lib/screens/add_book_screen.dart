@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 
 import '../data/repositories/book_repository.dart';
 import '../utils/cover_camera_helper.dart';
+import '../widgets/cover_scan_tips_dialog.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
@@ -1838,6 +1839,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _takePhoto() async {
+    if (!await showCoverScanTipsIfNeeded(context)) return;
     try {
       final path = await CoverCameraHelper.takePhotoAndSave();
       if (path == null || !mounted) return;

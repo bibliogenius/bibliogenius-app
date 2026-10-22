@@ -12157,4 +12157,27 @@ msgstr ""
 
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr ""
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr ""
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr ""
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr ""
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr ""
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
 msgstr ""

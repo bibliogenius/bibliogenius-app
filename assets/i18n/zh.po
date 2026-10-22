@@ -11438,3 +11438,27 @@ msgstr "将主页的书籍分区显示：在读、想读、已读。开启后将
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "查看全部"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "封面照片"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "请尽量把书放在浅色、纯色的平面上。拍照后，点按左下角的小缩略图即可调整自动裁剪。"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "请尽量把书放在浅色、纯色的平面上。拍照后，可在确认前于预览界面调整自动裁剪。"
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "不再显示此消息"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "自动裁剪封面"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "拍摄封面照片时，自动识别书本、裁剪并校正。关闭后将使用普通相机。"

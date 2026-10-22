@@ -12269,3 +12269,27 @@ msgstr "Ana sayfadaki kitapları bölümler halinde gösterir: okunuyor, okunaca
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "Tümünü gör"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "Kapak fotoğrafı"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "Mümkünse kitabı açık renkli, düz bir yüzeye koyun. Fotoğrafı çektikten sonra sol alt köşedeki küçük önizlemeye dokunarak otomatik kırpmayı ayarlayabilirsiniz."
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "Mümkünse kitabı açık renkli, düz bir yüzeye koyun. Fotoğrafı çektikten sonra, onaylamadan önce önizleme ekranından otomatik kırpmayı ayarlayabilirsiniz."
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "Bu mesajı bir daha gösterme"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "Otomatik kapak kırpma"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "Kapak fotoğrafı çekerken kitabı algılar, kırpar ve düzeltir. Normal kamerayı kullanmak için kapatın."

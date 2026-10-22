@@ -12411,3 +12411,27 @@ msgstr "Affiche les livres de l'accueil en sections : en cours, à lire, lu. Act
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "Tout voir"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "Photo de couverture"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "Positionnez si possible le livre sur une surface claire et unie. Une fois la photo prise, vous pouvez ajuster le recadrage automatique en sélectionnant la petite vignette en bas à gauche."
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "Positionnez si possible le livre sur une surface claire et unie. Une fois la photo prise, vous pouvez ajuster le recadrage automatique depuis l'écran d'aperçu, avant de valider."
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "Ne plus afficher ce message"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "Recadrage automatique des couvertures"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "Lors de la prise d'une photo de couverture, détecte le livre, le recadre et le redresse. Désactivez pour utiliser l'appareil photo classique."

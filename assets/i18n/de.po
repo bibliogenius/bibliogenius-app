@@ -12142,3 +12142,27 @@ msgstr "Zeigt die Bücher der Startseite in Abschnitten: aktuell, zu lesen, gele
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "Alle anzeigen"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "Coverfoto"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "Legen Sie das Buch nach Möglichkeit auf eine helle, einfarbige Fläche. Nach der Aufnahme können Sie den automatischen Zuschnitt anpassen, indem Sie auf das kleine Vorschaubild unten links tippen."
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "Legen Sie das Buch nach Möglichkeit auf eine helle, einfarbige Fläche. Nach der Aufnahme können Sie den automatischen Zuschnitt in der Vorschau anpassen, bevor Sie bestätigen."
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "Diese Meldung nicht mehr anzeigen"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "Automatischer Coverzuschnitt"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "Erkennt beim Fotografieren eines Covers das Buch, schneidet es zu und richtet es gerade aus. Deaktivieren, um die normale Kamera zu verwenden."

@@ -136,6 +136,7 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'collectionsEnabled',
   'commerceEnabled',
   'connectionValidationEnabled',
+  'coverAutoCropEnabled',
   'digitalFormatsEnabled',
   'enableHierarchicalTags',
   'gamesEnabled',
@@ -194,6 +195,9 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // library, and a restored device deserves to be asked again if its card is
   // still empty.
   'hub_contact_prompt_dismissed', // NetworkScreen._contactPromptDismissedKey
+  // "Don't show again" on the cover scan tips: a fact about this install's
+  // UI, like the dismissals above.
+  'cover_scan_tips_dismissed', // CoverCameraHelper.scanTipsDismissedPrefKey
 
   // Bookshop/library linking (POC). Conservative v1 call: dropped on
   // restore. The three JSON lists are String-restorable and could be

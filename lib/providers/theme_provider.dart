@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../utils/library_portals.dart';
 import '../utils/avatars.dart';
+import '../utils/cover_camera_helper.dart';
 import '../widgets/peer_book_cover_cache_manager.dart';
 import '../models/avatar_config.dart';
 import '../services/api_service.dart';
@@ -157,6 +158,10 @@ class ThemeProvider with ChangeNotifier {
   // Digital Formats Module
   bool _digitalFormatsEnabled = false;
   bool get digitalFormatsEnabled => _digitalFormatsEnabled;
+
+  // Automatic cover crop (document scanner) for cover photos
+  bool _coverAutoCropEnabled = true;
+  bool get coverAutoCropEnabled => _coverAutoCropEnabled;
 
   // Audio Module
   bool _audioEnabled = false;
@@ -508,6 +513,8 @@ class ThemeProvider with ChangeNotifier {
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
 
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
+    _coverAutoCropEnabled =
+        prefs.getBool(CoverCameraHelper.autoCropPrefKey) ?? true;
     _audioEnabled = prefs.getBool('audioEnabled') ?? false;
     _mcpEnabled = prefs.getBool('mcpEnabled') ?? false;
     _gamesEnabled = prefs.getBool('gamesEnabled') ?? true;
@@ -1461,6 +1468,18 @@ class ThemeProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('digitalFormatsEnabled', enabled);
     await _updateEnabledModules();
+    notifyListeners();
+  }
+
+  /// Device-local: not a backend module, so no `_updateEnabledModules()`.
+  /// Switching it back on shows the scan tips again.
+  Future<void> setCoverAutoCropEnabled(bool enabled) async {
+    _coverAutoCropEnabled = enabled;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('coverAutoCropEnabled', enabled);
+    if (enabled) {
+      await prefs.remove(CoverCameraHelper.scanTipsDismissedPrefKey);
+    }
     notifyListeners();
   }
 

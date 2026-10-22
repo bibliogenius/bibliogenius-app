@@ -35,6 +35,7 @@ import '../theme/app_design.dart';
 import '../themes/base/theme_registry.dart';
 import '../utils/app_constants.dart';
 import '../utils/book_filters.dart';
+import '../utils/cover_camera_helper.dart';
 import '../utils/backup_actions.dart';
 import '../utils/import_actions.dart';
 import '../widgets/account_sync_summary_sheet.dart';
@@ -1430,6 +1431,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           context,
                           'modules_group_advanced',
                         ),
+                        if (CoverCameraHelper.isDocumentScannerSupported)
+                          _buildModuleToggle(
+                            context,
+                            'module_cover_auto_crop',
+                            'module_cover_auto_crop_desc',
+                            Icons.crop,
+                            themeProvider.coverAutoCropEnabled,
+                            (value) =>
+                                themeProvider.setCoverAutoCropEnabled(value),
+                          ),
                         _buildMcpModuleToggle(),
 
                         // Notifications section

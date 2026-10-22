@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:isolate';
 
+import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class CoverCameraHelper {
@@ -37,9 +40,32 @@ class CoverCameraHelper {
   static bool get isCameraAvailable =>
       _picker.supportsImageSource(ImageSource.camera);
 
+  /// Preference holding the "automatic cover crop" toggle (on by default).
+  static const String autoCropPrefKey = 'coverAutoCropEnabled';
+
+  /// Preference set when the user ticked "don't show again" on the scan
+  /// tips. Cleared when auto crop is switched back on.
+  static const String scanTipsDismissedPrefKey = 'cover_scan_tips_dismissed';
+
+  /// Whether this platform has a system document scanner, which finds the
+  /// cover's edges, crops it and straightens the perspective (VisionKit on
+  /// iOS, ML Kit on Android). Other platforms keep the plain camera.
+  static bool get isDocumentScannerSupported =>
+      Platform.isIOS || Platform.isAndroid;
+
+  /// Whether camera capture goes through the document scanner: supported
+  /// platform and auto crop left on in the settings.
+  static Future<bool> usesDocumentScanner() async {
+    if (!isDocumentScannerSupported) return false;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(autoCropPrefKey) ?? true;
+  }
+
   /// Opens the camera, saves the photo into covers/ and returns the local path.
   /// Returns null if the user cancelled or the camera is unavailable.
   static Future<String?> takePhotoAndSave({String? bookId}) async {
+    if (await usesDocumentScanner()) return _scanAndSave(bookId);
+
     // requestFullMetadata: false avoids PHPhotoLibrary access on iOS
     // (prevents crash when tapping "Use Photo")
     final XFile? photo = await _picker.pickImage(
@@ -50,6 +76,33 @@ class CoverCameraHelper {
       requestFullMetadata: false,
     );
     return _saveToCovers(photo, bookId);
+  }
+
+  /// Captures one page with the document scanner. The scanner returns a
+  /// full-resolution file in its own cache, so it is shrunk by
+  /// [_saveToCovers] and the cache is emptied afterwards.
+  static Future<String?> _scanAndSave(String? bookId) async {
+    final pages = await CunningDocumentScanner.getPictures(
+      noOfPages: 1,
+      scannerSource: ScannerSource.camera,
+      // Keeps the colours: the "full" mode may offer shadow and stain
+      // removal tuned for paper documents.
+      androidScannerMode: AndroidScannerMode.base,
+      iosScannerOptions: IosScannerOptions(
+        imageFormat: IosImageFormat.jpg,
+        jpgCompressionQuality: 0.9,
+      ),
+    );
+    if (pages == null) return null;
+    try {
+      return await _saveToCovers(XFile(pages.first), bookId);
+    } finally {
+      try {
+        await CunningDocumentScanner.cleanCache();
+      } catch (e) {
+        debugPrint('Failed to clean the document scanner cache: $e');
+      }
+    }
   }
 
   /// Opens the gallery picker and saves the chosen image as JPEG into covers/.
@@ -119,7 +172,9 @@ class CoverCameraHelper {
     final targetPath = '${coversDir.path}/$fileName';
 
     final raw = await File(picked.path).readAsBytes();
-    final processed = await _encodeCoverJpeg(raw);
+    // Decoding a full-resolution scan in pure Dart takes long enough to
+    // freeze the UI, so it runs off the main isolate.
+    final processed = await Isolate.run(() => _encodeCoverJpeg(raw));
     await File(targetPath).writeAsBytes(processed, flush: true);
     return targetPath;
   }

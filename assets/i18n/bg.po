@@ -12269,3 +12269,27 @@ msgstr "Показва книгите на началната страница �
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "Виж всички"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "Снимка на корицата"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "Ако е възможно, поставете книгата върху светла, едноцветна повърхност. След като направите снимката, можете да коригирате автоматичното изрязване, като докоснете малката миниатюра долу вляво."
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "Ако е възможно, поставете книгата върху светла, едноцветна повърхност. След като направите снимката, можете да коригирате автоматичното изрязване от екрана за преглед, преди да потвърдите."
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "Не показвай това съобщение отново"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "Автоматично изрязване на корици"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "При снимане на корица разпознава книгата, изрязва я и я изправя. Изключете, за да използвате обикновената камера."

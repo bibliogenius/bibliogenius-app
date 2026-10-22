@@ -16,6 +16,7 @@ import '../services/translation_service.dart';
 import '../services/milestone_celebration.dart';
 import '../utils/ownership_actions.dart';
 import '../utils/cover_camera_helper.dart';
+import '../widgets/cover_scan_tips_dialog.dart';
 import '../widgets/cached_book_cover.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
@@ -1487,6 +1488,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   }
 
   Future<void> _takePhoto() async {
+    if (!await showCoverScanTipsIfNeeded(context)) return;
     try {
       final path = await CoverCameraHelper.takePhotoAndSave(
         bookId: widget.book.id,

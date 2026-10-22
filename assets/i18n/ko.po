@@ -11438,3 +11438,27 @@ msgstr "홈 화면의 책을 읽는 중, 읽을 책, 읽음 섹션으로 나누�
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "모두 보기"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "표지 사진"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "가능하면 밝고 무늬 없는 표면 위에 책을 놓아 주세요. 사진을 찍은 후 왼쪽 아래의 작은 미리보기 이미지를 눌러 자동 자르기를 조정할 수 있습니다."
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "가능하면 밝고 무늬 없는 표면 위에 책을 놓아 주세요. 사진을 찍은 후 확인하기 전에 미리보기 화면에서 자동 자르기를 조정할 수 있습니다."
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "이 메시지를 다시 표시하지 않기"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "표지 자동 자르기"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "표지 사진을 찍을 때 책을 감지해 자르고 반듯하게 보정합니다. 끄면 일반 카메라를 사용합니다."

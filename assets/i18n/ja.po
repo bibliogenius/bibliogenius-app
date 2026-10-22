@@ -11438,3 +11438,27 @@ msgstr "ホーム画面の本を「読書中」「積読」「読了」のセク
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
 msgstr "すべて表示"
+
+#. Cover scan tips dialog: title
+msgid "cover_scan_tips_title"
+msgstr "表紙の写真"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the iOS scanner (thumbnail bottom-left)
+msgid "cover_scan_tips_ios"
+msgstr "できれば、明るく無地の面に本を置いてください。撮影後、左下の小さなサムネイルをタップすると、自動トリミングを調整できます。"
+
+#. Cover scan tips dialog: framing advice and how to fix the crop in the Android scanner (preview screen)
+msgid "cover_scan_tips_android"
+msgstr "できれば、明るく無地の面に本を置いてください。撮影後、確定する前にプレビュー画面で自動トリミングを調整できます。"
+
+#. Cover scan tips dialog: checkbox to hide the dialog for good
+msgid "cover_scan_tips_dont_show_again"
+msgstr "今後このメッセージを表示しない"
+
+#. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
+msgid "module_cover_auto_crop"
+msgstr "表紙の自動トリミング"
+
+#. Modules > Advanced: description of the automatic cover crop toggle
+msgid "module_cover_auto_crop_desc"
+msgstr "表紙を撮影するときに本を検出し、トリミングしてまっすぐに補正します。オフにすると通常のカメラを使用します。"
