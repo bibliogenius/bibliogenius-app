@@ -153,6 +153,8 @@ class _MockFfiService extends FfiService {
     String resolution, {
     String? encryptedContact,
     String? followerX25519PublicKey,
+    String? followerNodeId,
+    required bool ownerGesture,
   }) async {
     resolved.add((followId, resolution, encryptedContact));
     pending = pending.where((f) => f.id != followId).toList();

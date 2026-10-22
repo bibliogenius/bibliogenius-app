@@ -71,4 +71,26 @@ void main() {
   test('the connections deep link names the Demandes tab and its sub-tab', () {
     expect(kConnectionRequestsRoute, '/requests?tab=requests&sub=connections');
   });
+
+  group('showConnectionRequests', () {
+    test('follows connection validation when nothing is pending', () {
+      expect(
+        showConnectionRequests(validationEnabled: true, pendingCount: 0),
+        isTrue,
+      );
+      expect(
+        showConnectionRequests(validationEnabled: false, pendingCount: 0),
+        isFalse,
+      );
+    });
+
+    test('a pending request is shown even with validation off', () {
+      // A library whose pairing was ended waits for the owner whatever the
+      // setting: the owner must be able to accept it.
+      expect(
+        showConnectionRequests(validationEnabled: false, pendingCount: 1),
+        isTrue,
+      );
+    });
+  });
 }

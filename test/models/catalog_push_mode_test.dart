@@ -8,6 +8,7 @@ HubFollow _follower({
   String status = 'active',
   String? key = 'abababababababababababababababababababababababababababababababab',
   String? version = '1.3.0+600',
+  String? readerStatus = 'reader',
 }) => HubFollow(
   id: id,
   followerNodeId: 'reader-$id',
@@ -16,6 +17,7 @@ HubFollow _follower({
   createdAt: '2026-10-19T00:00:00Z',
   followerX25519PublicKey: key,
   followerAppVersion: version,
+  catalogReaderStatus: readerStatus,
 );
 
 void main() {
@@ -104,6 +106,70 @@ void main() {
         followers: [_follower(id: 1, key: null)],
       );
       expect(mode, CatalogPushMode.clear);
+    });
+
+    test('an active follower off the readers list does not count', () {
+      // An ex-peer still following on an old build: it gets no wrap, so it
+      // must not hold every real reader back in clear either (R1+).
+      final mode = decideCatalogPushMode(
+        isListed: false,
+        requiresApproval: true,
+        followers: [
+          _follower(id: 1),
+          _follower(id: 2, version: '1.2.3+498', readerStatus: 'not_reader'),
+          _follower(id: 3, key: null, readerStatus: 'not_reader'),
+        ],
+      );
+      expect(mode, CatalogPushMode.encrypted);
+    });
+
+    test('a reader whose key changed keeps the catalog in clear', () {
+      // No wrap goes out toward a key that was not pinned: rather than
+      // lock that reader out, the catalog stays readable as today.
+      final mode = decideCatalogPushMode(
+        isListed: false,
+        requiresApproval: true,
+        followers: [
+          _follower(id: 1),
+          _follower(id: 2, readerStatus: 'key_mismatch'),
+        ],
+      );
+      expect(mode, CatalogPushMode.clear);
+    });
+
+    test('a follower the owner never let in keeps the catalog in clear', () {
+      // Approved without a key to pin, or followed while the library was
+      // public: it gets no wrap, so encrypting would lock it out.
+      final mode = decideCatalogPushMode(
+        isListed: false,
+        requiresApproval: true,
+        followers: [
+          _follower(id: 1),
+          _follower(id: 2, key: null, readerStatus: 'unknown'),
+        ],
+      );
+      expect(mode, CatalogPushMode.clear);
+    });
+
+    test('an unknown reader status is judged on the follower alone', () {
+      expect(
+        decideCatalogPushMode(
+          isListed: false,
+          requiresApproval: true,
+          followers: [_follower(id: 1, readerStatus: null)],
+        ),
+        CatalogPushMode.encrypted,
+      );
+      expect(
+        decideCatalogPushMode(
+          isListed: false,
+          requiresApproval: true,
+          followers: [
+            _follower(id: 1, version: '1.2.3', readerStatus: null),
+          ],
+        ),
+        CatalogPushMode.clear,
+      );
     });
 
     test('the floor is the version that ships the reader', () {

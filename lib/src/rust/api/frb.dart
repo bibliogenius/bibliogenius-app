@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `beacon_sync_failure`, `build_hub_catalog`, `catalog_key_store`, `catalog_key_wrap_for`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `identity_library_uuid`, `identity_x25519_secret`, `install_panic_hook`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `push_built_catalog`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `beacon_sync_failure`, `build_hub_catalog`, `catalog_key_store`, `catalog_key_wrap_for`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `identity_library_uuid`, `identity_x25519_secret`, `install_panic_hook`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_reader_anomaly`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `push_built_catalog`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `BuiltHubCatalog`, `ServerStartDecision`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -1213,15 +1213,17 @@ Future<int> hubDirectorySyncCatalog() =>
 
 /// Same catalog, pushed as a ciphertext under this library's catalog key
 /// (ADR-072): the hub stores what it cannot read, and every reader opens it
-/// with the wrap it holds on its follow. The key is created on first use.
-/// The caller decides between this and the clear push (D8: encrypt only
-/// when every current reader runs a build that can decrypt); this function
-/// never falls back on its own. Covers are uploaded exactly as for a clear
-/// push (D5), and their book ids travel in clear so the hub can garbage
-/// collect them. Once the hub confirms it holds the ciphertext (stored, or
-/// 304 on an unchanged digest), every active follower with a published
-/// X25519 key receives its wrap of the key (D3); a locally skipped push
-/// leaves the wraps as they are. Returns the number of entries pushed, or
+/// with the wrap it holds on its follow. The key is created on first use,
+/// and rotated first when a reader left since it was made (D4). The caller
+/// decides between this and the clear push (D8: encrypt only when every
+/// current reader runs a build that can decrypt); this function never falls
+/// back on its own. Covers are uploaded exactly as for a clear push (D5),
+/// and their book ids travel in clear so the hub can garbage collect them.
+/// Once the hub confirms it holds the ciphertext (stored, or 304 on an
+/// unchanged digest), every reader on the owner's list receives its wrap of
+/// the key toward its pinned key, and any other active follower loses the
+/// wrap it held (D3); a locally skipped push only wraps for readers let in
+/// since the last batch. Returns the number of entries pushed, or
 /// an error when the ciphertext went out but the wraps did not (the next
 /// sync then contacts the hub again and wraps).
 Future<int> hubDirectorySyncCatalogEncrypted() =>
@@ -1274,37 +1276,39 @@ Future<List<FrbHubFollow>> hubDirectoryPendingRequests() =>
     RustLib.instance.api.crateApiFrbHubDirectoryPendingRequests();
 
 /// Resolves a pending follow request. resolution: "approve" | "reject" | "block"
-/// When approving, encrypted_contact is an optional sealed blob of the owner's contact info,
-/// and follower_x25519_public_key (hex) lets the owner hand this follower its
-/// wrap of the catalog key when the library holds one (ADR-072 D3). A
-/// library that never encrypted its catalog has no key and sends no wrap.
+/// When approving, encrypted_contact is an optional sealed blob of the owner's contact info.
+/// follower_node_id and follower_x25519_public_key (hex) let the owner put
+/// the follower on its catalog readers list (ADR-072 D4, D8) and, when the
+/// library holds a catalog key, hand it its wrap (D3). A paired peer is
+/// pinned and wrapped for with the key exchanged at pairing, never with the
+/// one the hub returns. owner_gesture is false for the paired-peer
+/// auto-approval (ADR-053), which is refused for a library whose pairing
+/// the owner ended; the owner's own approval restores that pairing.
 Future<FrbHubFollow> hubDirectoryResolveFollow({
   required PlatformInt64 followId,
   required String resolution,
   String? encryptedContact,
   String? followerX25519PublicKey,
+  String? followerNodeId,
+  required bool ownerGesture,
 }) => RustLib.instance.api.crateApiFrbHubDirectoryResolveFollow(
   followId: followId,
   resolution: resolution,
   encryptedContact: encryptedContact,
   followerX25519PublicKey: followerX25519PublicKey,
+  followerNodeId: followerNodeId,
+  ownerGesture: ownerGesture,
 );
-
-/// Rotates the catalog key after a reader left (ADR-072 D4): retires the
-/// current key, generates a new one and re-wraps it for the readers that
-/// remain. The ex-reader never receives the new key. The catalog itself is
-/// not pushed here: the caller decides clear or encrypted for the next push
-/// (D8), and a push under the new key goes through on its own because the
-/// keyed digest changed. No-op when this library holds no catalog key.
-/// Returns the number of follow rows re-wrapped.
-Future<int> hubDirectoryRotateCatalogKey() =>
-    RustLib.instance.api.crateApiFrbHubDirectoryRotateCatalogKey();
 
 /// Lists libraries the local library is following (active follows).
 Future<List<FrbHubFollow>> hubDirectoryListFollowing() =>
     RustLib.instance.api.crateApiFrbHubDirectoryListFollowing();
 
-/// Lists libraries that follow the local library (active followers).
+/// Lists libraries that follow the local library (active followers), each
+/// with where it stands toward the encrypted catalog. Brings the catalog
+/// readers list in step on the way (ADR-072 D4): a follower that left is
+/// noticed here too, and a failure to do so fails the call, since the
+/// statuses would then be unreliable for the clear-or-encrypted decision.
 Future<List<FrbHubFollow>> hubDirectoryListFollowers() =>
     RustLib.instance.api.crateApiFrbHubDirectoryListFollowers();
 
@@ -2890,6 +2894,7 @@ sealed class FrbHubFollow with _$FrbHubFollow {
     String? followerX25519PublicKey,
     String? followerAppVersion,
     String? encryptedCatalogKey,
+    String? catalogReaderStatus,
   }) = _FrbHubFollow;
 }
 

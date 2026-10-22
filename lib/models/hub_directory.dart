@@ -131,6 +131,11 @@ class HubFollow {
   /// list, ADR-072 D3). Opaque here: the Rust side opens it.
   final String? encryptedCatalogKey;
 
+  /// Where this follower stands toward the encrypted catalog, on the
+  /// followers list (ADR-072 R1+): "reader", "key_mismatch" or
+  /// "not_reader". Null when unknown (other lists).
+  final String? catalogReaderStatus;
+
   const HubFollow({
     required this.id,
     required this.followerNodeId,
@@ -143,6 +148,7 @@ class HubFollow {
     this.followerX25519PublicKey,
     this.followerAppVersion,
     this.encryptedCatalogKey,
+    this.catalogReaderStatus,
   });
 
   factory HubFollow.fromFrb(frb.FrbHubFollow f) => HubFollow(
@@ -157,6 +163,7 @@ class HubFollow {
     followerX25519PublicKey: f.followerX25519PublicKey,
     followerAppVersion: f.followerAppVersion,
     encryptedCatalogKey: f.encryptedCatalogKey,
+    catalogReaderStatus: f.catalogReaderStatus,
   );
 
   bool get isPending => status == 'pending';

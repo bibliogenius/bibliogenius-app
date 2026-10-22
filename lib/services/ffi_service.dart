@@ -1647,19 +1647,6 @@ class FfiService {
     }
   }
 
-  /// Retires the catalog key after a reader left and re-wraps the new one
-  /// for the readers that remain (ADR-072 D4). The next catalog push goes
-  /// out under the new key. Returns false on error.
-  Future<bool> hubDirectoryRotateCatalogKey() async {
-    try {
-      await frb.hubDirectoryRotateCatalogKey();
-      return true;
-    } catch (e) {
-      debugPrint('FFI hubDirectoryRotateCatalogKey error: $e');
-      return false;
-    }
-  }
-
   /// List libraries in the public directory (paginated). ADR-035 Phase 2:
   /// optional [country] / [cityId] filters narrow the result set; either
   /// can be combined with [search] for "voltaire in Paris" style queries.
@@ -1793,12 +1780,18 @@ class FfiService {
   }
 
   /// Resolve a follow request: resolution is "approve", "reject", or "block".
-  /// When approving, [encryptedContact] is an optional sealed blob.
+  /// When approving, [encryptedContact] is an optional sealed blob, and
+  /// [followerNodeId] with [followerX25519PublicKey] let the Rust side put
+  /// the follower on the catalog readers list (ADR-072). [ownerGesture] is
+  /// false for the paired-peer auto-approval (ADR-053), which Rust refuses
+  /// for a library whose pairing the owner ended.
   Future<frb.FrbHubFollow?> hubDirectoryResolveFollow(
     int followId,
     String resolution, {
     String? encryptedContact,
     String? followerX25519PublicKey,
+    String? followerNodeId,
+    required bool ownerGesture,
   }) async {
     try {
       return await frb.hubDirectoryResolveFollow(
@@ -1806,6 +1799,8 @@ class FfiService {
         resolution: resolution,
         encryptedContact: encryptedContact,
         followerX25519PublicKey: followerX25519PublicKey,
+        followerNodeId: followerNodeId,
+        ownerGesture: ownerGesture,
       );
     } catch (e) {
       debugPrint('FFI hubDirectoryResolveFollow error: $e');

@@ -25,6 +25,7 @@ frb.FrbHubFollow _follower({
   String status = 'active',
   String? key = _readerKey,
   String? version = '1.3.0+600',
+  String? readerStatus = 'reader',
 }) => frb.FrbHubFollow(
   id: id,
   followerNodeId: node,
@@ -33,6 +34,7 @@ frb.FrbHubFollow _follower({
   createdAt: '2026-10-19T00:00:00Z',
   followerX25519PublicKey: key,
   followerAppVersion: version,
+  catalogReaderStatus: readerStatus,
 );
 
 /// A hub seen through the FFI: an unlisted library (so the catalog is a
@@ -49,7 +51,6 @@ class _MockFfiService extends FfiService {
 
   int clearPushes = 0;
   int encryptedPushes = 0;
-  int rotations = 0;
 
   /// The Rust side hands out the wraps after the ciphertext; an encrypted
   /// push that cannot deliver them reports a failure.
@@ -58,8 +59,9 @@ class _MockFfiService extends FfiService {
   /// Every catalog call in order, to pin what happens before what.
   final List<String> events = [];
 
-  /// Every resolution, as (follow_id, resolution, follower key).
-  final List<(int, String, String?)> resolved = [];
+  /// Every resolution, as (follow_id, resolution, follower key, follower
+  /// node id).
+  final List<(int, String, String?, String?)> resolved = [];
 
   @override
   Future<frb.FrbDirectoryConfig?> hubDirectoryGetConfig() async =>
@@ -111,20 +113,20 @@ class _MockFfiService extends FfiService {
   }
 
   @override
-  Future<bool> hubDirectoryRotateCatalogKey() async {
-    rotations++;
-    events.add('rotate');
-    return true;
-  }
-
-  @override
   Future<frb.FrbHubFollow?> hubDirectoryResolveFollow(
     int followId,
     String resolution, {
     String? encryptedContact,
     String? followerX25519PublicKey,
+    String? followerNodeId,
+    required bool ownerGesture,
   }) async {
-    resolved.add((followId, resolution, followerX25519PublicKey));
+    resolved.add((
+      followId,
+      resolution,
+      followerX25519PublicKey,
+      followerNodeId,
+    ));
     pending = pending.where((f) => f.id != followId).toList();
     return _follower(id: followId, node: _readerNode);
   }
@@ -250,8 +252,8 @@ void main() {
     });
   });
 
-  group('catalog key wraps and rotation (ADR-072 D3, D4)', () {
-    test('approving a follow passes its key so the Rust side can wrap',
+  group('catalog readers and rotation (ADR-072 D3, D4, R1+)', () {
+    test('approving a follow passes its key and node id so Rust can pin and wrap',
         () async {
       final (p, ffi) = await _provider();
       ffi.pending = [
@@ -259,12 +261,41 @@ void main() {
       ];
       await p.loadPendingRequests();
 
-      await p.resolveFollow(7, 'approve');
+      await p.resolveFollow(7, 'approve', ownerGesture: true);
 
-      expect(ffi.resolved, [(7, 'approve', _readerKey)]);
+      expect(ffi.resolved, [(7, 'approve', _readerKey, _readerNode)]);
     });
 
-    test('a follower that left rotates the key before the next push',
+    test('an ex-peer still following does not keep the catalog in clear',
+        () async {
+      final (p, ffi) = await _provider();
+      ffi.followers = [
+        _follower(id: 1, node: _readerNode),
+        _follower(
+          id: 2,
+          node: _pairedNode,
+          version: '1.2.3+498',
+          readerStatus: 'not_reader',
+        ),
+      ];
+
+      await p.syncCatalog();
+
+      expect(p.lastCatalogPushMode, CatalogPushMode.encrypted);
+    });
+
+    test('a reader whose key changed keeps the catalog in clear', () async {
+      final (p, ffi) = await _provider();
+      ffi.followers = [
+        _follower(id: 1, node: _readerNode, readerStatus: 'key_mismatch'),
+      ];
+
+      await p.syncCatalog();
+
+      expect(p.lastCatalogPushMode, CatalogPushMode.clear);
+    });
+
+    test('a follower that left needs nothing from the app: Rust rotates',
         () async {
       final (p, ffi) = await _provider();
       ffi.followers = [
@@ -272,38 +303,37 @@ void main() {
         _follower(id: 2, node: _pairedNode),
       ];
       await p.syncCatalog();
-      expect(ffi.rotations, 0);
 
-      // The loss is only seen by the push itself, when it reloads the
-      // followers to decide: the rotation must still come before the push.
       ffi.followers = [_follower(id: 1, node: _readerNode)];
+      p.markCatalogDirty();
       await p.syncCatalog();
 
-      expect(ffi.rotations, 1);
-      expect(ffi.encryptedPushes, 2);
-      expect(ffi.events, ['push:encrypted', 'rotate', 'push:encrypted']);
+      expect(ffi.events, ['push:encrypted', 'push:encrypted']);
     });
 
-    test('ending a pairing rotates the key before the next push', () async {
+    test('ending a pairing marks the catalog for a push', () async {
       final (p, ffi) = await _provider();
       ffi.followers = [_follower(id: 1, node: _readerNode)];
       await p.syncCatalog();
 
       final ok = await p.removePairing(peerId: 4, nodeId: _pairedNode);
-      await p.syncCatalog();
+      await p.syncCatalogIfDirty();
 
       expect(ok, isTrue);
-      expect(ffi.rotations, 1);
+      expect(ffi.encryptedPushes, 2);
     });
 
-    test('a first load with no previous list is not a loss', () async {
+    test('accepting a pairing marks the catalog for a push', () async {
+      // A peer let back in while its follow stayed active gets its wrap
+      // from the next push, which must not wait for a book change.
       final (p, ffi) = await _provider();
       ffi.followers = [_follower(id: 1, node: _readerNode)];
-
-      await p.loadFollowers();
       await p.syncCatalog();
 
-      expect(ffi.rotations, 0);
+      await p.pairingAccepted();
+      await p.syncCatalogIfDirty();
+
+      expect(ffi.encryptedPushes, 2);
     });
   });
 }

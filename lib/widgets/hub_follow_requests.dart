@@ -237,7 +237,12 @@ class HubFollowRequestTile extends StatelessWidget {
   Future<void> _approve() async {
     // The card is attached only if this follower is in its audience.
     final blob = await provider.contactBlobForApproval(follow);
-    await provider.resolveFollow(follow.id, 'approve', encryptedContact: blob);
+    await provider.resolveFollow(
+      follow.id,
+      'approve',
+      encryptedContact: blob,
+      ownerGesture: true,
+    );
   }
 
   @override
@@ -318,8 +323,11 @@ class HubFollowRequestTile extends StatelessWidget {
                       'more_actions',
                     ),
                     icon: const Icon(Icons.more_vert),
-                    onSelected: (_) =>
-                        provider.resolveFollow(follow.id, 'block'),
+                    onSelected: (_) => provider.resolveFollow(
+                      follow.id,
+                      'block',
+                      ownerGesture: true,
+                    ),
                     itemBuilder: (context) => [
                       PopupMenuItem<String>(
                         value: 'block',
@@ -353,7 +361,11 @@ class HubFollowRequestTile extends StatelessWidget {
                   TextButton(
                     onPressed: busy
                         ? null
-                        : () => provider.resolveFollow(follow.id, 'reject'),
+                        : () => provider.resolveFollow(
+                            follow.id,
+                            'reject',
+                            ownerGesture: true,
+                          ),
                     child: Text(
                       TranslationService.translate(context, 'directory_reject'),
                     ),

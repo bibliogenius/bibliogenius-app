@@ -61,6 +61,7 @@ class _LoansScreenState extends State<LoansScreen>
   Timer? _refreshTimer;
   StreamSubscription<FrbNudgeEvent>? _nudgeSub;
   late TabController _mainTabController;
+  late final bool _showConnections;
   late TabController _requestsTabController;
   bool _isLoading = false;
 
@@ -117,8 +118,16 @@ class _LoansScreenState extends State<LoansScreen>
     // P2P loan requests sub-tabs are gated independently:
     // - "Reçues"  = peers asking to borrow OUR books → needs canLendBooks
     // - "Envoyées" = WE asked to borrow THEIR books → needs canBorrowBooks
-    // Connections sub-tab is independent of both modules.
-    final showConnections = themeProvider.connectionValidationEnabled;
+    // Connections sub-tab is independent of both modules. Fixed for the life
+    // of the screen: the tab controllers are sized from it.
+    _showConnections = showConnectionRequests(
+      validationEnabled: themeProvider.connectionValidationEnabled,
+      pendingCount: Provider.of<PendingPeersProvider>(
+        context,
+        listen: false,
+      ).pendingCount,
+    );
+    final showConnections = _showConnections;
     final demandesTabVisible =
         hasPeerNetwork &&
         (themeProvider.canLendBooks ||
@@ -159,7 +168,7 @@ class _LoansScreenState extends State<LoansScreen>
     // Sub-tabs of Demandes — gated independently by each loan module:
     //   Reçues  → canLendBooks   (peers want our books)
     //   Envoyées → canBorrowBooks (we want their books)
-    //   Connexions → connectionValidationEnabled
+    //   Connexions → showConnectionRequests
     final requestsSubTabs = RequestsSubTabs(
       canLend: themeProvider.canLendBooks,
       canBorrow: themeProvider.canBorrowBooks,
@@ -383,14 +392,14 @@ class _LoansScreenState extends State<LoansScreen>
     );
     // Match initState's gating: Demandes tab visible if peer connectivity is
     // active AND at least one sub-tab is enabled (Reçues needs canLend,
-    // Envoyées needs canBorrow, Connexions needs connectionValidationEnabled).
+    // Envoyées needs canBorrow, Connexions needs showConnectionRequests).
     final hasPeerNetwork =
         themeProvider.networkEnabled ||
         themeProvider.remoteReachableEnabled ||
         hubProvider.isRegistered;
     final showDemandes =
         hasPeerNetwork &&
-        (canLend || canBorrow || themeProvider.connectionValidationEnabled);
+        (canLend || canBorrow || _showConnections);
 
     final tabs = <Tab>[
       if (showDemandes)
@@ -514,7 +523,7 @@ class _LoansScreenState extends State<LoansScreen>
     //   Envoyées → canBorrowBooks (we asking to borrow THEIR books)
     final canLend = themeProvider.canLendBooks;
     final canBorrow = themeProvider.canBorrowBooks;
-    final showConnections = themeProvider.connectionValidationEnabled;
+    final showConnections = _showConnections;
 
     final incomingCount =
         _filterRecentP2pRequests(_incomingRequests).length +
@@ -2307,7 +2316,7 @@ class _LoansScreenState extends State<LoansScreen>
       await api.updatePeerStatus(peer['id'], 'active');
       // ADR-053: a freshly accepted pairing must also hold hub catalog
       // access; the reconciliation sends/approves the mutual follow.
-      unawaited(hubDir.reconcilePairedPeerFollows());
+      unawaited(hubDir.pairingAccepted());
       // The pending banner and badge otherwise wait for the 30 s poll.
       unawaited(pending.refresh());
       // Same banner as the initiating side, replacing the pending one of this

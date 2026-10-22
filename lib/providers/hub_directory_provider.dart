@@ -2378,18 +2378,13 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Reloads the followers list. Returns false when the hub could not be
   /// read, in which case the list is left as it was.
   ///
-  /// An active follower that vanished since the last load has unfollowed
-  /// (ADR-072 D4, "unfollow seen"): the catalog key is rotated before the
-  /// next push so the ex-reader never opens a newer catalog.
+  /// A reader that stopped following is noticed by the Rust side on this
+  /// same call, which records the departure and rotates the catalog key
+  /// before the next encrypted push (ADR-072 D4).
   Future<bool> loadFollowers() async {
     try {
       final raw = await _ffi.hubDirectoryListFollowers();
-      final before = _followers.where((f) => f.isActive).map((f) => f.id).toSet();
       _followers = raw.map(HubFollow.fromFrb).toList();
-      final after = _followers.where((f) => f.isActive).map((f) => f.id).toSet();
-      if (before.difference(after).isNotEmpty) {
-        _onCatalogReaderLost('follower left');
-      }
       _resolveNames(_followers.map((f) => f.followerNodeId).toList());
     } catch (e) {
       debugPrint('HubDirectoryProvider loadFollowers error: $e');
@@ -2498,7 +2493,12 @@ class HubDirectoryProvider extends ChangeNotifier {
           '[ADR-053] auto-approve follow ${req.id} from paired peer '
           '${req.followerNodeId}',
         );
-        await resolveFollow(req.id, 'approve', encryptedContact: blob);
+        await resolveFollow(
+          req.id,
+          'approve',
+          encryptedContact: blob,
+          ownerGesture: false,
+        );
       }
     } catch (e) {
       debugPrint('[ADR-053] reconcilePairedPeerFollows error: $e');
@@ -2535,14 +2535,22 @@ class HubDirectoryProvider extends ChangeNotifier {
     _autoFollowRequested.remove(nodeId);
     _following.removeWhere((f) => f.followedNodeId == nodeId);
     notifyListeners();
-    // The ex-peer held a wrap of the catalog key: rotate before the next
-    // push (ADR-072 D4). The followers list is not refreshed here either,
-    // the hub may still show the follow it is about to drop.
-    _onCatalogReaderLost('pairing removed');
+    // The Rust side took the ex-peer off the catalog readers list and
+    // withdrew its wrap; the next push rotates the key (ADR-072 D4).
+    markCatalogDirty();
     // The lists already loaded are reused on purpose: a refresh right now
     // could still see the follow the hub is about to drop.
     await reconcilePairedPeerFollows(refreshLists: false);
     return true;
+  }
+
+  /// After the owner accepted a pairing request: the mutual follow of
+  /// ADR-053, and a push, so a library let back in while its follow stayed
+  /// active gets its wrap of the catalog key (ADR-072 D4) without waiting
+  /// for a book change.
+  Future<void> pairingAccepted() async {
+    markCatalogDirty();
+    await reconcilePairedPeerFollows();
   }
 
   /// Library uuids of accepted paired peers, excluding self and placeholder
@@ -2600,10 +2608,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   ///
   /// [resolution]: "approve", "reject", or "block"
   /// [encryptedContact]: optional sealed blob to attach when approving
+  /// [ownerGesture]: false for the paired-peer auto-approval (ADR-053)
   Future<bool> resolveFollow(
     int followId,
     String resolution, {
     String? encryptedContact,
+    required bool ownerGesture,
   }) async {
     final key = _resolveFollowKey(followId);
     _busyNodes.add(key);
@@ -2611,17 +2621,19 @@ class HubDirectoryProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // The follower's key lets the Rust side wrap the catalog key for it
-      // (ADR-072 D3); a library pushing in clear holds no key and sends none.
-      final followerKey = _pendingRequests
+      // The follower's node id and key let the Rust side put it on the
+      // catalog readers list and wrap the catalog key for it (ADR-072 D3);
+      // a library pushing in clear holds no key and sends no wrap.
+      final request = _pendingRequests
           .where((f) => f.id == followId)
-          .map((f) => f.followerX25519PublicKey)
           .firstOrNull;
       final result = await _ffi.hubDirectoryResolveFollow(
         followId,
         resolution,
         encryptedContact: encryptedContact,
-        followerX25519PublicKey: followerKey,
+        followerX25519PublicKey: request?.followerX25519PublicKey,
+        followerNodeId: request?.followerNodeId,
+        ownerGesture: ownerGesture,
       );
       if (result != null) {
         // Refresh pending list and followers after resolution.
@@ -2667,16 +2679,6 @@ class HubDirectoryProvider extends ChangeNotifier {
   CatalogPushMode? get lastCatalogPushMode => _lastCatalogPushMode;
   CatalogPushMode? _lastCatalogPushMode;
 
-  /// A reader left since the last push: the catalog key must rotate before
-  /// the next one (ADR-072 D4).
-  bool _catalogReaderLost = false;
-
-  void _onCatalogReaderLost(String reason) {
-    debugPrint('[ADR-072] catalog reader lost ($reason), rotation pending');
-    _catalogReaderLost = true;
-    markCatalogDirty();
-  }
-
   /// Push the full ISBN catalog to the hub, in clear or encrypted
   /// (ADR-072 D8: encrypted only when every current reader can open it).
   /// Returns the number of ISBNs pushed, or -1 on error.
@@ -2715,21 +2717,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   Future<int> _syncCatalogOnce() async {
     if (!isRegistered) return 0;
     try {
-      // Deciding reloads the followers, which is also where a reader that
-      // left is noticed: the rotation check must come after it, so the
-      // push never goes out under a key the ex-reader still holds.
       final mode = await _decideCatalogPushMode();
-      if (_catalogReaderLost) {
-        // Rotation re-wraps the remaining readers on its own; the push below
-        // goes out under the new key because the keyed digest changed.
-        if (await _ffi.hubDirectoryRotateCatalogKey()) {
-          _catalogReaderLost = false;
-        }
-      }
-      // An encrypted push hands every active follower its wrap of the key
-      // on the Rust side, once the hub confirms it holds the ciphertext
-      // (D3); a failed hand-out comes back as an error and keeps the
-      // catalog dirty, so the next sync contacts the hub and wraps again.
+      // An encrypted push first rotates the key when a reader left since it
+      // was made, then hands every reader its wrap once the hub confirms it
+      // holds the ciphertext, all on the Rust side (D3, D4); a failed
+      // hand-out comes back as an error and keeps the catalog dirty, so the
+      // next sync contacts the hub and wraps again.
       final count = mode == CatalogPushMode.encrypted
           ? await _ffi.hubDirectorySyncCatalogEncrypted()
           : await _ffi.hubDirectorySyncCatalog();

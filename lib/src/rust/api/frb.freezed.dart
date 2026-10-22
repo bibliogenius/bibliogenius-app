@@ -4983,7 +4983,7 @@ as String?,
 /// @nodoc
 mixin _$FrbHubFollow {
 
- PlatformInt64 get id; String get followerNodeId; String get followedNodeId; String get status; String get createdAt; String? get resolvedAt; String? get followerDisplayName; String? get encryptedContact; String? get followerX25519PublicKey; String? get followerAppVersion; String? get encryptedCatalogKey;
+ PlatformInt64 get id; String get followerNodeId; String get followedNodeId; String get status; String get createdAt; String? get resolvedAt; String? get followerDisplayName; String? get encryptedContact; String? get followerX25519PublicKey; String? get followerAppVersion; String? get encryptedCatalogKey; String? get catalogReaderStatus;
 /// Create a copy of FrbHubFollow
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -4994,16 +4994,16 @@ $FrbHubFollowCopyWith<FrbHubFollow> get copyWith => _$FrbHubFollowCopyWithImpl<F
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbHubFollow&&(identical(other.id, id) || other.id == id)&&(identical(other.followerNodeId, followerNodeId) || other.followerNodeId == followerNodeId)&&(identical(other.followedNodeId, followedNodeId) || other.followedNodeId == followedNodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.resolvedAt, resolvedAt) || other.resolvedAt == resolvedAt)&&(identical(other.followerDisplayName, followerDisplayName) || other.followerDisplayName == followerDisplayName)&&(identical(other.encryptedContact, encryptedContact) || other.encryptedContact == encryptedContact)&&(identical(other.followerX25519PublicKey, followerX25519PublicKey) || other.followerX25519PublicKey == followerX25519PublicKey)&&(identical(other.followerAppVersion, followerAppVersion) || other.followerAppVersion == followerAppVersion)&&(identical(other.encryptedCatalogKey, encryptedCatalogKey) || other.encryptedCatalogKey == encryptedCatalogKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbHubFollow&&(identical(other.id, id) || other.id == id)&&(identical(other.followerNodeId, followerNodeId) || other.followerNodeId == followerNodeId)&&(identical(other.followedNodeId, followedNodeId) || other.followedNodeId == followedNodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.resolvedAt, resolvedAt) || other.resolvedAt == resolvedAt)&&(identical(other.followerDisplayName, followerDisplayName) || other.followerDisplayName == followerDisplayName)&&(identical(other.encryptedContact, encryptedContact) || other.encryptedContact == encryptedContact)&&(identical(other.followerX25519PublicKey, followerX25519PublicKey) || other.followerX25519PublicKey == followerX25519PublicKey)&&(identical(other.followerAppVersion, followerAppVersion) || other.followerAppVersion == followerAppVersion)&&(identical(other.encryptedCatalogKey, encryptedCatalogKey) || other.encryptedCatalogKey == encryptedCatalogKey)&&(identical(other.catalogReaderStatus, catalogReaderStatus) || other.catalogReaderStatus == catalogReaderStatus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,followerNodeId,followedNodeId,status,createdAt,resolvedAt,followerDisplayName,encryptedContact,followerX25519PublicKey,followerAppVersion,encryptedCatalogKey);
+int get hashCode => Object.hash(runtimeType,id,followerNodeId,followedNodeId,status,createdAt,resolvedAt,followerDisplayName,encryptedContact,followerX25519PublicKey,followerAppVersion,encryptedCatalogKey,catalogReaderStatus);
 
 @override
 String toString() {
-  return 'FrbHubFollow(id: $id, followerNodeId: $followerNodeId, followedNodeId: $followedNodeId, status: $status, createdAt: $createdAt, resolvedAt: $resolvedAt, followerDisplayName: $followerDisplayName, encryptedContact: $encryptedContact, followerX25519PublicKey: $followerX25519PublicKey, followerAppVersion: $followerAppVersion, encryptedCatalogKey: $encryptedCatalogKey)';
+  return 'FrbHubFollow(id: $id, followerNodeId: $followerNodeId, followedNodeId: $followedNodeId, status: $status, createdAt: $createdAt, resolvedAt: $resolvedAt, followerDisplayName: $followerDisplayName, encryptedContact: $encryptedContact, followerX25519PublicKey: $followerX25519PublicKey, followerAppVersion: $followerAppVersion, encryptedCatalogKey: $encryptedCatalogKey, catalogReaderStatus: $catalogReaderStatus)';
 }
 
 
@@ -5014,7 +5014,7 @@ abstract mixin class $FrbHubFollowCopyWith<$Res>  {
   factory $FrbHubFollowCopyWith(FrbHubFollow value, $Res Function(FrbHubFollow) _then) = _$FrbHubFollowCopyWithImpl;
 @useResult
 $Res call({
- PlatformInt64 id, String followerNodeId, String followedNodeId, String status, String createdAt, String? resolvedAt, String? followerDisplayName, String? encryptedContact, String? followerX25519PublicKey, String? followerAppVersion, String? encryptedCatalogKey
+ PlatformInt64 id, String followerNodeId, String followedNodeId, String status, String createdAt, String? resolvedAt, String? followerDisplayName, String? encryptedContact, String? followerX25519PublicKey, String? followerAppVersion, String? encryptedCatalogKey, String? catalogReaderStatus
 });
 
 
@@ -5031,7 +5031,7 @@ class _$FrbHubFollowCopyWithImpl<$Res>
 
 /// Create a copy of FrbHubFollow
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? followerNodeId = null,Object? followedNodeId = null,Object? status = null,Object? createdAt = null,Object? resolvedAt = freezed,Object? followerDisplayName = freezed,Object? encryptedContact = freezed,Object? followerX25519PublicKey = freezed,Object? followerAppVersion = freezed,Object? encryptedCatalogKey = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? followerNodeId = null,Object? followedNodeId = null,Object? status = null,Object? createdAt = null,Object? resolvedAt = freezed,Object? followerDisplayName = freezed,Object? encryptedContact = freezed,Object? followerX25519PublicKey = freezed,Object? followerAppVersion = freezed,Object? encryptedCatalogKey = freezed,Object? catalogReaderStatus = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,followerNodeId: null == followerNodeId ? _self.followerNodeId : followerNodeId // ignore: cast_nullable_to_non_nullable
@@ -5044,6 +5044,7 @@ as String?,encryptedContact: freezed == encryptedContact ? _self.encryptedContac
 as String?,followerX25519PublicKey: freezed == followerX25519PublicKey ? _self.followerX25519PublicKey : followerX25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,followerAppVersion: freezed == followerAppVersion ? _self.followerAppVersion : followerAppVersion // ignore: cast_nullable_to_non_nullable
 as String?,encryptedCatalogKey: freezed == encryptedCatalogKey ? _self.encryptedCatalogKey : encryptedCatalogKey // ignore: cast_nullable_to_non_nullable
+as String?,catalogReaderStatus: freezed == catalogReaderStatus ? _self.catalogReaderStatus : catalogReaderStatus // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -5126,10 +5127,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlatformInt64 id,  String followerNodeId,  String followedNodeId,  String status,  String createdAt,  String? resolvedAt,  String? followerDisplayName,  String? encryptedContact,  String? followerX25519PublicKey,  String? followerAppVersion,  String? encryptedCatalogKey)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( PlatformInt64 id,  String followerNodeId,  String followedNodeId,  String status,  String createdAt,  String? resolvedAt,  String? followerDisplayName,  String? encryptedContact,  String? followerX25519PublicKey,  String? followerAppVersion,  String? encryptedCatalogKey,  String? catalogReaderStatus)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbHubFollow() when $default != null:
-return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,_that.createdAt,_that.resolvedAt,_that.followerDisplayName,_that.encryptedContact,_that.followerX25519PublicKey,_that.followerAppVersion,_that.encryptedCatalogKey);case _:
+return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,_that.createdAt,_that.resolvedAt,_that.followerDisplayName,_that.encryptedContact,_that.followerX25519PublicKey,_that.followerAppVersion,_that.encryptedCatalogKey,_that.catalogReaderStatus);case _:
   return orElse();
 
 }
@@ -5147,10 +5148,10 @@ return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlatformInt64 id,  String followerNodeId,  String followedNodeId,  String status,  String createdAt,  String? resolvedAt,  String? followerDisplayName,  String? encryptedContact,  String? followerX25519PublicKey,  String? followerAppVersion,  String? encryptedCatalogKey)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( PlatformInt64 id,  String followerNodeId,  String followedNodeId,  String status,  String createdAt,  String? resolvedAt,  String? followerDisplayName,  String? encryptedContact,  String? followerX25519PublicKey,  String? followerAppVersion,  String? encryptedCatalogKey,  String? catalogReaderStatus)  $default,) {final _that = this;
 switch (_that) {
 case _FrbHubFollow():
-return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,_that.createdAt,_that.resolvedAt,_that.followerDisplayName,_that.encryptedContact,_that.followerX25519PublicKey,_that.followerAppVersion,_that.encryptedCatalogKey);}
+return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,_that.createdAt,_that.resolvedAt,_that.followerDisplayName,_that.encryptedContact,_that.followerX25519PublicKey,_that.followerAppVersion,_that.encryptedCatalogKey,_that.catalogReaderStatus);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -5164,10 +5165,10 @@ return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlatformInt64 id,  String followerNodeId,  String followedNodeId,  String status,  String createdAt,  String? resolvedAt,  String? followerDisplayName,  String? encryptedContact,  String? followerX25519PublicKey,  String? followerAppVersion,  String? encryptedCatalogKey)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( PlatformInt64 id,  String followerNodeId,  String followedNodeId,  String status,  String createdAt,  String? resolvedAt,  String? followerDisplayName,  String? encryptedContact,  String? followerX25519PublicKey,  String? followerAppVersion,  String? encryptedCatalogKey,  String? catalogReaderStatus)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbHubFollow() when $default != null:
-return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,_that.createdAt,_that.resolvedAt,_that.followerDisplayName,_that.encryptedContact,_that.followerX25519PublicKey,_that.followerAppVersion,_that.encryptedCatalogKey);case _:
+return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,_that.createdAt,_that.resolvedAt,_that.followerDisplayName,_that.encryptedContact,_that.followerX25519PublicKey,_that.followerAppVersion,_that.encryptedCatalogKey,_that.catalogReaderStatus);case _:
   return null;
 
 }
@@ -5179,7 +5180,7 @@ return $default(_that.id,_that.followerNodeId,_that.followedNodeId,_that.status,
 
 
 class _FrbHubFollow implements FrbHubFollow {
-  const _FrbHubFollow({required this.id, required this.followerNodeId, required this.followedNodeId, required this.status, required this.createdAt, this.resolvedAt, this.followerDisplayName, this.encryptedContact, this.followerX25519PublicKey, this.followerAppVersion, this.encryptedCatalogKey});
+  const _FrbHubFollow({required this.id, required this.followerNodeId, required this.followedNodeId, required this.status, required this.createdAt, this.resolvedAt, this.followerDisplayName, this.encryptedContact, this.followerX25519PublicKey, this.followerAppVersion, this.encryptedCatalogKey, this.catalogReaderStatus});
   
 
 @override final  PlatformInt64 id;
@@ -5193,6 +5194,7 @@ class _FrbHubFollow implements FrbHubFollow {
 @override final  String? followerX25519PublicKey;
 @override final  String? followerAppVersion;
 @override final  String? encryptedCatalogKey;
+@override final  String? catalogReaderStatus;
 
 /// Create a copy of FrbHubFollow
 /// with the given fields replaced by the non-null parameter values.
@@ -5204,16 +5206,16 @@ _$FrbHubFollowCopyWith<_FrbHubFollow> get copyWith => __$FrbHubFollowCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbHubFollow&&(identical(other.id, id) || other.id == id)&&(identical(other.followerNodeId, followerNodeId) || other.followerNodeId == followerNodeId)&&(identical(other.followedNodeId, followedNodeId) || other.followedNodeId == followedNodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.resolvedAt, resolvedAt) || other.resolvedAt == resolvedAt)&&(identical(other.followerDisplayName, followerDisplayName) || other.followerDisplayName == followerDisplayName)&&(identical(other.encryptedContact, encryptedContact) || other.encryptedContact == encryptedContact)&&(identical(other.followerX25519PublicKey, followerX25519PublicKey) || other.followerX25519PublicKey == followerX25519PublicKey)&&(identical(other.followerAppVersion, followerAppVersion) || other.followerAppVersion == followerAppVersion)&&(identical(other.encryptedCatalogKey, encryptedCatalogKey) || other.encryptedCatalogKey == encryptedCatalogKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbHubFollow&&(identical(other.id, id) || other.id == id)&&(identical(other.followerNodeId, followerNodeId) || other.followerNodeId == followerNodeId)&&(identical(other.followedNodeId, followedNodeId) || other.followedNodeId == followedNodeId)&&(identical(other.status, status) || other.status == status)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.resolvedAt, resolvedAt) || other.resolvedAt == resolvedAt)&&(identical(other.followerDisplayName, followerDisplayName) || other.followerDisplayName == followerDisplayName)&&(identical(other.encryptedContact, encryptedContact) || other.encryptedContact == encryptedContact)&&(identical(other.followerX25519PublicKey, followerX25519PublicKey) || other.followerX25519PublicKey == followerX25519PublicKey)&&(identical(other.followerAppVersion, followerAppVersion) || other.followerAppVersion == followerAppVersion)&&(identical(other.encryptedCatalogKey, encryptedCatalogKey) || other.encryptedCatalogKey == encryptedCatalogKey)&&(identical(other.catalogReaderStatus, catalogReaderStatus) || other.catalogReaderStatus == catalogReaderStatus));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,followerNodeId,followedNodeId,status,createdAt,resolvedAt,followerDisplayName,encryptedContact,followerX25519PublicKey,followerAppVersion,encryptedCatalogKey);
+int get hashCode => Object.hash(runtimeType,id,followerNodeId,followedNodeId,status,createdAt,resolvedAt,followerDisplayName,encryptedContact,followerX25519PublicKey,followerAppVersion,encryptedCatalogKey,catalogReaderStatus);
 
 @override
 String toString() {
-  return 'FrbHubFollow(id: $id, followerNodeId: $followerNodeId, followedNodeId: $followedNodeId, status: $status, createdAt: $createdAt, resolvedAt: $resolvedAt, followerDisplayName: $followerDisplayName, encryptedContact: $encryptedContact, followerX25519PublicKey: $followerX25519PublicKey, followerAppVersion: $followerAppVersion, encryptedCatalogKey: $encryptedCatalogKey)';
+  return 'FrbHubFollow(id: $id, followerNodeId: $followerNodeId, followedNodeId: $followedNodeId, status: $status, createdAt: $createdAt, resolvedAt: $resolvedAt, followerDisplayName: $followerDisplayName, encryptedContact: $encryptedContact, followerX25519PublicKey: $followerX25519PublicKey, followerAppVersion: $followerAppVersion, encryptedCatalogKey: $encryptedCatalogKey, catalogReaderStatus: $catalogReaderStatus)';
 }
 
 
@@ -5224,7 +5226,7 @@ abstract mixin class _$FrbHubFollowCopyWith<$Res> implements $FrbHubFollowCopyWi
   factory _$FrbHubFollowCopyWith(_FrbHubFollow value, $Res Function(_FrbHubFollow) _then) = __$FrbHubFollowCopyWithImpl;
 @override @useResult
 $Res call({
- PlatformInt64 id, String followerNodeId, String followedNodeId, String status, String createdAt, String? resolvedAt, String? followerDisplayName, String? encryptedContact, String? followerX25519PublicKey, String? followerAppVersion, String? encryptedCatalogKey
+ PlatformInt64 id, String followerNodeId, String followedNodeId, String status, String createdAt, String? resolvedAt, String? followerDisplayName, String? encryptedContact, String? followerX25519PublicKey, String? followerAppVersion, String? encryptedCatalogKey, String? catalogReaderStatus
 });
 
 
@@ -5241,7 +5243,7 @@ class __$FrbHubFollowCopyWithImpl<$Res>
 
 /// Create a copy of FrbHubFollow
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? followerNodeId = null,Object? followedNodeId = null,Object? status = null,Object? createdAt = null,Object? resolvedAt = freezed,Object? followerDisplayName = freezed,Object? encryptedContact = freezed,Object? followerX25519PublicKey = freezed,Object? followerAppVersion = freezed,Object? encryptedCatalogKey = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? followerNodeId = null,Object? followedNodeId = null,Object? status = null,Object? createdAt = null,Object? resolvedAt = freezed,Object? followerDisplayName = freezed,Object? encryptedContact = freezed,Object? followerX25519PublicKey = freezed,Object? followerAppVersion = freezed,Object? encryptedCatalogKey = freezed,Object? catalogReaderStatus = freezed,}) {
   return _then(_FrbHubFollow(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,followerNodeId: null == followerNodeId ? _self.followerNodeId : followerNodeId // ignore: cast_nullable_to_non_nullable
@@ -5254,6 +5256,7 @@ as String?,encryptedContact: freezed == encryptedContact ? _self.encryptedContac
 as String?,followerX25519PublicKey: freezed == followerX25519PublicKey ? _self.followerX25519PublicKey : followerX25519PublicKey // ignore: cast_nullable_to_non_nullable
 as String?,followerAppVersion: freezed == followerAppVersion ? _self.followerAppVersion : followerAppVersion // ignore: cast_nullable_to_non_nullable
 as String?,encryptedCatalogKey: freezed == encryptedCatalogKey ? _self.encryptedCatalogKey : encryptedCatalogKey // ignore: cast_nullable_to_non_nullable
+as String?,catalogReaderStatus: freezed == catalogReaderStatus ? _self.catalogReaderStatus : catalogReaderStatus // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

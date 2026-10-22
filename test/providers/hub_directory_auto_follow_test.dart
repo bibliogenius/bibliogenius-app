@@ -34,6 +34,7 @@ class _MockFfiService extends FfiService {
 
   final List<String> followedNodes = [];
   final List<(int, String)> resolvedFollows = [];
+  final List<bool> ownerGestures = [];
 
   /// Active follows the local library already holds.
   List<frb.FrbHubFollow> following = [];
@@ -87,8 +88,11 @@ class _MockFfiService extends FfiService {
     String resolution, {
     String? encryptedContact,
     String? followerX25519PublicKey,
+    String? followerNodeId,
+    required bool ownerGesture,
   }) async {
     resolvedFollows.add((followId, resolution));
+    ownerGestures.add(ownerGesture);
     pending = pending.where((f) => f.id != followId).toList();
     return frb.FrbHubFollow(
       id: followId,
@@ -281,6 +285,9 @@ void main() {
       // The paired peer is approved; the stranger stays pending for the
       // manual approve/reject/block UI.
       expect(ffi.resolvedFollows, [(57, 'approve')]);
+      // The automatism, not the owner: Rust refuses it for a library whose
+      // pairing the owner ended (ADR-072 D4).
+      expect(ffi.ownerGestures, [false]);
       expect(provider.pendingRequests.map((f) => f.id), [58]);
     });
 

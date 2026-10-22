@@ -25,6 +25,14 @@ class RequestsSubTabs {
   int get count => visible.isEmpty ? 1 : visible.length;
 }
 
+/// Whether the "Connexions" sub-tab is shown: with connection validation
+/// on, and whenever a request is pending, since a library whose pairing was
+/// ended waits for the owner whatever the setting.
+bool showConnectionRequests({
+  required bool validationEnabled,
+  required int pendingCount,
+}) => validationEnabled || pendingCount > 0;
+
 /// Route that opens the pending connection requests directly.
 const kConnectionRequestsRoute = '/requests?tab=requests&sub=connections';
 

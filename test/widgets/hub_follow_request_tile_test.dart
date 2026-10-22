@@ -41,6 +41,7 @@ class _MockFfiService extends FfiService {
 
   /// (followId, resolution) of every resolution the UI triggered.
   final List<({int id, String resolution})> resolved = [];
+  final List<bool> ownerGestures = [];
 
   @override
   Future<List<frb.FrbHubFollow>> hubDirectoryPendingRequests() async => pending;
@@ -51,8 +52,11 @@ class _MockFfiService extends FfiService {
     String resolution, {
     String? encryptedContact,
     String? followerX25519PublicKey,
+    String? followerNodeId,
+    required bool ownerGesture,
   }) async {
     resolved.add((id: followId, resolution: resolution));
+    ownerGestures.add(ownerGesture);
     final target = pending.firstWhere((f) => f.id == followId);
     pending = pending.where((f) => f.id != followId).toList();
     return target;
@@ -232,6 +236,7 @@ void main() {
       expect(ffi.resolved, hasLength(1));
       expect(ffi.resolved.single.id, 7);
       expect(ffi.resolved.single.resolution, 'approve');
+      expect(ffi.ownerGestures, [true]);
     });
   });
 
