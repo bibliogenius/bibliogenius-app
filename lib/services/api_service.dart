@@ -22,6 +22,7 @@ import '../src/rust/frb_generated.dart';
 import 'auth_service.dart';
 import 'ffi_service.dart';
 import 'mdns_service.dart';
+import 'peer_sync_error.dart';
 import 'translation_service.dart';
 
 /// Result of a unified external search: the book list plus any source-level
@@ -2701,11 +2702,17 @@ class ApiService {
               receiveTimeout: const Duration(seconds: 110),
             ),
           );
-          final res = await localDio.post(
-            '/api/peers/sync_by_url',
-            data: {'url': normalizedUrl},
-          );
-          return res;
+          try {
+            return await localDio.post(
+              '/api/peers/sync_by_url',
+              data: {'url': normalizedUrl},
+            );
+          } on DioException catch (e) {
+            if (peerSyncErrorCode(e) == peerKeysChangedCode) {
+              throw const PeerKeysChangedException();
+            }
+            rethrow;
+          }
         }
 
         final myUrl = await _getMyUrl();
@@ -2753,6 +2760,7 @@ class ApiService {
 
         // 2. Sync locally from the remote peer via local backend (handles E2EE)
         bool localOk = false;
+        bool peerKeysChanged = false;
         try {
           final localDio = Dio(
             BaseOptions(
@@ -2767,8 +2775,13 @@ class ApiService {
           );
           localOk = true;
         } catch (e) {
+          peerKeysChanged = peerSyncErrorCode(e) == peerKeysChangedCode;
           debugPrint('P2P local sync error (non-fatal): $e');
         }
+
+        // The local backend found the peer under new keys: whatever the
+        // remote step said, this pairing cannot sync any more.
+        if (peerKeysChanged) throw const PeerKeysChangedException();
 
         // If BOTH steps failed, throw so SyncService backoff kicks in
         if (!remoteOk && !localOk) {

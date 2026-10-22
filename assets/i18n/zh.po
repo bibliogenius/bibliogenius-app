@@ -11398,3 +11398,7 @@ msgstr "该书库的目录已加密，您的读取密钥尚未送达。当其所
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
 msgstr "无法验证该书库的在线目录。当其所有者重新上线时将会更新。"
+
+#. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
+msgid "peer_keys_changed"
+msgstr "该书库的安全密钥已更改，可能是重新安装所致。要重新找回它，请将其从联系人中删除，然后重新扫描其二维码。"

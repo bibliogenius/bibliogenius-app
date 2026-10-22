@@ -12376,3 +12376,7 @@ msgstr "This library's catalog is encrypted and your key to read it has not arri
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
 msgstr "This library's online catalog could not be verified. It will be refreshed the next time its owner comes back online."
+
+#. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
+msgid "peer_keys_changed"
+msgstr "This library has changed its security keys, probably after a reinstall. To get it back, remove it from your contacts and scan its QR code again."

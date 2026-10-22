@@ -15,6 +15,7 @@ import '../widgets/add_connection_sheet.dart';
 import '../widgets/invite_share_direct.dart';
 import 'invite_screen.dart';
 import '../widgets/configurable_action_card.dart';
+import '../widgets/peer_sync_failure_snack_bar.dart';
 import '../widgets/shimmer_loading.dart';
 import '../utils/known_libraries.dart';
 import '../utils/requests_tabs.dart';
@@ -2641,17 +2642,9 @@ class _LibraryRelationCard extends StatelessWidget {
                         }
                       } catch (e) {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'sync_failed',
-                                ),
-                              ),
-                              backgroundColor: Colors.orange,
-                            ),
-                          );
+                          ScaffoldMessenger.of(
+                            context,
+                          ).showSnackBar(peerSyncFailureSnackBar(context, e));
                         }
                       }
                     },

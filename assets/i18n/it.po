@@ -12222,3 +12222,7 @@ msgstr "Il catalogo di questa biblioteca è cifrato e la tua chiave per leggerlo
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
 msgstr "Non è stato possibile verificare il catalogo online di questa biblioteca. Verrà aggiornato quando il proprietario tornerà online."
+
+#. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
+msgid "peer_keys_changed"
+msgstr "Questa biblioteca ha cambiato le sue chiavi di sicurezza, probabilmente dopo una reinstallazione. Per ritrovarla, rimuovila dai tuoi contatti e scansiona di nuovo il suo codice QR."

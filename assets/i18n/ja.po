@@ -11398,3 +11398,7 @@ msgstr "このライブラリのカタログは暗号化されており、読む
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
 msgstr "このライブラリのオンラインカタログを検証できませんでした。所有者が再びオンラインになると更新されます。"
+
+#. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
+msgid "peer_keys_changed"
+msgstr "このライブラリのセキュリティ鍵が変わりました。再インストールされたためと思われます。再びつながるには、連絡先から削除してから、QRコードをもう一度スキャンしてください。"

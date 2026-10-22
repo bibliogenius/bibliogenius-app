@@ -12118,3 +12118,7 @@ msgstr ""
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
 msgstr ""
+
+#. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
+msgid "peer_keys_changed"
+msgstr ""

@@ -17,6 +17,7 @@ import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../utils/contact_links.dart';
 import '../widgets/contact_actions_sheet.dart';
+import '../widgets/peer_sync_failure_snack_bar.dart';
 
 /// Detail screen for a library peer / followed library.
 class PeerDetailScreen extends StatefulWidget {
@@ -694,14 +695,9 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
                   }
                 } catch (e) {
                   if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          TranslationService.translate(context, 'sync_failed'),
-                        ),
-                        backgroundColor: Colors.orange,
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(peerSyncFailureSnackBar(context, e));
                   }
                 }
               },

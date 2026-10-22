@@ -11398,3 +11398,7 @@ msgstr "이 서재의 카탈로그는 암호화되어 있으며 읽기 위한 �
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
 msgstr "이 서재의 온라인 카탈로그를 확인할 수 없습니다. 소유자가 다시 온라인 상태가 되면 갱신됩니다."
+
+#. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
+msgid "peer_keys_changed"
+msgstr "이 서재의 보안 키가 바뀌었습니다. 재설치 때문인 것으로 보입니다. 다시 연결하려면 연락처에서 삭제한 뒤 QR 코드를 다시 스캔하세요."
