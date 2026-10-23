@@ -19,6 +19,20 @@ class DeviceService {
 
   final _deviceInfo = DeviceInfoPlugin();
 
+  /// Whether Google Play services are installed and usable (Android only;
+  /// the platform side answers through [_channel]). False on any error.
+  static Future<bool> isGooglePlayServicesAvailable() async {
+    try {
+      return await _channel.invokeMethod<bool>(
+            'isGooglePlayServicesAvailable',
+          ) ??
+          false;
+    } catch (e) {
+      debugPrint('DeviceService.isGooglePlayServicesAvailable error: $e');
+      return false;
+    }
+  }
+
   /// Returns a human-readable device model string.
   Future<String?> getDeviceModel() async {
     try {

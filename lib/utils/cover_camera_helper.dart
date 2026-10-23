@@ -3,12 +3,13 @@ import 'dart:isolate';
 
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
+
+import '../services/device_service.dart';
 
 class CoverCameraHelper {
   /// Target max width (px) for stored cover thumbnails. Matches the Rust
@@ -48,9 +49,9 @@ class CoverCameraHelper {
   /// tips. Cleared when auto crop is switched back on.
   static const String scanTipsDismissedPrefKey = 'cover_scan_tips_dismissed';
 
-  static const _deviceChannel = MethodChannel('com.bibliogenius.app/device');
-
-  static Future<bool>? _scannerAvailable;
+  // Only a positive answer is kept: a negative one may be temporary (Play
+  // services updating, channel error), so the next capture asks again.
+  static bool _scannerAvailable = false;
 
   /// Forces [isDocumentScannerAvailable] in tests, where neither VisionKit
   /// nor Play services exist.
@@ -64,24 +65,18 @@ class CoverCameraHelper {
   /// Huawei) keeps the plain camera, rather than the plugin's fallback
   /// cropper whose frame starts as a fixed rectangle. Desktop platforms
   /// keep the plain camera too.
-  static Future<bool> isDocumentScannerAvailable() {
+  static Future<bool> isDocumentScannerAvailable() async {
     final override = debugScannerAvailableOverride;
-    if (override != null) return Future.value(override);
-    return _scannerAvailable ??= _checkScannerAvailable();
-  }
-
-  static Future<bool> _checkScannerAvailable() async {
-    if (Platform.isIOS) return true;
-    if (!Platform.isAndroid) return false;
-    try {
-      return await _deviceChannel.invokeMethod<bool>(
-            'isGooglePlayServicesAvailable',
-          ) ??
-          false;
-    } catch (e) {
-      debugPrint('Play services check failed, keeping the plain camera: $e');
-      return false;
-    }
+    if (override != null) return override;
+    if (_scannerAvailable) return true;
+    final available = switch (defaultTargetPlatform) {
+      TargetPlatform.iOS => true,
+      TargetPlatform.android =>
+        await DeviceService.isGooglePlayServicesAvailable(),
+      _ => false,
+    };
+    _scannerAvailable = available;
+    return available;
   }
 
   /// Whether camera capture goes through the document scanner: available

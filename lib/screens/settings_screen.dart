@@ -1157,9 +1157,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'settings_allow_private_books_desc',
                   'module_digital_formats',
                   'module_digital_formats_desc',
-                  'module_cover_auto_crop',
-                  'module_cover_auto_crop_desc',
-                  'module_cover_auto_crop_desc_android',
+                  // Only where the toggle shows, with the description it shows.
+                  if (_coverScannerAvailable) ...[
+                    'module_cover_auto_crop',
+                    io.Platform.isAndroid
+                        ? 'module_cover_auto_crop_desc_android'
+                        : 'module_cover_auto_crop_desc',
+                  ],
                   'mcp_integration',
                   'mcp_description',
                   'settings_linked_devices',
