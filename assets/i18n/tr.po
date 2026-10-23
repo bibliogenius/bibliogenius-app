@@ -12224,7 +12224,7 @@ msgstr "Atla"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "Bu kütüphanenin kataloğu şifrelidir ve okumanız için gereken anahtar henüz ulaşmadı. Sahibi tekrar çevrimiçi olduğunda açılacak."
+msgstr "Bu kütüphanenin kataloğu şifrelidir ve okumanız için gereken anahtar henüz ulaşmadı. Sahibi tekrar çevrimiçi olduğunda açılacak. Uygulamayı yeniden yüklediyseniz, sahibinin sizi yeniden kabul etmesi gerekir: kütüphaneleriniz bağlıysa, bu bağlantıyı kaldırıp yeniden kurmasını isteyin; değilse ve bu kütüphane dizindeyse \"Takibi bırak\" seçeneğini seçip yeniden takip edin."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

@@ -11393,7 +11393,7 @@ msgstr "スキップ"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "このライブラリのカタログは暗号化されており、読むための鍵がまだ届いていません。所有者が再びオンラインになると開けるようになります。"
+msgstr "このライブラリのカタログは暗号化されており、読むための鍵がまだ届いていません。所有者が再びオンラインになると開けるようになります。アプリを再インストールした場合は、所有者があらためて承認する必要があります。ライブラリ同士が接続されていた場合は、所有者にその接続を削除してからもう一度接続してもらってください。そうでない場合、このライブラリがディレクトリに載っていれば「フォロー解除」を選んでから再びフォローしてください。"
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

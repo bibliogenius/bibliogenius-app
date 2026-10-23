@@ -132,8 +132,8 @@ class HubFollow {
   final String? encryptedCatalogKey;
 
   /// Where this follower stands toward the encrypted catalog, on the
-  /// followers list (ADR-072 R1+): "reader", "key_mismatch" or
-  /// "not_reader". Null when unknown (other lists).
+  /// followers list (ADR-072 R1+): "reader", "key_mismatch",
+  /// "not_reader" or "unknown". Null on the other lists.
   final String? catalogReaderStatus;
 
   const HubFollow({

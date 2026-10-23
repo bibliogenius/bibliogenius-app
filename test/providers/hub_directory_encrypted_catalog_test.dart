@@ -284,15 +284,20 @@ void main() {
       expect(p.lastCatalogPushMode, CatalogPushMode.encrypted);
     });
 
-    test('a reader whose key changed keeps the catalog in clear', () async {
+    test('a follower whose key changed does not push the catalog to clear',
+        () async {
+      // A reader that reinstalled publishes a new key: it is excluded until
+      // the owner approves or pairs it again, the others keep reading.
       final (p, ffi) = await _provider();
       ffi.followers = [
         _follower(id: 1, node: _readerNode, readerStatus: 'key_mismatch'),
+        _follower(id: 2, node: _pairedNode),
       ];
 
       await p.syncCatalog();
 
-      expect(p.lastCatalogPushMode, CatalogPushMode.clear);
+      expect(p.lastCatalogPushMode, CatalogPushMode.encrypted);
+      expect(ffi.clearPushes, 0);
     });
 
     test('a follower that left needs nothing from the app: Rust rotates',

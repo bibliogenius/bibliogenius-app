@@ -12217,7 +12217,7 @@ msgstr "Salta"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "Il catalogo di questa biblioteca è cifrato e la tua chiave per leggerlo non è ancora arrivata. Si aprirà quando il proprietario tornerà online."
+msgstr "Il catalogo di questa biblioteca è cifrato e la tua chiave per leggerlo non è ancora arrivata. Si aprirà quando il proprietario tornerà online. Se hai reinstallato l'app, il proprietario deve accettarti di nuovo: se le vostre biblioteche erano collegate, chiedigli di rimuovere il collegamento e di rifarlo; altrimenti, se questa biblioteca è nella directory, scegli «Smetti di seguire» e poi seguila di nuovo."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

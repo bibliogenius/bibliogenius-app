@@ -11393,7 +11393,7 @@ msgstr "건너뛰기"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "이 서재의 카탈로그는 암호화되어 있으며 읽기 위한 키가 아직 도착하지 않았습니다. 소유자가 다시 온라인 상태가 되면 열립니다."
+msgstr "이 서재의 카탈로그는 암호화되어 있으며 읽기 위한 키가 아직 도착하지 않았습니다. 소유자가 다시 온라인 상태가 되면 열립니다. 앱을 다시 설치했다면 소유자가 다시 수락해야 합니다. 서재가 서로 연결되어 있었다면 소유자에게 그 연결을 삭제한 뒤 다시 연결해 달라고 요청하세요. 그렇지 않고 이 서재가 디렉터리에 있다면 '팔로우 취소'를 선택한 뒤 다시 팔로우하세요."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

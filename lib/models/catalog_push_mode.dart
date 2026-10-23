@@ -28,10 +28,11 @@ const String encryptedCatalogMinAppVersion = '1.3.0';
 /// version at or above [minAppVersion]. An unknown version is read as too
 /// old. Pending, rejected and blocked follows are not readers, and neither
 /// is an active follower the owner took off its readers list (an ex-peer
-/// still following gets no wrap, so it does not hold the others back). An
-/// active follower that cannot be wrapped for (its key changed under the
-/// pin, or the list never held it) keeps the catalog in clear rather than
-/// being locked out.
+/// still following gets no wrap, so it does not hold the others back), nor
+/// one whose key changed under its pin (a reinstall, or a key substituted
+/// by the hub): it gets no wrap until the owner approves or pairs it again,
+/// and the catalog stays encrypted for the others. An active follower the
+/// list never held keeps the catalog in clear rather than being locked out.
 CatalogPushMode decideCatalogPushMode({
   required bool isListed,
   required bool requiresApproval,
@@ -41,14 +42,16 @@ CatalogPushMode decideCatalogPushMode({
   if (isListed && !requiresApproval) return CatalogPushMode.clear;
   for (final f in followers) {
     if (!f.isActive) continue;
-    if (f.catalogReaderStatus == 'not_reader') continue;
-    // Cannot be wrapped for: a key that changed under its pin, or an active
-    // follower the owner's list never held (approved without a key, seen
-    // only while the library was public). Encrypting would lock it out.
-    if (f.catalogReaderStatus == 'key_mismatch' ||
-        f.catalogReaderStatus == 'unknown') {
-      return CatalogPushMode.clear;
+    // Not an authorised reader: off the list, or published another key
+    // than the pinned one. Its build is not consulted either.
+    if (f.catalogReaderStatus == 'not_reader' ||
+        f.catalogReaderStatus == 'key_mismatch') {
+      continue;
     }
+    // An active follower the owner's list never held (approved without a
+    // key, seen only while the library was public): encrypting would lock
+    // it out.
+    if (f.catalogReaderStatus == 'unknown') return CatalogPushMode.clear;
     if (!followerCanReadEncryptedCatalog(f, minAppVersion: minAppVersion)) {
       return CatalogPushMode.clear;
     }

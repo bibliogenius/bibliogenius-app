@@ -12112,7 +12112,7 @@ msgstr "Saltar"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "El catálogo de esta biblioteca está cifrado y tu clave para leerlo aún no ha llegado. Se abrirá cuando su propietario vuelva a conectarse."
+msgstr "El catálogo de esta biblioteca está cifrado y tu clave para leerlo aún no ha llegado. Se abrirá cuando su propietario vuelva a conectarse. Si reinstalaste la aplicación, su propietario debe aceptarte de nuevo: si vuestras bibliotecas estaban conectadas, pídele que elimine esa conexión y la vuelva a crear; si no, y esta biblioteca figura en el directorio, elige «Dejar de seguir» y vuelve a seguirla."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

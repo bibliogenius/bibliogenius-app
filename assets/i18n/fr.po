@@ -12366,7 +12366,7 @@ msgstr "Passer"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "Le catalogue de cette bibliothèque est chiffré et votre clé pour le lire n'est pas encore arrivée. Il s'ouvrira quand son propriétaire se reconnectera."
+msgstr "Le catalogue de cette bibliothèque est chiffré et votre clé pour le lire n'est pas encore arrivée. Il s'ouvrira quand son propriétaire se reconnectera. Si vous avez réinstallé l'application, son propriétaire doit vous accepter à nouveau : si vos bibliothèques étaient connectées, demandez-lui de retirer cette connexion puis de la refaire ; sinon, si cette bibliothèque figure dans l'annuaire, choisissez « Ne plus suivre » puis suivez-la à nouveau."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

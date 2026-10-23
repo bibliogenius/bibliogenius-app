@@ -12097,7 +12097,7 @@ msgstr "Überspringen"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "Der Katalog dieser Bibliothek ist verschlüsselt und Ihr Schlüssel zum Lesen ist noch nicht angekommen. Er öffnet sich, sobald der Besitzer wieder online ist."
+msgstr "Der Katalog dieser Bibliothek ist verschlüsselt und Ihr Schlüssel zum Lesen ist noch nicht angekommen. Er öffnet sich, sobald der Besitzer wieder online ist. Wenn Sie die App neu installiert haben, muss der Besitzer Sie erneut annehmen: Waren Ihre Bibliotheken verbunden, bitten Sie ihn, diese Verbindung zu entfernen und neu herzustellen; andernfalls wählen Sie, falls diese Bibliothek im Verzeichnis steht, „Nicht mehr folgen“ und folgen Sie ihr dann erneut."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

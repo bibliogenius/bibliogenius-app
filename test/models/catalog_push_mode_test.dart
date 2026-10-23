@@ -123,9 +123,11 @@ void main() {
       expect(mode, CatalogPushMode.encrypted);
     });
 
-    test('a reader whose key changed keeps the catalog in clear', () {
-      // No wrap goes out toward a key that was not pinned: rather than
-      // lock that reader out, the catalog stays readable as today.
+    test('a follower whose key changed is no reader: the catalog stays '
+        'encrypted', () {
+      // A reinstall, or a key the hub substituted: the follower gets no
+      // wrap until the owner approves or pairs it again, and must not push
+      // the catalog back to clear for everyone (rule (b)).
       final mode = decideCatalogPushMode(
         isListed: false,
         requiresApproval: true,
@@ -133,6 +135,41 @@ void main() {
           _follower(id: 1),
           _follower(id: 2, readerStatus: 'key_mismatch'),
         ],
+      );
+      expect(mode, CatalogPushMode.encrypted);
+    });
+
+    test('the version of a follower whose key changed is not consulted', () {
+      // Whatever the hub says about its build: it is not a reader.
+      for (final version in <String?>['1.2.3+498', null, '']) {
+        final mode = decideCatalogPushMode(
+          isListed: false,
+          requiresApproval: true,
+          followers: [
+            _follower(id: 1),
+            _follower(id: 2, version: version, readerStatus: 'key_mismatch'),
+          ],
+        );
+        expect(mode, CatalogPushMode.encrypted, reason: 'version $version');
+      }
+    });
+
+    test('a follower whose key the hub no longer returns is no reader', () {
+      final mode = decideCatalogPushMode(
+        isListed: false,
+        requiresApproval: true,
+        followers: [
+          _follower(id: 1, key: null, readerStatus: 'key_mismatch'),
+        ],
+      );
+      expect(mode, CatalogPushMode.encrypted);
+    });
+
+    test('a public library stays in clear even with a key mismatch', () {
+      final mode = decideCatalogPushMode(
+        isListed: true,
+        requiresApproval: false,
+        followers: [_follower(id: 1, readerStatus: 'key_mismatch')],
       );
       expect(mode, CatalogPushMode.clear);
     });

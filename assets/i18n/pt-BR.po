@@ -12232,7 +12232,7 @@ msgstr "Pular"
 
 #. Peer screen empty state: encrypted catalog, no usable key wrap for this reader yet (ADR-072)
 msgid "hub_catalog_key_unavailable"
-msgstr "O catálogo desta biblioteca é criptografado e a sua chave para lê-lo ainda não chegou. Ele será aberto quando o proprietário voltar a ficar online."
+msgstr "O catálogo desta biblioteca é criptografado e a sua chave para lê-lo ainda não chegou. Ele será aberto quando o proprietário voltar a ficar online. Se você reinstalou o app, o proprietário precisa aceitá-lo de novo: se as suas bibliotecas estavam conectadas, peça que ele remova essa conexão e a refaça; caso contrário, se esta biblioteca estiver no diretório, escolha \"Deixar de seguir\" e siga-a de novo."
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"

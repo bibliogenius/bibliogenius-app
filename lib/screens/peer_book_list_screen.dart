@@ -2615,69 +2615,71 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
                                   ),
                                 )
                               : Center(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.library_books_outlined,
-                                        size: 64,
-                                        color: Colors.grey[400],
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        TranslationService.translate(
-                                          context,
-                                          'no_books_found',
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.library_books_outlined,
+                                          size: 64,
+                                          color: Colors.grey[400],
                                         ),
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                      const SizedBox(height: 24),
-                                      ElevatedButton.icon(
-                                        onPressed: () => _syncBooks(),
-                                        icon: const Icon(Icons.sync),
-                                        label: Text(
-                                          TranslationService.translate(
-                                            context,
-                                            'sync_library',
-                                          ),
-                                        ),
-                                      ),
-                                      if (!_isPeerOnline) ...[
-                                        const SizedBox(height: 8),
+                                        const SizedBox(height: 16),
                                         Text(
                                           TranslationService.translate(
                                             context,
-                                            'peer_offline',
+                                            'no_books_found',
                                           ),
                                           style: TextStyle(
-                                            fontSize: 12,
-                                            color: Colors.orange[700],
+                                            fontSize: 18,
+                                            color: Colors.grey[600],
                                           ),
                                         ),
-                                      ],
-                                      if (_hubEmptyStateKey != null) ...[
-                                        const SizedBox(height: 12),
-                                        Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 32,
-                                          ),
-                                          child: Text(
+                                        const SizedBox(height: 24),
+                                        ElevatedButton.icon(
+                                          onPressed: () => _syncBooks(),
+                                          icon: const Icon(Icons.sync),
+                                          label: Text(
                                             TranslationService.translate(
                                               context,
-                                              _hubEmptyStateKey!,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey[700],
+                                              'sync_library',
                                             ),
                                           ),
                                         ),
+                                        if (!_isPeerOnline) ...[
+                                          const SizedBox(height: 8),
+                                          Text(
+                                            TranslationService.translate(
+                                              context,
+                                              'peer_offline',
+                                            ),
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.orange[700],
+                                            ),
+                                          ),
+                                        ],
+                                        if (_hubEmptyStateKey != null) ...[
+                                          const SizedBox(height: 12),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 32,
+                                            ),
+                                            child: Text(
+                                              TranslationService.translate(
+                                                context,
+                                                _hubEmptyStateKey!,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey[700],
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ],
-                                    ],
+                                    ),
                                   ),
                                 )
                         : NotificationListener<ScrollNotification>(
