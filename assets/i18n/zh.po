@@ -994,7 +994,7 @@ msgstr "退出名录"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "其他图书馆将无法再发现您。现有的关注者仍然有效。"
+msgstr "其他图书馆将无法再发现您。现有的关注者仍然有效，您的在线书目为他们加密。"
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6991,7 +6991,7 @@ msgstr "在线功能"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "实时接收关注和借阅请求，并解锁将您的图书馆发布到公开名录的选项。"
+msgstr "实时接收关注和借阅请求，并解锁将您的图书馆发布到公开名录的选项。您共享书籍的一份副本会为您的联系人保存在服务器上：除非您的图书馆在不要求批准的情况下可见，否则它是加密的。您的封面照片仍可被服务器读取。"
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -7025,7 +7025,7 @@ msgstr "出现在公开名录中"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "分享您的图书馆，让其他读者能够找到、关注并借阅。您可以随时在设置中退出。"
+msgstr "分享您的图书馆，让其他读者能够找到、关注并借阅。默认情况下，每位关注者都由您批准，您的在线书目随即为他们加密。您可以随时在设置中退出。"
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8733,7 +8733,7 @@ msgid "directory_listed_title"
 msgstr "在线共享我的图书馆"
 
 msgid "directory_listed_desc"
-msgstr "其他图书馆可以发现并关注您"
+msgstr "其他图书馆可以发现并关注您。若不要求批准，服务器会保留一份可读取的共享书籍副本，任何人都能查看。"
 
 msgid "directory_browse_button"
 msgstr "发现图书馆"
@@ -8751,7 +8751,7 @@ msgid "directory_requires_approval_title"
 msgstr "关注者需经批准"
 
 msgid "directory_requires_approval_desc"
-msgstr "新关注者需经您批准，才能访问您共享的书籍"
+msgstr "新关注者需经您批准，才能访问您共享的书籍。此时您的在线书目仅为他们加密：服务器无法读取。"
 
 msgid "directory_requires_approval_short"
 msgstr "需要批准"
@@ -10445,7 +10445,7 @@ msgstr "书库目录有什么用？"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "目录中只有选择公开的书库。在“设置 > 在线共享”中打开“让其他书库看到我的书库”，即可出现在目录里。你可以要求先经你批准，新的关注者才能访问你共享的书，城市也只有在你选择共享时才会公开。\n\n在“网络 > 探索”中浏览已公开的书库并关注感兴趣的对象：足以查看目录并请求借阅。\n\n配对是另一回事：两台设备之间直接的加密连接，需要逐台设备建立。"
+msgstr "目录中只有选择公开的书库。在“设置 > 在线共享”中打开“让其他书库看到我的书库”，即可出现在目录里。你可以要求先经你批准，新的关注者才能访问你共享的书，城市也只有在你选择共享时才会公开。\n\n在“网络 > 探索”中浏览已公开的书库并关注感兴趣的对象：足以查看目录并请求借阅。\n\n配对是另一回事：两台设备之间直接的加密连接，需要逐台设备建立。\n\n服务器保存的内容：你共享书籍的一份副本（书名、作者、ISBN），以便你的联系人在你的设备关机时也能查看。如果你的书库在不要求批准的情况下可见，这份副本可被服务器和任何人读取。否则，它仅为你的联系人和已批准的关注者加密，只要他们都使用较新版本的应用，服务器就无法读取。无论哪种情况，你的封面照片都仍可被服务器读取。"
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

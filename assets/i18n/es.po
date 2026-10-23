@@ -1078,7 +1078,7 @@ msgstr "Salir del directorio"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Otras bibliotecas ya no podrán descubrirte. Los seguidores existentes siguen activos."
+msgstr "Otras bibliotecas ya no podrán descubrirte. Los seguidores existentes siguen activos, y tu catálogo en línea queda cifrado para ellos."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6930,7 +6930,7 @@ msgid "directory_following_empty"
 msgstr "Aun no sigues ninguna biblioteca. Usa la pestana Descubrir para empezar."
 
 msgid "directory_listed_desc"
-msgstr "Otras bibliotecas pueden descubrirte y seguirte"
+msgstr "Otras bibliotecas pueden descubrirte y seguirte. Sin aprobación requerida, el servidor conserva una copia legible de tus libros compartidos, consultable por cualquiera."
 
 msgid "directory_listed_title"
 msgstr "Hacer visible mi biblioteca ante otras bibliotecas"
@@ -7003,7 +7003,7 @@ msgid "directory_requests_see_all"
 msgstr "Ver todas las solicitudes"
 
 msgid "directory_requires_approval_desc"
-msgstr "Los nuevos seguidores necesitan tu aprobacion antes de acceder a tus libros compartidos"
+msgstr "Los nuevos seguidores necesitan tu aprobacion antes de acceder a tus libros compartidos. Tu catálogo en línea queda entonces cifrado solo para ellos: el servidor no puede leerlo."
 
 msgid "directory_requires_approval_short"
 msgstr "Aprobacion requerida"
@@ -7177,7 +7177,7 @@ msgid "directory_publish_banner_title"
 msgstr "Aparecer en el directorio publico"
 
 msgid "directory_publish_banner_desc"
-msgstr "Comparte tu biblioteca para que otros lectores puedan encontrarte, seguirte y pedir prestados tus libros. Puedes darte de baja en cualquier momento desde Ajustes."
+msgstr "Comparte tu biblioteca para que otros lectores puedan encontrarte, seguirte y pedir prestados tus libros. De forma predeterminada apruebas a cada seguidor, y tu catálogo en línea queda entonces cifrado para ellos. Puedes darte de baja en cualquier momento desde Ajustes."
 
 msgid "directory_publish_banner_cta"
 msgstr "Publicar mi biblioteca"
@@ -7189,7 +7189,7 @@ msgid "coming_soon_chip"
 msgstr "Proximamente"
 
 msgid "hub_coming_soon_desc"
-msgstr "Recibe solicitudes de seguimiento y de prestamo en tiempo real, y desbloquea las opciones para publicar tu biblioteca en el directorio publico."
+msgstr "Recibe solicitudes de seguimiento y de prestamo en tiempo real, y desbloquea las opciones para publicar tu biblioteca en el directorio publico. Una copia de tus libros compartidos se guarda en el servidor para tus contactos: cifrada, salvo si tu biblioteca es visible sin aprobación requerida. Tus fotos de portada siguen siendo legibles para el servidor."
 
 msgid "hub_coming_soon_toggle"
 msgstr "Funciones en linea"
@@ -10795,7 +10795,7 @@ msgstr "¿Para qué sirve el directorio de bibliotecas?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "El directorio reúne las bibliotecas que han elegido ser visibles. Activa «Hacer visible mi biblioteca para otras bibliotecas» en Configuración > Compartir en línea para figurar en él. Puedes exigir tu aprobación antes de que un nuevo seguidor acceda a tus libros compartidos, y tu ciudad solo se publica si eliges compartirla.\n\nEn Red > Explorar recorres las bibliotecas publicadas y sigues las que te interesan: basta para consultar un catálogo y pedir un préstamo.\n\nEl emparejamiento es otra cosa: un enlace cifrado directo entre dos dispositivos, que se rehace dispositivo por dispositivo."
+msgstr "El directorio reúne las bibliotecas que han elegido ser visibles. Activa «Hacer visible mi biblioteca para otras bibliotecas» en Configuración > Compartir en línea para figurar en él. Puedes exigir tu aprobación antes de que un nuevo seguidor acceda a tus libros compartidos, y tu ciudad solo se publica si eliges compartirla.\n\nEn Red > Explorar recorres las bibliotecas publicadas y sigues las que te interesan: basta para consultar un catálogo y pedir un préstamo.\n\nEl emparejamiento es otra cosa: un enlace cifrado directo entre dos dispositivos, que se rehace dispositivo por dispositivo.\n\nLo que conserva el servidor: una copia de tus libros compartidos (títulos, autores, ISBN), para que tus contactos la consulten incluso con tu dispositivo apagado. Si tu biblioteca es visible sin aprobación requerida, esa copia es legible para el servidor y para cualquiera. Si no, está cifrada solo para tus contactos y seguidores aprobados, y el servidor no puede leerla, siempre que todos usen una versión reciente de la aplicación. Tus fotos de portada siguen siendo legibles para el servidor en ambos casos."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

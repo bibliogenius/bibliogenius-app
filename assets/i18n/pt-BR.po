@@ -1180,7 +1180,7 @@ msgstr "Sair do diretório"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Outras bibliotecas não poderão mais descobrir você. Seguidores existentes permanecem ativos."
+msgstr "Outras bibliotecas não poderão mais descobrir você. Seguidores existentes permanecem ativos, e seu catálogo online fica criptografado para eles."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6340,7 +6340,7 @@ msgstr "Recursos online"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Receba solicitações de seguir e de empréstimo em tempo real e desbloqueie opções para publicar sua biblioteca no diretório público."
+msgstr "Receba solicitações de seguir e de empréstimo em tempo real e desbloqueie opções para publicar sua biblioteca no diretório público. Uma cópia dos seus livros compartilhados fica no servidor para seus contatos: criptografada, salvo se sua biblioteca estiver visível sem aprovação exigida. Suas fotos de capa continuam legíveis para o servidor."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -6374,7 +6374,7 @@ msgstr "Apareça no diretório público"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "Compartilhe sua biblioteca para que outros leitores possam encontrá-la, segui-la e pegar livros emprestados. Você pode cancelar a qualquer momento em Configurações."
+msgstr "Compartilhe sua biblioteca para que outros leitores possam encontrá-la, segui-la e pegar livros emprestados. Por padrão, você aprova cada seguidor, e seu catálogo online fica então criptografado para eles. Você pode cancelar a qualquer momento em Configurações."
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -9840,7 +9840,7 @@ msgid "directory_listed_title"
 msgstr "Compartilhar minha biblioteca online"
 
 msgid "directory_listed_desc"
-msgstr "Outras bibliotecas podem descobrir e seguir você"
+msgstr "Outras bibliotecas podem descobrir e seguir você. Sem aprovação exigida, o servidor mantém uma cópia legível dos seus livros compartilhados, consultável por qualquer pessoa."
 
 msgid "directory_browse_button"
 msgstr "Descobrir bibliotecas"
@@ -9858,7 +9858,7 @@ msgid "directory_requires_approval_title"
 msgstr "Exigir aprovação para seguidores"
 
 msgid "directory_requires_approval_desc"
-msgstr "Novos seguidores precisam da sua aprovação antes de acessar seus livros compartilhados"
+msgstr "Novos seguidores precisam da sua aprovação antes de acessar seus livros compartilhados. Seu catálogo online fica então criptografado só para eles: o servidor não consegue lê-lo."
 
 msgid "directory_requires_approval_short"
 msgstr "Aprovação necessária"
@@ -10915,7 +10915,7 @@ msgstr "Para que serve o diretório de bibliotecas?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "O diretório reúne as bibliotecas que escolheram ficar visíveis. Ative “Tornar minha biblioteca visível para outras bibliotecas” em Configurações > Compartilhamento online para aparecer nele. Você pode exigir sua aprovação antes que um novo seguidor alcance seus livros compartilhados, e sua cidade só é publicada se você escolher compartilhá-la.\n\nEm Rede > Explorar você percorre as bibliotecas publicadas e segue as que quiser: basta para ver um catálogo e pedir um empréstimo.\n\nO pareamento é outra coisa: um vínculo criptografado direto entre dois dispositivos, feito dispositivo por dispositivo."
+msgstr "O diretório reúne as bibliotecas que escolheram ficar visíveis. Ative “Tornar minha biblioteca visível para outras bibliotecas” em Configurações > Compartilhamento online para aparecer nele. Você pode exigir sua aprovação antes que um novo seguidor alcance seus livros compartilhados, e sua cidade só é publicada se você escolher compartilhá-la.\n\nEm Rede > Explorar você percorre as bibliotecas publicadas e segue as que quiser: basta para ver um catálogo e pedir um empréstimo.\n\nO pareamento é outra coisa: um vínculo criptografado direto entre dois dispositivos, feito dispositivo por dispositivo.\n\nO que o servidor guarda: uma cópia dos seus livros compartilhados (títulos, autores, ISBN), para que seus contatos a consultem mesmo com seu dispositivo desligado. Se sua biblioteca está visível sem aprovação exigida, essa cópia é legível para o servidor e para qualquer pessoa. Caso contrário, ela é criptografada só para seus contatos e seguidores aprovados, e o servidor não consegue lê-la, desde que todos usem uma versão recente do aplicativo. Suas fotos de capa continuam legíveis para o servidor nos dois casos."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

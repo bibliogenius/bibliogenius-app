@@ -1042,7 +1042,7 @@ msgstr "Rehberden çık"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Diğer kütüphaneler sizi artık bulamayacak. Mevcut takipçiler aktif kalır."
+msgstr "Diğer kütüphaneler sizi artık bulamayacak. Mevcut takipçiler aktif kalır ve çevrimiçi kataloğunuz onlar için şifrelenir."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6813,7 +6813,7 @@ msgstr "Çevrimiçi özellikler"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Takip ve ödünç taleplerini gerçek zamanlı alın ve kütüphanenizi herkese açık dizinde yayımlama seçeneklerinin kilidini açın."
+msgstr "Takip ve ödünç taleplerini gerçek zamanlı alın ve kütüphanenizi herkese açık dizinde yayımlama seçeneklerinin kilidini açın. Paylaştığınız kitapların bir kopyası kişileriniz için sunucuda tutulur: kütüphaneniz onay gerekmeden görünür olmadıkça şifrelidir. Kapak fotoğraflarınız sunucu tarafından okunabilir kalır."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -6847,7 +6847,7 @@ msgstr "Herkese açık dizinde görünün"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "Diğer okuyucuların kütüphanenizi bulabilmesi, takip edebilmesi ve ondan ödünç alabilmesi için onu paylaşın. Ayarlar'dan istediğiniz zaman vazgeçebilirsiniz."
+msgstr "Diğer okuyucuların kütüphanenizi bulabilmesi, takip edebilmesi ve ondan ödünç alabilmesi için onu paylaşın. Varsayılan olarak her takipçiyi siz onaylarsınız ve çevrimiçi kataloğunuz o zaman onlar için şifrelenir. Ayarlar'dan istediğiniz zaman vazgeçebilirsiniz."
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8531,7 +8531,7 @@ msgid "directory_listed_title"
 msgstr "Kütüphanemi çevrimiçi paylaş"
 
 msgid "directory_listed_desc"
-msgstr "Diğer kütüphaneler sizi keşfedip takip edebilir"
+msgstr "Diğer kütüphaneler sizi keşfedip takip edebilir. Onay gerekmediğinde sunucu, paylaştığınız kitapların herkesin bakabileceği okunabilir bir kopyasını tutar."
 
 msgid "directory_browse_button"
 msgstr "Kütüphaneleri keşfet"
@@ -8549,7 +8549,7 @@ msgid "directory_requires_approval_title"
 msgstr "Takipçiler için onay iste"
 
 msgid "directory_requires_approval_desc"
-msgstr "Yeni takipçiler paylaştığınız kitaplara erişmeden önce onayınıza ihtiyaç duyar"
+msgstr "Yeni takipçiler paylaştığınız kitaplara erişmeden önce onayınıza ihtiyaç duyar. Çevrimiçi kataloğunuz o zaman yalnızca onlar için şifrelenir: sunucu onu okuyamaz."
 
 msgid "directory_requires_approval_short"
 msgstr "Onay gerekli"
@@ -10907,7 +10907,7 @@ msgstr "Kitaplık dizini ne işe yarar?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "Dizin, görünür olmayı seçen kitaplıkları listeler. Dizinde yer almak için Ayarlar > Çevrimiçi paylaşım bölümünden “Kitaplığımı diğer kitaplıklara görünür yap” seçeneğini açın. Yeni bir takipçinin paylaştığınız kitaplara ulaşmadan önce onayınızı gerektirebilirsiniz ve şehriniz yalnızca paylaşmayı seçerseniz yayımlanır.\n\nAğ > Keşfet bölümünde yayımlanmış kitaplıkları gezer, beğendiklerinizi takip edersiniz: bir kataloğu görmeye ve ödünç istemeye yeter.\n\nEşleştirme başka bir şeydir: iki cihaz arasında doğrudan şifreli bir bağ, cihaz cihaz kurulur."
+msgstr "Dizin, görünür olmayı seçen kitaplıkları listeler. Dizinde yer almak için Ayarlar > Çevrimiçi paylaşım bölümünden “Kitaplığımı diğer kitaplıklara görünür yap” seçeneğini açın. Yeni bir takipçinin paylaştığınız kitaplara ulaşmadan önce onayınızı gerektirebilirsiniz ve şehriniz yalnızca paylaşmayı seçerseniz yayımlanır.\n\nAğ > Keşfet bölümünde yayımlanmış kitaplıkları gezer, beğendiklerinizi takip edersiniz: bir kataloğu görmeye ve ödünç istemeye yeter.\n\nEşleştirme başka bir şeydir: iki cihaz arasında doğrudan şifreli bir bağ, cihaz cihaz kurulur.\n\nSunucunun tuttuğu şey: paylaştığınız kitapların bir kopyası (başlıklar, yazarlar, ISBN), böylece kişileriniz cihazınız kapalıyken bile ona göz atabilir. Kitaplığınız onay gerekmeden görünürse bu kopya sunucu ve herkes tarafından okunabilir. Aksi halde yalnızca kişileriniz ve onaylı takipçileriniz için şifrelenir ve hepsi uygulamanın güncel bir sürümünü kullandığı sürece sunucu onu okuyamaz. Kapak fotoğraflarınız her iki durumda da sunucu tarafından okunabilir kalır."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

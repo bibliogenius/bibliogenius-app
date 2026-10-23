@@ -994,7 +994,7 @@ msgstr "디렉터리 나가기"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "다른 서재가 더 이상 회원님을 찾을 수 없습니다. 기존 팔로워는 그대로 유지됩니다."
+msgstr "다른 서재가 더 이상 회원님을 찾을 수 없습니다. 기존 팔로워는 그대로 유지되며, 온라인 카탈로그는 그들을 위해 암호화됩니다."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6991,7 +6991,7 @@ msgstr "온라인 기능"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "팔로우 및 대출 요청을 실시간으로 받고, 공개 디렉터리에 서재를 게시하는 옵션을 사용할 수 있습니다."
+msgstr "팔로우 및 대출 요청을 실시간으로 받고, 공개 디렉터리에 서재를 게시하는 옵션을 사용할 수 있습니다. 공유한 책의 사본이 연락처를 위해 서버에 보관됩니다. 승인을 요구하지 않고 서재를 공개한 경우를 제외하면 암호화되어 있습니다. 표지 사진은 서버가 읽을 수 있는 상태로 남습니다."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -7025,7 +7025,7 @@ msgstr "공개 디렉터리에 등록하기"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "다른 독자들이 내 서재를 찾고, 팔로우하고, 대출할 수 있도록 공유하세요. 설정에서 언제든지 해제할 수 있습니다."
+msgstr "다른 독자들이 내 서재를 찾고, 팔로우하고, 대출할 수 있도록 공유하세요. 기본적으로 팔로워는 회원님이 한 명씩 승인하며, 온라인 카탈로그는 그들을 위해 암호화됩니다. 설정에서 언제든지 해제할 수 있습니다."
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8733,7 +8733,7 @@ msgid "directory_listed_title"
 msgstr "내 서재를 온라인으로 공유"
 
 msgid "directory_listed_desc"
-msgstr "다른 서재가 나를 발견하고 팔로우할 수 있습니다"
+msgstr "다른 서재가 나를 발견하고 팔로우할 수 있습니다. 승인을 요구하지 않으면 서버는 공유한 책의 읽을 수 있는 사본을 보관하며, 누구나 조회할 수 있습니다."
 
 msgid "directory_browse_button"
 msgstr "서재 둘러보기"
@@ -8751,7 +8751,7 @@ msgid "directory_requires_approval_title"
 msgstr "팔로워 승인 필요"
 
 msgid "directory_requires_approval_desc"
-msgstr "새 팔로워는 공유된 책에 접근하기 전에 회원님의 승인이 필요합니다"
+msgstr "새 팔로워는 공유된 책에 접근하기 전에 회원님의 승인이 필요합니다. 이 경우 온라인 카탈로그는 팔로워만을 위해 암호화되며, 서버는 읽을 수 없습니다."
 
 msgid "directory_requires_approval_short"
 msgstr "승인 필요"
@@ -10445,7 +10445,7 @@ msgstr "서재 디렉터리는 무엇에 쓰나요?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "디렉터리에는 공개를 선택한 서재만 실립니다. 설정 > 온라인 공유에서 “다른 서재에 내 서재 공개”를 켜면 목록에 나타납니다. 새 팔로워가 공유한 책에 접근하기 전에 승인을 요구할 수 있고, 도시는 공유하기로 선택한 경우에만 공개됩니다.\n\n네트워크 > 둘러보기에서 공개된 서재를 살펴보고 마음에 드는 곳을 팔로우하세요. 카탈로그를 보고 대출을 요청하기에는 이것으로 충분합니다.\n\n페어링은 다른 것입니다. 두 기기를 직접 잇는 암호화된 연결이며 기기마다 따로 만듭니다."
+msgstr "디렉터리에는 공개를 선택한 서재만 실립니다. 설정 > 온라인 공유에서 “다른 서재에 내 서재 공개”를 켜면 목록에 나타납니다. 새 팔로워가 공유한 책에 접근하기 전에 승인을 요구할 수 있고, 도시는 공유하기로 선택한 경우에만 공개됩니다.\n\n네트워크 > 둘러보기에서 공개된 서재를 살펴보고 마음에 드는 곳을 팔로우하세요. 카탈로그를 보고 대출을 요청하기에는 이것으로 충분합니다.\n\n페어링은 다른 것입니다. 두 기기를 직접 잇는 암호화된 연결이며 기기마다 따로 만듭니다.\n\n서버가 보관하는 것: 공유한 책의 사본(제목, 저자, ISBN)입니다. 기기가 꺼져 있어도 연락처가 볼 수 있게 하기 위해서입니다. 승인을 요구하지 않고 서재를 공개하면 이 사본은 서버와 누구나 읽을 수 있습니다. 그렇지 않으면 연락처와 승인된 팔로워만을 위해 암호화되며, 모두가 최신 버전의 앱을 사용하는 한 서버는 읽을 수 없습니다. 표지 사진은 두 경우 모두 서버가 읽을 수 있는 상태로 남습니다."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

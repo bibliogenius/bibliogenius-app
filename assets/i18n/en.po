@@ -1173,7 +1173,7 @@ msgstr "Leave directory"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Other libraries will no longer be able to discover you. Existing followers stay active."
+msgstr "Other libraries will no longer be able to discover you. Existing followers stay active, and your online catalogue is encrypted for them."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -5498,7 +5498,7 @@ msgstr "Online features"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Receive follow and loan requests in real time, and unlock options to publish your library in the public directory."
+msgstr "Receive follow and loan requests in real time, and unlock options to publish your library in the public directory. A copy of your shared books is kept on the server for your contacts: encrypted, unless your library is visible without approval required. Your cover photos stay readable by the server."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -5532,7 +5532,7 @@ msgstr "Appear in the public directory"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "Share your library so other readers can find, follow and borrow from it. You can opt out at any time from Settings."
+msgstr "Share your library so other readers can find, follow and borrow from it. By default you approve each follower, and your online catalogue is then encrypted for them. You can opt out at any time from Settings."
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8544,7 +8544,7 @@ msgid "directory_listed_title"
 msgstr "Make my library visible to other libraries"
 
 msgid "directory_listed_desc"
-msgstr "Other libraries can discover and follow you"
+msgstr "Other libraries can discover and follow you. Without approval required, the server keeps a readable copy of your shared books that anyone can look up."
 
 msgid "directory_browse_button"
 msgstr "Discover libraries"
@@ -8562,7 +8562,7 @@ msgid "directory_requires_approval_title"
 msgstr "Require approval for followers"
 
 msgid "directory_requires_approval_desc"
-msgstr "New followers need your approval before accessing your shared books"
+msgstr "New followers need your approval before accessing your shared books. Your online catalogue is then encrypted for them alone: the server cannot read it."
 
 msgid "directory_requires_approval_short"
 msgstr "Approval required"
@@ -10968,7 +10968,7 @@ msgstr "What is the library directory for?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "The directory lists the libraries that chose to be visible. Turn on “Make my library visible to other libraries” in Settings > Online Sharing to appear there. You can require your approval before a new follower reaches your shared books, and your city is only published if you choose to share it.\n\nIn Network > Explore you browse the published libraries and follow the ones you like: enough to see a catalogue and ask for a loan.\n\nPairing is something else: a direct encrypted link between two devices, made device by device."
+msgstr "The directory lists the libraries that chose to be visible. Turn on “Make my library visible to other libraries” in Settings > Online Sharing to appear there. You can require your approval before a new follower reaches your shared books, and your city is only published if you choose to share it.\n\nIn Network > Explore you browse the published libraries and follow the ones you like: enough to see a catalogue and ask for a loan.\n\nPairing is something else: a direct encrypted link between two devices, made device by device.\n\nWhat the server keeps: a copy of your shared books (titles, authors, ISBNs), so your contacts can browse it even while your device is off. If your library is visible without approval required, that copy is readable by the server and by anyone. Otherwise it is encrypted for your contacts and approved followers only, and the server cannot read it, as long as they all run a recent version of the app. Your cover photos stay readable by the server in both cases."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

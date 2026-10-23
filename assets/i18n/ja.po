@@ -994,7 +994,7 @@ msgstr "ディレクトリから退出"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "他のライブラリからあなたを見つけられなくなります。既存のフォロワーはそのまま有効です。"
+msgstr "他のライブラリからあなたを見つけられなくなります。既存のフォロワーはそのまま有効で、オンラインカタログは彼らのために暗号化されます。"
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6991,7 +6991,7 @@ msgstr "オンライン機能"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "フォローや貸出のリクエストをリアルタイムで受け取り、公開ディレクトリにライブラリを公開するオプションを利用できます。"
+msgstr "フォローや貸出のリクエストをリアルタイムで受け取り、公開ディレクトリにライブラリを公開するオプションを利用できます。共有した本のコピーが連絡先のためにサーバーに保存されます。承認を必須にせずに公開している場合を除き、暗号化されています。表紙の写真はサーバーから読める状態のままです。"
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -7025,7 +7025,7 @@ msgstr "公開ディレクトリに掲載する"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "ライブラリを共有すると、他の読者が見つけてフォローし、借りられるようになります。設定からいつでも取り下げられます。"
+msgstr "ライブラリを共有すると、他の読者が見つけてフォローし、借りられるようになります。初期設定ではフォロワーを一人ずつあなたが承認し、オンラインカタログは彼らのために暗号化されます。設定からいつでも取り下げられます。"
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8733,7 +8733,7 @@ msgid "directory_listed_title"
 msgstr "ライブラリをオンラインで共有"
 
 msgid "directory_listed_desc"
-msgstr "他のライブラリがあなたを見つけてフォローできます"
+msgstr "他のライブラリがあなたを見つけてフォローできます。承認を必須にしない場合、サーバーは共有した本の読める形のコピーを保持し、誰でも閲覧できます。"
 
 msgid "directory_browse_button"
 msgstr "ライブラリを探す"
@@ -8751,7 +8751,7 @@ msgid "directory_requires_approval_title"
 msgstr "フォロワーに承認を必須にする"
 
 msgid "directory_requires_approval_desc"
-msgstr "新しいフォロワーは、共有した本にアクセスする前にあなたの承認が必要です"
+msgstr "新しいフォロワーは、共有した本にアクセスする前にあなたの承認が必要です。その場合、オンラインカタログはフォロワーだけのために暗号化され、サーバーは読めません。"
 
 msgid "directory_requires_approval_short"
 msgstr "承認が必要"
@@ -10445,7 +10445,7 @@ msgstr "図書館ディレクトリは何のため？"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "ディレクトリには、公開を選んだ蔵書だけが並びます。「設定 > オンライン共有」で「他の図書館に自分の図書館を公開する」をオンにすると掲載されます。新しいフォロワーが共有中の本に触れる前に承認を必須にでき、都市名は共有を選んだ場合にのみ公開されます。\n\n「ネットワーク > さがす」では公開中の図書館を見て、気になる相手をフォローできます。カタログを見て貸出をお願いするにはこれで十分です。\n\nペアリングは別のしくみで、2 台の端末を直接つなぐ暗号化されたリンクです。端末ごとに設定します。"
+msgstr "ディレクトリには、公開を選んだ蔵書だけが並びます。「設定 > オンライン共有」で「他の図書館に自分の図書館を公開する」をオンにすると掲載されます。新しいフォロワーが共有中の本に触れる前に承認を必須にでき、都市名は共有を選んだ場合にのみ公開されます。\n\n「ネットワーク > さがす」では公開中の図書館を見て、気になる相手をフォローできます。カタログを見て貸出をお願いするにはこれで十分です。\n\nペアリングは別のしくみで、2 台の端末を直接つなぐ暗号化されたリンクです。端末ごとに設定します。\n\nサーバーが保持するもの：共有した本のコピー（タイトル、著者、ISBN）。端末の電源が切れていても連絡先が閲覧できるようにするためです。承認を必須にせずに図書館を公開している場合、このコピーはサーバーも誰でも読めます。そうでない場合は連絡先と承認済みフォロワーだけのために暗号化され、全員が新しめのアプリを使っている限りサーバーは読めません。表紙の写真はどちらの場合もサーバーから読める状態のままです。"
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

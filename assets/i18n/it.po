@@ -1173,7 +1173,7 @@ msgstr "Esci dall'annuario"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Le altre biblioteche non potranno più trovarti. I follower esistenti restano attivi."
+msgstr "Le altre biblioteche non potranno più trovarti. I follower esistenti restano attivi, e il tuo catalogo online è cifrato per loro."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -5568,7 +5568,7 @@ msgstr "Funzionalità online"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Ricevi richieste di follow e di prestito in tempo reale e sblocca le opzioni per pubblicare la tua biblioteca nella directory pubblica."
+msgstr "Ricevi richieste di follow e di prestito in tempo reale e sblocca le opzioni per pubblicare la tua biblioteca nella directory pubblica. Una copia dei tuoi libri condivisi è depositata sul server per i tuoi contatti: cifrata, salvo se la tua biblioteca è visibile senza approvazione richiesta. Le tue foto di copertina restano leggibili dal server."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -5602,7 +5602,7 @@ msgstr "Compari nella directory pubblica"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "Condividi la tua biblioteca così altri lettori possono trovarla, seguirla e prendere in prestito. Puoi disattivare l'opzione in qualsiasi momento dalle Impostazioni."
+msgstr "Condividi la tua biblioteca così altri lettori possono trovarla, seguirla e prendere in prestito. Per impostazione predefinita approvi ogni follower, e il tuo catalogo online è allora cifrato per loro. Puoi disattivare l'opzione in qualsiasi momento dalle Impostazioni."
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8772,7 +8772,7 @@ msgid "directory_listed_title"
 msgstr "Elenca la mia biblioteca nella directory"
 
 msgid "directory_listed_desc"
-msgstr "Altre biblioteche possono scoprirti e seguirti"
+msgstr "Altre biblioteche possono scoprirti e seguirti. Senza approvazione richiesta, il server conserva una copia leggibile dei tuoi libri condivisi, consultabile da chiunque."
 
 msgid "directory_browse_button"
 msgstr "Esplora la directory"
@@ -8790,7 +8790,7 @@ msgid "directory_requires_approval_title"
 msgstr "Richiedi approvazione per i follower"
 
 msgid "directory_requires_approval_desc"
-msgstr "I nuovi follower necessitano della tua approvazione prima di accedere al tuo catalogo"
+msgstr "I nuovi follower necessitano della tua approvazione prima di accedere al tuo catalogo. Il tuo catalogo online è allora cifrato solo per loro: il server non può leggerlo."
 
 msgid "directory_requires_approval_short"
 msgstr "Approvazione richiesta"
@@ -10900,7 +10900,7 @@ msgstr "A cosa serve l'elenco delle biblioteche?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "L'elenco raccoglie le biblioteche che hanno scelto di essere visibili. Attiva «Rendi visibile la mia biblioteca alle altre biblioteche» in Impostazioni > Condivisione online per comparirvi. Puoi richiedere la tua approvazione prima che un nuovo follower raggiunga i tuoi libri condivisi, e la tua città viene pubblicata solo se scegli di condividerla.\n\nIn Rete > Esplora sfogli le biblioteche pubblicate e segui quelle che ti interessano: basta per consultare un catalogo e chiedere un prestito.\n\nL'abbinamento è un'altra cosa: un collegamento cifrato diretto tra due dispositivi, da rifare dispositivo per dispositivo."
+msgstr "L'elenco raccoglie le biblioteche che hanno scelto di essere visibili. Attiva «Rendi visibile la mia biblioteca alle altre biblioteche» in Impostazioni > Condivisione online per comparirvi. Puoi richiedere la tua approvazione prima che un nuovo follower raggiunga i tuoi libri condivisi, e la tua città viene pubblicata solo se scegli di condividerla.\n\nIn Rete > Esplora sfogli le biblioteche pubblicate e segui quelle che ti interessano: basta per consultare un catalogo e chiedere un prestito.\n\nL'abbinamento è un'altra cosa: un collegamento cifrato diretto tra due dispositivi, da rifare dispositivo per dispositivo.\n\nCosa conserva il server: una copia dei tuoi libri condivisi (titoli, autori, ISBN), perché i tuoi contatti possano consultarla anche a dispositivo spento. Se la tua biblioteca è visibile senza approvazione richiesta, quella copia è leggibile dal server e da chiunque. Altrimenti è cifrata solo per i tuoi contatti e follower approvati, e il server non può leggerla, purché tutti usino una versione recente dell'app. Le tue foto di copertina restano leggibili dal server in entrambi i casi."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

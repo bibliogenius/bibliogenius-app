@@ -1078,7 +1078,7 @@ msgstr "Verzeichnis verlassen"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Andere Bibliotheken können Sie nicht mehr finden. Bestehende Follower bleiben aktiv."
+msgstr "Andere Bibliotheken können Sie nicht mehr finden. Bestehende Follower bleiben aktiv, und Ihr Online-Katalog ist für sie verschlüsselt."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -6930,7 +6930,7 @@ msgid "directory_following_empty"
 msgstr "Sie folgen noch keinen Bibliotheken. Nutzen Sie den Tab Entdecken, um zu starten."
 
 msgid "directory_listed_desc"
-msgstr "Andere Bibliotheken können Sie entdecken und Ihnen folgen"
+msgstr "Andere Bibliotheken können Sie entdecken und Ihnen folgen. Ohne erforderliche Genehmigung behält der Server eine lesbare Kopie Ihrer geteilten Bücher, die jeder einsehen kann."
 
 msgid "directory_listed_title"
 msgstr "Meine Bibliothek online teilen"
@@ -7003,7 +7003,7 @@ msgid "directory_requests_see_all"
 msgstr "Alle Anfragen anzeigen"
 
 msgid "directory_requires_approval_desc"
-msgstr "Neue Follower müssen genehmigt werden, bevor sie auf Ihre geteilten Bücher zugreifen können"
+msgstr "Neue Follower müssen genehmigt werden, bevor sie auf Ihre geteilten Bücher zugreifen können. Ihr Online-Katalog ist dann nur für sie verschlüsselt: Der Server kann ihn nicht lesen."
 
 msgid "directory_requires_approval_short"
 msgstr "Genehmigung erforderlich"
@@ -7177,7 +7177,7 @@ msgid "directory_publish_banner_title"
 msgstr "Im öffentlichen Verzeichnis erscheinen"
 
 msgid "directory_publish_banner_desc"
-msgstr "Teilen Sie Ihre Bibliothek, damit andere Leser sie finden, Ihnen folgen und Bücher ausleihen können. Sie können sich jederzeit in den Einstellungen wieder austragen."
+msgstr "Teilen Sie Ihre Bibliothek, damit andere Leser sie finden, Ihnen folgen und Bücher ausleihen können. Standardmäßig genehmigen Sie jeden Follower, und Ihr Online-Katalog ist dann für sie verschlüsselt. Sie können sich jederzeit in den Einstellungen wieder austragen."
 
 msgid "directory_publish_banner_cta"
 msgstr "Meine Bibliothek veröffentlichen"
@@ -7189,7 +7189,7 @@ msgid "coming_soon_chip"
 msgstr "Demnachst"
 
 msgid "hub_coming_soon_desc"
-msgstr "Erhalten Sie Folge- und Leihanfragen in Echtzeit und aktivieren Sie die Optionen zur Veröffentlichung Ihrer Bibliothek im öffentlichen Verzeichnis."
+msgstr "Erhalten Sie Folge- und Leihanfragen in Echtzeit und aktivieren Sie die Optionen zur Veröffentlichung Ihrer Bibliothek im öffentlichen Verzeichnis. Eine Kopie Ihrer geteilten Bücher wird für Ihre Kontakte auf dem Server abgelegt: verschlüsselt, außer wenn Ihre Bibliothek ohne erforderliche Genehmigung sichtbar ist. Ihre Coverfotos bleiben für den Server lesbar."
 
 msgid "hub_coming_soon_toggle"
 msgstr "Online-Funktionen"
@@ -10780,7 +10780,7 @@ msgstr "Wozu dient das Bibliotheksverzeichnis?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "Das Verzeichnis führt die Bibliotheken auf, die sich sichtbar gemacht haben. Aktivieren Sie „Meine Bibliothek für andere Bibliotheken sichtbar machen“ unter Einstellungen > Online-Freigabe, um dort zu erscheinen. Sie können Ihre Zustimmung verlangen, bevor ein neuer Follower Ihre geteilten Bücher erreicht, und Ihre Stadt wird nur veröffentlicht, wenn Sie sie teilen möchten.\n\nUnter Netzwerk > Entdecken durchstöbern Sie die veröffentlichten Bibliotheken und folgen denen, die Ihnen gefallen: genug, um einen Katalog zu sehen und eine Ausleihe anzufragen.\n\nDie Kopplung ist etwas anderes: eine direkte verschlüsselte Verbindung zwischen zwei Geräten, Gerät für Gerät hergestellt."
+msgstr "Das Verzeichnis führt die Bibliotheken auf, die sich sichtbar gemacht haben. Aktivieren Sie „Meine Bibliothek für andere Bibliotheken sichtbar machen“ unter Einstellungen > Online-Freigabe, um dort zu erscheinen. Sie können Ihre Zustimmung verlangen, bevor ein neuer Follower Ihre geteilten Bücher erreicht, und Ihre Stadt wird nur veröffentlicht, wenn Sie sie teilen möchten.\n\nUnter Netzwerk > Entdecken durchstöbern Sie die veröffentlichten Bibliotheken und folgen denen, die Ihnen gefallen: genug, um einen Katalog zu sehen und eine Ausleihe anzufragen.\n\nDie Kopplung ist etwas anderes: eine direkte verschlüsselte Verbindung zwischen zwei Geräten, Gerät für Gerät hergestellt.\n\nWas der Server behält: eine Kopie Ihrer geteilten Bücher (Titel, Autoren, ISBN), damit Ihre Kontakte sie auch bei ausgeschaltetem Gerät durchsehen können. Ist Ihre Bibliothek ohne erforderliche Genehmigung sichtbar, ist diese Kopie für den Server und für jeden lesbar. Andernfalls ist sie nur für Ihre Kontakte und genehmigten Follower verschlüsselt, und der Server kann sie nicht lesen, sofern alle eine aktuelle Version der App verwenden. Ihre Coverfotos bleiben in beiden Fällen für den Server lesbar."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"

@@ -1173,7 +1173,7 @@ msgstr "Quitter l'annuaire"
 
 #. Body of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_body"
-msgstr "Les autres bibliothèques ne pourront plus vous découvrir. Vos abonnés existants restent actifs."
+msgstr "Les autres bibliothèques ne pourront plus vous découvrir. Vos abonnés existants restent actifs, et votre catalogue en ligne est chiffré pour eux."
 
 #. Title of the confirmation dialog when leaving the public directory
 msgid "confirm_directory_unlist_title"
@@ -5498,7 +5498,7 @@ msgstr "Fonctionnalités en ligne"
 
 #. Hub - Online features master toggle (subtitle)
 msgid "hub_coming_soon_desc"
-msgstr "Recevez les demandes de suivi et d'emprunt en temps réel, et débloquez les options de publication de votre bibliothèque dans l'annuaire public."
+msgstr "Recevez les demandes de suivi et d'emprunt en temps réel, et débloquez les options de publication de votre bibliothèque dans l'annuaire public. Une copie de vos livres partagés est déposée sur le serveur pour vos contacts : chiffrée, sauf si votre bibliothèque est visible sans approbation requise. Vos photos de couverture restent lisibles par le serveur."
 
 #. Generic coming soon chip
 msgid "coming_soon_chip"
@@ -5532,7 +5532,7 @@ msgstr "Apparaître dans l'annuaire public"
 
 #. Hub - Publish CTA banner: description
 msgid "directory_publish_banner_desc"
-msgstr "Partagez votre bibliothèque pour que d'autres lecteurs puissent la trouver, vous suivre et emprunter vos livres. Vous pouvez vous retirer à tout moment depuis les Paramètres."
+msgstr "Partagez votre bibliothèque pour que d'autres lecteurs puissent la trouver, vous suivre et emprunter vos livres. Par défaut, vous approuvez chaque abonné, et votre catalogue en ligne est alors chiffré pour eux. Vous pouvez vous retirer à tout moment depuis les Paramètres."
 
 #. Hub - Publish CTA banner: button label
 msgid "directory_publish_banner_cta"
@@ -8544,7 +8544,7 @@ msgid "directory_listed_title"
 msgstr "Me rendre visible auprès des autres bibliothèques"
 
 msgid "directory_listed_desc"
-msgstr "Les autres bibliothèques peuvent vous découvrir et vous suivre"
+msgstr "Les autres bibliothèques peuvent vous découvrir et vous suivre. Sans approbation requise, le serveur conserve une copie lisible de vos livres partagés, consultable par n'importe qui."
 
 msgid "directory_browse_button"
 msgstr "Découvrir des bibliothèques"
@@ -8562,7 +8562,7 @@ msgid "directory_requires_approval_title"
 msgstr "Approbation requise pour les abonnés"
 
 msgid "directory_requires_approval_desc"
-msgstr "Les nouveaux abonnés doivent être approuvés avant d'accéder à vos livres partagés"
+msgstr "Les nouveaux abonnés doivent être approuvés avant d'accéder à vos livres partagés. Votre catalogue en ligne est alors chiffré pour eux seuls : le serveur ne peut pas le lire."
 
 msgid "directory_requires_approval_short"
 msgstr "Approbation requise"
@@ -10963,7 +10963,7 @@ msgstr "À quoi sert l'annuaire des bibliothèques ?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "L'annuaire liste les bibliothèques qui ont choisi d'être visibles. Activez « Me rendre visible auprès des autres bibliothèques » dans Paramètres > Partage en ligne pour y figurer. Vous pouvez exiger votre approbation avant qu'un nouvel abonné accède à vos livres partagés, et votre ville n'est publiée que si vous choisissez de la partager.\n\nDans Réseau > Explorer, vous parcourez les bibliothèques publiées et suivez celles qui vous intéressent : de quoi consulter un catalogue et demander un emprunt.\n\nL'appairage est autre chose : un lien chiffré direct entre deux appareils, à refaire appareil par appareil."
+msgstr "L'annuaire liste les bibliothèques qui ont choisi d'être visibles. Activez « Me rendre visible auprès des autres bibliothèques » dans Paramètres > Partage en ligne pour y figurer. Vous pouvez exiger votre approbation avant qu'un nouvel abonné accède à vos livres partagés, et votre ville n'est publiée que si vous choisissez de la partager.\n\nDans Réseau > Explorer, vous parcourez les bibliothèques publiées et suivez celles qui vous intéressent : de quoi consulter un catalogue et demander un emprunt.\n\nL'appairage est autre chose : un lien chiffré direct entre deux appareils, à refaire appareil par appareil.\n\nCe que le serveur conserve : une copie de vos livres partagés (titres, auteurs, ISBN), pour que vos contacts la consultent même quand votre appareil est éteint. Si votre bibliothèque est visible sans approbation requise, cette copie est lisible par le serveur et par n'importe qui. Sinon, elle est chiffrée pour vos seuls contacts et abonnés approuvés, et le serveur ne peut pas la lire, dès lors qu'ils utilisent tous une version récente de l'application. Vos photos de couverture restent lisibles par le serveur dans les deux cas."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
