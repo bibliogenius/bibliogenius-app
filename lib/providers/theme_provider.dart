@@ -1044,6 +1044,7 @@ class ThemeProvider with ChangeNotifier {
     _notifDiscoveriesEnabled = true;
     _operationLogViewerEnabled = false;
     _speechToTextEnabled = true;
+    _coverAutoCropEnabled = true;
     _bottomNavEnabled = true;
     notifyListeners();
   }
@@ -1476,7 +1477,7 @@ class ThemeProvider with ChangeNotifier {
   Future<void> setCoverAutoCropEnabled(bool enabled) async {
     _coverAutoCropEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('coverAutoCropEnabled', enabled);
+    await prefs.setBool(CoverCameraHelper.autoCropPrefKey, enabled);
     if (enabled) {
       await prefs.remove(CoverCameraHelper.scanTipsDismissedPrefKey);
     }

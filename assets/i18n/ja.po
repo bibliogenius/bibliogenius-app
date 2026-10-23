@@ -11462,3 +11462,7 @@ msgstr "表紙の自動トリミング"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "表紙を撮影するときに本を検出し、トリミングしてまっすぐに補正します。オフにすると通常のカメラを使用します。"
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "表紙を撮影するときに本を検出し、トリミングしてまっすぐに補正します。オフにすると通常のカメラを使用します。Android では、トリミングは Google Play 開発者サービスによって提供されます。"

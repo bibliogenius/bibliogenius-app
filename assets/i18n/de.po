@@ -12166,3 +12166,7 @@ msgstr "Automatischer Coverzuschnitt"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "Erkennt beim Fotografieren eines Covers das Buch, schneidet es zu und richtet es gerade aus. Deaktivieren, um die normale Kamera zu verwenden."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "Erkennt beim Fotografieren eines Covers das Buch, schneidet es zu und richtet es gerade aus. Deaktivieren, um die normale Kamera zu verwenden. Unter Android wird der Zuschnitt von den Google Play-Diensten bereitgestellt."

@@ -11462,3 +11462,7 @@ msgstr "自动裁剪封面"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "拍摄封面照片时，自动识别书本、裁剪并校正。关闭后将使用普通相机。"
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "拍摄封面照片时，自动识别书本、裁剪并校正。关闭后将使用普通相机。在 Android 上，裁剪功能由 Google Play 服务提供。"

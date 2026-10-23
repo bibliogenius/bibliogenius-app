@@ -76,6 +76,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _perBookDurationEnabled = false;
   int _reminderDaysBeforeDue = 2;
   bool _loanSettingsLoaded = false;
+  // Resolved asynchronously: on Android it depends on Play services.
+  bool _coverScannerAvailable = false;
   // Relay Hub state
   String? _relayMailboxUuid;
   bool _relayConnected = false;
@@ -94,6 +96,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     _fetchSettings();
     _initPackageInfo();
     _loadLoanSettings();
+    CoverCameraHelper.isDocumentScannerAvailable().then((available) {
+      if (mounted && available) {
+        setState(() => _coverScannerAvailable = true);
+      }
+    });
     // Load hub directory config + preferences (non-blocking)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final hubProvider = context.read<HubDirectoryProvider>();
@@ -1150,6 +1157,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'settings_allow_private_books_desc',
                   'module_digital_formats',
                   'module_digital_formats_desc',
+                  'module_cover_auto_crop',
+                  'module_cover_auto_crop_desc',
+                  'module_cover_auto_crop_desc_android',
                   'mcp_integration',
                   'mcp_description',
                   'settings_linked_devices',
@@ -1431,11 +1441,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           context,
                           'modules_group_advanced',
                         ),
-                        if (CoverCameraHelper.isDocumentScannerSupported)
+                        if (_coverScannerAvailable)
                           _buildModuleToggle(
                             context,
                             'module_cover_auto_crop',
-                            'module_cover_auto_crop_desc',
+                            // On Android the crop comes from Google Play
+                            // services, which the description says.
+                            io.Platform.isAndroid
+                                ? 'module_cover_auto_crop_desc_android'
+                                : 'module_cover_auto_crop_desc',
                             Icons.crop,
                             themeProvider.coverAutoCropEnabled,
                             (value) =>

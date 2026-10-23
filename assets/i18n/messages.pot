@@ -12002,6 +12002,7 @@ msgstr ""
 
 #. Household readers
 msgid "household_delete_body"
+msgstr ""
 
 #. Household readers: import my readings
 msgid "household_import_button"
@@ -12157,6 +12158,7 @@ msgstr ""
 
 #. Peer detail, manual sync: the peer answers with the same library uuid but another signing key, so it must be paired again
 msgid "peer_keys_changed"
+msgstr ""
 
 #. Cover scan tips dialog: title
 msgid "cover_scan_tips_title"
@@ -12180,4 +12182,8 @@ msgstr ""
 
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
+msgstr ""
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
 msgstr ""

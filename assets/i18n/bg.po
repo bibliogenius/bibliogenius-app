@@ -12293,3 +12293,7 @@ msgstr "Автоматично изрязване на корици"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "При снимане на корица разпознава книгата, изрязва я и я изправя. Изключете, за да използвате обикновената камера."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "При снимане на корица разпознава книгата, изрязва я и я изправя. Изключете, за да използвате обикновената камера. На Android изрязването се осигурява от услугите за Google Play."

@@ -12301,3 +12301,7 @@ msgstr "Recorte automático de capas"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "Ao tirar a foto de uma capa, detecta o livro, recorta e endireita a imagem. Desative para usar a câmera comum."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "Ao tirar a foto de uma capa, detecta o livro, recorta e endireita a imagem. Desative para usar a câmera comum. No Android, o recorte é fornecido pelo Google Play Services."

@@ -58,3 +58,8 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // GoogleApiAvailability, for the Play services check in MainActivity.
+    implementation("com.google.android.gms:play-services-base:18.5.0")
+}

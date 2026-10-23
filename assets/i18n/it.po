@@ -12286,3 +12286,7 @@ msgstr "Ritaglio automatico delle copertine"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "Quando scatti la foto di una copertina, rileva il libro, lo ritaglia e lo raddrizza. Disattiva per usare la fotocamera normale."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "Quando scatti la foto di una copertina, rileva il libro, lo ritaglia e lo raddrizza. Disattiva per usare la fotocamera normale. Su Android, il ritaglio è fornito da Google Play Services."

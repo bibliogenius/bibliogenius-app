@@ -12181,3 +12181,7 @@ msgstr "Recorte automático de portadas"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "Al tomar una foto de portada, detecta el libro, lo recorta y lo endereza. Desactívalo para usar la cámara normal."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "Al tomar una foto de portada, detecta el libro, lo recorta y lo endereza. Desactívalo para usar la cámara normal. En Android, el recorte lo proporcionan los servicios de Google Play."

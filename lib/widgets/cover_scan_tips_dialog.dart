@@ -33,6 +33,8 @@ Future<bool> showCoverScanTipsIfNeeded(BuildContext context) async {
       return StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
+            // Large text on a small phone would overflow otherwise.
+            scrollable: true,
             title: Text(
               TranslationService.translate(context, 'cover_scan_tips_title'),
             ),

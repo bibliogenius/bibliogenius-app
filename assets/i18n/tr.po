@@ -12293,3 +12293,7 @@ msgstr "Otomatik kapak kırpma"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "Kapak fotoğrafı çekerken kitabı algılar, kırpar ve düzeltir. Normal kamerayı kullanmak için kapatın."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "Kapak fotoğrafı çekerken kitabı algılar, kırpar ve düzeltir. Normal kamerayı kullanmak için kapatın. Android'de kırpma işlemi Google Play Hizmetleri tarafından sağlanır."

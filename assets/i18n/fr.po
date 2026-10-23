@@ -12435,3 +12435,7 @@ msgstr "Recadrage automatique des couvertures"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "Lors de la prise d'une photo de couverture, détecte le livre, le recadre et le redresse. Désactivez pour utiliser l'appareil photo classique."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "Lors de la prise d'une photo de couverture, détecte le livre, le recadre et le redresse. Désactivez pour utiliser l'appareil photo classique. Sur Android, le recadrage est fourni par les services Google Play."

@@ -11462,3 +11462,7 @@ msgstr "표지 자동 자르기"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "표지 사진을 찍을 때 책을 감지해 자르고 반듯하게 보정합니다. 끄면 일반 카메라를 사용합니다."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "표지 사진을 찍을 때 책을 감지해 자르고 반듯하게 보정합니다. 끄면 일반 카메라를 사용합니다. Android에서는 Google Play 서비스가 자르기 기능을 제공합니다."

@@ -12440,3 +12440,7 @@ msgstr "Automatic cover crop"
 #. Modules > Advanced: description of the automatic cover crop toggle
 msgid "module_cover_auto_crop_desc"
 msgstr "When taking a cover photo, detects the book, crops it and straightens it. Turn off to use the regular camera."
+
+#. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
+msgid "module_cover_auto_crop_desc_android"
+msgstr "When taking a cover photo, detects the book, crops it and straightens it. Turn off to use the regular camera. On Android, the crop is provided by Google Play services."
