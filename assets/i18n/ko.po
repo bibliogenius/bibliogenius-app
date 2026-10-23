@@ -11455,6 +11455,14 @@ msgstr "가능하면 밝고 무늬 없는 표면 위에 책을 놓아 주세요.
 msgid "cover_scan_tips_dont_show_again"
 msgstr "이 메시지를 다시 표시하지 않기"
 
+#. Cover scan tips dialog, Android only: the scanner comes from Google Play services, downloaded on first use; the plain camera avoids it
+msgid "cover_scan_tips_google"
+msgstr "자르기 기능은 Google Play 서비스가 제공하며, 처음 사용할 때 모듈을 다운로드합니다."
+
+#. Cover scan tips dialog, Android only: button that takes the photo with the plain camera and switches automatic cover crop off
+msgid "cover_scan_use_plain_camera"
+msgstr "일반 카메라"
+
 #. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
 msgid "module_cover_auto_crop"
 msgstr "표지 자동 자르기"

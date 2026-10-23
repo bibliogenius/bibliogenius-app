@@ -11455,6 +11455,14 @@ msgstr "できれば、明るく無地の面に本を置いてください。撮
 msgid "cover_scan_tips_dont_show_again"
 msgstr "今後このメッセージを表示しない"
 
+#. Cover scan tips dialog, Android only: the scanner comes from Google Play services, downloaded on first use; the plain camera avoids it
+msgid "cover_scan_tips_google"
+msgstr "トリミングは Google Play 開発者サービスによって提供され、初回使用時にモジュールがダウンロードされます。"
+
+#. Cover scan tips dialog, Android only: button that takes the photo with the plain camera and switches automatic cover crop off
+msgid "cover_scan_use_plain_camera"
+msgstr "通常のカメラ"
+
 #. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
 msgid "module_cover_auto_crop"
 msgstr "表紙の自動トリミング"

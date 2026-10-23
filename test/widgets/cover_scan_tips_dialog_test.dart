@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,8 @@ void main() {
         'cover_scan_tips_title': tipsTitle,
         'cover_scan_tips_ios': 'Tips (iOS)',
         'cover_scan_tips_android': 'Tips (Android)',
+        'cover_scan_tips_google': 'Provided by Google Play services',
+        'cover_scan_use_plain_camera': 'Plain camera',
         'cover_scan_tips_dont_show_again': dontShowAgain,
         'cancel': 'Cancel',
         'continue': 'Continue',
@@ -160,5 +163,47 @@ void main() {
 
     await themeProvider.setCoverAutoCropEnabled(true);
     expect(await dismissedPref(), isNull);
+  });
+
+  // On Android the scanner comes from Google Play services, which download
+  // it on first use: the tips say so and offer the plain camera instead,
+  // before anything is downloaded.
+  testWidgets('Android names Play services and offers the plain camera', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.android;
+    final screenContext = await pumpHost(tester);
+
+    final result = showCoverScanTipsIfNeeded(screenContext);
+    await tester.pumpAndSettle();
+    expect(find.text('Provided by Google Play services'), findsOneWidget);
+
+    await tester.tap(find.text('Plain camera'));
+    await tester.pumpAndSettle();
+
+    // The capture goes on, with auto crop switched off as in the settings.
+    expect(await result, isTrue);
+    expect(screenContext.read<ThemeProvider>().coverAutoCropEnabled, isFalse);
+    expect(await CoverCameraHelper.usesDocumentScanner(), isFalse);
+    debugDefaultTargetPlatformOverride = null;
+  });
+
+  testWidgets('iOS keeps the two buttons: VisionKit is part of the system', (
+    tester,
+  ) async {
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    final screenContext = await pumpHost(tester);
+
+    final result = showCoverScanTipsIfNeeded(screenContext);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Tips (iOS)'), findsOneWidget);
+    expect(find.text('Provided by Google Play services'), findsNothing);
+    expect(find.text('Plain camera'), findsNothing);
+
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(await result, isTrue);
+    debugDefaultTargetPlatformOverride = null;
   });
 }

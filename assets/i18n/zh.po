@@ -11455,6 +11455,14 @@ msgstr "请尽量把书放在浅色、纯色的平面上。拍照后，可在确
 msgid "cover_scan_tips_dont_show_again"
 msgstr "不再显示此消息"
 
+#. Cover scan tips dialog, Android only: the scanner comes from Google Play services, downloaded on first use; the plain camera avoids it
+msgid "cover_scan_tips_google"
+msgstr "裁剪功能由 Google Play 服务提供，首次使用时会下载一个模块。"
+
+#. Cover scan tips dialog, Android only: button that takes the photo with the plain camera and switches automatic cover crop off
+msgid "cover_scan_use_plain_camera"
+msgstr "普通相机"
+
 #. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
 msgid "module_cover_auto_crop"
 msgstr "自动裁剪封面"

@@ -1,8 +1,9 @@
-import 'dart:io';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../utils/cover_camera_helper.dart';
 
@@ -11,6 +12,11 @@ import '../utils/cover_camera_helper.dart';
 /// switched off, or no system scanner on this platform).
 ///
 /// Returns false when the user cancelled, so the caller skips the capture.
+///
+/// On Android the scanner comes from Google Play services, which download it
+/// on first use. The tips say so and offer the plain camera instead, which
+/// switches auto crop off (as the settings toggle does) before anything is
+/// downloaded.
 Future<bool> showCoverScanTipsIfNeeded(BuildContext context) async {
   if (!await CoverCameraHelper.usesDocumentScanner()) return true;
 
@@ -22,12 +28,12 @@ Future<bool> showCoverScanTipsIfNeeded(BuildContext context) async {
 
   // The two system scanners differ: VisionKit opens the crop editor from
   // the thumbnail in the bottom-left corner, ML Kit from its preview screen.
-  final bodyKey = Platform.isIOS
-      ? 'cover_scan_tips_ios'
-      : 'cover_scan_tips_android';
+  final isIOS = defaultTargetPlatform == TargetPlatform.iOS;
+  final bodyKey = isIOS ? 'cover_scan_tips_ios' : 'cover_scan_tips_android';
+  final themeProvider = context.read<ThemeProvider>();
   bool dontShowAgain = false;
 
-  final proceed = await showDialog<bool>(
+  final choice = await showDialog<_TipsChoice>(
     context: context,
     builder: (context) {
       return StatefulBuilder(
@@ -43,6 +49,15 @@ Future<bool> showCoverScanTipsIfNeeded(BuildContext context) async {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(TranslationService.translate(context, bodyKey)),
+                if (!isIOS) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    TranslationService.translate(
+                      context,
+                      'cover_scan_tips_google',
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 8),
                 CheckboxListTile(
                   value: dontShowAgain,
@@ -61,11 +76,22 @@ Future<bool> showCoverScanTipsIfNeeded(BuildContext context) async {
             ),
             actions: [
               TextButton(
-                onPressed: () => Navigator.pop(context, false),
+                onPressed: () => Navigator.pop(context, _TipsChoice.cancel),
                 child: Text(TranslationService.translate(context, 'cancel')),
               ),
+              if (!isIOS)
+                TextButton(
+                  onPressed: () =>
+                      Navigator.pop(context, _TipsChoice.plainCamera),
+                  child: Text(
+                    TranslationService.translate(
+                      context,
+                      'cover_scan_use_plain_camera',
+                    ),
+                  ),
+                ),
               TextButton(
-                onPressed: () => Navigator.pop(context, true),
+                onPressed: () => Navigator.pop(context, _TipsChoice.scan),
                 child: Text(TranslationService.translate(context, 'continue')),
               ),
             ],
@@ -79,5 +105,10 @@ Future<bool> showCoverScanTipsIfNeeded(BuildContext context) async {
   if (dontShowAgain) {
     await prefs.setBool(CoverCameraHelper.scanTipsDismissedPrefKey, true);
   }
-  return proceed ?? false;
+  if (choice == _TipsChoice.plainCamera) {
+    await themeProvider.setCoverAutoCropEnabled(false);
+  }
+  return choice == _TipsChoice.scan || choice == _TipsChoice.plainCamera;
 }
+
+enum _TipsChoice { cancel, plainCamera, scan }

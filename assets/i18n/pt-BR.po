@@ -12294,6 +12294,14 @@ msgstr "Se possível, coloque o livro sobre uma superfície clara e lisa. Depois
 msgid "cover_scan_tips_dont_show_again"
 msgstr "Não mostrar esta mensagem novamente"
 
+#. Cover scan tips dialog, Android only: the scanner comes from Google Play services, downloaded on first use; the plain camera avoids it
+msgid "cover_scan_tips_google"
+msgstr "O recorte é fornecido pelo Google Play Services, que baixa um módulo no primeiro uso."
+
+#. Cover scan tips dialog, Android only: button that takes the photo with the plain camera and switches automatic cover crop off
+msgid "cover_scan_use_plain_camera"
+msgstr "Câmera comum"
+
 #. Modules > Advanced: toggle for the automatic crop of cover photos (document scanner)
 msgid "module_cover_auto_crop"
 msgstr "Recorte automático de capas"
