@@ -8586,7 +8586,7 @@ msgid "group_by_collections_title"
 msgstr "按合集分组"
 
 msgid "group_by_collections_desc"
-msgstr "在图书馆中按合集对图书进行分组显示"
+msgstr "在图书馆中按合集对图书进行分组显示。开启后将关闭“按阅读状态分组”。"
 
 #. Discover libraries (ADR-015)
 msgid "directory_title"
@@ -11433,7 +11433,7 @@ msgstr "按阅读状态分组"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "将主页的书籍分区显示：在读、想读、已读。"
+msgstr "将主页的书籍分区显示：在读、想读、已读。开启后将关闭“按合集分组”。"
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

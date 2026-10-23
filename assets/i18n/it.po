@@ -8627,7 +8627,7 @@ msgid "group_by_collections_title"
 msgstr "Raggruppa per collezione"
 
 msgid "group_by_collections_desc"
-msgstr "Mostra i libri raggruppati per collezione nella biblioteca"
+msgstr "Mostra i libri raggruppati per collezione nella biblioteca. Attivandola si disattiva «Raggruppa per stato di lettura»."
 
 msgid "directory_title"
 msgstr "Elenco Biblioteche"
@@ -12257,7 +12257,7 @@ msgstr "Raggruppa per stato di lettura"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Mostra i libri della pagina iniziale in sezioni: in lettura, da leggere, letto."
+msgstr "Mostra i libri della pagina iniziale in sezioni: in lettura, da leggere, letto. Attivandola si disattiva «Raggruppa per collezione»."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

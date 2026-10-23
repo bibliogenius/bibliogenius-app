@@ -8397,7 +8397,7 @@ msgid "group_by_collections_title"
 msgstr "Group by collection"
 
 msgid "group_by_collections_desc"
-msgstr "Show books grouped by their collection in the library"
+msgstr "Show books grouped by their collection in the library. Turning this on turns off “Group by reading status”."
 
 #. Discover libraries (ADR-015)
 msgid "directory_title"
@@ -12411,7 +12411,7 @@ msgstr "Group by reading status"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Shows the home page covers in sections: reading, to read, read."
+msgstr "Shows the home page covers in sections: reading, to read, read. Turning this on turns off “Group by collection”."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

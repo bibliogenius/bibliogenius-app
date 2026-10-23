@@ -8384,7 +8384,7 @@ msgid "group_by_collections_title"
 msgstr "Koleksiyona göre grupla"
 
 msgid "group_by_collections_desc"
-msgstr "Kitapları kütüphanede koleksiyonlarına göre gruplanmış göster"
+msgstr "Kitapları kütüphanede koleksiyonlarına göre gruplanmış göster. Açıldığında “Okuma durumuna göre grupla” kapanır."
 
 #. Discover libraries (ADR-015)
 msgid "directory_title"
@@ -12264,7 +12264,7 @@ msgstr "Okuma durumuna göre grupla"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Ana sayfadaki kitapları bölümler halinde gösterir: okunuyor, okunacak, okundu."
+msgstr "Ana sayfadaki kitapları bölümler halinde gösterir: okunuyor, okunacak, okundu. Açıldığında “Koleksiyona göre grupla” kapanır."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

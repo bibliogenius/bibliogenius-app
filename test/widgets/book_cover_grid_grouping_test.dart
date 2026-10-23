@@ -35,6 +35,46 @@ void main() {
     expect(groups.last.value.map((b) => b.id), ['c', 'e']);
   });
 
+  group('shouldGroupByReadingStatus', () {
+    bool group({
+      bool enabled = true,
+      bool inventoryStatuses = false,
+      bool selecting = false,
+      bool statusFiltered = false,
+      bool searching = false,
+      bool shelfFiltered = false,
+    }) => shouldGroupByReadingStatus(
+      enabled: enabled,
+      inventoryStatuses: inventoryStatuses,
+      selecting: selecting,
+      statusFiltered: statusFiltered,
+      searching: searching,
+      shelfFiltered: shelfFiltered,
+    );
+
+    test('groups while browsing the whole library', () {
+      expect(group(), isTrue);
+    });
+
+    test('never when the setting is off', () {
+      expect(group(enabled: false), isFalse);
+    });
+
+    test('never with inventory statuses, which replace the reading ones', () {
+      expect(group(inventoryStatuses: true), isFalse);
+    });
+
+    test('never in selection mode, where "select all" takes every book', () {
+      expect(group(selecting: true), isFalse);
+    });
+
+    test('never under a status filter, a search or a shelf', () {
+      expect(group(statusFiltered: true), isFalse);
+      expect(group(searching: true), isFalse);
+      expect(group(shelfFiltered: true), isFalse);
+    });
+  });
+
   test('empty sections are dropped', () {
     final groups = groupBooksByReadingStatus([book('a', 'read')]);
 
@@ -108,5 +148,65 @@ void main() {
 
     await tester.tap(find.text('books_group_see_all'));
     expect(seeAll, ['reading']);
+  });
+
+  testWidgets('the two-row cap follows the grid columns on a narrow phone', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    // A 360 dp phone: the grid is 328 px wide inside its padding, which fits
+    // 2 columns of 150 px covers, so two rows hold 4 books, not 6.
+    tester.view.physicalSize = const Size(360, 4000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ThemeProvider>.value(
+        value: ThemeProvider(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: BookCoverGrid(
+              books: [for (var i = 0; i < 12; i++) book('r$i', 'reading')],
+              onBookTap: (_) {},
+              groupByReadingStatus: true,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(BookCoverCard), findsNWidgets(4));
+  });
+
+  testWidgets('"See all" names its count when it opens more books', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({});
+    tester.view.physicalSize = const Size(800, 4000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ThemeProvider>.value(
+        value: ThemeProvider(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: BookCoverGrid(
+              books: [
+                for (var i = 0; i < 3; i++) book('d$i', 'read'),
+                for (var i = 0; i < 2; i++) book('r$i', 'reading'),
+              ],
+              onBookTap: (_) {},
+              groupByReadingStatus: true,
+              onSeeAllStatus: (_) {},
+              // The status filter adds 2 books read but not owned; the
+              // reading one opens exactly the section.
+              seeAllCount: (status) => status == 'read' ? 5 : 2,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('books_group_see_all (5)'), findsOneWidget);
+    expect(find.text('books_group_see_all'), findsOneWidget);
   });
 }

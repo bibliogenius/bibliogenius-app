@@ -2924,9 +2924,10 @@ class _BookListScreenState extends State<BookListScreen>
     final coverExtent = context.select<ThemeProvider, double>(
       (t) => t.homeCoverExtent,
     );
-    final groupByReadingStatus = context.select<ThemeProvider, bool>(
-      (t) => t.groupByReadingStatus,
-    );
+    final (groupByReadingStatus, inventoryStatuses) = context
+        .select<ThemeProvider, (bool, bool)>(
+          (t) => (t.groupByReadingStatus, t.inventoryStatusesEnabled),
+        );
 
     switch (_viewMode) {
       case ViewMode.coverGrid:
@@ -2944,18 +2945,24 @@ class _BookListScreenState extends State<BookListScreen>
             selectedIds: _selectedIds,
             onBookLongPress: _isReordering ? null : _enterSelection,
             maxCoverExtent: coverExtent,
-            // Sections only while browsing the whole library: under a
-            // status filter, a search or a tag, the truncated sections would
-            // hide results.
-            groupByReadingStatus:
-                groupByReadingStatus &&
-                _selectedStatus == null &&
-                _searchQuery.isEmpty &&
-                _tagFilter == null,
+            groupByReadingStatus: shouldGroupByReadingStatus(
+              enabled: groupByReadingStatus,
+              inventoryStatuses: inventoryStatuses,
+              selecting: _isSelecting,
+              statusFiltered: _selectedStatus != null,
+              searching: _searchQuery.isNotEmpty,
+              shelfFiltered: _tagFilter != null,
+            ),
             onSeeAllStatus: (status) => setState(() {
               _selectedStatus = status;
               _filterBooks();
             }),
+            seeAllCount: (status) => statusFilterCount(
+              _books,
+              status: status,
+              explicitOwnership: _selectedOwnership,
+              showBorrowed: _showBorrowedConfig,
+            ),
           ),
         );
       case ViewMode.spineShelf:

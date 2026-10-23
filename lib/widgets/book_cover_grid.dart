@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show SliverGridRegularTileLayout;
 import '../models/book.dart';
 import '../services/translation_service.dart';
+import '../utils/book_status.dart';
 import 'book_cover_card.dart';
 import 'selectable_book_tile.dart';
 
@@ -19,6 +21,26 @@ const List<String> coverGridStatusGroups = ['reading', 'to_read', 'read'];
 
 /// Rows shown per status section when grouped; "see all" opens the rest.
 const int coverGridRowsPerStatus = 2;
+
+/// Whether the covers grid splits into reading-status sections. Only while
+/// browsing the whole library: under a status filter, a search or a shelf
+/// the truncated sections would hide results, selection mode acts on the
+/// whole list ("select all"), and inventory statuses replace the reading
+/// ones, so every book would land in "other".
+bool shouldGroupByReadingStatus({
+  required bool enabled,
+  required bool inventoryStatuses,
+  required bool selecting,
+  required bool statusFiltered,
+  required bool searching,
+  required bool shelfFiltered,
+}) =>
+    enabled &&
+    !inventoryStatuses &&
+    !selecting &&
+    !statusFiltered &&
+    !searching &&
+    !shelfFiltered;
 
 /// Splits [books] into the reading-status sections, keeping their order and
 /// dropping the empty ones. The key is the status, null for the "other"
@@ -77,6 +99,12 @@ class BookCoverGrid extends StatelessWidget {
   /// filter on. Null hides the links.
   final void Function(String status)? onSeeAllStatus;
 
+  /// Number of books the "See all" link of a status section opens. The
+  /// status filter may reach books the section leaves out (read but not
+  /// owned), so the link names its own count when it differs from the
+  /// section's. Null shows the bare link.
+  final int Function(String status)? seeAllCount;
+
   const BookCoverGrid({
     super.key,
     required this.books,
@@ -90,6 +118,7 @@ class BookCoverGrid extends StatelessWidget {
     this.maxCoverExtent = 150,
     this.groupByReadingStatus = false,
     this.onSeeAllStatus,
+    this.seeAllCount,
   });
 
   @override
@@ -147,13 +176,12 @@ class BookCoverGrid extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverLayoutBuilder(
               builder: (context, constraints) {
-                // Same column count as the delegate computes, so the cap
-                // cuts exactly at the end of a row.
+                // The delegate's own column count, so the cap cuts exactly
+                // at the end of a row.
                 final columns =
-                    ((constraints.crossAxisExtent +
-                                gridDelegate.crossAxisSpacing) /
-                            (maxCoverExtent + gridDelegate.crossAxisSpacing))
-                        .ceil();
+                    (gridDelegate.getLayout(constraints)
+                            as SliverGridRegularTileLayout)
+                        .crossAxisCount;
                 final shown = group.key == null
                     ? group.value
                     : group.value
@@ -181,8 +209,13 @@ class BookCoverGrid extends StatelessWidget {
   ) {
     final title = TranslationService.translate(
       context,
-      status == null ? 'books_group_other' : 'reading_status_$status',
+      status == null ? 'books_group_other' : readingStatusLabelKey(status)!,
     );
+    final seeAll = TranslationService.translate(context, 'books_group_see_all');
+    final linkCount = status == null ? null : seeAllCount?.call(status);
+    final linkLabel = linkCount != null && linkCount != books.length
+        ? '$seeAll ($linkCount)'
+        : seeAll;
     return Row(
       children: [
         Expanded(
@@ -200,11 +233,10 @@ class BookCoverGrid extends StatelessWidget {
           TextButton(
             onPressed: () => onSeeAllStatus!(status),
             child: Text(
-              TranslationService.translate(context, 'books_group_see_all'),
+              linkLabel,
               // The visible label is short; a screen reader hears which
               // section it opens.
-              semanticsLabel:
-                  '${TranslationService.translate(context, 'books_group_see_all')}, $title',
+              semanticsLabel: '$linkLabel, $title',
             ),
           ),
       ],

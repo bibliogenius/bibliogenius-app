@@ -498,6 +498,13 @@ class ThemeProvider with ChangeNotifier {
     _showViewCount = prefs.getBool('showViewCount') ?? true;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;
     _groupByCollections = prefs.getBool('groupByCollections') ?? true;
+    // The two home groupings are exclusive. Grouping by collection is on by
+    // default, so when both are stored only the reading-status sections were
+    // a deliberate choice.
+    if (_groupByReadingStatus && _groupByCollections) {
+      _groupByCollections = false;
+      await prefs.setBool('groupByCollections', false);
+    }
     _quotesEnabled = prefs.getBool('quotesEnabled') ?? true;
 
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
@@ -1012,6 +1019,7 @@ class ThemeProvider with ChangeNotifier {
     _quotesEnabled = true;
     _collectionsEnabled = false;
     _groupByCollections = true;
+    _groupByReadingStatus = false;
     _gamesEnabled = true;
     _memoryGameEnabled = true;
     _slidingPuzzleEnabled = true;
@@ -1273,10 +1281,17 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Exclusive with [setGroupByCollections]: the reading-status sections
+  /// only exist in the plain covers grid, which a library grouped by
+  /// collection does not open on.
   Future<void> setGroupByReadingStatus(bool enabled) async {
     _groupByReadingStatus = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('groupByReadingStatus', enabled);
+    if (enabled && _groupByCollections) {
+      _groupByCollections = false;
+      await prefs.setBool('groupByCollections', false);
+    }
     notifyListeners();
   }
 
@@ -1417,10 +1432,15 @@ class ThemeProvider with ChangeNotifier {
   bool _groupByCollections = true;
   bool get groupByCollections => _groupByCollections;
 
+  /// Exclusive with [setGroupByReadingStatus], see there.
   Future<void> setGroupByCollections(bool enabled) async {
     _groupByCollections = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('groupByCollections', enabled);
+    if (enabled && _groupByReadingStatus) {
+      _groupByReadingStatus = false;
+      await prefs.setBool('groupByReadingStatus', false);
+    }
     notifyListeners();
   }
 

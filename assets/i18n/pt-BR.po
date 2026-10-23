@@ -9693,7 +9693,7 @@ msgid "group_by_collections_title"
 msgstr "Agrupar por coleção"
 
 msgid "group_by_collections_desc"
-msgstr "Mostra os livros agrupados por coleção na biblioteca"
+msgstr "Mostra os livros agrupados por coleção na biblioteca. Ao ativar, “Agrupar por status de leitura” é desativado."
 
 #. Discover libraries (ADR-015)
 msgid "directory_title"
@@ -12272,7 +12272,7 @@ msgstr "Agrupar por status de leitura"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Mostra os livros da página inicial em seções: lendo, para ler, lido."
+msgstr "Mostra os livros da página inicial em seções: lendo, para ler, lido. Ao ativar, “Agrupar por coleção” é desativado."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

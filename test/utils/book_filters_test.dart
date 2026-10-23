@@ -19,6 +19,58 @@ Book book({
 );
 
 void main() {
+  group('statusFilterCount', () {
+    // The home page's "See all" link opens the library under a status
+    // filter, so its count must come from the same rules as that list.
+    final books = [
+      book(owned: true, status: 'read'),
+      book(owned: true, status: 'read'),
+      book(owned: false, status: 'read'),
+      book(owned: true, status: 'reading'),
+    ];
+
+    test('the automatic scope counts the books read but not owned', () {
+      expect(statusFilterCount(books, status: 'read', showBorrowed: true), 3);
+    });
+
+    test('an explicit ownership choice wins over the automatic scope', () {
+      expect(
+        statusFilterCount(
+          books,
+          status: 'read',
+          explicitOwnership: OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        2,
+      );
+    });
+
+    test('a borrowed book follows the borrowed books setting', () {
+      final withBorrowed = [
+        ...books,
+        book(owned: false, status: 'read', isBorrowed: true),
+      ];
+      expect(
+        statusFilterCount(
+          withBorrowed,
+          status: 'read',
+          explicitOwnership: OwnershipScope.library,
+          showBorrowed: false,
+        ),
+        2,
+      );
+      expect(
+        statusFilterCount(
+          withBorrowed,
+          status: 'read',
+          explicitOwnership: OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        3,
+      );
+    });
+  });
+
   group('shelfBooksHiddenByOwnership', () {
     // The reported case: a curated list imported as a wishlist files ten
     // books on the "Dystopie" shelf, and the shelf renders empty. Nothing

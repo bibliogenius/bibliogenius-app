@@ -1031,8 +1031,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'carousel_own_lib_title',
                   'carousel_own_lib_desc',
                   'home_cover_size',
-                  'home_group_by_reading_status',
-                  'home_group_by_reading_status_desc',
+                  if (!themeProvider.inventoryStatusesEnabled) ...[
+                    'home_group_by_reading_status',
+                    'home_group_by_reading_status_desc',
+                  ],
                   if (showNavStyle) ...[
                     'nav_style_label',
                     'nav_style_side_menu',
@@ -4005,24 +4007,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           value: !themeProvider.carouselHiddenOwnLib,
           onChanged: (value) => themeProvider.setCarouselHiddenOwnLib(!value),
         ),
-        SwitchListTile(
-          contentPadding: EdgeInsets.zero,
-          secondary: const Icon(Icons.view_agenda_outlined),
-          title: Text(
-            TranslationService.translate(
-              context,
-              'home_group_by_reading_status',
+        // Inventory statuses replace the reading ones, which the sections
+        // are built on.
+        if (!themeProvider.inventoryStatusesEnabled)
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.view_agenda_outlined),
+            title: Text(
+              TranslationService.translate(
+                context,
+                'home_group_by_reading_status',
+              ),
             ),
-          ),
-          subtitle: Text(
-            TranslationService.translate(
-              context,
-              'home_group_by_reading_status_desc',
+            subtitle: Text(
+              TranslationService.translate(
+                context,
+                'home_group_by_reading_status_desc',
+              ),
             ),
+            value: themeProvider.groupByReadingStatus,
+            onChanged: themeProvider.setGroupByReadingStatus,
           ),
-          value: themeProvider.groupByReadingStatus,
-          onChanged: themeProvider.setGroupByReadingStatus,
-        ),
         const SizedBox(height: 8),
         Text(TranslationService.translate(context, 'home_cover_size')),
         const SizedBox(height: 8),

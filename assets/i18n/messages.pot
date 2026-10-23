@@ -12117,6 +12117,7 @@ msgstr ""
 
 #. Peer screen empty state: encrypted catalog that could not be opened or trusted (ADR-072)
 msgid "hub_catalog_invalid"
+msgstr ""
 
 #. Home page display section in Theme settings
 msgid "home_page_display"

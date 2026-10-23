@@ -66,6 +66,29 @@ bool matchesOwnershipFilter(
   }
 }
 
+/// Number of books the library list shows under the [status] filter, with
+/// the same ownership rules as that list (an explicit choice wins, otherwise
+/// a status filter reaches every ownership). The home page's "See all" link
+/// announces it, so the count it shows is the list it opens.
+int statusFilterCount(
+  Iterable<Book> books, {
+  required String status,
+  String? explicitOwnership,
+  required bool showBorrowed,
+}) {
+  final scope = resolveOwnershipScope(
+    explicit: explicitOwnership,
+    status: status,
+  );
+  return books
+      .where(
+        (b) =>
+            matchesOwnershipFilter(b, scope, showBorrowed: showBorrowed) &&
+            matchesStatusFilter(b, status),
+      )
+      .length;
+}
+
 /// Books a shelf holds that the current ownership scope is hiding.
 ///
 /// The library list applies the ownership axis BEFORE the shelf axis, so a

@@ -8390,7 +8390,7 @@ msgid "group_by_collections_title"
 msgstr "Групиране по колекция"
 
 msgid "group_by_collections_desc"
-msgstr "Показване на книгите в библиотеката, групирани по колекция"
+msgstr "Показване на книгите в библиотеката, групирани по колекция. При включване се изключва „Групиране по статус на четене“."
 
 #. Discover libraries (ADR-015)
 msgid "directory_title"
@@ -12264,7 +12264,7 @@ msgstr "Групиране по статус на четене"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Показва книгите на началната страница в раздели: чета, за четене, прочетени."
+msgstr "Показва книгите на началната страница в раздели: чета, за четене, прочетени. При включване се изключва „Групиране по колекция“."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

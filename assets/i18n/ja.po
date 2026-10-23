@@ -8586,7 +8586,7 @@ msgid "group_by_collections_title"
 msgstr "コレクションでグループ化"
 
 msgid "group_by_collections_desc"
-msgstr "ライブラリで本をコレクションごとにグループ化して表示します"
+msgstr "ライブラリで本をコレクションごとにグループ化して表示します。オンにすると「読書状況でグループ化」はオフになります。"
 
 #. Discover libraries (ADR-015)
 msgid "directory_title"
@@ -11433,7 +11433,7 @@ msgstr "読書状況でグループ化"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "ホーム画面の本を「読書中」「積読」「読了」のセクションに分けて表示します。"
+msgstr "ホーム画面の本を「読書中」「積読」「読了」のセクションに分けて表示します。オンにすると「コレクションでグループ化」はオフになります。"
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

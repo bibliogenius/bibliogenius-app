@@ -7108,7 +7108,7 @@ msgid "games_section"
 msgstr "Spiele"
 
 msgid "group_by_collections_desc"
-msgstr "Bücher in der Bibliothek nach Sammlung gruppiert anzeigen"
+msgstr "Bücher in der Bibliothek nach Sammlung gruppiert anzeigen. Beim Einschalten wird „Nach Lesestatus gruppieren“ ausgeschaltet."
 
 msgid "group_by_collections_title"
 msgstr "Nach Sammlung gruppieren"
@@ -12137,7 +12137,7 @@ msgstr "Nach Lesestatus gruppieren"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Zeigt die Bücher der Startseite in Abschnitten: aktuell, zu lesen, gelesen."
+msgstr "Zeigt die Bücher der Startseite in Abschnitten: aktuell, zu lesen, gelesen. Beim Einschalten wird „Nach Sammlung gruppieren“ ausgeschaltet."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"

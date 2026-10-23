@@ -7108,10 +7108,10 @@ msgid "games_section"
 msgstr "Juegos"
 
 msgid "group_by_collections_desc"
-msgstr "Mostrar los libros agrupados por coleccion en la biblioteca"
+msgstr "Mostrar los libros agrupados por colección en la biblioteca. Al activarla se desactiva «Agrupar por estado de lectura»."
 
 msgid "group_by_collections_title"
-msgstr "Agrupar por coleccion"
+msgstr "Agrupar por colección"
 
 msgid "help_cta_play_memory"
 msgstr "Jugar"
@@ -7928,7 +7928,7 @@ msgid "tooltip_toggle_password"
 msgstr "Mostrar u ocultar contrasena"
 
 msgid "view_mode_grouped_collections"
-msgstr "Agrupar por coleccion"
+msgstr "Agrupar por colección"
 
 #. Library view mode: cover grid
 msgid "view_mode_cover_grid"
@@ -12152,7 +12152,7 @@ msgstr "Agrupar por estado de lectura"
 
 #. Description of the group-by-reading-status toggle
 msgid "home_group_by_reading_status_desc"
-msgstr "Muestra los libros de la página de inicio por secciones: leyendo, por leer, leído."
+msgstr "Muestra los libros de la página de inicio por secciones: leyendo, por leer, leído. Al activarla se desactiva «Agrupar por colección»."
 
 #. Link beside a home page reading-status section title, opens the library filtered on that status
 msgid "books_group_see_all"
