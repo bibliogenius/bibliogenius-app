@@ -821,10 +821,15 @@ class BackupActions {
   }
 
   static Future<void> _confirmAndResetBooks(BuildContext context) async {
+    final warning = await otherDevicesWarning(
+      context.read<AccountSyncProvider>(),
+    );
+    if (!context.mounted) return;
+
     final confirmed = await _showConfirmationDialog(
       context,
       'Supprimer tous les livres ?',
-      'Cette action supprimera tous vos livres mais conservera vos étagères et paramètres. Cette action est irréversible.',
+      '${warning}Cette action supprimera tous vos livres mais conservera vos étagères et paramètres. Cette action est irréversible.',
     );
     if (confirmed == true && context.mounted) {
       await _performResetBooks(context);
@@ -836,11 +841,15 @@ class BackupActions {
   ) async {
     final themeProvider = context.read<ThemeProvider>();
     final collectionsEnabled = themeProvider.collectionsEnabled;
+    final warning = await otherDevicesWarning(
+      context.read<AccountSyncProvider>(),
+    );
+    if (!context.mounted) return;
 
     final confirmed = await _showConfirmationDialog(
       context,
       'Supprimer livres, étagères${collectionsEnabled ? ' et collections' : ''} ?',
-      'Cette action supprimera tous vos livres, étagères${collectionsEnabled ? ' et collections' : ''} mais conservera vos paramètres. Cette action est irréversible.',
+      '${warning}Cette action supprimera tous vos livres, étagères${collectionsEnabled ? ' et collections' : ''} mais conservera vos paramètres. Cette action est irréversible.',
     );
     if (confirmed == true && context.mounted) {
       await _performResetBooksShelvesCollections(context);
@@ -856,6 +865,44 @@ class BackupActions {
     );
     if (confirmed == true && context.mounted) {
       await _performFullReset(context);
+    }
+  }
+
+  /// Warning prefix for the partial resets, empty unless the account is
+  /// installed on other devices: their deletions replicate through account
+  /// sync like any other edit. When the device list cannot be fetched
+  /// (offline), a signed-in device warns anyway rather than stay silent.
+  @visibleForTesting
+  static Future<String> otherDevicesWarning(
+    AccountSyncProvider accountSync,
+  ) async {
+    const warning =
+        '⚠️ Attention, cette réinitialisation s\'appliquera sur tous les appareils.\n\n';
+    await accountSync.refreshStatus();
+    if (!accountSync.signedIn) return '';
+    await accountSync.refreshDevices();
+    if (accountSync.error != null) return warning;
+    return accountSync.devices.any((d) => !d.isSelf) ? warning : '';
+  }
+
+  /// Sign this device out of the account before a full reset, so the wipe
+  /// stays local: sign-out demotes the replicated tables, and their deletes no
+  /// longer produce tombstones for the other devices. Throws when it cannot be
+  /// sure, so the reset aborts instead of emptying every device.
+  @visibleForTesting
+  static Future<void> signOutBeforeFullReset(
+    AccountSyncProvider accountSync,
+  ) async {
+    await accountSync.refreshStatus();
+    if (accountSync.error != null) {
+      throw Exception('statut du compte illisible (${accountSync.error})');
+    }
+    if (!accountSync.signedIn) return;
+    await accountSync.logout();
+    if (accountSync.error != null || accountSync.signedIn) {
+      throw Exception(
+        'déconnexion du compte impossible (${accountSync.error})',
+      );
     }
   }
 
@@ -972,6 +1019,7 @@ class BackupActions {
   static Future<void> _performFullReset(BuildContext context) async {
     final apiService = context.read<ApiService>();
     final authService = context.read<AuthService>();
+    final accountSync = context.read<AccountSyncProvider>();
     final themeProvider = context.read<ThemeProvider>();
     final flashProvider = context.read<FlashMessageProvider>();
     final notificationProvider = context.read<NotificationProvider>();
@@ -981,6 +1029,7 @@ class BackupActions {
 
     _showLoading(context);
     try {
+      await signOutBeforeFullReset(accountSync);
       await apiService.resetApp();
       await authService.clearAll();
       await themeProvider.resetSetup();
