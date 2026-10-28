@@ -184,6 +184,54 @@ class SettingsData extends ChangeNotifier {
     }
   }
 
+  /// Connects the relay at [url], from the Connect button. Lives here and not
+  /// in the Network section so it completes (state, notification, published
+  /// credentials) even when the section is collapsed or hidden by a search
+  /// before the hub answers. Returns null on success, else the error to show.
+  Future<String?> connectRelay(
+    ApiService api,
+    HubDirectoryProvider hub,
+    String url,
+  ) async {
+    relayLoading = true;
+    _notify();
+    try {
+      final res = await api.setupRelay(relayUrl: url);
+      if (res.statusCode == 200 && res.data is Map) {
+        relayConnected = true;
+        relayMailboxUuid = res.data['mailbox_uuid'] as String?;
+        _notify();
+        // Publish new relay credentials to hub so peers can reach this mailbox.
+        await hub.ensureRelayPublished();
+        return null;
+      }
+      return (res.data?['error'] ?? 'Connection failed').toString();
+    } catch (e) {
+      return e.toString();
+    } finally {
+      relayLoading = false;
+      _notify();
+    }
+  }
+
+  /// Disconnects the relay, from the Disconnect button; see [connectRelay].
+  /// Returns null on success, else the error to show.
+  Future<String?> disconnectRelay(ApiService api) async {
+    relayLoading = true;
+    _notify();
+    try {
+      await api.disconnectRelay();
+      relayConnected = false;
+      relayMailboxUuid = null;
+      return null;
+    } catch (e) {
+      return e.toString();
+    } finally {
+      relayLoading = false;
+      _notify();
+    }
+  }
+
   @override
   void dispose() {
     _disposed = true;

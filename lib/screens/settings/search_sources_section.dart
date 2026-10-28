@@ -312,8 +312,11 @@ class _SearchSourcesSettingsSectionState
   }
 
   Future<void> _saveGoogleBooksApiKey() async {
-    final key = _data.apiKeyController.text.trim();
-    if (key == _data.googleBooksApiKey) return;
+    // Taken before the wait: a refresh or a search can drop this section
+    // during the save, and the page's data must still get the new key.
+    final data = _data;
+    final key = data.apiKeyController.text.trim();
+    if (key == data.googleBooksApiKey) return;
 
     try {
       final api = Provider.of<ApiService>(context, listen: false);
@@ -323,9 +326,9 @@ class _SearchSourcesSettingsSectionState
         },
       );
 
-      setState(() => _data.googleBooksApiKey = key);
-
+      data.googleBooksApiKey = key;
       if (mounted) {
+        setState(() {});
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(

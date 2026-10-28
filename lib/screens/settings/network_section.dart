@@ -530,24 +530,15 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
                               actionKey: 'confirm_remote_disconnect_action',
                               actionFallback: 'Disconnect',
                             );
-                            if (!confirmed) return;
-                            setState(() => _data.relayLoading = true);
-                            try {
-                              await api.disconnectRelay();
-                              if (!mounted) return;
-                              setState(() {
-                                _data.relayConnected = false;
-                                _data.relayMailboxUuid = null;
-                              });
-                            } catch (e) {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
+                            if (!confirmed || !context.mounted) return;
+                            // Taken before the wait: the section may be gone
+                            // by the time the hub answers.
+                            final messenger = ScaffoldMessenger.of(context);
+                            final error = await _data.disconnectRelay(api);
+                            if (error != null) {
+                              messenger.showSnackBar(
+                                SnackBar(content: Text(error)),
                               );
-                            } finally {
-                              if (mounted) {
-                                setState(() => _data.relayLoading = false);
-                              }
                             }
                           },
                     icon: _data.relayLoading
@@ -574,51 +565,23 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
                                 : _data.relayUrlController.text.trim();
                             if (url.isEmpty) return;
 
-                            setState(() => _data.relayLoading = true);
-                            try {
-                              final res = await api.setupRelay(relayUrl: url);
-                              if (!mounted) return;
-                              if (res.statusCode == 200 && res.data is Map) {
-                                setState(() {
-                                  _data.relayConnected = true;
-                                  _data.relayMailboxUuid =
-                                      res.data['mailbox_uuid'] as String?;
-                                });
-                                // Publish new relay credentials to hub
-                                // so peers can reach this mailbox.
-                                if (context.mounted) {
-                                  await context
-                                      .read<HubDirectoryProvider>()
-                                      .ensureRelayPublished();
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      TranslationService.translate(
-                                            context,
-                                            'relay_connected',
-                                          ) ??
-                                          'Connected',
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                final error =
-                                    res.data?['error'] ?? 'Connection failed';
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(error.toString())),
-                                );
-                              }
-                            } catch (e) {
-                              if (!mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
-                            } finally {
-                              if (mounted) {
-                                setState(() => _data.relayLoading = false);
-                              }
-                            }
+                            // Taken before the wait: the section may be gone
+                            // by the time the hub answers.
+                            final messenger = ScaffoldMessenger.of(context);
+                            final connected =
+                                TranslationService.translate(
+                                  context,
+                                  'relay_connected',
+                                ) ??
+                                'Connected';
+                            final error = await _data.connectRelay(
+                              api,
+                              context.read<HubDirectoryProvider>(),
+                              url,
+                            );
+                            messenger.showSnackBar(
+                              SnackBar(content: Text(error ?? connected)),
+                            );
                           },
                     icon: _data.relayLoading
                         ? const SizedBox(

@@ -9,6 +9,7 @@
 // - Each `/settings?focus=` deep link (dashboard tiles, help topics) opens the
 //   sheet it targets.
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -62,10 +63,49 @@ class _OfflineHubDirectoryProvider extends HubDirectoryProvider {
   Future<void> loadPendingRequests() async {}
 }
 
+/// The page loads in full, with no relay configured yet, and Connect waits
+/// on [setupReply] so a test can act while the hub has not answered.
+class _RelayApiService extends _OfflineApiService {
+  final setupReply = Completer<Response>();
+  int setupCalls = 0;
+
+  Response _empty(String path) => Response(
+    requestOptions: RequestOptions(path: path),
+    statusCode: 200,
+    data: <String, dynamic>{},
+  );
+
+  @override
+  Future<Response> getMe() async => _empty('/api/me');
+
+  @override
+  Future<Response> getUserStatus() async => _empty('/api/user/status');
+
+  // No relay yet. Throwing (not answering "none") also keeps the page from
+  // auto-connecting on load, which would use up [setupReply].
+  @override
+  Future<Response> getRelayConfig() async => throw StateError('no relay');
+
+  @override
+  Future<Response> setupRelay({required String relayUrl}) {
+    setupCalls++;
+    return setupReply.future;
+  }
+}
+
+class _RecordingHubDirectoryProvider extends _OfflineHubDirectoryProvider {
+  int relayPublished = 0;
+
+  @override
+  Future<void> ensureRelayPublished() async => relayPublished++;
+}
+
 /// Mounts the settings page at [location] and returns its theme provider.
 Future<ThemeProvider> _pumpSettings(
   WidgetTester tester, {
   String location = '/settings',
+  ApiService? api,
+  HubDirectoryProvider? hub,
 }) async {
   tester.view.physicalSize = const Size(800, 1600);
   tester.view.devicePixelRatio = 1.0;
@@ -96,10 +136,10 @@ Future<ThemeProvider> _pumpSettings(
     MultiProvider(
       providers: [
         ChangeNotifierProvider<ThemeProvider>.value(value: theme),
-        Provider<ApiService>.value(value: _OfflineApiService()),
+        Provider<ApiService>.value(value: api ?? _OfflineApiService()),
         Provider<AuthService>.value(value: MockAuthService()),
         ChangeNotifierProvider<HubDirectoryProvider>(
-          create: (_) => _OfflineHubDirectoryProvider(),
+          create: (_) => hub ?? _OfflineHubDirectoryProvider(),
         ),
         ChangeNotifierProvider<OwnershipPreferenceProvider>(
           create: (_) => OwnershipPreferenceProvider(),
@@ -251,6 +291,59 @@ void main() {
     expect(memoryGame, findsOneWidget);
     expect(springboard, findsNothing);
     expect(theme, findsNothing);
+  });
+
+  testWidgets('a relay connection completes with the Network section closed', (
+    tester,
+  ) async {
+    final api = _RelayApiService();
+    final hub = _RecordingHubDirectoryProvider();
+    await _pumpSettings(tester, api: api, hub: hub);
+
+    final network = find.text(_t(tester, 'settings_network_title'));
+    final details = find.text(_t(tester, 'settings_remote_reachable_details'));
+    Future<void> openRelayDetails() async {
+      await tester.ensureVisible(network);
+      await tester.tap(network);
+      await _settle(tester);
+      await tester.ensureVisible(details);
+      await tester.tap(details);
+      await _settle(tester);
+    }
+
+    await openRelayDetails();
+    final connect = find.text(_t(tester, 'relay_connect'));
+    await tester.ensureVisible(connect);
+    await tester.tap(connect);
+    await tester.pump();
+    expect(api.setupCalls, 1);
+
+    // Close Network before the hub answers.
+    await tester.ensureVisible(network);
+    await tester.tap(network);
+    await _settle(tester);
+    expect(connect, findsNothing);
+
+    api.setupReply.complete(
+      Response(
+        requestOptions: RequestOptions(path: '/api/relay/setup'),
+        statusCode: 200,
+        data: {'mailbox_uuid': '0123456789abcdef'},
+      ),
+    );
+    await _settle(tester);
+    expect(hub.relayPublished, 1);
+
+    await openRelayDetails();
+    expect(find.text(_t(tester, 'relay_disconnect')), findsOneWidget);
+    expect(find.text('Mailbox: 01234567...'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(OutlinedButton),
+        matching: find.byType(CircularProgressIndicator),
+      ),
+      findsNothing,
+    );
   });
 
   group('focus deep links', () {
