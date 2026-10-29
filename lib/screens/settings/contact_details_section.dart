@@ -4,6 +4,7 @@ import '../../widgets/contact_audience_fields.dart';
 import '../../widgets/contact_card_fields.dart';
 import '../../services/translation_service.dart';
 import 'settings_scope.dart';
+import 'settings_widgets.dart';
 
 /// My contact details: a library attribute, shown whatever the
 /// directory switch says. Paired libraries receive it through
@@ -22,33 +23,23 @@ class ContactDetailsSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        key: ValueKey('contact_details_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        leading: const Icon(Icons.contact_mail_outlined),
-        title: Semantics(
-          header: true,
+    return SettingsAccordion(
+      name: 'contact_details',
+      icon: Icons.contact_mail_outlined,
+      titleKey: 'my_contact_details_title',
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
           child: Text(
-            TranslationService.translate(context, 'my_contact_details_title'),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
-            child: Text(
-              TranslationService.translate(context, 'my_contact_details_intro'),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
+            TranslationService.translate(context, 'my_contact_details_intro'),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           ),
-          const ContactCardFields(showEncryptedNotice: false),
-          const ContactAudienceFields(),
-        ],
-      ),
+        ),
+        const ContactCardFields(showEncryptedNotice: false),
+        const ContactAudienceFields(),
+      ],
     );
   }
 }

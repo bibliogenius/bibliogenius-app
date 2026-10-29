@@ -3,329 +3,44 @@ import 'dart:io' as io;
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
-import 'dart:convert';
 
 import '../../widgets/contextual_help_sheet.dart';
-import '../../services/api_service.dart';
 import '../../services/translation_service.dart';
 import '../../utils/backup_actions.dart';
 import '../../widgets/auto_backup_status_card.dart';
 import '../../src/rust/api/frb.dart' as rust;
 import '../backup_restore_wizard_screen.dart';
 import 'settings_scope.dart';
+import 'settings_widgets.dart';
 
-/// Backup and recovery accordion: the encrypted account (backup,
-/// recovery after a loss, shared access) leads, followed by the
-/// local/offline actions. Merges the former "Backup and export"
-/// and "Account" accordions; the visibility keys are the union
-/// of both plus the former springboard account tile, so search
-/// still surfaces the section for every old query.
-class BackupSettingsSection extends StatefulWidget {
+/// Backup and export accordion: the local copies of the library, then, in a
+/// separate zone, what replaces it (restore, roll back). The encrypted
+/// account lives in "Account and devices".
+class BackupSettingsSection extends StatelessWidget {
   const BackupSettingsSection({super.key});
 
   @override
-  State<BackupSettingsSection> createState() => _BackupSettingsSectionState();
-}
-
-class _BackupSettingsSectionState extends State<BackupSettingsSection> {
-  SettingsData get _data => settingsDataOf(context);
-
-  @override
   Widget build(BuildContext context) {
-    final mfaEnabled = _data.userInfo?['mfa_enabled'] ?? false;
     if (!settingsMatches(context, [
       'backup_section_title',
       'backup_export_catalog_title',
       'backup_export_csv_title',
       'backup_full_title',
+      'backup_restore_full_title',
       'backup_restore_title',
-      'account_sync_title',
-      'account_sync_settings_subtitle',
-      'account_share_access_title',
-      'two_factor_auth',
-      'duplicates_title',
-      'duplicates_settings_subtitle',
     ])) {
       return const SizedBox.shrink();
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        key: ValueKey('backup_recovery_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        leading: const Icon(Icons.backup_outlined),
-        title: Semantics(
-          header: true,
-          child: Text(
-            TranslationService.translate(context, 'backup_section_title'),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-        ),
-        children: [
-          const AccountSyncTile(),
-          ListTile(
-            leading: const Icon(Icons.group_outlined),
-            title: Text(
-              TranslationService.translate(
-                context,
-                'account_share_access_title',
-              ),
-            ),
-            subtitle: Text(
-              TranslationService.translate(
-                context,
-                'account_share_access_desc',
-              ),
-            ),
-            trailing: const Icon(Icons.chevron_right),
-            // Same account screen, share-intent framing (title
-            // + caption acknowledge the tapped entry).
-            onTap: () => context.push('/account-sync?intent=share'),
-          ),
-          // Honest note on the shared-account trust model: every
-          // holder of the passphrase has full access, and durable
-          // revocation does not exist yet.
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              TranslationService.translate(
-                context,
-                'account_shared_trust_note',
-              ),
-              // Themed muted color: grey[600] fails the AA
-              // contrast ratio on dark-theme cards.
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          if (!Provider.of<ApiService>(context, listen: false).useFfi)
-            ListTile(
-              leading: const Icon(Icons.security),
-              title: Text(
-                TranslationService.translate(context, 'two_factor_auth') ??
-                    'Two-Factor Authentication',
-              ),
-              subtitle: Text(
-                mfaEnabled
-                    ? (TranslationService.translate(context, 'enabled') ??
-                          'Enabled')
-                    : (TranslationService.translate(context, 'disabled') ??
-                          'Disabled'),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const HelpAffordance(topicId: 'two_factor_auth_setting'),
-                  const SizedBox(width: 4),
-                  Semantics(
-                    // The tile's title sits outside the
-                    // switch's own node.
-                    label: TranslationService.translate(
-                      context,
-                      'two_factor_auth',
-                    ),
-                    child: Switch(
-                      value: mfaEnabled,
-                      onChanged: (val) {
-                        if (val) {
-                          _setupMfa();
-                        }
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ...offlineDividerWidgets(context),
-          ...backupActionTiles(context),
-          const DuplicateBooksTile(),
-        ],
-      ),
-    );
-  }
-
-  Future<void> _setupMfa() async {
-    final apiService = Provider.of<ApiService>(context, listen: false);
-
-    try {
-      final response = await apiService.setup2Fa();
-      final data = response.data;
-      final secret = data['secret'];
-      final qrCode = data['qr_code'];
-
-      if (!mounted) return;
-
-      final codeController = TextEditingController();
-      String? verifyError;
-
-      await showDialog(
-        context: context,
-        builder: (dialogContext) => StatefulBuilder(
-          builder: (context, setState) => AlertDialog(
-            title: Text(
-              TranslationService.translate(context, 'setup_2fa') ?? 'Setup 2FA',
-            ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    TranslationService.translate(context, 'scan_qr_code') ??
-                        'Scan this QR code with your authenticator app:',
-                  ),
-                  const SizedBox(height: 16),
-                  if (qrCode != null)
-                    // The secret is offered as selectable text below; the
-                    // QR itself has nothing to say to a screen reader.
-                    Image.memory(
-                      base64Decode(qrCode),
-                      height: 200,
-                      width: 200,
-                      excludeFromSemantics: true,
-                    ),
-                  const SizedBox(height: 16),
-                  SelectableText(
-                    '${TranslationService.translate(context, 'secret_key') ?? 'Secret Key'}: $secret',
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: codeController,
-                    decoration: InputDecoration(
-                      labelText:
-                          TranslationService.translate(
-                            context,
-                            'verification_code',
-                          ) ??
-                          'Verification Code',
-                      errorText: verifyError,
-                      border: const OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                  ),
-                ],
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(
-                  TranslationService.translate(context, 'cancel') ?? 'Cancel',
-                ),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  setState(() => verifyError = null);
-                  final code = codeController.text.trim();
-                  if (code.length != 6) {
-                    setState(
-                      () => verifyError =
-                          TranslationService.translate(
-                            context,
-                            'invalid_code',
-                          ) ??
-                          'Invalid code',
-                    );
-                    return;
-                  }
-
-                  try {
-                    await apiService.verify2Fa(secret, code);
-                    if (mounted) {
-                      Navigator.pop(context);
-                      _data.reload();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            TranslationService.translate(
-                                  context,
-                                  'mfa_enabled_success',
-                                ) ??
-                                'MFA Enabled Successfully',
-                          ),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    setState(
-                      () => verifyError =
-                          TranslationService.translate(
-                            context,
-                            'verification_failed',
-                          ) ??
-                          'Verification failed',
-                    );
-                  }
-                },
-                child: Text(
-                  TranslationService.translate(context, 'verify') ?? 'Verify',
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${TranslationService.translate(context, 'error_initializing_mfa') ?? 'Error initializing MFA'}: $e',
-            ),
-          ),
-        );
-      }
-    }
-  }
-}
-
-/// Tile pointing to the encrypted-account hub (backup + recovery + shared
-/// access). Reused by the "Backup and recovery" accordion (default: pushes
-/// the hub screen) and the backup capability sheet ([onTap] swaps the sheet
-/// content in place instead of stacking a full screen on the popin).
-class AccountSyncTile extends StatelessWidget {
-  const AccountSyncTile({super.key, this.onTap});
-
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.lock_outline),
-      title: Text(TranslationService.translate(context, 'account_sync_title')),
-      subtitle: Text(
-        TranslationService.translate(context, 'account_sync_settings_subtitle'),
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap ?? () => context.push('/account-sync'),
-    );
-  }
-}
-
-/// Tile pointing to the duplicate-book merge (ADR-070).
-///
-/// Below the no-account divider, deliberately. Duplicates are what a reader
-/// notices after two devices join one account, and the banner on the account
-/// screen is the entry point for that case; but the merge itself needs no
-/// account, and a library that got its duplicates from a restore rather than
-/// a sync would otherwise have no way in at all. Last in the section, after
-/// the backup it asks the reader to take first.
-class DuplicateBooksTile extends StatelessWidget {
-  const DuplicateBooksTile({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.copy_all_outlined),
-      title: Text(TranslationService.translate(context, 'duplicates_title')),
-      subtitle: Text(
-        TranslationService.translate(context, 'duplicates_settings_subtitle'),
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => context.push('/duplicate-books'),
+    return SettingsAccordion(
+      name: 'backup',
+      icon: Icons.backup_outlined,
+      titleKey: 'backup_section_title',
+      children: [
+        ...backupExportTiles(context),
+        const SettingsCarefulZoneHeader(),
+        ...backupRestoreTiles(context),
+        const SizedBox(height: 8),
+      ],
     );
   }
 }
@@ -354,10 +69,15 @@ List<Widget> offlineDividerWidgets(BuildContext context) {
   ];
 }
 
-/// Backup section content (status card + export/restore actions). Shared
-/// between the Backup accordion and the springboard "Sauvegarder ma
-/// bibliothèque" bottom sheet.
-List<Widget> backupActionTiles(BuildContext context) {
+/// Everything the springboard "Sauvegarder ma bibliothèque" bottom sheet
+/// offers: the copies, then the restores.
+List<Widget> backupActionTiles(BuildContext context) => [
+  ...backupExportTiles(context),
+  ...backupRestoreTiles(context),
+];
+
+/// Status card + the copies of the library (JSON, CSV, full backup).
+List<Widget> backupExportTiles(BuildContext context) {
   return [
     // Auto-backup status (ADR-037 §6) sits at the top so the green/amber/red
     // state is the first thing the user sees.
@@ -417,6 +137,12 @@ List<Widget> backupActionTiles(BuildContext context) {
       ),
       onTap: () => BackupActions.runFullBackup(context),
     ),
+  ];
+}
+
+/// What replaces the library: restoring a backup, rolling a restore back.
+List<Widget> backupRestoreTiles(BuildContext context) {
+  return [
     // Restauration .bgbackup (ADR-037 §5 reader).
     ListTile(
       leading: const Icon(Icons.shield, color: Colors.green),

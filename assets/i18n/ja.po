@@ -1144,9 +1144,9 @@ msgstr "連絡先を更新しました"
 msgid "contacts"
 msgstr "連絡先"
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
-msgstr "内容"
+msgstr "カタログ"
 
 #. Continue
 msgid "continue"
@@ -2597,7 +2597,7 @@ msgstr "「つながり」を開いて友達やライブラリを追加します
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "あなたのライブラリのデータはお使いのデバイスにローカルで保存されます。友達とつながると、あなたのカタログが相手に表示されます。特定の本を非公開にして、ネットワークから隠すこともできます。データのエクスポートやバックアップは、「設定 > バックアップと復元」からいつでも行えます。"
+msgstr "あなたのライブラリのデータはお使いのデバイスにローカルで保存されます。友達とつながると、あなたのカタログが相手に表示されます。特定の本を非公開にして、ネットワークから隠すこともできます。データのエクスポートやバックアップは、「設定 > バックアップとエクスポート」からいつでも行えます。"
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -2991,9 +2991,9 @@ msgstr "読書する言語"
 msgid "languages_reading_desc"
 msgstr "読む言語を選択してください"
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
-msgstr "言語と国"
+msgstr "言語と地域"
 
 #. Interface language
 msgid "languages_ui"
@@ -3529,9 +3529,9 @@ msgstr "今日の名言"
 msgid "module_quotes_desc"
 msgstr "ダッシュボードに心に響く名言を表示します。"
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
-msgstr "モジュール"
+msgstr "機能"
 
 #. Modules sub-group: advanced/expert features
 msgid "modules_group_advanced"
@@ -3541,9 +3541,9 @@ msgstr "詳細設定"
 msgid "modules_group_content"
 msgstr "コンテンツとライブラリ"
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
-msgstr "貸出とフォーマット"
+msgstr "貸出と借用"
 
 #. Modules sub-group: reading engagement, quotes, games
 msgid "modules_group_reading_fun"
@@ -5427,9 +5427,9 @@ msgstr "デフォルト（カラフル）"
 msgid "theme_minimal"
 msgstr "ミニマル（シンプル）"
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
-msgstr "テーマ"
+msgstr "表示"
 
 #. Title *
 msgid "title_label"
@@ -7139,9 +7139,9 @@ msgstr "インターネット接続がありません"
 msgid "search_actions_placeholder"
 msgstr "本や操作を検索..."
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
-msgstr "ネットワーク"
+msgstr "共有とネットワーク"
 
 #. How sharing works
 msgid "settings_sharing_modes_title"
@@ -7910,9 +7910,9 @@ msgstr "デバイスに保存"
 msgid "backup_export_share"
 msgstr "共有"
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
-msgstr "バックアップと復元"
+msgstr "バックアップとエクスポート"
 
 #. Settings - Backup and recovery: divider before the local/offline actions
 msgid "backup_offline_divider"
@@ -8359,7 +8359,7 @@ msgid "pairing_no_peers"
 msgstr "Wi-Fi ネットワーク上にデバイスが見つかりません"
 
 msgid "pairing_mdns_hint"
-msgstr "両方のデバイスが同じ Wi-Fi に接続され、ネットワーク検出が有効になっている必要があります（設定 > ネットワーク）"
+msgstr "両方のデバイスが同じ Wi-Fi に接続され、ネットワーク検出が有効になっている必要があります（設定 > 共有とネットワーク）"
 
 msgid "pairing_identity_note"
 msgstr "各デバイスは独自のアイデンティティを保持します。ペアリングすると本がデバイス間で同期されますが、ディレクトリではそれぞれが別々のライブラリとして扱われます。"
@@ -10413,7 +10413,7 @@ msgstr "ライブラリをバックアップ・書き出すには？"
 
 #. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
 msgid "help_desc_backup"
-msgstr "すべて「設定 > バックアップと復元」で行えます。\n\n「カタログをエクスポート」は、蔵書・著者・タグ・コレクション・連絡先を含む持ち運び可能なファイルを作ります。BiblioGenius で再度読み込めます。\n\n「CSV で書き出す（表計算）」は、1 冊 1 行の読みやすい一覧を作ります。表計算ソフトで開くためのもので、再読み込みはできません。\n\n「完全バックアップ」は、ライブラリ全体の暗号化アーカイブを作ります。この端末でも別の端末でも復元でき、パスフレーズまたは復元フレーズで保護します。保護対象の端末とは別の場所に保管してください。\n\n自動バックアップは毎日、この端末のみに暗号化スナップショットを作ります。ライブラリを他所へ移すものではありません。端末を変えるときは完全バックアップか暗号化アカウントを使ってください。"
+msgstr "すべて「設定 > バックアップとエクスポート」で行えます。\n\n「カタログをエクスポート」は、蔵書・著者・タグ・コレクション・連絡先を含む持ち運び可能なファイルを作ります。BiblioGenius で再度読み込めます。\n\n「CSV で書き出す（表計算）」は、1 冊 1 行の読みやすい一覧を作ります。表計算ソフトで開くためのもので、再読み込みはできません。\n\n「完全バックアップ」は、ライブラリ全体の暗号化アーカイブを作ります。この端末でも別の端末でも復元でき、パスフレーズまたは復元フレーズで保護します。保護対象の端末とは別の場所に保管してください。\n\n自動バックアップは毎日、この端末のみに暗号化スナップショットを作ります。ライブラリを他所へ移すものではありません。端末を変えるときは完全バックアップか暗号化アカウントを使ってください。"
 
 #. Backup and export CTA
 msgid "help_cta_open_backup"
@@ -10445,7 +10445,7 @@ msgstr "図書館ディレクトリは何のため？"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "ディレクトリには、公開を選んだ蔵書だけが並びます。「設定 > オンライン共有」で「他の図書館に自分の図書館を公開する」をオンにすると掲載されます。新しいフォロワーが共有中の本に触れる前に承認を必須にでき、都市名は共有を選んだ場合にのみ公開されます。\n\n「ネットワーク > さがす」では公開中の図書館を見て、気になる相手をフォローできます。カタログを見て貸出をお願いするにはこれで十分です。\n\nペアリングは別のしくみで、2 台の端末を直接つなぐ暗号化されたリンクです。端末ごとに設定します。\n\nサーバーが保持するもの：共有した本のコピー（タイトル、著者、ISBN）。端末の電源が切れていても連絡先が閲覧できるようにするためです。承認を必須にせずに図書館を公開している場合、このコピーはサーバーも誰でも読めます。そうでない場合は連絡先と承認済みフォロワーだけのために暗号化され、全員が新しめのアプリを使っている限りサーバーは読めません。表紙の写真はどちらの場合もサーバーから読める状態のままです。"
+msgstr "ディレクトリには、公開を選んだ蔵書だけが並びます。「設定 > 共有とネットワーク」で「他の図書館に自分の図書館を公開する」をオンにすると掲載されます。新しいフォロワーが共有中の本に触れる前に承認を必須にでき、都市名は共有を選んだ場合にのみ公開されます。\n\n「ネットワーク > さがす」では公開中の図書館を見て、気になる相手をフォローできます。カタログを見て貸出をお願いするにはこれで十分です。\n\nペアリングは別のしくみで、2 台の端末を直接つなぐ暗号化されたリンクです。端末ごとに設定します。\n\nサーバーが保持するもの：共有した本のコピー（タイトル、著者、ISBN）。端末の電源が切れていても連絡先が閲覧できるようにするためです。承認を必須にせずに図書館を公開している場合、このコピーはサーバーも誰でも読めます。そうでない場合は連絡先と承認済みフォロワーだけのために暗号化され、全員が新しめのアプリを使っている限りサーバーは読めません。表紙の写真はどちらの場合もサーバーから読める状態のままです。"
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
@@ -10900,7 +10900,7 @@ msgstr "他の人はどうやって連絡できますか？"
 
 #. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
 msgid "help_desc_contact_card"
-msgstr "カタログを共有しただけでは貸し借りの約束はできません。連絡先カード（メール、電話、補足）は「設定 > オンライン共有」で入力します。\n\nディレクトリには公開されません。承認したライブラリにだけ、暗号化して届けられます。一度送ると取り消せません。\n\n他のライブラリの本では「連絡する」から、メール・SMS・WhatsApp で下書き済みのメッセージを開けます。"
+msgstr "カタログを共有しただけでは貸し借りの約束はできません。連絡先カード（メール、電話、補足）は「設定 > 連絡先」で入力します。\n\nディレクトリには公開されません。承認したライブラリにだけ、暗号化して届けられます。一度送ると取り消せません。\n\n他のライブラリの本では「連絡する」から、メール・SMS・WhatsApp で下書き済みのメッセージを開けます。"
 
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
@@ -12458,3 +12458,34 @@ msgstr "このファイルには著者の列もありません。本は著者な
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "著者なしでインポート"
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr "マイライブラリ"
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr "共有"
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr "アプリ"
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr "アカウントとデータ"
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr "本を探す"
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr "アカウントとデバイス"
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr "注意して操作してください"
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
+msgstr "試験運用：棚の中に棚を作成します。"

@@ -1144,9 +1144,9 @@ msgstr "联系人更新成功"
 msgid "contacts"
 msgstr "联系人"
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
-msgstr "内容"
+msgstr "目录"
 
 #. Continue
 msgid "continue"
@@ -2597,7 +2597,7 @@ msgstr "前往“网络”以添加好友或图书馆。您可以添加借阅人
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "您的图书馆数据存储在本地设备上。当您与好友连接时，您的目录对他们可见。您可以把特定图书标记为私密，使其在网络中隐藏。您可以随时在“设置 > 备份与恢复”中导出数据或创建备份。"
+msgstr "您的图书馆数据存储在本地设备上。当您与好友连接时，您的目录对他们可见。您可以把特定图书标记为私密，使其在网络中隐藏。您可以随时在“设置 > 备份与导出”中导出数据或创建备份。"
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -2991,9 +2991,9 @@ msgstr "我的阅读语言"
 msgid "languages_reading_desc"
 msgstr "选择您阅读时使用的语言"
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
-msgstr "语言和国家/地区"
+msgstr "语言和地区"
 
 #. Interface language
 msgid "languages_ui"
@@ -3529,9 +3529,9 @@ msgstr "每日名言"
 msgid "module_quotes_desc"
 msgstr "在仪表盘上显示一句励志名言。"
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
-msgstr "模块"
+msgstr "功能"
 
 #. Modules sub-group: advanced/expert features
 msgid "modules_group_advanced"
@@ -3541,9 +3541,9 @@ msgstr "高级"
 msgid "modules_group_content"
 msgstr "内容与图书馆"
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
-msgstr "借阅与格式"
+msgstr "借出与借入"
 
 #. Modules sub-group: reading engagement, quotes, games
 msgid "modules_group_reading_fun"
@@ -5427,9 +5427,9 @@ msgstr "默认（多彩）"
 msgid "theme_minimal"
 msgstr "极简（简洁）"
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
-msgstr "主题"
+msgstr "显示"
 
 #. Title *
 msgid "title_label"
@@ -7139,9 +7139,9 @@ msgstr "无互联网连接"
 msgid "search_actions_placeholder"
 msgstr "搜索图书或操作…"
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
-msgstr "网络"
+msgstr "共享与网络"
 
 #. How sharing works
 msgid "settings_sharing_modes_title"
@@ -7910,9 +7910,9 @@ msgstr "保存到设备"
 msgid "backup_export_share"
 msgstr "分享"
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
-msgstr "备份与恢复"
+msgstr "备份与导出"
 
 #. Settings - Backup and recovery: divider before the local/offline actions
 msgid "backup_offline_divider"
@@ -8359,7 +8359,7 @@ msgid "pairing_no_peers"
 msgstr "在 Wi-Fi 网络中未发现任何设备"
 
 msgid "pairing_mdns_hint"
-msgstr "两台设备必须连接到同一 Wi-Fi，并已启用网络发现（设置 > 网络）"
+msgstr "两台设备必须连接到同一 Wi-Fi，并已启用网络发现（设置 > 共享与网络）"
 
 msgid "pairing_identity_note"
 msgstr "每台设备都保留各自的身份。配对会在您的设备之间同步图书，但在名录中，每台设备仍是一个独立的图书馆。"
@@ -10413,7 +10413,7 @@ msgstr "如何备份和导出我的书库？"
 
 #. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
 msgid "help_desc_backup"
-msgstr "所有操作都在“设置 > 备份与恢复”中。\n\n“导出我的目录”会生成一个可移植文件，包含你的图书、作者、标签、收藏集和联系人，BiblioGenius 可以重新导入。\n\n“导出为 CSV（电子表格）”会生成一份每本书一行的可读清单，用于在电子表格中打开。该文件无法重新导入。\n\n“完整备份”会生成整个书库的加密归档，可在本机或另一台设备上恢复。请用密码短语或恢复短语保护它，并保存在被保护设备以外的地方。\n\n自动备份每天在本设备上生成一份加密快照，仅限本设备。它不会把书库搬到别处：更换设备请使用完整备份或加密账号。"
+msgstr "所有操作都在“设置 > 备份与导出”中。\n\n“导出我的目录”会生成一个可移植文件，包含你的图书、作者、标签、收藏集和联系人，BiblioGenius 可以重新导入。\n\n“导出为 CSV（电子表格）”会生成一份每本书一行的可读清单，用于在电子表格中打开。该文件无法重新导入。\n\n“完整备份”会生成整个书库的加密归档，可在本机或另一台设备上恢复。请用密码短语或恢复短语保护它，并保存在被保护设备以外的地方。\n\n自动备份每天在本设备上生成一份加密快照，仅限本设备。它不会把书库搬到别处：更换设备请使用完整备份或加密账号。"
 
 #. Backup and export CTA
 msgid "help_cta_open_backup"
@@ -10445,7 +10445,7 @@ msgstr "书库目录有什么用？"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "目录中只有选择公开的书库。在“设置 > 在线共享”中打开“让其他书库看到我的书库”，即可出现在目录里。你可以要求先经你批准，新的关注者才能访问你共享的书，城市也只有在你选择共享时才会公开。\n\n在“网络 > 探索”中浏览已公开的书库并关注感兴趣的对象：足以查看目录并请求借阅。\n\n配对是另一回事：两台设备之间直接的加密连接，需要逐台设备建立。\n\n服务器保存的内容：你共享书籍的一份副本（书名、作者、ISBN），以便你的联系人在你的设备关机时也能查看。如果你的书库在不要求批准的情况下可见，这份副本可被服务器和任何人读取。否则，它仅为你的联系人和已批准的关注者加密，只要他们都使用较新版本的应用，服务器就无法读取。无论哪种情况，你的封面照片都仍可被服务器读取。"
+msgstr "目录中只有选择公开的书库。在“设置 > 共享与网络”中打开“让其他书库看到我的书库”，即可出现在目录里。你可以要求先经你批准，新的关注者才能访问你共享的书，城市也只有在你选择共享时才会公开。\n\n在“网络 > 探索”中浏览已公开的书库并关注感兴趣的对象：足以查看目录并请求借阅。\n\n配对是另一回事：两台设备之间直接的加密连接，需要逐台设备建立。\n\n服务器保存的内容：你共享书籍的一份副本（书名、作者、ISBN），以便你的联系人在你的设备关机时也能查看。如果你的书库在不要求批准的情况下可见，这份副本可被服务器和任何人读取。否则，它仅为你的联系人和已批准的关注者加密，只要他们都使用较新版本的应用，服务器就无法读取。无论哪种情况，你的封面照片都仍可被服务器读取。"
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
@@ -10900,7 +10900,7 @@ msgstr "别人怎样才能联系到我？"
 
 #. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
 msgid "help_desc_contact_card"
-msgstr "仅仅共享目录不足以约定借阅。你的联系卡片（邮箱、电话、补充说明）在「设置 > 在线共享」中填写。\n\n它不会发布到目录中：只会加密送达你已接受的书库。一旦送出便无法收回。\n\n在别的书库的书上，「联系」会打开一封已经写好的消息，可通过邮件、短信或 WhatsApp 发送。"
+msgstr "仅仅共享目录不足以约定借阅。你的联系卡片（邮箱、电话、补充说明）在「设置 > 我的联系方式」中填写。\n\n它不会发布到目录中：只会加密送达你已接受的书库。一旦送出便无法收回。\n\n在别的书库的书上，「联系」会打开一封已经写好的消息，可通过邮件、短信或 WhatsApp 发送。"
 
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
@@ -12458,3 +12458,34 @@ msgstr "该文件也没有作者列：这些图书导入后同样没有作者。
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "不带作者导入"
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr "我的书库"
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr "共享"
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr "应用"
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr "账户与数据"
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr "查找图书"
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr "账户与设备"
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr "请谨慎操作"
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
+msgstr "实验功能：书架中的书架。"

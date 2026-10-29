@@ -1310,7 +1310,7 @@ msgstr ""
 msgid "contacts"
 msgstr ""
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
 msgstr ""
 
@@ -3324,7 +3324,7 @@ msgstr ""
 msgid "languages_reading_desc"
 msgstr ""
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
 msgstr ""
 
@@ -3869,7 +3869,7 @@ msgstr ""
 msgid "module_quotes_desc"
 msgstr ""
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
 msgstr ""
 
@@ -5491,7 +5491,7 @@ msgstr ""
 msgid "settings_saved"
 msgstr ""
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
 msgstr ""
 
@@ -6378,7 +6378,7 @@ msgstr ""
 msgid "theme_minimal"
 msgstr ""
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
 msgstr ""
 
@@ -9566,7 +9566,7 @@ msgstr ""
 msgid "modules_group_content"
 msgstr ""
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
 msgstr ""
 
@@ -9732,7 +9732,7 @@ msgstr ""
 msgid "memory_game_best_label"
 msgstr ""
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
 msgstr ""
 
@@ -12388,4 +12388,34 @@ msgstr ""
 
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr ""
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr ""
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr ""
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr ""
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr ""
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr ""
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr ""
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
 msgstr ""

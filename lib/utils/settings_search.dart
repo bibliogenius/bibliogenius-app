@@ -15,29 +15,48 @@ const Map<String, String> settingsSearchSynonyms = {
       'appairage pairing jumeler jumelage code synchro synchronisation '
       'synchroniser multi appareil multi device tablette mobile bureau '
       'desktop wifi lan',
-  // Merged "Backup and recovery" section: local backup terms + the former
-  // "Account" accordion terms (the two sections were merged) + the
-  // encrypted-account / recovery / shared-access vocabulary.
+  // "Account and devices": the encrypted account, recovery after a loss,
+  // shared access and the session.
+  'settings_account_devices_title':
+      'compte account chiffre chiffrement encrypted recuperation recovery '
+      'partage partager acces access securite security mot de passe '
+      'password mfa 2fa session connexion deconnexion login logout '
+      'appareil appareils device devices synchro sync',
   'backup_section_title':
       'sauvegarde sauvegarder backup restaurer restauration restore export '
-      'archive copie compte account chiffre chiffrement encrypted '
-      'recuperation recovery partage partager acces access securite security '
-      'mot de passe password mfa 2fa session connexion deconnexion login '
-      'logout csv tableur tableau excel spreadsheet listing liste inventaire '
-      'inventory assurance',
-  'theme_title':
-      'theme apparence couleur dark mode sombre clair police texte taille '
-      'font lisibilite accueil home vignette vignettes couverture couvertures '
-      'cover covers grille grid bandeau activite activity grouper group '
-      'etat status lecture reading lu read',
-  'settings_network_title':
-      'reseau network wifi lan connexion pair peer relais relay annuaire '
-      'directory portee reachability',
-  'modules':
-      'modules fonctionnalites features citations quotes jeux games '
-      'gamification mcp audio collections commerce',
+      'archive copie csv tableur tableau excel spreadsheet listing liste '
+      'inventaire inventory assurance',
+  'content':
+      'catalogue catalog import importer csv xlsx excel tableur fichier file '
+      'etagere etageres shelf shelves doublon doublons duplicate duplicates '
+      'fusionner merge format formats numerique ebook epub pdf couverture '
+      'cover photo recadrage crop',
+  'modules_group_lending':
+      'pret prets preter emprunt emprunts emprunter loan loans lend lending '
+      'borrow borrowing duree duration rappel reminder approbation approve '
+      'prive private',
   'search_sources':
       'sources recherche search isbn google books bnf babelio scan',
+  'settings_bookshops_title':
+      'librairie librairies bookshop bookshops mediatheque bibliotheque '
+      'library libraries acheter buy',
+  'theme_title':
+      'theme apparence affichage display couleur dark mode sombre clair '
+      'police texte taille font lisibilite navigation menu accueil home '
+      'vignette vignettes couverture couvertures cover covers grille grid '
+      'bandeau activite activity grouper group etat status lecture reading '
+      'lu read collection collections possede owned',
+  'settings_network_title':
+      'reseau network partage partager sharing share wifi lan connexion pair '
+      'peer relais relay annuaire directory public portee reachability',
+  'modules':
+      'modules fonctionnalites features citations quotes jeux games '
+      'gamification audio collections commerce dictee voix voice '
+      'preconfiguration preset',
+  'settings_notifications': 'notification notifications alerte alertes alert',
+  'modules_group_advanced':
+      'avance advanced mcp ia ai assistant claude journal log operations '
+      'developpeur developer experimental version reinitialiser reset',
 };
 
 /// Whether a setting identified by [key] matches the [query], considering both

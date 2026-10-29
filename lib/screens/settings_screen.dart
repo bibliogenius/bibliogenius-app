@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
@@ -12,20 +10,22 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../providers/theme_provider.dart';
 import '../providers/hub_directory_provider.dart';
-import '../services/auth_service.dart';
 import '../theme/app_design.dart';
-import '../utils/backup_actions.dart';
 import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/goal_tile.dart';
+import 'settings/account_section.dart';
+import 'settings/advanced_section.dart';
 import 'settings/backup_section.dart';
-import 'settings/bookshops_section.dart';
+import 'settings/catalogue_section.dart';
 import 'settings/contact_details_section.dart';
-import 'settings/content_section.dart';
+import 'settings/find_books_section.dart';
 import 'settings/languages_section.dart';
+import 'settings/loans_section.dart';
 import 'settings/modules_section.dart';
 import 'settings/network_section.dart';
-import 'settings/search_sources_section.dart';
+import 'settings/notifications_section.dart';
 import 'settings/settings_scope.dart';
+import 'settings/settings_widgets.dart';
 import 'settings/theme_section.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -44,7 +44,6 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   // What the sections share, loaded once on open (see SettingsData).
   final _data = SettingsData();
-  String _appVersion = '';
   // Settings search
   String _settingsSearch = '';
   final _settingsSearchController = TextEditingController();
@@ -54,7 +53,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _data.addListener(_onDataChanged);
     _fetchSettings();
-    _initPackageInfo();
     // Load hub directory config + preferences (non-blocking)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final hubProvider = context.read<HubDirectoryProvider>();
@@ -112,19 +110,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           titleKey: 'settings_goal_language',
           content: [const ReadingLanguagesField()],
         );
-    }
-  }
-
-  Future<void> _initPackageInfo() async {
-    try {
-      final info = await PackageInfo.fromPlatform();
-      if (mounted) {
-        setState(() {
-          _appVersion = '${info.version} (${info.buildNumber})';
-        });
-      }
-    } catch (e) {
-      debugPrint('Error getting package info: $e');
     }
   }
 
@@ -273,11 +258,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  /// Goal-oriented shortcuts shown above the presets when the search box is
-  /// empty. Each tile is phrased as something the user wants to DO (not a
-  /// subsystem name), making capabilities discoverable without spelunking the
-  /// accordions. Tiles either push a dedicated screen or open a focused bottom
-  /// sheet with the relevant capability.
+  /// Goal-oriented shortcuts (four at most) shown above the sections when the
+  /// search box is empty. Each tile is phrased as something the user wants to
+  /// DO (not a subsystem name), making capabilities discoverable without
+  /// spelunking the accordions. Each opens a focused bottom sheet with the
+  /// relevant capability, built from the widgets of its section.
   Widget _buildSpringboard(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,9 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         const SizedBox(height: 12),
         // State-aware tiles: once a capability is enabled its tile flips to a
-        // "manage" variant (with a check badge) instead of disappearing. The
-        // city tile only appears once the library is listed publicly, since
-        // sharing a city is meaningless without a public profile.
+        // "manage" variant (with a check badge) instead of disappearing.
         Consumer2<HubDirectoryProvider, ThemeProvider>(
           builder: (context, hub, theme, _) {
             final tiles = <Widget>[
@@ -340,63 +323,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // does not cover (multi-device reading). Opens a state-aware
               // summary sheet like the other goal tiles; the dedicated hub
               // screen stays the single management surface behind it.
-              if (settingsMatches(context, [
-                'settings_goal_sync_devices',
-                'account_sync_title',
-                'account_sync_settings_subtitle',
-              ]))
-                _buildGoalTile(
-                  context,
-                  icon: Icons.devices,
-                  labelKey: 'settings_goal_sync_devices',
-                  onTap: () => showAccountSyncSummarySheet(context),
-                ),
-              // Invitation to discover multi-language reading. Once the user
-              // has more than one reading language the capability is discovered;
-              // further tweaks live in Settings > Languages.
-              if (theme.userLanguages.length <= 1)
-                _buildGoalTile(
-                  context,
-                  icon: Icons.translate,
-                  labelKey: 'settings_goal_language',
-                  onTap: () => _showCapabilitySheet(
-                    context,
-                    icon: Icons.translate,
-                    titleKey: 'settings_goal_language',
-                    content: [const ReadingLanguagesField()],
-                  ),
-                ),
-              // Country first: the city picker resolves its list from the
-              // user's country file, so there is nothing to pick without one.
-              if (hub.isListed && theme.country.isEmpty)
-                _buildGoalTile(
-                  context,
-                  icon: Icons.flag_outlined,
-                  labelKey: 'settings_goal_set_country',
-                  onTap: () => _showCapabilitySheet(
-                    context,
-                    icon: Icons.flag_outlined,
-                    titleKey: 'settings_goal_set_country',
-                    content: [const CountryPickerField()],
-                  ),
-                ),
-              // Then the city itself. Not gated on being listed: the city is
-              // a local preference, and inviting only public profiles to fill
-              // it in is what made it look like a directory feature. The tile
-              // drops off once a city is set: a one-off setup, manageable
-              // later from Settings > Languages.
-              if (theme.country.isNotEmpty && hub.localCityId == null)
-                _buildGoalTile(
-                  context,
-                  icon: Icons.location_city_outlined,
-                  labelKey: 'settings_goal_set_city',
-                  onTap: () => _showCapabilitySheet(
-                    context,
-                    icon: Icons.location_city_outlined,
-                    titleKey: 'settings_goal_set_city',
-                    content: [const CitySettings()],
-                  ),
-                ),
+              _buildGoalTile(
+                context,
+                icon: Icons.devices,
+                labelKey: 'settings_goal_sync_devices',
+                onTap: () => showAccountSyncSummarySheet(context),
+              ),
             ];
             return _buildTileGrid(tiles);
           },
@@ -462,9 +394,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSettingsContent(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-    final hasPassword = _data.userInfo?['has_password'] ?? false;
-
     return RefreshIndicator(
       onRefresh: _fetchSettings,
       child: SingleChildScrollView(
@@ -522,186 +451,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Common-search shortcuts (hidden during search)
                 if (!_isSearching) _buildSpringboard(context),
 
-                // Quick Presets Section (hidden during search)
-                if (!_isSearching) ...[
-                  Text(
-                    TranslationService.translate(context, 'quick_presets') ??
-                        'Quick Presets',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    TranslationService.translate(
-                          context,
-                          'quick_presets_desc',
-                        ) ??
-                        'Apply a configuration adapted to your usage:',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildPresetButton(
-                          context,
-                          'reader',
-                          TranslationService.translate(
-                                context,
-                                'preset_reader',
-                              ) ??
-                              'Reader',
-                          Icons.menu_book,
-                          Colors.teal,
-                          themeProvider,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildPresetButton(
-                          context,
-                          'librarian',
-                          TranslationService.translate(
-                                context,
-                                'preset_librarian',
-                              ) ??
-                              'Librarian',
-                          Icons.local_library,
-                          Colors.indigo,
-                          themeProvider,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _buildPresetButton(
-                          context,
-                          'bookseller',
-                          TranslationService.translate(
-                                context,
-                                'preset_bookseller',
-                              ) ??
-                              'Bookseller',
-                          Icons.storefront,
-                          Colors.orange,
-                          themeProvider,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                ],
+                // Each section is keyed: the springboard and the group headers
+                // leave the column while searching, and the sections must keep
+                // their state (loan settings, peer cover cache size) across
+                // that shift. The headers go because a search stacks the
+                // matching sections, whatever their group.
+                if (!_isSearching)
+                  const SettingsGroupHeader('settings_group_library'),
+                const CatalogueSettingsSection(
+                  key: ValueKey('catalogue_section'),
+                ),
+                const LoansSettingsSection(key: ValueKey('loans_section')),
+                const FindBooksSettingsSection(
+                  key: ValueKey('find_books_section'),
+                ),
 
-                // Each section is keyed: the springboard and the presets leave the
-                // column while searching, and the sections must keep their state
-                // (loan settings, peer cover cache size) across that shift.
+                if (!_isSearching)
+                  const SettingsGroupHeader('settings_group_sharing'),
+                const NetworkSettingsSection(key: ValueKey('network_section')),
                 const ContactDetailsSettingsSection(
                   key: ValueKey('contact_details_section'),
                 ),
 
-                const ContentSettingsSection(key: ValueKey('content_section')),
-
-                const BackupSettingsSection(key: ValueKey('backup_section')),
+                if (!_isSearching)
+                  const SettingsGroupHeader('settings_group_app'),
                 const ThemeSettingsSection(key: ValueKey('theme_section')),
-
                 const LanguagesSettingsSection(
                   key: ValueKey('languages_section'),
                 ),
-
                 const ModulesSettingsSection(key: ValueKey('modules_section')),
-
-                const NetworkSettingsSection(key: ValueKey('network_section')),
-
-                // (Multi-device account sync moved to the "Que voulez-vous faire ?"
-                // springboard tile above so it is reachable without scrolling.)
-                const SearchSourcesSettingsSection(
-                  key: ValueKey('search_sources_section'),
+                const NotificationsSettingsSection(
+                  key: ValueKey('notifications_section'),
                 ),
 
-                const BookshopsSettingsSection(
-                  key: ValueKey('bookshops_section'),
+                if (!_isSearching)
+                  const SettingsGroupHeader('settings_group_account'),
+                const AccountSettingsSection(key: ValueKey('account_section')),
+                const BackupSettingsSection(key: ValueKey('backup_section')),
+                const AdvancedSettingsSection(
+                  key: ValueKey('advanced_section'),
                 ),
-
-                const SizedBox(height: 24),
-
-                // Session / Logout (only shown for authenticated users)
-                if (hasPassword)
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      final authService = Provider.of<AuthService>(
-                        context,
-                        listen: false,
-                      );
-                      await Future.delayed(const Duration(milliseconds: 200));
-                      await authService.logout();
-                      if (mounted) {
-                        context.go('/login');
-                      }
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: Text(
-                      TranslationService.translate(context, 'logout'),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 50),
-                      foregroundColor: Colors.red,
-                    ),
-                  ),
-                if (settingsMatches(context, [
-                  'system_reset_title',
-                  'system_reset_subtitle',
-                ])) ...[
-                  const SizedBox(height: 32),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    color: Colors.red.shade50,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: Colors.red.shade200),
-                    ),
-                    child: ListTile(
-                      leading: Icon(
-                        Icons.delete_forever,
-                        color: Colors.red.shade700,
-                      ),
-                      title: Text(
-                        TranslationService.translate(
-                          context,
-                          'system_reset_title',
-                        ),
-                        style: TextStyle(
-                          color: Colors.red.shade700,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      subtitle: Text(
-                        TranslationService.translate(
-                          context,
-                          'system_reset_subtitle',
-                        ),
-                      ),
-                      trailing: Icon(
-                        Icons.chevron_right,
-                        color: Colors.red.shade700,
-                      ),
-                      onTap: () => BackupActions.showResetDialog(context),
-                    ),
-                  ),
-                ],
-                if (_appVersion.isNotEmpty) ...[
-                  const SizedBox(height: 32),
-                  Center(
-                    child: Text(
-                      'BiblioGenius v$_appVersion',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onSurface.withValues(alpha: 0.4),
-                      ),
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 100),
               ],
             ),
@@ -710,10 +499,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Unified Network section
-  // ---------------------------------------------------------------------------
 
   /// Backup capability sheet (springboard tile + dashboard deep-link): the
   /// encrypted account leads as the recommended safety net, then the
@@ -789,67 +574,4 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ],
     );
   }
-
-  // ---------------------------------------------------------------------------
-  // Public Directory section
-  // ---------------------------------------------------------------------------
-
-  // _buildAcceptFromSelector removed (dead code: hub ignores these values)
-
-  Widget _buildPresetButton(
-    BuildContext context,
-    String presetName,
-    String label,
-    IconData icon,
-    Color color,
-    ThemeProvider themeProvider,
-  ) {
-    return Semantics(
-      // Applies the preset at once: an action, so a button.
-      button: true,
-      child: Material(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () async {
-            await themeProvider.applyPreset(presetName);
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    '${TranslationService.translate(context, 'preset_applied') ?? 'Configuration applied'}: $label',
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
-              );
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(icon, color: color, size: 32),
-                const SizedBox(height: 8),
-                Text(
-                  label,
-                  style: TextStyle(
-                    color: color,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  // All available reading languages with native names (shared constant)
-
-  // _buildRelayHubCard removed - relay details now inline in _buildRelayDetails
 }

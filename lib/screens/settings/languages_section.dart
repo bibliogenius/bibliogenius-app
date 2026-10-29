@@ -11,6 +11,7 @@ import '../../providers/theme_provider.dart';
 import '../../providers/hub_directory_provider.dart';
 import '../../utils/language_constants.dart';
 import 'settings_scope.dart';
+import 'settings_widgets.dart';
 
 const Map<String, String> _availableLanguages = kLanguageNativeNames;
 
@@ -29,26 +30,16 @@ class LanguagesSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        key: ValueKey('languages_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        leading: const Icon(Icons.translate),
-        title: Semantics(
-          header: true,
-          child: Text(
-            TranslationService.translate(context, 'languages_section'),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
+    return SettingsAccordion(
+      name: 'languages',
+      icon: Icons.translate,
+      titleKey: 'languages_section',
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: _buildLanguageSection(context, themeProvider),
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: _buildLanguageSection(context, themeProvider),
-          ),
-        ],
-      ),
+      ],
     );
   }
 

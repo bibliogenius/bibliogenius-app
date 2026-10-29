@@ -14,6 +14,7 @@ import '../../providers/hub_directory_provider.dart';
 import '../../services/auth_service.dart';
 import '../../services/ffi_service.dart';
 import 'settings_scope.dart';
+import 'settings_widgets.dart';
 
 /// Network accordion (local + remote reachability + public directory)
 class NetworkSettingsSection extends StatelessWidget {
@@ -32,33 +33,23 @@ class NetworkSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        key: ValueKey('network_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        leading: const Icon(Icons.wifi),
-        title: Semantics(
-          header: true,
-          child: Text(
-            TranslationService.translate(context, 'settings_network_title'),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+    return SettingsAccordion(
+      name: 'network',
+      icon: Icons.wifi,
+      titleKey: 'settings_network_title',
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const _NetworkSettings(),
+              const SizedBox(height: 12),
+              const DirectorySettings(),
+            ],
           ),
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const _NetworkSettings(),
-                const SizedBox(height: 12),
-                const DirectorySettings(),
-              ],
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 }

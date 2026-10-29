@@ -1,13 +1,14 @@
-// Pins what the settings page does today, before it is split into one file
-// per section and then reorganised. Each test names a behaviour the reader
-// relies on, not a layout: these must pass unchanged on the single screen and
-// on the split one.
+// Pins what the settings page does. Each test names a behaviour the reader
+// relies on, not a layout. They were written before the page was split into
+// one file per section and passed unchanged on both; the reorganisation only
+// changed where the presets sit (now inside Features).
 //
 // - A quick preset confirms itself with the `preset_applied` SnackBar, also on
 //   a first launch (no saved preference at all).
 // - A parent toggle reveals its children (Games -> Memory game).
 // - Each `/settings?focus=` deep link (dashboard tiles, help topics) opens the
 //   sheet it targets.
+// - Each setting has a single place, and a search finds it there.
 
 import 'dart:async';
 import 'dart:io';
@@ -33,6 +34,7 @@ import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/widgets/goal_tile.dart';
 
 import '../helpers/mock_classes.dart';
 
@@ -186,6 +188,14 @@ String _t(WidgetTester tester, String key) => TranslationService.translate(
   key,
 );
 
+/// Opens the section titled [titleKey].
+Future<void> _openSection(WidgetTester tester, String titleKey) async {
+  final title = find.text(_t(tester, titleKey));
+  await tester.ensureVisible(title);
+  await tester.tap(title);
+  await _settle(tester);
+}
+
 Finder _inSheet(Finder matching) =>
     find.descendant(of: find.byType(BottomSheet), matching: matching);
 
@@ -223,7 +233,9 @@ void main() {
         tester,
       ) async {
         await _pumpSettings(tester);
+        await _openSection(tester, 'modules');
         final label = _t(tester, labelKey);
+        await tester.ensureVisible(find.text(label));
 
         // The preset setters push the module list to a server that is not
         // there: let their real futures run out.
@@ -250,10 +262,7 @@ void main() {
     // Games are on by default: start from a reader who turned them off.
     SharedPreferences.setMockInitialValues({'gamesEnabled': false});
     await _pumpSettings(tester);
-    final modules = find.text(_t(tester, 'modules'));
-    await tester.ensureVisible(modules);
-    await tester.tap(modules);
-    await _settle(tester);
+    await _openSection(tester, 'modules');
 
     final memoryGame = find.text(_t(tester, 'memory_game_module'));
     expect(memoryGame, findsNothing);
@@ -344,6 +353,78 @@ void main() {
       ),
       findsNothing,
     );
+  });
+
+  group('one place per setting', () {
+    testWidgets('Features keeps only the module switches', (tester) async {
+      await _pumpSettings(tester);
+      await _openSection(tester, 'modules');
+
+      expect(find.text(_t(tester, 'quotes_module')), findsOneWidget);
+      // Each moved to the section of what it changes.
+      for (final key in [
+        'auto_approve_loans_title',
+        'module_digital_formats',
+        'settings_notif_enabled',
+        'mcp_integration',
+        'module_operation_log_viewer',
+        'settings_show_not_owned_books',
+        'carousel_peer_lib_title',
+      ]) {
+        expect(find.text(_t(tester, key)), findsNothing, reason: key);
+      }
+    });
+
+    for (final (sectionKey, settingKey) in [
+      ('modules_group_lending', 'auto_approve_loans_title'),
+      ('content', 'module_digital_formats'),
+      ('content', 'duplicates_title'),
+      ('theme_title', 'settings_show_not_owned_books'),
+      ('settings_notifications', 'settings_notif_enabled'),
+      ('settings_account_devices_title', 'account_share_access_title'),
+      ('modules_group_advanced', 'mcp_integration'),
+      ('modules_group_advanced', 'system_reset_title'),
+    ]) {
+      testWidgets('$settingKey sits in $sectionKey', (tester) async {
+        await _pumpSettings(tester);
+        final setting = find.text(_t(tester, settingKey));
+        expect(setting, findsNothing);
+
+        await _openSection(tester, sectionKey);
+        await tester.ensureVisible(setting);
+        expect(setting, findsOneWidget);
+      });
+    }
+
+    testWidgets('the springboard offers four shortcuts at most', (
+      tester,
+    ) async {
+      await _pumpSettings(tester);
+      expect(
+        tester.widgetList(find.byType(GoalTile)).length,
+        lessThanOrEqualTo(4),
+      );
+      // Other devices takes the reading-language tile's place; the
+      // focus=language link still reaches the reading languages.
+      expect(
+        find.text(_t(tester, 'settings_goal_sync_devices')),
+        findsOneWidget,
+      );
+      expect(find.text(_t(tester, 'settings_goal_language')), findsNothing);
+    });
+
+    testWidgets('a search for a moved setting opens its new section', (
+      tester,
+    ) async {
+      await _pumpSettings(tester);
+      await tester.enterText(find.byType(TextField).first, 'mcp');
+      await _settle(tester);
+
+      final mcp = find.text(_t(tester, 'mcp_integration'));
+      await tester.ensureVisible(mcp);
+      expect(mcp, findsOneWidget);
+      expect(find.text(_t(tester, 'modules')), findsNothing);
+    });
   });
 
   group('focus deep links', () {

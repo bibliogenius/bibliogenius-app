@@ -9,51 +9,46 @@ import '../../services/api_service.dart';
 import '../../services/translation_service.dart';
 import 'settings_scope.dart';
 
-/// Search Sources accordion
-class SearchSourcesSettingsSection extends StatefulWidget {
-  const SearchSourcesSettingsSection({super.key});
+/// Search sources: where a lookup by ISBN or title goes. Shown inside the
+/// "Find books" accordion.
+class SearchSourcesSettings extends StatefulWidget {
+  const SearchSourcesSettings({super.key});
 
   @override
-  State<SearchSourcesSettingsSection> createState() =>
-      _SearchSourcesSettingsSectionState();
+  State<SearchSourcesSettings> createState() => _SearchSourcesSettingsState();
 }
 
-class _SearchSourcesSettingsSectionState
-    extends State<SearchSourcesSettingsSection> {
+class _SearchSourcesSettingsState extends State<SearchSourcesSettings> {
   SettingsData get _data => settingsDataOf(context);
 
   @override
   Widget build(BuildContext context) {
-    if (!settingsMatches(context, ['search_sources'])) {
+    if (!settingsMatches(context, searchSourcesSearchKeys)) {
       return const SizedBox.shrink();
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        key: ValueKey('search_sources_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        leading: const Icon(Icons.saved_search),
-        title: Row(
-          children: [
-            Semantics(
-              header: true,
-              child: Text(
-                TranslationService.translate(context, 'search_sources'),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Semantics(
+                header: true,
+                child: Text(
+                  TranslationService.translate(context, 'search_sources'),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 4),
-            const HelpAffordance(topicId: 'search_sources'),
-          ],
-        ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: _buildSearchConfiguration(context),
+              const SizedBox(width: 4),
+              const HelpAffordance(topicId: 'search_sources'),
+            ],
           ),
+          const SizedBox(height: 8),
+          _buildSearchConfiguration(context),
         ],
       ),
     );
@@ -385,3 +380,7 @@ class _SearchSourcesSettingsSectionState
     }
   }
 }
+
+/// Keys whose labels make a search surface the search sources block; the
+/// section title shows the whole section.
+const searchSourcesSearchKeys = ['settings_find_books_title', 'search_sources'];

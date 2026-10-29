@@ -5,10 +5,15 @@ import 'package:provider/provider.dart';
 import '../../widgets/scaffold_with_nav.dart';
 import '../../services/translation_service.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/ownership_preference_provider.dart';
+import '../../utils/book_filters.dart';
+import '../../widgets/contextual_help_sheet.dart';
 import '../../themes/base/theme_registry.dart';
 import 'settings_scope.dart';
+import 'settings_widgets.dart';
 
-/// Theme accordion (theme + text size)
+/// Display accordion: theme, text size, navigation style and what the home
+/// page shows.
 class ThemeSettingsSection extends StatelessWidget {
   const ThemeSettingsSection({super.key});
 
@@ -21,6 +26,14 @@ class ThemeSettingsSection extends StatelessWidget {
       'home_page_display',
       'carousel_own_lib_title',
       'carousel_own_lib_desc',
+      'carousel_peer_lib_title',
+      'carousel_peer_lib_desc',
+      'settings_show_not_owned_books',
+      'settings_show_not_owned_books_desc',
+      if (themeProvider.collectionsEnabled) ...[
+        'group_by_collections_title',
+        'group_by_collections_desc',
+      ],
       'home_cover_size',
       if (!themeProvider.inventoryStatusesEnabled) ...[
         'home_group_by_reading_status',
@@ -34,39 +47,29 @@ class ThemeSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        key: ValueKey('theme_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        leading: const Icon(Icons.palette_outlined),
-        title: Semantics(
-          header: true,
-          child: Text(
-            TranslationService.translate(context, 'theme_title'),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+    return SettingsAccordion(
+      name: 'theme',
+      icon: Icons.palette_outlined,
+      titleKey: 'theme_title',
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildThemeSelector(context, themeProvider),
+              const SizedBox(height: 24),
+              _buildTextScaleSlider(context, themeProvider),
+              const SizedBox(height: 24),
+              _buildHomeDisplaySection(context, themeProvider),
+              if (showNavStyle) ...[
+                const SizedBox(height: 24),
+                _buildNavStyleSelector(context, themeProvider),
+              ],
+            ],
           ),
         ),
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildThemeSelector(context, themeProvider),
-                const SizedBox(height: 24),
-                _buildTextScaleSlider(context, themeProvider),
-                const SizedBox(height: 24),
-                _buildHomeDisplaySection(context, themeProvider),
-                if (showNavStyle) ...[
-                  const SizedBox(height: 24),
-                  _buildNavStyleSelector(context, themeProvider),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
+      ],
     );
   }
 
@@ -444,6 +447,72 @@ class ThemeSettingsSection extends StatelessWidget {
           value: !themeProvider.carouselHiddenOwnLib,
           onChanged: (value) => themeProvider.setCarouselHiddenOwnLib(!value),
         ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          secondary: const Icon(Icons.new_releases),
+          title: Text(
+            TranslationService.translate(context, 'carousel_peer_lib_title'),
+          ),
+          subtitle: Text(
+            TranslationService.translate(context, 'carousel_peer_lib_desc'),
+          ),
+          value: !themeProvider.carouselHiddenPeerLib,
+          onChanged: (value) => themeProvider.setCarouselHiddenPeerLib(!value),
+        ),
+        // The ownership axis of the library filter, as a switch (ADR-063).
+        // On = "everything", off = the possession default; the menu's third
+        // value, "not owned", reads as off here and turning the switch on
+        // from it lands on "everything", which is the only value the switch
+        // promises.
+        Consumer<OwnershipPreferenceProvider>(
+          builder: (context, prefs, _) => SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.visibility_outlined),
+            title: Text(
+              TranslationService.translate(
+                context,
+                'settings_show_not_owned_books',
+              ),
+            ),
+            subtitle: Text(
+              TranslationService.translate(
+                context,
+                'settings_show_not_owned_books_desc',
+              ),
+            ),
+            value: prefs.scope == OwnershipScope.all,
+            onChanged: (value) =>
+                prefs.setScope(value ? OwnershipScope.all : null),
+          ),
+        ),
+        // Only with the collections module, which it depends on.
+        if (themeProvider.collectionsEnabled)
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            secondary: const Icon(Icons.auto_stories),
+            title: Row(
+              children: [
+                Flexible(
+                  child: Text(
+                    TranslationService.translate(
+                      context,
+                      'group_by_collections_title',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const HelpAffordance(topicId: 'group_by_collections'),
+              ],
+            ),
+            subtitle: Text(
+              TranslationService.translate(
+                context,
+                'group_by_collections_desc',
+              ),
+            ),
+            value: themeProvider.groupByCollections,
+            onChanged: (value) => themeProvider.setGroupByCollections(value),
+          ),
         // Inventory statuses replace the reading ones, which the sections
         // are built on.
         if (!themeProvider.inventoryStatusesEnabled)

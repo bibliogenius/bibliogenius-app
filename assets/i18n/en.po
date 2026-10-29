@@ -1359,9 +1359,9 @@ msgstr "Contact updated successfully"
 msgid "contacts"
 msgstr "Contacts"
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
-msgstr "Contenu"
+msgstr "Catalog"
 
 #. Continue
 msgid "continue"
@@ -3272,7 +3272,7 @@ msgstr "Go to \"Network\" to add friends or libraries. You can add borrowers (wh
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery."
+msgstr "Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and export."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3727,9 +3727,9 @@ msgstr "My reading languages"
 msgid "languages_reading_desc"
 msgstr "Select the languages you read in"
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
-msgstr "Languages and country"
+msgstr "Language and region"
 
 #. Interface language
 msgid "languages_ui"
@@ -4281,9 +4281,9 @@ msgstr "Daily Quotes"
 msgid "module_quotes_desc"
 msgstr "Display an inspiring quote on the dashboard."
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
-msgstr "Modules"
+msgstr "Features"
 
 #. Modules sub-group: advanced/expert features
 msgid "modules_group_advanced"
@@ -4293,9 +4293,9 @@ msgstr "Advanced"
 msgid "modules_group_content"
 msgstr "Content & Library"
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
-msgstr "Lending & Formats"
+msgstr "Lending and borrowing"
 
 #. Modules sub-group: reading engagement, quotes, games
 msgid "modules_group_reading_fun"
@@ -5992,9 +5992,9 @@ msgstr "Edit App Settings"
 msgid "settings_saved"
 msgstr "Settings saved"
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
-msgstr "Network"
+msgstr "Sharing and network"
 
 #. How sharing works
 msgid "settings_sharing_modes_title"
@@ -6941,9 +6941,9 @@ msgstr "Default (Colorful)"
 msgid "theme_minimal"
 msgstr "Minimal (Clean)"
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
-msgstr "Theme"
+msgstr "Display"
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -7666,9 +7666,9 @@ msgstr "Save to device"
 msgid "backup_export_share"
 msgstr "Share"
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
-msgstr "Backup and recovery"
+msgstr "Backup and export"
 
 #. Settings - Backup and recovery: divider before the local/offline actions
 msgid "backup_offline_divider"
@@ -8155,7 +8155,7 @@ msgid "pairing_no_peers"
 msgstr "No devices found on the Wi-Fi network"
 
 msgid "pairing_mdns_hint"
-msgstr "Both devices must be on the same Wi-Fi with network discovery enabled (Settings > Network)"
+msgstr "Both devices must be on the same Wi-Fi with network discovery enabled (Settings > Sharing and network)"
 
 msgid "pairing_identity_note"
 msgstr "Each device keeps its own identity. Pairing syncs your books across your devices, but each one stays a separate library in the directory."
@@ -10936,7 +10936,7 @@ msgstr "How do I back up and export my library?"
 
 #. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
 msgid "help_desc_backup"
-msgstr "Everything happens in Settings > Backup and recovery.\n\n“Export my catalog” creates a portable file with your books, authors, tags, collections and contacts, which BiblioGenius can re-import.\n\n“Export as CSV (spreadsheet)” creates a readable list, one row per book, to open in a spreadsheet. That file cannot be re-imported.\n\n“Full backup” creates an encrypted archive of your whole library, restorable here or on another device. Protect it with a passphrase or your recovery phrase, and keep it somewhere other than the device it protects.\n\nAutomatic backup takes a daily encrypted snapshot, on this device only. It does not carry your library elsewhere: to move to another device, use a full backup or an encrypted account."
+msgstr "Everything happens in Settings > Backup and export.\n\n“Export my catalog” creates a portable file with your books, authors, tags, collections and contacts, which BiblioGenius can re-import.\n\n“Export as CSV (spreadsheet)” creates a readable list, one row per book, to open in a spreadsheet. That file cannot be re-imported.\n\n“Full backup” creates an encrypted archive of your whole library, restorable here or on another device. Protect it with a passphrase or your recovery phrase, and keep it somewhere other than the device it protects.\n\nAutomatic backup takes a daily encrypted snapshot, on this device only. It does not carry your library elsewhere: to move to another device, use a full backup or an encrypted account."
 
 #. Backup and export CTA
 msgid "help_cta_open_backup"
@@ -10968,7 +10968,7 @@ msgstr "What is the library directory for?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "The directory lists the libraries that chose to be visible. Turn on “Make my library visible to other libraries” in Settings > Online Sharing to appear there. You can require your approval before a new follower reaches your shared books, and your city is only published if you choose to share it.\n\nIn Network > Explore you browse the published libraries and follow the ones you like: enough to see a catalogue and ask for a loan.\n\nPairing is something else: a direct encrypted link between two devices, made device by device.\n\nWhat the server keeps: a copy of your shared books (titles, authors, ISBNs), so your contacts can browse it even while your device is off. If your library is visible without approval required, that copy is readable by the server and by anyone. Otherwise it is encrypted for your contacts and approved followers only, and the server cannot read it, as long as they all run a recent version of the app. Your cover photos stay readable by the server in both cases."
+msgstr "The directory lists the libraries that chose to be visible. Turn on “Make my library visible to other libraries” in Settings > Sharing and network to appear there. You can require your approval before a new follower reaches your shared books, and your city is only published if you choose to share it.\n\nIn Network > Explore you browse the published libraries and follow the ones you like: enough to see a catalogue and ask for a loan.\n\nPairing is something else: a direct encrypted link between two devices, made device by device.\n\nWhat the server keeps: a copy of your shared books (titles, authors, ISBNs), so your contacts can browse it even while your device is off. If your library is visible without approval required, that copy is readable by the server and by anyone. Otherwise it is encrypted for your contacts and approved followers only, and the server cannot read it, as long as they all run a recent version of the app. Your cover photos stay readable by the server in both cases."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
@@ -11423,7 +11423,7 @@ msgstr "How can others reach me?"
 
 #. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
 msgid "help_desc_contact_card"
-msgstr "A shared catalog is not enough to arrange a loan. Your contact card (email, phone, notes) is filled in under Settings > Online sharing.\n\nIt is not published in the directory: it is delivered, encrypted, only to the libraries you accepted. Once sent, it cannot be taken back.\n\nOn a book from another library, “Contact” opens a message already written, by email, SMS or WhatsApp."
+msgstr "A shared catalog is not enough to arrange a loan. Your contact card (email, phone, notes) is filled in under Settings > My contact details.\n\nIt is not published in the directory: it is delivered, encrypted, only to the libraries you accepted. Once sent, it cannot be taken back.\n\nOn a book from another library, “Contact” opens a message already written, by email, SMS or WhatsApp."
 
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
@@ -12468,3 +12468,35 @@ msgstr "The file has no author column either: the books will also be imported wi
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "Import without author"
+
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr "My library"
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr "Sharing"
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr "The app"
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr "Account and data"
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr "Find books"
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr "Account and devices"
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr "Handle with care"
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
+msgstr "Experimental: shelves inside shelves."

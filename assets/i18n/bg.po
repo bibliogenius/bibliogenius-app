@@ -1144,9 +1144,9 @@ msgstr "Контактът е актуализиран успешно"
 msgid "contacts"
 msgstr "Контакти"
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
-msgstr "Съдържание"
+msgstr "Каталог"
 
 #. Continue
 msgid "continue"
@@ -2840,7 +2840,7 @@ msgstr "Отидете в \"Мрежа\", за да добавите прият�
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Данните от вашата библиотека се съхраняват локално на вашето устройство. Когато се свързвате с приятели, само книгите, които изберете да споделите, са видими за тях. Можете да експортирате данните си или да направите резервно копие по всяко време от Настройки > Резервно копие и възстановяване."
+msgstr "Данните от вашата библиотека се съхраняват локално на вашето устройство. Когато се свързвате с приятели, само книгите, които изберете да споделите, са видими за тях. Можете да експортирате данните си или да направите резервно копие по всяко време от Настройки > Резервно копие и експорт."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3230,9 +3230,9 @@ msgstr "Моите езици за четене"
 msgid "languages_reading_desc"
 msgstr "Изберете езиците, на които четете"
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
-msgstr "Езици и страна"
+msgstr "Език и регион"
 
 #. Interface language
 msgid "languages_ui"
@@ -3775,9 +3775,9 @@ msgstr "Ежедневни цитати"
 msgid "module_quotes_desc"
 msgstr "Показване на вдъхновяващ цитат на таблото."
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
-msgstr "Модули"
+msgstr "Функции"
 
 #. Modules sub-group: advanced/expert features
 msgid "modules_group_advanced"
@@ -3787,9 +3787,9 @@ msgstr "Разширени"
 msgid "modules_group_content"
 msgstr "Съдържание и библиотека"
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
-msgstr "Заемане и формати"
+msgstr "Даване и вземане назаем"
 
 #. Modules sub-group: reading engagement, quotes, games
 msgid "modules_group_reading_fun"
@@ -5697,9 +5697,9 @@ msgstr "По подразбиране (Цветна)"
 msgid "theme_minimal"
 msgstr "Минимална (Чиста)"
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
-msgstr "Тема"
+msgstr "Изглед"
 
 #. Title *
 msgid "title_label"
@@ -7051,9 +7051,9 @@ msgstr "Няма интернет връзка"
 msgid "search_actions_placeholder"
 msgstr "Търсене на книги или действия..."
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
-msgstr "Мрежа"
+msgstr "Споделяне и мрежа"
 
 #. How sharing works
 msgid "settings_sharing_modes_title"
@@ -7714,9 +7714,9 @@ msgstr "Запазване на устройството"
 msgid "backup_export_share"
 msgstr "Споделяне"
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
-msgstr "Резервно копие и възстановяване"
+msgstr "Резервно копие и експорт"
 
 #. Settings - Backup and recovery: divider before the local/offline actions
 msgid "backup_offline_divider"
@@ -8179,7 +8179,7 @@ msgid "pairing_no_peers"
 msgstr "Не са открити устройства в Wi-Fi мрежата"
 
 msgid "pairing_mdns_hint"
-msgstr "Двете устройства трябва да са в един и същ Wi-Fi с включено мрежово откриване (Настройки > Мрежа)"
+msgstr "Двете устройства трябва да са в един и същ Wi-Fi с включено мрежово откриване (Настройки > Споделяне и мрежа)"
 
 msgid "pairing_identity_note"
 msgstr "Всяко устройство запазва собствената си идентичност. Сдвояването синхронизира книгите ви между устройствата ви, но всяко остава отделна библиотека в указателя."
@@ -10891,7 +10891,7 @@ msgstr "Как да направя резервно копие и да експ�
 
 #. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
 msgid "help_desc_backup"
-msgstr "Всичко се случва в Настройки > Резервно копие и възстановяване.\n\n„Експортиране на моя каталог“ създава преносим файл с вашите книги, автори, етикети, колекции и контакти, който BiblioGenius може да внесе отново.\n\n„Експортиране в CSV (електронна таблица)“ създава четим списък с по един ред на книга, за отваряне в електронна таблица. Този файл не може да се внесе обратно.\n\n„Пълно резервно копие“ създава криптиран архив на цялата библиотека, който може да се възстанови тук или на друго устройство. Защитете го с тайна фраза или с фразата си за възстановяване и го пазете извън устройството, което защитава.\n\nАвтоматичното архивиране прави криптирана моментна снимка всеки ден, само на това устройство. То не пренася библиотеката ви другаде: за смяна на устройство използвайте пълно резервно копие или криптиран акаунт."
+msgstr "Всичко се случва в Настройки > Резервно копие и експорт.\n\n„Експортиране на моя каталог“ създава преносим файл с вашите книги, автори, етикети, колекции и контакти, който BiblioGenius може да внесе отново.\n\n„Експортиране в CSV (електронна таблица)“ създава четим списък с по един ред на книга, за отваряне в електронна таблица. Този файл не може да се внесе обратно.\n\n„Пълно резервно копие“ създава криптиран архив на цялата библиотека, който може да се възстанови тук или на друго устройство. Защитете го с тайна фраза или с фразата си за възстановяване и го пазете извън устройството, което защитава.\n\nАвтоматичното архивиране прави криптирана моментна снимка всеки ден, само на това устройство. То не пренася библиотеката ви другаде: за смяна на устройство използвайте пълно резервно копие или криптиран акаунт."
 
 #. Backup and export CTA
 msgid "help_cta_open_backup"
@@ -10923,7 +10923,7 @@ msgstr "За какво служи указателят на библиотек�
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "Указателят изброява библиотеките, които са избрали да бъдат видими. Включете „Направи библиотеката ми видима за другите библиотеки“ в Настройки > Онлайн споделяне, за да се появите там. Можете да изисквате вашето одобрение, преди нов последовател да достигне до споделените ви книги, а градът ви се публикува само ако изберете да го споделите.\n\nВ Мрежа > Разглеждане преглеждате публикуваните библиотеки и следвате тези, които ви харесват: достатъчно, за да видите каталог и да поискате заемане.\n\nСдвояването е друго: пряка криптирана връзка между две устройства, която се прави устройство по устройство.\n\nКакво пази сървърът: копие на споделените ви книги (заглавия, автори, ISBN), за да могат контактите ви да го разглеждат дори когато устройството ви е изключено. Ако библиотеката ви е видима без изискване за одобрение, това копие е четимо за сървъра и за всеки. В противен случай то е криптирано само за вашите контакти и одобрени последователи и сървърът не може да го прочете, стига всички да използват актуална версия на приложението. Снимките на кориците ви остават четими за сървъра и в двата случая."
+msgstr "Указателят изброява библиотеките, които са избрали да бъдат видими. Включете „Направи библиотеката ми видима за другите библиотеки“ в Настройки > Споделяне и мрежа, за да се появите там. Можете да изисквате вашето одобрение, преди нов последовател да достигне до споделените ви книги, а градът ви се публикува само ако изберете да го споделите.\n\nВ Мрежа > Разглеждане преглеждате публикуваните библиотеки и следвате тези, които ви харесват: достатъчно, за да видите каталог и да поискате заемане.\n\nСдвояването е друго: пряка криптирана връзка между две устройства, която се прави устройство по устройство.\n\nКакво пази сървърът: копие на споделените ви книги (заглавия, автори, ISBN), за да могат контактите ви да го разглеждат дори когато устройството ви е изключено. Ако библиотеката ви е видима без изискване за одобрение, това копие е четимо за сървъра и за всеки. В противен случай то е криптирано само за вашите контакти и одобрени последователи и сървърът не може да го прочете, стига всички да използват актуална версия на приложението. Снимките на кориците ви остават четими за сървъра и в двата случая."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
@@ -11378,7 +11378,7 @@ msgstr "Как другите могат да се свържат с мен?"
 
 #. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
 msgid "help_desc_contact_card"
-msgstr "Споделеният каталог не е достатъчен, за да се уговори заемане. Вашата визитка за контакт (имейл, телефон, уточнения) се попълва в Настройки > Онлайн споделяне.\n\nТя не се публикува в указателя: предава се, шифрована, само на библиотеките, които сте приели. Веднъж изпратена, не може да бъде оттеглена.\n\nПри книга от друга библиотека «Свържете се» отваря вече написано съобщение по имейл, SMS или WhatsApp."
+msgstr "Споделеният каталог не е достатъчен, за да се уговори заемане. Вашата визитка за контакт (имейл, телефон, уточнения) се попълва в Настройки > Моите данни за контакт.\n\nТя не се публикува в указателя: предава се, шифрована, само на библиотеките, които сте приели. Веднъж изпратена, не може да бъде оттеглена.\n\nПри книга от друга библиотека «Свържете се» отваря вече написано съобщение по имейл, SMS или WhatsApp."
 
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
@@ -12449,3 +12449,34 @@ msgstr "Да се отмени ли това допълване?"
 #. Completeness - body of that confirmation ({n} = books it touched).
 msgid "completeness_undo_run_confirm_body"
 msgstr "{n} книги се връщат в предишното си състояние. Полетата, които сте редактирали сами оттогава, остават непроменени."
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr "Моята библиотека"
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr "Споделяне"
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr "Приложението"
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr "Акаунт и данни"
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr "Намиране на книги"
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr "Акаунт и устройства"
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr "Използвайте внимателно"
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
+msgstr "Експериментално: рафтове в рафтовете."

@@ -1200,9 +1200,9 @@ msgstr "Kişi başarıyla güncellendi"
 msgid "contacts"
 msgstr "Kişiler"
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
-msgstr "İçerik"
+msgstr "Katalog"
 
 #. Continue
 msgid "continue"
@@ -2896,7 +2896,7 @@ msgstr "Arkadaşlarınızı veya kütüphaneleri eklemek için \"Ağ\"a gidin. �
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Kütüphane verileriniz yerel olarak cihazınızda saklanır. Arkadaşlarınızla bağlantı kurduğunuzda, sadece paylaşmayı seçtiğiniz kitaplar onlara görünür. Verilerinizi Ayarlar > Yedekleme ve kurtarma bölümünden istediğiniz zaman dışa aktarabilir veya yedekleyebilirsiniz."
+msgstr "Kütüphane verileriniz yerel olarak cihazınızda saklanır. Arkadaşlarınızla bağlantı kurduğunuzda, sadece paylaşmayı seçtiğiniz kitaplar onlara görünür. Verilerinizi Ayarlar > Yedekleme ve dışa aktarma bölümünden istediğiniz zaman dışa aktarabilir veya yedekleyebilirsiniz."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3286,9 +3286,9 @@ msgstr "Okuma dillerim"
 msgid "languages_reading_desc"
 msgstr "Okuduğunuz dilleri seçin"
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
-msgstr "Diller ve ülke"
+msgstr "Dil ve bölge"
 
 #. Interface language
 msgid "languages_ui"
@@ -3828,9 +3828,9 @@ msgstr "Günlük Alıntılar"
 msgid "module_quotes_desc"
 msgstr "Panelde ilham verici bir alıntı görüntüleyin."
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
-msgstr "Modüller"
+msgstr "Özellikler"
 
 #. Modules sub-group: advanced/expert features
 msgid "modules_group_advanced"
@@ -3840,9 +3840,9 @@ msgstr "Gelişmiş"
 msgid "modules_group_content"
 msgstr "İçerik ve Kütüphane"
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
-msgstr "Ödünç verme ve Formatlar"
+msgstr "Ödünç verme ve alma"
 
 #. Modules sub-group: reading engagement, quotes, games
 msgid "modules_group_reading_fun"
@@ -5750,9 +5750,9 @@ msgstr "Varsayılan (Renkli)"
 msgid "theme_minimal"
 msgstr "Minimal (Temiz)"
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
-msgstr "Tema"
+msgstr "Görünüm"
 
 #. Title *
 msgid "title_label"
@@ -6961,9 +6961,9 @@ msgstr "İnternet bağlantısı yok"
 msgid "search_actions_placeholder"
 msgstr "Kitap veya eylem ara..."
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
-msgstr "Ağ"
+msgstr "Paylaşım ve ağ"
 
 #. How sharing works
 msgid "settings_sharing_modes_title"
@@ -7708,9 +7708,9 @@ msgstr "Cihaza kaydet"
 msgid "backup_export_share"
 msgstr "Paylaş"
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
-msgstr "Yedekleme ve kurtarma"
+msgstr "Yedekleme ve dışa aktarma"
 
 #. Settings - Backup and recovery: divider before the local/offline actions
 msgid "backup_offline_divider"
@@ -8173,7 +8173,7 @@ msgid "pairing_no_peers"
 msgstr "Wi-Fi ağında cihaz bulunamadı"
 
 msgid "pairing_mdns_hint"
-msgstr "İki cihaz da ağ keşfi etkin olarak aynı Wi-Fi'de olmalıdır (Ayarlar > Ağ)"
+msgstr "İki cihaz da ağ keşfi etkin olarak aynı Wi-Fi'de olmalıdır (Ayarlar > Paylaşım ve ağ)"
 
 msgid "pairing_identity_note"
 msgstr "Her cihaz kendi kimliğini korur. Eşleştirme kitaplarınızı cihazlarınız arasında senkronize eder, ancak her biri dizinde ayrı bir kütüphane olarak kalır."
@@ -10891,7 +10891,7 @@ msgstr "Kitaplığımı nasıl yedekler ve dışa aktarırım?"
 
 #. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
 msgid "help_desc_backup"
-msgstr "Her şey Ayarlar > Yedekleme ve kurtarma bölümünde olur.\n\n“Kataloğumu dışa aktar” kitaplarınızı, yazarlarınızı, etiketlerinizi, koleksiyonlarınızı ve kişilerinizi içeren taşınabilir bir dosya oluşturur; BiblioGenius bunu yeniden içe aktarabilir.\n\n“CSV olarak dışa aktar (hesap tablosu)” her kitap için bir satır içeren, hesap tablosunda açılabilen okunaklı bir liste oluşturur. Bu dosya yeniden içe aktarılamaz.\n\n“Tam yedek” tüm kitaplığınızın şifreli bir arşivini oluşturur; burada ya da başka bir cihazda geri yüklenebilir. Bir parola cümlesi veya kurtarma cümlenizle koruyun ve koruduğu cihazdan başka bir yerde saklayın.\n\nOtomatik yedekleme her gün şifreli bir anlık görüntü alır, yalnızca bu cihazda. Kitaplığınızı başka bir yere taşımaz: cihaz değiştirmek için tam yedek ya da şifreli hesap kullanın."
+msgstr "Her şey Ayarlar > Yedekleme ve dışa aktarma bölümünde olur.\n\n“Kataloğumu dışa aktar” kitaplarınızı, yazarlarınızı, etiketlerinizi, koleksiyonlarınızı ve kişilerinizi içeren taşınabilir bir dosya oluşturur; BiblioGenius bunu yeniden içe aktarabilir.\n\n“CSV olarak dışa aktar (hesap tablosu)” her kitap için bir satır içeren, hesap tablosunda açılabilen okunaklı bir liste oluşturur. Bu dosya yeniden içe aktarılamaz.\n\n“Tam yedek” tüm kitaplığınızın şifreli bir arşivini oluşturur; burada ya da başka bir cihazda geri yüklenebilir. Bir parola cümlesi veya kurtarma cümlenizle koruyun ve koruduğu cihazdan başka bir yerde saklayın.\n\nOtomatik yedekleme her gün şifreli bir anlık görüntü alır, yalnızca bu cihazda. Kitaplığınızı başka bir yere taşımaz: cihaz değiştirmek için tam yedek ya da şifreli hesap kullanın."
 
 #. Backup and export CTA
 msgid "help_cta_open_backup"
@@ -10923,7 +10923,7 @@ msgstr "Kitaplık dizini ne işe yarar?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "Dizin, görünür olmayı seçen kitaplıkları listeler. Dizinde yer almak için Ayarlar > Çevrimiçi paylaşım bölümünden “Kitaplığımı diğer kitaplıklara görünür yap” seçeneğini açın. Yeni bir takipçinin paylaştığınız kitaplara ulaşmadan önce onayınızı gerektirebilirsiniz ve şehriniz yalnızca paylaşmayı seçerseniz yayımlanır.\n\nAğ > Keşfet bölümünde yayımlanmış kitaplıkları gezer, beğendiklerinizi takip edersiniz: bir kataloğu görmeye ve ödünç istemeye yeter.\n\nEşleştirme başka bir şeydir: iki cihaz arasında doğrudan şifreli bir bağ, cihaz cihaz kurulur.\n\nSunucunun tuttuğu şey: paylaştığınız kitapların bir kopyası (başlıklar, yazarlar, ISBN), böylece kişileriniz cihazınız kapalıyken bile ona göz atabilir. Kitaplığınız onay gerekmeden görünürse bu kopya sunucu ve herkes tarafından okunabilir. Aksi halde yalnızca kişileriniz ve onaylı takipçileriniz için şifrelenir ve hepsi uygulamanın güncel bir sürümünü kullandığı sürece sunucu onu okuyamaz. Kapak fotoğraflarınız her iki durumda da sunucu tarafından okunabilir kalır."
+msgstr "Dizin, görünür olmayı seçen kitaplıkları listeler. Dizinde yer almak için Ayarlar > Paylaşım ve ağ bölümünden “Kitaplığımı diğer kitaplıklara görünür yap” seçeneğini açın. Yeni bir takipçinin paylaştığınız kitaplara ulaşmadan önce onayınızı gerektirebilirsiniz ve şehriniz yalnızca paylaşmayı seçerseniz yayımlanır.\n\nAğ > Keşfet bölümünde yayımlanmış kitaplıkları gezer, beğendiklerinizi takip edersiniz: bir kataloğu görmeye ve ödünç istemeye yeter.\n\nEşleştirme başka bir şeydir: iki cihaz arasında doğrudan şifreli bir bağ, cihaz cihaz kurulur.\n\nSunucunun tuttuğu şey: paylaştığınız kitapların bir kopyası (başlıklar, yazarlar, ISBN), böylece kişileriniz cihazınız kapalıyken bile ona göz atabilir. Kitaplığınız onay gerekmeden görünürse bu kopya sunucu ve herkes tarafından okunabilir. Aksi halde yalnızca kişileriniz ve onaylı takipçileriniz için şifrelenir ve hepsi uygulamanın güncel bir sürümünü kullandığı sürece sunucu onu okuyamaz. Kapak fotoğraflarınız her iki durumda da sunucu tarafından okunabilir kalır."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
@@ -11378,7 +11378,7 @@ msgstr "Başkaları bana nasıl ulaşabilir?"
 
 #. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
 msgid "help_desc_contact_card"
-msgstr "Paylaşılan bir katalog, ödünç vermeyi kararlaştırmaya yetmez. İletişim kartınız (e-posta, telefon, açıklamalar) Ayarlar > Çevrimiçi paylaşım bölümünde doldurulur.\n\nRehberde yayımlanmaz: yalnızca kabul ettiğiniz kitaplıklara şifreli olarak iletilir. Bir kez gönderildikten sonra geri alınamaz.\n\nBaşka bir kitaplığın kitabında «İletişime geç», e-posta, SMS veya WhatsApp ile önceden yazılmış bir mesajı açar."
+msgstr "Paylaşılan bir katalog, ödünç vermeyi kararlaştırmaya yetmez. İletişim kartınız (e-posta, telefon, açıklamalar) Ayarlar > İletişim bilgilerim bölümünde doldurulur.\n\nRehberde yayımlanmaz: yalnızca kabul ettiğiniz kitaplıklara şifreli olarak iletilir. Bir kez gönderildikten sonra geri alınamaz.\n\nBaşka bir kitaplığın kitabında «İletişime geç», e-posta, SMS veya WhatsApp ile önceden yazılmış bir mesajı açar."
 
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
@@ -12449,3 +12449,34 @@ msgstr "Bu tamamlama geri alınsın mı?"
 #. Completeness - body of that confirmation ({n} = books it touched).
 msgid "completeness_undo_run_confirm_body"
 msgstr "{n} kitap önceki durumuna döner. O zamandan beri kendiniz düzenlediğiniz alanlara dokunulmaz."
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr "Kütüphanem"
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr "Paylaşım"
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr "Uygulama"
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr "Hesap ve veriler"
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr "Kitap bul"
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr "Hesap ve cihazlar"
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr "Dikkatli kullanın"
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
+msgstr "Deneysel: raf içinde raf."

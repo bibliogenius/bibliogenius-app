@@ -1359,9 +1359,9 @@ msgstr "Contact mis à jour avec succès"
 msgid "contacts"
 msgstr "Contacts"
 
-#. Contenu
+#. Settings: title of the Catalogue section (import, shelves, duplicates, formats)
 msgid "content"
-msgstr "Contenu"
+msgstr "Catalogue"
 
 #. Continue
 msgid "continue"
@@ -3272,7 +3272,7 @@ msgstr "Allez dans \"Réseau\" pour ajouter des amis ou bibliothèques. Vous pou
 
 #. Your library data is stored locally on your device. When you connect with friends, your catalog is visible to them. You can mark specific books as private to hide them from the network. You can export or back up your data at any time from Settings > Backup and recovery.
 msgid "help_desc_data_privacy"
-msgstr "Les données de votre bibliothèque sont stockées localement sur votre appareil. Quand vous vous connectez avec des amis, votre catalogue leur est visible. Vous pouvez marquer certains livres comme privés pour les masquer du réseau. Vous pouvez exporter vos données ou en faire une sauvegarde à tout moment depuis Paramètres > Sauvegarde et récupération."
+msgstr "Les données de votre bibliothèque sont stockées localement sur votre appareil. Quand vous vous connectez avec des amis, votre catalogue leur est visible. Vous pouvez marquer certains livres comme privés pour les masquer du réseau. Vous pouvez exporter vos données ou en faire une sauvegarde à tout moment depuis Paramètres > Sauvegarde et export."
 
 #. Use the search icon to find books in external catalogs like BNF (French National Library), OpenLibrary, and Inventaire. When you find a book, tap it to add it to your library with all its metadata.
 msgid "help_desc_external_search"
@@ -3727,9 +3727,9 @@ msgstr "Mes langues de lecture"
 msgid "languages_reading_desc"
 msgstr "Sélectionnez les langues dans lesquelles vous lisez"
 
-#. Languages
+#. Settings: title of the Language and region section
 msgid "languages_section"
-msgstr "Langues et pays"
+msgstr "Langue et région"
 
 #. Interface language
 msgid "languages_ui"
@@ -4281,9 +4281,9 @@ msgstr "Citations du jour"
 msgid "module_quotes_desc"
 msgstr "Affiche une citation inspirante sur le tableau de bord."
 
-#. Modules
+#. Settings: title of the Features section (presets and module switches)
 msgid "modules"
-msgstr "Modules"
+msgstr "Fonctionnalités"
 
 #. Modules sub-group: advanced/expert features
 msgid "modules_group_advanced"
@@ -4293,9 +4293,9 @@ msgstr "Avancé"
 msgid "modules_group_content"
 msgstr "Contenu & Bibliothèque"
 
-#. Modules sub-group: lending and book formats
+#. Settings: title of the Lending and borrowing section
 msgid "modules_group_lending"
-msgstr "Emprunts & Formats"
+msgstr "Prêts et emprunts"
 
 #. Modules sub-group: reading engagement, quotes, games
 msgid "modules_group_reading_fun"
@@ -5992,9 +5992,9 @@ msgstr "Modifier les paramètres"
 msgid "settings_saved"
 msgstr "Paramètres enregistrés"
 
-#. Network
+#. Settings: title of the Sharing and network section
 msgid "settings_network_title"
-msgstr "Réseau"
+msgstr "Partage et réseau"
 
 #. How sharing works
 msgid "settings_sharing_modes_title"
@@ -6941,9 +6941,9 @@ msgstr "Défaut (Coloré)"
 msgid "theme_minimal"
 msgstr "Minimal (Épuré)"
 
-#. Theme
+#. Settings: title of the Display section (theme, text size, home page)
 msgid "theme_title"
-msgstr "Thème"
+msgstr "Affichage"
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -7666,9 +7666,9 @@ msgstr "Enregistrer sur l'appareil"
 msgid "backup_export_share"
 msgstr "Partager"
 
-#. Settings - Backup section title (top-level accordion)
+#. Settings: title of the Backup and export section
 msgid "backup_section_title"
-msgstr "Sauvegarde et récupération"
+msgstr "Sauvegarde et export"
 
 #. Settings - Backup and recovery: divider before the local/offline actions
 msgid "backup_offline_divider"
@@ -8155,7 +8155,7 @@ msgid "pairing_no_peers"
 msgstr "Aucun appareil détecté sur le réseau Wi-Fi"
 
 msgid "pairing_mdns_hint"
-msgstr "Les deux appareils doivent être connectés au même Wi-Fi avec la découverte réseau activée (Paramètres > Réseau)"
+msgstr "Les deux appareils doivent être connectés au même Wi-Fi avec la découverte réseau activée (Paramètres > Partage et réseau)"
 
 msgid "pairing_identity_note"
 msgstr "Chaque appareil garde sa propre identité. L'appairage synchronise vos livres entre vos appareils, mais chacun reste une bibliothèque distincte dans l'annuaire."
@@ -10931,7 +10931,7 @@ msgstr "Comment sauvegarder et exporter ma bibliothèque ?"
 
 #. Everything happens in Settings > Backup and recovery. Export my catalog, Export as CSV, Full backup and the automatic daily snapshot, and what each one is for.
 msgid "help_desc_backup"
-msgstr "Tout se passe dans Paramètres > Sauvegarde et récupération.\n\n« Exporter mon catalogue » crée un fichier portable contenant vos livres, auteurs, étiquettes, collections et contacts, que BiblioGenius sait réimporter.\n\n« Exporter en CSV (tableur) » crée une liste lisible, une ligne par livre, à ouvrir dans un tableur. Ce fichier ne se réimporte pas.\n\n« Sauvegarde complète » crée une archive chiffrée de toute votre bibliothèque, restaurable ici ou sur un autre appareil. Protégez-la avec une phrase secrète ou votre phrase de récupération, et conservez-la ailleurs que sur l'appareil qu'elle protège.\n\nLa sauvegarde automatique crée un instantané chiffré chaque jour, sur cet appareil seulement. Elle ne transporte pas votre bibliothèque ailleurs : pour changer d'appareil, utilisez une sauvegarde complète ou un compte chiffré."
+msgstr "Tout se passe dans Paramètres > Sauvegarde et export.\n\n« Exporter mon catalogue » crée un fichier portable contenant vos livres, auteurs, étiquettes, collections et contacts, que BiblioGenius sait réimporter.\n\n« Exporter en CSV (tableur) » crée une liste lisible, une ligne par livre, à ouvrir dans un tableur. Ce fichier ne se réimporte pas.\n\n« Sauvegarde complète » crée une archive chiffrée de toute votre bibliothèque, restaurable ici ou sur un autre appareil. Protégez-la avec une phrase secrète ou votre phrase de récupération, et conservez-la ailleurs que sur l'appareil qu'elle protège.\n\nLa sauvegarde automatique crée un instantané chiffré chaque jour, sur cet appareil seulement. Elle ne transporte pas votre bibliothèque ailleurs : pour changer d'appareil, utilisez une sauvegarde complète ou un compte chiffré."
 
 #. Backup and export CTA
 msgid "help_cta_open_backup"
@@ -10963,7 +10963,7 @@ msgstr "À quoi sert l'annuaire des bibliothèques ?"
 
 #. Being listed in the directory, following a library, and how that differs from pairing.
 msgid "help_desc_directory"
-msgstr "L'annuaire liste les bibliothèques qui ont choisi d'être visibles. Activez « Me rendre visible auprès des autres bibliothèques » dans Paramètres > Partage en ligne pour y figurer. Vous pouvez exiger votre approbation avant qu'un nouvel abonné accède à vos livres partagés, et votre ville n'est publiée que si vous choisissez de la partager.\n\nDans Réseau > Explorer, vous parcourez les bibliothèques publiées et suivez celles qui vous intéressent : de quoi consulter un catalogue et demander un emprunt.\n\nL'appairage est autre chose : un lien chiffré direct entre deux appareils, à refaire appareil par appareil.\n\nCe que le serveur conserve : une copie de vos livres partagés (titres, auteurs, ISBN), pour que vos contacts la consultent même quand votre appareil est éteint. Si votre bibliothèque est visible sans approbation requise, cette copie est lisible par le serveur et par n'importe qui. Sinon, elle est chiffrée pour vos seuls contacts et abonnés approuvés, et le serveur ne peut pas la lire, dès lors qu'ils utilisent tous une version récente de l'application. Vos photos de couverture restent lisibles par le serveur dans les deux cas."
+msgstr "L'annuaire liste les bibliothèques qui ont choisi d'être visibles. Activez « Me rendre visible auprès des autres bibliothèques » dans Paramètres > Partage et réseau pour y figurer. Vous pouvez exiger votre approbation avant qu'un nouvel abonné accède à vos livres partagés, et votre ville n'est publiée que si vous choisissez de la partager.\n\nDans Réseau > Explorer, vous parcourez les bibliothèques publiées et suivez celles qui vous intéressent : de quoi consulter un catalogue et demander un emprunt.\n\nL'appairage est autre chose : un lien chiffré direct entre deux appareils, à refaire appareil par appareil.\n\nCe que le serveur conserve : une copie de vos livres partagés (titres, auteurs, ISBN), pour que vos contacts la consultent même quand votre appareil est éteint. Si votre bibliothèque est visible sans approbation requise, cette copie est lisible par le serveur et par n'importe qui. Sinon, elle est chiffrée pour vos seuls contacts et abonnés approuvés, et le serveur ne peut pas la lire, dès lors qu'ils utilisent tous une version récente de l'application. Vos photos de couverture restent lisibles par le serveur dans les deux cas."
 
 #. Help screen quick action: opens the online guides in the browser
 msgid "help_online_docs"
@@ -11418,7 +11418,7 @@ msgstr "Comment les autres peuvent-ils me joindre ?"
 
 #. Help screen: filling the contact card, who receives it, and the Contact action on a peer book
 msgid "help_desc_contact_card"
-msgstr "Un catalogue partagé ne suffit pas à convenir d'un prêt. Votre carte de contact (e-mail, téléphone, précisions) se remplit dans Paramètres > Partage en ligne.\n\nElle n'est pas publiée dans l'annuaire : elle n'est remise, chiffrée, qu'aux bibliothèques que vous avez acceptées. Une fois envoyée, on ne peut plus la retirer.\n\nSur le livre d'une autre bibliothèque, « Contacter » ouvre un message déjà écrit, par e-mail, SMS ou WhatsApp."
+msgstr "Un catalogue partagé ne suffit pas à convenir d'un prêt. Votre carte de contact (e-mail, téléphone, précisions) se remplit dans Paramètres > Mes coordonnées.\n\nElle n'est pas publiée dans l'annuaire : elle n'est remise, chiffrée, qu'aux bibliothèques que vous avez acceptées. Une fois envoyée, on ne peut plus la retirer.\n\nSur le livre d'une autre bibliothèque, « Contacter » ouvre un message déjà écrit, par e-mail, SMS ou WhatsApp."
 
 #. Help screen CTA opening Settings > Online sharing
 msgid "help_cta_open_sharing"
@@ -12463,3 +12463,35 @@ msgstr "Le fichier n'a pas non plus de colonne auteur : les livres seront aussi 
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "Importer sans auteur"
+
+#. Settings: header of the group of sections about the library itself
+msgid "settings_group_library"
+msgstr "Ma bibliothèque"
+
+#. Settings: header of the group of sections about sharing
+msgid "settings_group_sharing"
+msgstr "Partager"
+
+#. Settings: header of the group of sections about the app itself
+msgid "settings_group_app"
+msgstr "L'application"
+
+#. Settings: header of the group of sections about the account and data
+msgid "settings_group_account"
+msgstr "Compte et données"
+
+#. Settings: title of the Find books section (search sources, bookshops and libraries)
+msgid "settings_find_books_title"
+msgstr "Trouver des livres"
+
+#. Settings: title of the Account and devices section (encrypted account, shared access, 2FA, logout)
+msgid "settings_account_devices_title"
+msgstr "Compte et appareils"
+
+#. Settings: header of the separate zone at the bottom of a section holding what cannot be undone (restore, reset)
+msgid "settings_careful_zone"
+msgstr "À manier avec précaution"
+
+#. Settings > Advanced: description of the experimental hierarchical shelves toggle
+msgid "enable_taxonomy_desc"
+msgstr "Expérimental : des étagères dans les étagères."
