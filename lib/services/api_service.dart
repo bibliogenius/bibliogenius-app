@@ -3652,7 +3652,7 @@ class ApiService {
         );
       }
     }
-    return await _dio.post('$hubUrl/api/peers/auto_approve_all');
+    return await _dio.post('/api/peers/auto_approve_all');
   }
 
   /// Check if a peer is reachable by performing a quick health check

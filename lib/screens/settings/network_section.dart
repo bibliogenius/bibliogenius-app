@@ -205,7 +205,10 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
                       subtitle: Text(t('connection_validation_desc')),
                       value: themeProvider.connectionValidationEnabled,
                       onChanged: (value) =>
-                          themeProvider.setConnectionValidationEnabled(value),
+                          themeProvider.setConnectionValidationEnabled(
+                            value,
+                            apiService: context.read<ApiService>(),
+                          ),
                     ),
                     const Divider(height: 1),
                     SwitchListTile(

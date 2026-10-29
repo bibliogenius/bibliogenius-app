@@ -1372,7 +1372,14 @@ class ThemeProvider with ChangeNotifier {
   /// Enable/disable connection validation
   /// When enabled, new peers must be approved before they can access your library
   /// When toggled OFF, all pending peers are auto-approved
-  Future<void> setConnectionValidationEnabled(bool enabled) async {
+  ///
+  /// [apiService] is the app-wide instance: the bulk approval is a local
+  /// server route, and only that instance knows whether to reach the server
+  /// through FFI. An instance built here would send it to the hub instead.
+  Future<void> setConnectionValidationEnabled(
+    bool enabled, {
+    required ApiService apiService,
+  }) async {
     _connectionValidationEnabled = enabled;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('connectionValidationEnabled', enabled);
@@ -1380,7 +1387,6 @@ class ThemeProvider with ChangeNotifier {
     if (!enabled) {
       // Auto-approve all pending peers when disabling validation
       try {
-        final apiService = ApiService(AuthService());
         await apiService.autoApproveAllPeers();
       } catch (e) {
         debugPrint('Error auto-approving peers: $e');
