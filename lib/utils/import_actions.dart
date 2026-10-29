@@ -32,7 +32,9 @@ class ImportActions {
   /// reader sees the columns that were read and chooses to go on without
   /// ISBN or to cancel. The outcome message then says how many books carry
   /// one, because "N books imported" was true and said nothing the day a
-  /// 2861-book shelf arrived without a single ISBN.
+  /// 2861-book shelf arrived without a single ISBN. A file that names no
+  /// author column is held back the same way; when both are missing, the
+  /// ISBN question says so and is the only one asked.
   static Future<void> importCsv(BuildContext context) async {
     final apiService = context.read<ApiService>();
     final hubDirectory = context.read<HubDirectoryProvider>();
@@ -59,17 +61,20 @@ class ImportActions {
       final file = result.files.first;
       Future<Response> import({
         required bool allowMissingIsbn,
+        bool allowMissingAuthor = false,
         int? isbnColumnIndex,
       }) => kIsWeb
           ? apiService.importBooks(
               file.bytes!,
               filename: file.name,
               allowMissingIsbn: allowMissingIsbn,
+              allowMissingAuthor: allowMissingAuthor,
               isbnColumnIndex: isbnColumnIndex,
             )
           : apiService.importBooks(
               file.path!,
               allowMissingIsbn: allowMissingIsbn,
+              allowMissingAuthor: allowMissingAuthor,
               isbnColumnIndex: isbnColumnIndex,
             );
 
@@ -85,17 +90,34 @@ class ImportActions {
         final positions = List<int>.from(
           response.data['column_positions'] ?? const [],
         );
+        final authorMissing = response.data['author_column_missing'] == true;
         final choice = await _resolveMissingIsbnColumn(
           context,
           columns,
           positions,
+          authorMissing: authorMissing,
         );
         if (!choice.goOn || !context.mounted) return;
 
         _showLoading(context);
         response = await import(
           allowMissingIsbn: true,
+          allowMissingAuthor: authorMissing,
           isbnColumnIndex: choice.column,
+        );
+        _hideLoading();
+        if (!context.mounted) return;
+      } else if (response.statusCode == 400 &&
+          response.data is Map &&
+          response.data['error'] == ApiService.importErrorAuthorColumnMissing) {
+        final columns = List<String>.from(response.data['columns'] ?? const []);
+        final goOn = await _confirmMissingAuthorColumn(context, columns);
+        if (!goOn || !context.mounted) return;
+
+        _showLoading(context);
+        response = await import(
+          allowMissingIsbn: false,
+          allowMissingAuthor: true,
         );
         _hideLoading();
         if (!context.mounted) return;
@@ -520,11 +542,15 @@ class ImportActions {
   /// afterwards. The picker was already there; offering it at the door costs a
   /// button and saves the round trip. Backing out of the picker returns to the
   /// question rather than cancelling the import.
+  ///
+  /// [authorMissing] adds that the file names no author column either: going
+  /// on then imports without both, so the reader is asked once.
   static Future<_MissingIsbnChoice> _resolveMissingIsbnColumn(
     BuildContext context,
     List<String> columns,
-    List<int> positions,
-  ) async {
+    List<int> positions, {
+    bool authorMissing = false,
+  }) async {
     while (true) {
       if (!context.mounted) return (goOn: false, column: null);
       final answer = await showDialog<String>(
@@ -538,11 +564,18 @@ class ImportActions {
             ),
           ),
           content: Text(
-            TranslationService.translate(
-              ctx,
-              'import_isbn_column_missing_body',
-              params: {'columns': columns.join(', ')},
-            ),
+            [
+              TranslationService.translate(
+                ctx,
+                'import_isbn_column_missing_body',
+                params: {'columns': columns.join(', ')},
+              ),
+              if (authorMissing)
+                TranslationService.translate(
+                  ctx,
+                  'import_author_column_missing_too',
+                ),
+            ].join('\n\n'),
           ),
           actions: [
             TextButton(
@@ -575,6 +608,49 @@ class ImportActions {
       final chosen = await _pickIsbnColumn(context, columns, positions);
       if (chosen != null) return (goOn: true, column: chosen);
     }
+  }
+
+  /// Ask before importing a whole shelf without author. Returns true when the
+  /// reader chooses to go on.
+  static Future<bool> _confirmMissingAuthorColumn(
+    BuildContext context,
+    List<String> columns,
+  ) async {
+    final answer = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        scrollable: true,
+        title: Text(
+          TranslationService.translate(
+            ctx,
+            'import_author_column_missing_title',
+          ),
+        ),
+        content: Text(
+          TranslationService.translate(
+            ctx,
+            'import_author_column_missing_body',
+            params: {'columns': columns.join(', ')},
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: Text(TranslationService.translate(ctx, 'cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: Text(
+              TranslationService.translate(
+                ctx,
+                'import_continue_without_author',
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    return answer == true;
   }
 
   static void _showLoading(BuildContext context) {

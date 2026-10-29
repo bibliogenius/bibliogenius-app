@@ -68,6 +68,40 @@ void main() {
     expect(read.first.publicationYear, 1999);
   });
 
+  test('a read is not held back by a missing author column', () async {
+    // The file was already imported, and its reader already asked about the
+    // author then; the reimport only fills what the file does carry.
+    final path = await write(
+      'no-author.csv',
+      'Titre,EAN\nMartin Eden,9782264024848\n',
+    );
+
+    final response = await apiService.importBooks(
+      path,
+      sink: (book) async => read.add(book),
+    );
+
+    expect(response.statusCode, 200);
+    expect(read.single.isbn, '9782264024848');
+    expect(read.single.author, isNull);
+    expect(created, isEmpty);
+  });
+
+  test(
+    'a missing ISBN column is reported without the author question',
+    () async {
+      final path = await write('blank.csv', 'Titre,Code\nMartin Eden,978\n');
+
+      final response = await apiService.importBooks(
+        path,
+        sink: (book) async => read.add(book),
+      );
+
+      expect(response.data['error'], ApiService.importErrorIsbnColumnMissing);
+      expect(response.data['author_column_missing'], isFalse);
+    },
+  );
+
   test('an unrecognised ISBN column is reported with its position', () async {
     final path = await write('code.csv', codeColumnFile);
 

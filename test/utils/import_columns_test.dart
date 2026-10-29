@@ -57,6 +57,51 @@ void main() {
       expect(findAuthorColumn(headers), 2);
     });
 
+    test('a Libib export names its author column creators', () {
+      // Header row copied verbatim from a Libib CSV export. `creators` holds
+      // the full name, given name first; `first_name` and `last_name` repeat
+      // it in two halves and are not the author column.
+      final headers = [
+        'id',
+        'item_type',
+        'title',
+        'creators',
+        'first_name',
+        'last_name',
+        'collection',
+        'ean_isbn13',
+        'upc_isbn10',
+        'description',
+        'publisher',
+        'publish_date',
+        'group',
+        'tags',
+        'notes',
+        'price',
+        'length',
+        'number_of_discs',
+        'number_of_players',
+        'age_group',
+        'ensemble',
+        'aspect_ratio',
+        'esrb',
+        'rating',
+        'review',
+        'review_date',
+        'status',
+        'began',
+        'completed',
+        'added',
+        'copies',
+      ];
+      expect(findAuthorColumn(headers), 3);
+    });
+
+    test('Additional Authors still loses to Author, raw case included', () {
+      final headers = ['Title', 'Additional Authors', 'Author'];
+      expect(findAuthorColumn(headers), 2);
+    });
+
     test('falls back to a partial match when no exact name is present', () {
       final headers = ['titre', 'nom auteur', 'isbn'];
       expect(findAuthorColumn(headers), 1);

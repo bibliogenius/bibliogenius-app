@@ -12298,3 +12298,19 @@ msgstr "Quando scatti la foto di una copertina, rileva il libro, lo ritaglia e l
 #. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
 msgid "module_cover_auto_crop_desc_android"
 msgstr "Quando scatti la foto di una copertina, rileva il libro, lo ritaglia e lo raddrizza. Disattiva per usare la fotocamera normale. Su Android, il ritaglio è fornito da Google Play Services."
+
+#. Import - dialog title when the file has no recognisable author column
+msgid "import_author_column_missing_title"
+msgstr "Nessuna colonna autore riconosciuta"
+
+#. Import - dialog body when the file has no author column ({columns} = headers read from the file)
+msgid "import_author_column_missing_body"
+msgstr "Colonne lette: {columns}. Senza una colonna autore, questi libri verranno importati senza autore. Importare comunque?"
+
+#. Import - sentence added to the missing ISBN dialog when the author column is missing too
+msgid "import_author_column_missing_too"
+msgstr "Il file non ha nemmeno una colonna autore: i libri verranno importati anche senza autore."
+
+#. Import - dialog button to import a file that has no author column
+msgid "import_continue_without_author"
+msgstr "Importa senza autore"

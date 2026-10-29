@@ -1971,12 +1971,21 @@ class ApiService {
   /// arrived with 2861 books and not one ISBN behind a success message.
   static const String importErrorIsbnColumnMissing = 'isbn_column_missing';
 
+  /// Error code (HTTP 400) when the file names no author column and
+  /// `allowMissingAuthor` is false; `data['columns']` lists the headers read.
+  /// A Libib library once arrived with 1547 books and not one author because
+  /// its column was not recognised, and nothing said so. When the ISBN column
+  /// is missing as well, the ISBN error carries `author_column_missing: true`
+  /// instead, so the reader answers one question, not two.
+  static const String importErrorAuthorColumnMissing = 'author_column_missing';
+
   /// Read a CSV/XLSX/TXT library file.
   ///
   /// `sink` replaces the book-creating destination: passing one turns this into
   /// a pure read, which is how "reimport to complete" (ADR-071) gets the file's
   /// rows without duplicating the shelf. Every write the read path would
-  /// otherwise perform is suppressed with it (the XLSX shelf creation).
+  /// otherwise perform is suppressed with it (the XLSX shelf creation), and so
+  /// is the author question: the file was imported already.
   ///
   /// `isbnColumnIndex` overrides the column lookup for this call only, for a
   /// file whose ISBN column no name recognises: the reader points at it.
@@ -1984,6 +1993,7 @@ class ApiService {
     dynamic fileSource, {
     String? filename,
     bool allowMissingIsbn = false,
+    bool allowMissingAuthor = false,
     Future<void> Function(frb.FrbBook book)? sink,
     int? isbnColumnIndex,
   }) async {
@@ -2000,6 +2010,7 @@ class ApiService {
             fileSource,
             filename,
             allowMissingIsbn: allowMissingIsbn,
+            allowMissingAuthor: allowMissingAuthor,
             sink: sink,
             isbnColumnIndex: isbnColumnIndex,
           );
@@ -2013,6 +2024,7 @@ class ApiService {
               fileSource,
               filename,
               allowMissingIsbn: allowMissingIsbn,
+              allowMissingAuthor: allowMissingAuthor,
               sink: sink,
               isbnColumnIndex: isbnColumnIndex,
             );
@@ -2085,9 +2097,12 @@ class ApiService {
           );
         }
 
-        if (isbnIdx == -1 && !allowMissingIsbn) {
-          return _isbnColumnMissing(header);
-        }
+        final missingColumns = _missingColumnsResponse(
+          header,
+          isbnMissing: isbnIdx == -1 && !allowMissingIsbn,
+          authorMissing: authorIdx == -1 && !allowMissingAuthor && sink == null,
+        );
+        if (missingColumns != null) return missingColumns;
 
         final send = sink ?? importBookSink;
 
@@ -2222,14 +2237,41 @@ class ApiService {
     return findIsbnColumn(headerLower);
   }
 
-  /// The file names no ISBN column: hand the headers back so the caller can
-  /// show them and ask whether to import without ISBN. Capped, because a
-  /// file that is not a spreadsheet at all yields one enormous "header".
+  /// The 400 that holds an import back until the reader agrees to go on
+  /// without the missing column(s), or null when nothing is missing. The ISBN
+  /// question takes precedence and carries `author_column_missing`, so a file
+  /// missing both asks once.
+  Response? _missingColumnsResponse(
+    List<String> header, {
+    required bool isbnMissing,
+    required bool authorMissing,
+  }) {
+    if (isbnMissing) {
+      return _columnMissing(
+        header,
+        importErrorIsbnColumnMissing,
+        authorMissing: authorMissing,
+      );
+    }
+    if (authorMissing) {
+      return _columnMissing(header, importErrorAuthorColumnMissing);
+    }
+    return null;
+  }
+
+  /// The file names no ISBN (or author) column: hand the headers back so the
+  /// caller can show them and ask whether to import without it. Capped,
+  /// because a file that is not a spreadsheet at all yields one enormous
+  /// "header".
   ///
   /// `column_positions` carries each listed header's index in the original row.
   /// The list drops the empty headers and truncates the long ones for display,
   /// so its own indices cannot be handed back as a column choice.
-  Response _isbnColumnMissing(List<String> header) {
+  Response _columnMissing(
+    List<String> header,
+    String error, {
+    bool authorMissing = false,
+  }) {
     const maxColumns = 30;
     const maxNameLength = 40;
     final kept = <MapEntry<int, String>>[];
@@ -2249,9 +2291,11 @@ class ApiService {
       requestOptions: RequestOptions(path: '/api/import'),
       statusCode: 400,
       data: {
-        'error': importErrorIsbnColumnMissing,
+        'error': error,
         'columns': kept.map((e) => e.value).toList(),
         'column_positions': kept.map((e) => e.key).toList(),
+        if (error == importErrorIsbnColumnMissing)
+          'author_column_missing': authorMissing,
       },
     );
   }
@@ -2285,6 +2329,7 @@ class ApiService {
     dynamic fileSource,
     String? filename, {
     bool allowMissingIsbn = false,
+    bool allowMissingAuthor = false,
     Future<void> Function(frb.FrbBook book)? sink,
     int? isbnColumnIndex,
   }) async {
@@ -2352,9 +2397,21 @@ class ApiService {
         );
       }
 
-      if (isbnIdx == -1 && !allowMissingIsbn) {
-        return _isbnColumnMissing(rawHeaders);
-      }
+      // Gleeph never exports the author, so there is no column the reader could
+      // have meant and the question would only stand in the way. Its exact
+      // title header is required on top of the flags: a plain spreadsheet with
+      // a `read` column must still be asked about an unrecognised author.
+      final isGleephExport = hasGleephFlags && headers.contains('book_title');
+      final missingColumns = _missingColumnsResponse(
+        rawHeaders,
+        isbnMissing: isbnIdx == -1 && !allowMissingIsbn,
+        authorMissing:
+            authorIdx == -1 &&
+            !allowMissingAuthor &&
+            sink == null &&
+            !isGleephExport,
+      );
+      if (missingColumns != null) return missingColumns;
 
       final send = sink ?? importBookSink;
       // A caller that only wants the rows gets no side effect: creating shelves

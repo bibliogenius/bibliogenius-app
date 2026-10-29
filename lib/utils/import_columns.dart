@@ -27,6 +27,10 @@ const List<String> _exactAuthorNames = [
   'auteurs',
   'primary author',
   'authors labels',
+  // Libib: `creators`, the full name given name first. Without it a whole
+  // Libib library arrived with no author at all behind a success message.
+  'creators',
+  'creator',
 ];
 
 /// Index of the author column in [headers], or -1 when the file names none.

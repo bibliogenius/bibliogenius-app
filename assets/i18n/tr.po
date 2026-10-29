@@ -12305,3 +12305,19 @@ msgstr "Kapak fotoğrafı çekerken kitabı algılar, kırpar ve düzeltir. Norm
 #. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
 msgid "module_cover_auto_crop_desc_android"
 msgstr "Kapak fotoğrafı çekerken kitabı algılar, kırpar ve düzeltir. Normal kamerayı kullanmak için kapatın. Android'de kırpma işlemi Google Play Hizmetleri tarafından sağlanır."
+
+#. Import - dialog title when the file has no recognisable author column
+msgid "import_author_column_missing_title"
+msgstr "Yazar sütunu bulunamadı"
+
+#. Import - dialog body when the file has no author column ({columns} = headers read from the file)
+msgid "import_author_column_missing_body"
+msgstr "Okunan sütunlar: {columns}. Yazar sütunu olmadan bu kitaplar yazarsız içe aktarılacak. Yine de içe aktarılsın mı?"
+
+#. Import - sentence added to the missing ISBN dialog when the author column is missing too
+msgid "import_author_column_missing_too"
+msgstr "Dosyada yazar sütunu da yok: kitaplar ayrıca yazarsız içe aktarılacak."
+
+#. Import - dialog button to import a file that has no author column
+msgid "import_continue_without_author"
+msgstr "Yazarsız içe aktar"

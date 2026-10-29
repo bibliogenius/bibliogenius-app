@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/src/rust/api/frb.dart' as frb;
+import 'package:excel/excel.dart' as xlsx;
 import 'package:flutter_test/flutter_test.dart';
 
 class MockAuthService extends AuthService {
@@ -82,6 +83,199 @@ void main() {
       expect(response.data['with_isbn'], 0);
       expect(created.single.isbn, isNull);
       expect(created.single.title, 'Martin Eden');
+    });
+  });
+
+  group('a file whose author column is not recognised', () {
+    const noAuthorFile = 'Titre,EAN,Editeur\nMartin Eden,9782264024848,10/18\n';
+
+    test('is not imported until the reader agrees, and says which columns '
+        'were read', () async {
+      final path = await write('no-author.csv', noAuthorFile);
+
+      final response = await apiService.importBooks(path);
+
+      expect(response.statusCode, 400);
+      expect(response.data['error'], ApiService.importErrorAuthorColumnMissing);
+      expect(response.data['columns'], ['Titre', 'EAN', 'Editeur']);
+      expect(created, isEmpty);
+    });
+
+    test('imports without author once allowed', () async {
+      final path = await write('no-author.csv', noAuthorFile);
+
+      final response = await apiService.importBooks(
+        path,
+        allowMissingAuthor: true,
+      );
+
+      expect(response.statusCode, 200);
+      expect(response.data['imported'], 1);
+      expect(created.single.author, isNull);
+      expect(created.single.isbn, '9782264024848');
+    });
+
+    test('asks one question when the ISBN column is missing too', () async {
+      final path = await write(
+        'no-author-no-isbn.csv',
+        'Titre,Editeur\nMartin Eden,10/18\n',
+      );
+
+      final response = await apiService.importBooks(path);
+
+      expect(response.statusCode, 400);
+      expect(response.data['error'], ApiService.importErrorIsbnColumnMissing);
+      expect(
+        response.data['author_column_missing'],
+        isTrue,
+        reason: 'the ISBN question carries the author one, not a second dialog',
+      );
+      expect(created, isEmpty);
+
+      final allowed = await apiService.importBooks(
+        path,
+        allowMissingIsbn: true,
+        allowMissingAuthor: true,
+      );
+      expect(allowed.statusCode, 200);
+      expect(created.single.title, 'Martin Eden');
+    });
+
+    test(
+      'the ISBN question does not mention an author column that exists',
+      () async {
+        final path = await write(
+          'no-isbn.csv',
+          'Titre,Auteur\nMartin Eden,Jack London\n',
+        );
+
+        final response = await apiService.importBooks(path);
+
+        expect(response.data['error'], ApiService.importErrorIsbnColumnMissing);
+        expect(response.data['author_column_missing'], isFalse);
+      },
+    );
+
+    test('an XLSX file is held back the same way', () async {
+      final excel = xlsx.Excel.createExcel();
+      final sheet = excel[excel.getDefaultSheet()!];
+      sheet.appendRow([
+        xlsx.TextCellValue('book_title'),
+        xlsx.TextCellValue('isbn'),
+      ]);
+      sheet.appendRow([
+        xlsx.TextCellValue('Martin Eden'),
+        xlsx.TextCellValue('9782264024848'),
+      ]);
+      final file = File('${tmp.path}/no-author.xlsx');
+      await file.writeAsBytes(excel.encode()!);
+
+      final response = await apiService.importBooks(file.path);
+
+      expect(response.statusCode, 400);
+      expect(response.data['error'], ApiService.importErrorAuthorColumnMissing);
+      expect(response.data['columns'], ['book_title', 'isbn']);
+      expect(created, isEmpty);
+
+      final allowed = await apiService.importBooks(
+        file.path,
+        allowMissingAuthor: true,
+      );
+      expect(allowed.statusCode, 200);
+      expect(created.single.isbn, '9782264024848');
+      expect(created.single.author, isNull);
+    });
+  });
+
+  group('a Gleeph export, which never carries an author', () {
+    Future<String> writeXlsx(String name, List<List<String>> rows) async {
+      final excel = xlsx.Excel.createExcel();
+      final sheet = excel[excel.getDefaultSheet()!];
+      for (final row in rows) {
+        sheet.appendRow([for (final cell in row) xlsx.TextCellValue(cell)]);
+      }
+      final file = File('${tmp.path}/$name');
+      await file.writeAsBytes(excel.encode()!);
+      return file.path;
+    }
+
+    test('is imported without the author question', () async {
+      // Header row copied verbatim from a real Gleeph export: the reader has
+      // nothing to point at, so asking would only stand in the way.
+      final path = await writeXlsx('ExportGleeph.xlsx', [
+        [
+          'book_title',
+          'isbn',
+          'creation_date_link',
+          'wish',
+          'own',
+          'reading',
+          'read',
+          'favorite',
+          'shelves',
+        ],
+        ['Martin Eden', '9782264024848', '', '', '', '', '', '', ''],
+      ]);
+
+      final response = await apiService.importBooks(path);
+
+      expect(response.statusCode, 200, reason: '${response.data}');
+      expect(created.single.isbn, '9782264024848');
+      expect(created.single.author, isNull);
+    });
+
+    test('a spreadsheet with a read column alone is still asked', () async {
+      final path = await writeXlsx('reading-log.xlsx', [
+        ['title', 'isbn', 'read'],
+        ['Martin Eden', '9782264024848', 'yes'],
+      ]);
+
+      final response = await apiService.importBooks(path);
+
+      expect(
+        response.data['error'],
+        ApiService.importErrorAuthorColumnMissing,
+      );
+      expect(created, isEmpty);
+    });
+  });
+
+  group('a Libib export', () {
+    // Header and rows copied verbatim from a Libib CSV export: the author
+    // column is `creators`, the full name given name first.
+    const libib =
+        'id,item_type,title,creators,first_name,last_name,collection,'
+        'ean_isbn13,upc_isbn10,description,publisher,publish_date,group,tags,'
+        'notes,price,length,number_of_discs,number_of_players,age_group,'
+        'ensemble,aspect_ratio,esrb,rating,review,review_date,status,began,'
+        'completed,added,copies\n'
+        'nxlepiu41p,book,"The American Detective Novel in Translation",'
+        '"Daniel Peter LINDER MOLIN",Daniel,MOLIN,Favoris,9788478008476,'
+        '8478008470,"Empleando una metodología propia de los estudios '
+        'descriptivos de traduc- ción, se analiza un corpus de cuatro novelas '
+        'del autor norteamericano Raymond Chandler (The Big Sleep, 1939; '
+        'Farewell, My Lovely, 1940; The Little Sister, 1949; y The Long '
+        'Goodbye, 1954) y las traducciones al español publica- das en '
+        'Argentina y España.","Ediciones Universidad de Salamanca",2011-09-01,'
+        ',,,,524,,,,,,,,,,,,,2026-10-29,1\n'
+        '7ftul2xhd6,book,"Martin Eden","Jack London",Jack,London,Favoris,'
+        '9780486826011,0486826015,"Smitten with a cultivated young woman, a '
+        'sailor determines to better himself. London\'s semi-autobiographical '
+        'novel offers a thought-provoking study of ambition, highlighted by '
+        'memorable characters and a compelling narrative.","Courier Dover '
+        'Publications",2017-10-26,,,,,339,,,,,,,,,,,,,2026-10-29,1\n';
+
+    test('keeps the authors, read from the creators column', () async {
+      final path = await write('library_20261029_055820.csv', libib);
+
+      final response = await apiService.importBooks(path);
+
+      expect(response.statusCode, 200, reason: '${response.data}');
+      expect(response.data['imported'], 2);
+      final martinEden = created.singleWhere((b) => b.title == 'Martin Eden');
+      expect(martinEden.author, 'Jack London');
+      expect(martinEden.isbn, '9780486826011');
+      expect(created.first.author, 'Daniel Peter LINDER MOLIN');
     });
   });
 
