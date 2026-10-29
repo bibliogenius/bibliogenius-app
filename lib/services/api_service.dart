@@ -3834,6 +3834,12 @@ class ApiService {
       return null;
     } on DioException catch (e) {
       if (e.response?.statusCode == 502) {
+        // The backend will not relay to a peer the hub confirmed has new
+        // keys: the owner must pair it again, no retry can help.
+        if (peerSyncErrorCode(e) == peerKeysChangedCode) {
+          debugPrint('requestPeerManifest: peer=$peerId 502 peer_keys_changed');
+          return {'error': peerKeysChangedCode};
+        }
         // Peer unreachable (mailbox expired, credential refresh failed).
         // Return sentinel map so the caller can break out of retry loops.
         debugPrint(

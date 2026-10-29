@@ -27,6 +27,8 @@ import '../widgets/peer_book_cover_cache_manager.dart';
 import '../widgets/recently_added_carousel.dart';
 import '../widgets/shimmer_loading.dart';
 import '../widgets/borrow_request_sent_snack_bar.dart';
+import '../widgets/peer_sync_failure_snack_bar.dart';
+import '../services/peer_sync_error.dart';
 import '../services/translation_service.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
@@ -1240,6 +1242,10 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
           if (mounted) setState(() => _isRelayLoading = false);
           return;
         }
+        if (manifest['error'] == peerKeysChangedCode) {
+          _stopForChangedKeys();
+          return;
+        }
 
         // Update nodeId from manifest if the peer sent their library_uuid.
         // This fixes stale nodeId when the peer was reset/reinstalled.
@@ -1492,6 +1498,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   ///   - auto on initial load:             1 minute
   /// The shorter auto timeout avoids stalling the UI when the peer app
   /// is simply closed and will never respond via the relay.
+  /// The hub confirmed the peer has new keys (a reinstall): the relay cannot
+  /// reach it any more, so stop waiting and tell the owner to pair it again,
+  /// with the same message as a manual sync.
+  void _stopForChangedKeys() {
+    debugPrint(
+      'Relay: peer ${widget.peerId} has new keys, stopping relay sync',
+    );
+    if (!mounted) return;
+    setState(() => _isRelayLoading = false);
+    ScaffoldMessenger.of(context).showSnackBar(
+      peerSyncFailureSnackBar(context, const PeerKeysChangedException()),
+    );
+  }
+
   /// Uses _pollRequestInFlight guard to prevent concurrent requests that
   /// would flood the relay with different correlation IDs.
   /// Circuit breaker: stops immediately on 502 (peer unreachable).
@@ -1548,6 +1568,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             );
             timer.cancel();
             if (mounted) setState(() => _isRelayLoading = false);
+            return;
+          }
+          if (manifest['error'] == peerKeysChangedCode) {
+            timer.cancel();
+            _stopForChangedKeys();
             return;
           }
 
