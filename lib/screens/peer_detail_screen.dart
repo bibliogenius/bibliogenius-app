@@ -707,8 +707,8 @@ class _PeerDetailScreenState extends State<PeerDetailScreen> {
       );
     }
 
-    // Unfollow
-    if (_relation.isFollowing && !_relation.followPending) {
+    // Unfollow (hub follows alone: a peer is removed with its contact)
+    if (_relation.canUnfollow) {
       buttons.add(
         Consumer<HubDirectoryProvider>(
           builder: (context, dirProvider, _) => SizedBox(

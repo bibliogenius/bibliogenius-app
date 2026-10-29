@@ -59,6 +59,15 @@ class LibraryRelation {
   /// Follow is pending approval.
   bool get followPending => follow?.isPending ?? false;
 
+  /// Pairing accepted on both sides (a pending request is not one yet).
+  bool get isAcceptedPeer => peer != null && !peer!.isPending;
+
+  /// Whether the follow can be withdrawn on its own. An accepted peer's
+  /// follow materialises the pairing (ADR-053) and is requested again at
+  /// the next launch: the gesture for a peer is to delete the contact,
+  /// which ends the pairing and the follow together.
+  bool get canUnfollow => isFollowing && !followPending && !isAcceptedPeer;
+
   LibraryRelation withDisplayName(String name) => LibraryRelation(
     nodeId: nodeId,
     displayName: name,

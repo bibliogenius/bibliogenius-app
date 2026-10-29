@@ -2650,8 +2650,9 @@ class _LibraryRelationCard extends StatelessWidget {
                     },
                   ),
 
-                // Unfollow (active follows only)
-                if (relation.isFollowing && !relation.followPending)
+                // Unfollow (active hub follows alone: a peer is removed
+                // with its contact)
+                if (relation.canUnfollow)
                   ListTile(
                     leading: Icon(Icons.bookmark_remove, color: cs.error),
                     title: Text(
