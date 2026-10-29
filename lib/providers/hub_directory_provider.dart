@@ -1777,8 +1777,23 @@ class HubDirectoryProvider extends ChangeNotifier {
     return (relayUrl: null, mailboxId: null, writeToken: null);
   }
 
+  /// What the last successful [ensureKeysPublished] of this session sent.
+  /// The Contacts screen calls it on every reload (every 30 s and on each
+  /// peer event), and each call registered again with the same payload.
+  ({
+    String nodeId,
+    String key,
+    String name,
+    String? relayUrl,
+    String? mailboxId,
+    String? writeToken,
+  })?
+  _publishedKeys;
+
   /// Re-registers with the current config to ensure the X25519 public key
-  /// and relay credentials are published on the hub profile.
+  /// and relay credentials are published on the hub profile. Once that
+  /// succeeded in this session, it registers again only when the key, the
+  /// relay credentials, the display name or the hub node change.
   Future<void> ensureKeysPublished(String displayName) async {
     if (!_hubEnabled) return;
     if (_config == null) {
@@ -1797,6 +1812,24 @@ class HubDirectoryProvider extends ChangeNotifier {
       );
       return;
     }
+    final relay = await _getRelayCredentials();
+    final publication = (
+      nodeId: cfg.nodeId,
+      key: x25519Key,
+      name: displayName,
+      relayUrl: relay.relayUrl,
+      mailboxId: relay.mailboxId,
+      writeToken: relay.writeToken,
+    );
+    if (publication == _publishedKeys) {
+      if (kDebugMode) {
+        debugPrint(
+          '[CONTACT-SYNC] ensureKeysPublished: unchanged since the last '
+          'registration of this session, skip',
+        );
+      }
+      return;
+    }
     debugPrint(
       '[CONTACT-SYNC] ensureKeysPublished: key=${x25519Key.substring(0, 8)}..., registering',
     );
@@ -1805,9 +1838,8 @@ class HubDirectoryProvider extends ChangeNotifier {
     final deviceModel = await _deviceService.getDeviceModel();
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
     final appVersion = await _deviceService.getAppVersion();
-    final relay = await _getRelayCredentials();
     final loc = await _currentLocationForRegister();
-    await register(
+    final ok = await register(
       nodeId: cfg.nodeId,
       displayName: displayName,
       bookCount: bookCount,
@@ -1825,6 +1857,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       relayMailboxId: relay.mailboxId,
       relayWriteToken: relay.writeToken,
     );
+    if (ok) _publishedKeys = publication;
     if (relay.relayUrl != null) _relayPublished = true;
     if (kDebugMode)
       debugPrint('HubDirectoryProvider: ensured keys + relay published');
@@ -1987,6 +2020,7 @@ class HubDirectoryProvider extends ChangeNotifier {
           await _ffi.hubDirectoryPurgeConfig();
           await _authService.deleteHubWriteToken();
           _config = null;
+          _publishedKeys = null;
           _tokenRecoveredFromKeychain = false;
           // Retry once: without local config, Rust sends no Bearer token
           // and the hub issues a fresh write_token.
