@@ -3330,11 +3330,15 @@ class ApiService {
     );
   }
 
+  /// [bookId] is the book's id in the lender's catalog. It is the only key
+  /// that names a book without an ISBN; lenders on older versions ignore it
+  /// and match on [isbn].
   Future<Response> requestBookByUrl(
     String peerUrl,
     String isbn,
-    String title,
-  ) async {
+    String title, {
+    String? bookId,
+  }) async {
     // Route through local Rust backend which handles E2EE encryption,
     // outgoing request tracking, and plaintext fallback internally.
     final dio = useFfi
@@ -3345,7 +3349,12 @@ class ApiService {
     // the caller can inspect the response body and react gracefully.
     final response = await dio.post(
       '/api/peers/request_by_url',
-      data: {'peer_url': peerUrl, 'book_isbn': isbn, 'book_title': title},
+      data: {
+        'peer_url': peerUrl,
+        'book_isbn': isbn,
+        'book_title': title,
+        if (bookId != null) 'book_id': bookId,
+      },
       options: Options(
         validateStatus: (status) =>
             status != null && (status < 300 || status == 409),

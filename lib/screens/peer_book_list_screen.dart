@@ -2118,6 +2118,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         widget.peerUrl,
         isbn ?? "",
         book.title,
+        bookId: book.id,
       );
       if (!mounted) return;
       final data = response.data;
