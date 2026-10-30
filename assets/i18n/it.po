@@ -7856,6 +7856,22 @@ msgstr "Ripristina un'esportazione del catalogo. Sostituisce tutti i dati attual
 msgid "backup_restore_help"
 msgstr "Ripristina un file di esportazione del catalogo. Attenzione: sostituisce tutti i dati attuali. Per un ripristino completo e reversibile, preferisci \"Ripristina un backup completo\"."
 
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "Questo file non è un backup di BiblioGenius leggibile."
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "Questo backup è stato creato da una versione precedente di BiblioGenius e il suo formato non è più compatibile. Conserva il file: può essere convertito."
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "Impossibile raggiungere la tua libreria locale. Riprova tra un momento."
+
+msgid "backup_restore_error_generic"
+msgstr "Ripristino non riuscito ({error})"
+
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
 msgstr "Sistema"
@@ -12342,3 +12358,87 @@ msgstr "{count} libri importati, nessuno con ISBN."
 #. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
 msgid "migration_import_rejected_isbn"
 msgstr "{count} ISBN ignorati (né 10 né 13 caratteri)."
+
+msgid "completeness_books_without_author"
+msgstr "{n} libri non hanno alcun autore. Un'esecuzione non può aggiungerlo: l'autore non è un campo del libro ma una scheda collegata. Questi libri sono contati come completi qui sopra. Aggiungi l'autore dalla scheda del libro."
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "Completa dal file"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "Completa"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "{count} libri sono stati aggiunti lo stesso giorno e nessuno ha un ISBN. Se provengono da un file, la sua colonna ISBN non è stata riconosciuta: rileggi quel file per completarli."
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "Quale colonna contiene l'ISBN?"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "Nessun nome di colonna è stato riconosciuto. Indica quella che contiene l'ISBN in questo file; la scelta vale solo per questa lettura."
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "Riepilogo del completamento"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows} righe lette, {completed} libri completati, {no_match} senza corrispondenza, {ambiguous} ambigui."
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "Righe tralasciate"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "Nessun libro corrisponde a questa riga"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "Questa riga compare due volte nel file"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "Più libri corrispondono a questa riga"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "Annulla questo completamento"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "{count} campi riportati allo stato precedente"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "Non è stato possibile leggere alcuna riga da questo file."
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "e altre {count} righe, non elencate qui"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "Ultimo completamento: {n} libri"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "Annulla tutto"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "Annullare questo completamento?"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n} libri tornano allo stato precedente. I campi che hai modificato tu nel frattempo non vengono toccati."

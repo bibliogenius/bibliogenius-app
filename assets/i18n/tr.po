@@ -7840,6 +7840,22 @@ msgstr "Bir katalog dışa aktarmasını geri yükler. Tüm mevcut verilerinizi 
 msgid "backup_restore_help"
 msgstr "Bir katalog dışa aktarma dosyasını geri yükler. Uyarı: bu, tüm mevcut verilerinizi değiştirir. Eksiksiz, geri alınabilir bir geri yükleme için \"Tam yedeği geri yükle\"yi tercih edin."
 
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "Bu dosya okunabilir bir BiblioGenius yedeği değil."
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "Bu yedek BiblioGenius'un eski bir sürümüyle oluşturuldu ve biçimi artık uyumlu değil. Dosyayı saklayın: dönüştürülebilir."
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "Yerel kitaplığınıza ulaşılamadı. Birazdan tekrar deneyin."
+
+msgid "backup_restore_error_generic"
+msgstr "Geri yükleme başarısız ({error})"
+
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
 msgstr "Sistem"
@@ -12349,3 +12365,87 @@ msgstr "{count} kitap içe aktarıldı, hiçbiri ISBN'li değil."
 #. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
 msgid "migration_import_rejected_isbn"
 msgstr "{count} ISBN yok sayıldı (10 veya 13 karakter değil)."
+
+msgid "completeness_books_without_author"
+msgstr "{n} kitabın hiç yazarı yok. Bir işlem bunu dolduramaz: yazar kitabın bir alanı değil, bağlı bir kayıttır. Bu kitaplar yukarıda eksiksiz sayılır. Yazarı kitap sayfasından ekleyin."
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "Dosyadan tamamla"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "Tamamla"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "Aynı gün {count} kitap eklendi ve hiçbirinde ISBN yok. Bir dosyadan geldilerse dosyanın ISBN sütunu tanınmadı: onları tamamlamak için bu dosyayı yeniden okutun."
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "ISBN hangi sütunda?"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "Hiçbir sütun adı tanınmadı. Bu dosyada ISBN'i içeren sütunu seçin; seçim yalnızca bu okuma için geçerlidir."
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "Tamamlama özeti"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows} satır okundu, {completed} kitap tamamlandı, {no_match} eşleşmesiz, {ambiguous} belirsiz."
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "Atlanan satırlar"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "Bu satırla eşleşen kitap yok"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "Bu satır dosyada iki kez geçiyor"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "Bu satırla birden fazla kitap eşleşiyor"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "Bu tamamlamayı geri al"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "{count} alan önceki durumuna döndürüldü"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "Bu dosyadan hiçbir satır okunamadı."
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "ve burada listelenmeyen {count} satır daha"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "Son tamamlama: {n} kitap"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "Tümünü geri al"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "Bu tamamlama geri alınsın mı?"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n} kitap önceki durumuna döner. O zamandan beri kendiniz düzenlediğiniz alanlara dokunulmaz."

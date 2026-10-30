@@ -7846,6 +7846,22 @@ msgstr "Възстановява експорт на каталог. Замен�
 msgid "backup_restore_help"
 msgstr "Възстановява файл с експорт на каталог. Внимание: това заменя всички ваши текущи данни. За пълно, обратимо възстановяване предпочетете „Възстановяване на пълно резервно копие“."
 
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "Този файл не е четимо резервно копие на BiblioGenius."
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "Това резервно копие е създадено от по-стара версия на BiblioGenius и форматът му вече не е съвместим. Запазете файла: той може да бъде преобразуван."
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "Локалната ви библиотека не може да бъде достигната. Опитайте отново след малко."
+
+msgid "backup_restore_error_generic"
+msgstr "Възстановяването не успя ({error})"
+
 #. Settings - System section title (top-level accordion)
 msgid "system_section_title"
 msgstr "Система"
@@ -12349,3 +12365,87 @@ msgstr "Импортирани книги: {count}, нито една с ISBN."
 #. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
 msgid "migration_import_rejected_isbn"
 msgstr "Пропуснати ISBN: {count} (нито 10, нито 13 знака)."
+
+msgid "completeness_books_without_author"
+msgstr "{n} книги нямат никакъв автор. Обработката не може да го попълни: авторът не е поле на книгата, а свързан запис. Тези книги са отчетени като пълни по-горе. Добавете автора от страницата на книгата."
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "Допълване от файла"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "Допълване"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "{count} книги са добавени в един и същи ден и нито една няма ISBN. Ако идват от файл, колоната му с ISBN не е разпозната: прочетете отново този файл, за да ги допълните."
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "Коя колона съдържа ISBN?"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "Не е разпознато нито едно име на колона. Посочете тази, която съдържа ISBN в този файл; изборът важи само за това прочитане."
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "Обобщение на допълването"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows} прочетени реда, {completed} допълнени книги, {no_match} без съответствие, {ambiguous} двусмислени."
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "Пропуснати редове"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "Никоя книга не съответства на този ред"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "Този ред се среща два пъти във файла"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "Няколко книги съответстват на този ред"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "Отмяна на това допълване"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "{count} полета са върнати в предишното си състояние"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "От този файл не можа да бъде прочетен нито един ред."
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "и още {count} реда, които не са изброени тук"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "Последно допълване: {n} книги"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "Отмяна на всичко"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "Да се отмени ли това допълване?"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n} книги се връщат в предишното си състояние. Полетата, които сте редактирали сами оттогава, остават непроменени."

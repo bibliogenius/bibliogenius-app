@@ -12237,3 +12237,87 @@ msgstr "{count} libros importados, ninguno con ISBN."
 #. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
 msgid "migration_import_rejected_isbn"
 msgstr "{count} ISBN ignorados (ni 10 ni 13 caracteres)."
+
+msgid "completeness_books_without_author"
+msgstr "{n} libros no tienen ningún autor. Una tarea no puede rellenarlo: el autor no es un campo del libro sino una ficha vinculada. Estos libros se cuentan como completos arriba. Añade el autor desde la ficha del libro."
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "Completar desde el archivo"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "Completar"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "{count} libros se añadieron el mismo día y ninguno tiene ISBN. Si vienen de un archivo, su columna ISBN no se reconoció: vuelve a leer ese archivo para completarlos."
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "¿Qué columna contiene el ISBN?"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "No se ha reconocido ningún nombre de columna. Elige la que contiene el ISBN en este archivo; la elección solo vale para esta lectura."
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "Resumen del completado"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows} filas leídas, {completed} libros completados, {no_match} sin coincidencia, {ambiguous} ambiguos."
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "Filas descartadas"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "Ningún libro corresponde a esta fila"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "Esta fila aparece dos veces en el archivo"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "Varios libros corresponden a esta fila"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "Deshacer este completado"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "{count} campos devueltos a su estado anterior"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "No se pudo leer ninguna fila de este archivo."
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "y {count} filas más, no listadas aquí"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "Último completado: {n} libros"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "Deshacer todo"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "¿Deshacer este completado?"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n} libros vuelven al estado en que estaban antes. Los campos que hayas editado tú mismo desde entonces no se tocan."
