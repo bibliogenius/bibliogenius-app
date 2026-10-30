@@ -153,13 +153,13 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   HubProfile? _hubProfile;
 
   /// ISBNs with a pending outgoing borrow request (to disable the borrow button)
-  Set<String> _pendingBorrowIsbns = {};
+  Set<String> _pendingBorrowKeys = {};
 
   /// ISBNs of books currently borrowed from this peer (accepted outgoing request).
-  Set<String> _activeBorrowIsbns = {};
+  Set<String> _activeBorrowKeys = {};
 
   /// ISBNs of books currently lent to this peer (accepted incoming request).
-  Set<String> _lendingIsbns = {};
+  Set<String> _lendingKeys = {};
 
   /// What MY library holds for the ISBNs on display, keyed by the ISBN as the
   /// peer wrote it. An absent entry means my library does not have the book:
@@ -1849,32 +1849,26 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     if (mounted) {
       setState(() {
         // Outgoing: pending = button shows "Requested", accepted = "Borrowed".
-        _pendingBorrowIsbns = snapshot.pendingIsbns(peerUrl: widget.peerUrl);
-        _activeBorrowIsbns = snapshot.activeBorrowIsbns(
+        _pendingBorrowKeys = snapshot.pendingBookKeys(peerUrl: widget.peerUrl);
+        _activeBorrowKeys = snapshot.activeBorrowBookKeys(
           peerUrl: widget.peerUrl,
         );
         // Incoming accepted from this peer = user is lending it to them.
-        _lendingIsbns = snapshot.lendingIsbns(peerUrl: widget.peerUrl);
+        _lendingKeys = snapshot.lendingBookKeys(peerUrl: widget.peerUrl);
       });
     }
   }
 
-  bool _hasPendingRequest(Book book) {
-    final isbn = book.isbn;
-    return isbn != null &&
-        isbn.isNotEmpty &&
-        _pendingBorrowIsbns.contains(isbn);
-  }
+  String? _borrowKey(Book book) =>
+      borrowRequestKey(isbn: book.isbn, title: book.title);
 
-  bool _isActiveBorrow(Book book) {
-    final isbn = book.isbn;
-    return isbn != null && isbn.isNotEmpty && _activeBorrowIsbns.contains(isbn);
-  }
+  bool _hasPendingRequest(Book book) =>
+      _pendingBorrowKeys.contains(_borrowKey(book));
 
-  bool _isLending(Book book) {
-    final isbn = book.isbn;
-    return isbn != null && isbn.isNotEmpty && _lendingIsbns.contains(isbn);
-  }
+  bool _isActiveBorrow(Book book) =>
+      _activeBorrowKeys.contains(_borrowKey(book));
+
+  bool _isLending(Book book) => _lendingKeys.contains(_borrowKey(book));
 
   bool _hasNoCopiesAvailable(Book book) {
     return book.availableCopies != null && book.availableCopies == 0;
@@ -2106,8 +2100,9 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _requestBorrow(Book book) async {
     // Immediately disable the button to prevent double-tap
     final isbn = book.isbn;
-    if (isbn != null && isbn.isNotEmpty) {
-      setState(() => _pendingBorrowIsbns.add(isbn));
+    final key = _borrowKey(book);
+    if (key != null) {
+      setState(() => _pendingBorrowKeys.add(key));
     }
 
     final api = Provider.of<ApiService>(context, listen: false);
@@ -2126,11 +2121,11 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // 409: already borrowing or currently lending this book to the peer.
       if (response.statusCode == 409) {
         final error = data is Map ? data['error']?.toString() : null;
-        if (isbn != null && isbn.isNotEmpty) {
+        if (key != null) {
           setState(() {
-            _pendingBorrowIsbns.remove(isbn);
+            _pendingBorrowKeys.remove(key);
             // Mark as "on loan" so button stays disabled with the right label
-            _lendingIsbns.add(isbn);
+            _lendingKeys.add(key);
           });
         }
         ScaffoldMessenger.of(context).showSnackBar(
@@ -2151,8 +2146,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // Check lender's response status
       if (data is Map && data['status'] == 'rejected') {
         // Remove from pending since the request was rejected
-        if (isbn != null && isbn.isNotEmpty) {
-          setState(() => _pendingBorrowIsbns.remove(isbn));
+        if (key != null) {
+          setState(() => _pendingBorrowKeys.remove(key));
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2177,8 +2172,8 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       }
     } catch (e) {
       // Re-enable button on error so user can retry
-      if (isbn != null && isbn.isNotEmpty && mounted) {
-        setState(() => _pendingBorrowIsbns.remove(isbn));
+      if (key != null && mounted) {
+        setState(() => _pendingBorrowKeys.remove(key));
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

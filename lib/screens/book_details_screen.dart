@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../utils/borrow_eligibility.dart';
 import '../utils/book_primary_action.dart';
 import '../utils/ownership_actions.dart';
 import '../utils/borrowed_copy_display.dart';
@@ -3784,13 +3785,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       // Try P2P return: find matching incoming p2p_request for this book
       bool p2pHandled = false;
       final isbn = _book!.isbn;
-      if (isbn != null && isbn.isNotEmpty) {
+      final bookId = _book!.id;
+      if ((isbn != null && isbn.isNotEmpty) || bookId != null) {
         try {
           final inRes = await api.getIncomingRequests();
           final requests = inRes.data as List? ?? [];
-          final matching = requests.firstWhere(
-            (r) => r['book_isbn'] == isbn && r['status'] == 'accepted',
-            orElse: () => null,
+          final matching = acceptedIncomingRequestFor(
+            requests,
+            bookId: bookId,
+            isbn: isbn,
           );
           if (matching != null) {
             await api.updateRequestStatus(matching['id'], 'returned');

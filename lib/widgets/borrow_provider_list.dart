@@ -115,13 +115,16 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
     });
   }
 
+  String? get _bookKey =>
+      borrowRequestKey(isbn: widget.isbn, title: widget.bookTitle);
+
   String _sourceKey(FrbWishlistProvider p) =>
       p.peerUrl ?? p.nodeId ?? p.sourceName;
 
   bool _isPending(FrbWishlistProvider p) {
     if (_requestedNow.contains(_sourceKey(p))) return true;
     if (p.peerUrl != null) {
-      return _requests.pendingIsbns(peerUrl: p.peerUrl).contains(widget.isbn);
+      return _requests.pendingBookKeys(peerUrl: p.peerUrl).contains(_bookKey);
     }
     return p.nodeId != null && _pendingHubNodes.contains(p.nodeId);
   }
@@ -133,9 +136,9 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
       availableCopies: p.availableCopies,
       hasPendingRequest: _isPending(p),
       isActiveBorrow: p.peerUrl != null &&
-          _requests.activeBorrowIsbns(peerUrl: p.peerUrl).contains(widget.isbn),
+          _requests.activeBorrowBookKeys(peerUrl: p.peerUrl).contains(_bookKey),
       isLending: p.peerUrl != null &&
-          _requests.lendingIsbns(peerUrl: p.peerUrl).contains(widget.isbn),
+          _requests.lendingBookKeys(peerUrl: p.peerUrl).contains(_bookKey),
     );
   }
 
@@ -145,11 +148,11 @@ class _BorrowProviderListState extends State<BorrowProviderList> {
     }
     if (p.peerUrl != null) {
       if (_requests
-          .activeBorrowIsbns(peerUrl: p.peerUrl)
-          .contains(widget.isbn)) {
+          .activeBorrowBookKeys(peerUrl: p.peerUrl)
+          .contains(_bookKey)) {
         return TranslationService.translate(context, 'borrow_active');
       }
-      if (_requests.lendingIsbns(peerUrl: p.peerUrl).contains(widget.isbn)) {
+      if (_requests.lendingBookKeys(peerUrl: p.peerUrl).contains(_bookKey)) {
         return TranslationService.translate(context, 'borrow_on_loan');
       }
     }

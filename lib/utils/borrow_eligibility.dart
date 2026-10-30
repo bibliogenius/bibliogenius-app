@@ -1,16 +1,31 @@
 import '../services/api_service.dart';
 
+/// Identifies a book across P2P loan requests: its ISBN when it has one, its
+/// title otherwise. A book without an ISBN has no other key on the borrower's
+/// side; the backend duplicate guards apply the same rule. Null when there is
+/// neither.
+String? borrowRequestKey({required String? isbn, required String title}) {
+  if (isbn != null && isbn.isNotEmpty) return isbn;
+  if (title.isEmpty) return null;
+  // Prefixed so a title can never collide with an ISBN.
+  return 'title:$title';
+}
+
 /// A P2P loan request row reduced to what borrow eligibility needs.
 class BorrowRequestEntry {
   final String peerUrl;
   final String isbn;
+  final String title;
   final String status;
 
   const BorrowRequestEntry({
     required this.peerUrl,
     required this.isbn,
+    required this.title,
     required this.status,
   });
+
+  String? get bookKey => borrowRequestKey(isbn: isbn, title: title);
 }
 
 /// Snapshot of the outgoing/incoming P2P loan requests, queryable by peer.
@@ -26,6 +41,15 @@ class BorrowRequestSnapshot {
 
   static const empty = BorrowRequestSnapshot(outgoing: [], incoming: []);
 
+  /// Builds a snapshot from request rows as the local backend lists them.
+  factory BorrowRequestSnapshot.fromRows({
+    required dynamic outgoing,
+    required dynamic incoming,
+  }) => BorrowRequestSnapshot(
+    outgoing: _parse(outgoing),
+    incoming: _parse(incoming),
+  );
+
   /// Loads both request directions from the local backend. Returns null on
   /// failure so callers can keep their previously known state instead of
   /// wrongly re-enabling buttons with an empty snapshot.
@@ -35,9 +59,9 @@ class BorrowRequestSnapshot {
         api.getOutgoingRequests(),
         api.getIncomingRequests(),
       ]);
-      return BorrowRequestSnapshot(
-        outgoing: _parse(responses[0].data),
-        incoming: _parse(responses[1].data),
+      return BorrowRequestSnapshot.fromRows(
+        outgoing: responses[0].data,
+        incoming: responses[1].data,
       );
     } catch (_) {
       return null;
@@ -51,14 +75,15 @@ class BorrowRequestSnapshot {
           (r) => BorrowRequestEntry(
             peerUrl: r['peer_url']?.toString() ?? '',
             isbn: r['book_isbn']?.toString() ?? '',
+            title: r['book_title']?.toString() ?? '',
             status: r['status']?.toString() ?? '',
           ),
         )
-        .where((e) => e.isbn.isNotEmpty)
+        .where((e) => e.bookKey != null)
         .toList();
   }
 
-  Set<String> _isbns(
+  Set<String> _bookKeys(
     List<BorrowRequestEntry> entries,
     String status,
     String? peerUrl,
@@ -68,21 +93,48 @@ class BorrowRequestSnapshot {
           (e) =>
               e.status == status && (peerUrl == null || e.peerUrl == peerUrl),
         )
-        .map((e) => e.isbn)
+        .map((e) => e.bookKey!)
         .toSet();
   }
 
+  // The sets below hold [borrowRequestKey] values.
+
   /// Outgoing requests awaiting the lender's answer.
-  Set<String> pendingIsbns({String? peerUrl}) =>
-      _isbns(outgoing, 'pending', peerUrl);
+  Set<String> pendingBookKeys({String? peerUrl}) =>
+      _bookKeys(outgoing, 'pending', peerUrl);
 
   /// Outgoing requests accepted: the book is currently borrowed.
-  Set<String> activeBorrowIsbns({String? peerUrl}) =>
-      _isbns(outgoing, 'accepted', peerUrl);
+  Set<String> activeBorrowBookKeys({String? peerUrl}) =>
+      _bookKeys(outgoing, 'accepted', peerUrl);
 
   /// Incoming requests accepted: the book is currently lent to that peer.
-  Set<String> lendingIsbns({String? peerUrl}) =>
-      _isbns(incoming, 'accepted', peerUrl);
+  Set<String> lendingBookKeys({String? peerUrl}) =>
+      _bookKeys(incoming, 'accepted', peerUrl);
+}
+
+/// The accepted incoming request for a book lent to a peer, among request
+/// rows as the local backend lists them. Matched on the book id the backend
+/// resolved for the request, the only key for a book without an ISBN, then on
+/// the ISBN for rows that carry no id. Null when none matches.
+Map<dynamic, dynamic>? acceptedIncomingRequestFor(
+  List<dynamic> rows, {
+  required String? bookId,
+  required String? isbn,
+}) {
+  final accepted = rows
+      .whereType<Map<dynamic, dynamic>>()
+      .where((r) => r['status'] == 'accepted');
+  if (bookId != null && bookId.isNotEmpty) {
+    for (final r in accepted) {
+      if (r['book_id'] == bookId) return r;
+    }
+  }
+  if (isbn != null && isbn.isNotEmpty) {
+    for (final r in accepted) {
+      if (r['book_isbn'] == isbn) return r;
+    }
+  }
+  return null;
 }
 
 /// The borrow eligibility rule (previously inlined in the peer library
