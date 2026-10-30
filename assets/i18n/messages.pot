@@ -12195,3 +12195,197 @@ msgstr ""
 #. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
 msgid "module_cover_auto_crop_desc_android"
 msgstr ""
+
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr ""
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr ""
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr ""
+
+#. Restore failed ({error})
+msgid "backup_restore_error_generic"
+msgstr ""
+
+#. Visibility of this book: public, or hidden from the network
+msgid "book_visibility"
+msgstr ""
+
+#. Visibility option: the book is part of the public catalogue
+msgid "book_visibility_public"
+msgstr ""
+
+#. Description of the public visibility option
+msgid "book_visibility_public_desc"
+msgstr ""
+
+#. Visibility option: listed but never offered for loan
+msgid "book_visibility_not_lendable"
+msgstr ""
+
+#. Description of the not-for-loan visibility option
+msgid "book_visibility_not_lendable_desc"
+msgstr ""
+
+#. Ownership
+msgid "book_ownership"
+msgstr ""
+
+#. I do not own this book
+msgid "book_ownership_not_owned"
+msgstr ""
+
+#. Its {count} recorded copies will be deleted, with their prices and dates.
+msgid "book_ownership_delete_copies"
+msgstr ""
+
+#. The book will leave your wishlist.
+msgid "book_ownership_leaves_wishlist"
+msgstr ""
+
+#. A copy is out. Get it back, or give it back, first.
+msgid "book_ownership_release_blocked"
+msgstr ""
+
+#. Get hold of this book
+msgid "acquire_book_title"
+msgstr ""
+
+#. Nobody in your network has it right now.
+msgid "acquire_nobody_has_it"
+msgstr ""
+
+#. Once you have it
+msgid "acquire_once_obtained"
+msgstr ""
+
+#. I borrowed it
+msgid "acquire_i_borrowed_it"
+msgstr ""
+
+#. I bought it
+msgid "acquire_i_bought_it"
+msgstr ""
+
+#. Add to my wishlist
+msgid "acquire_add_to_wishlist"
+msgstr ""
+
+#. Read more
+msgid "read_more"
+msgstr ""
+
+#. Show less
+msgid "read_less"
+msgstr ""
+
+#. Configure my links
+msgid "book_links_configure"
+msgstr ""
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr ""
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr ""
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr ""
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr ""
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr ""
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr ""
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr ""
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr ""
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr ""
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr ""
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr ""
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr ""
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr ""
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr ""
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr ""
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr ""
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr ""
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr ""
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr ""
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr ""
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr ""
+
+#. Import - dialog title when the file has no recognisable author column
+msgid "import_author_column_missing_title"
+msgstr ""
+
+#. Import - dialog body when the file has no author column ({columns} = headers read from the file)
+msgid "import_author_column_missing_body"
+msgstr ""
+
+#. Import - sentence added to the missing ISBN dialog when the author column is missing too
+msgid "import_author_column_missing_too"
+msgstr ""
+
+#. Import - dialog button to import a file that has no author column
+msgid "import_continue_without_author"
+msgstr ""
