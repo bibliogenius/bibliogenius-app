@@ -12321,3 +12321,31 @@ msgstr "Dosyada yazar sütunu da yok: kitaplar ayrıca yazarsız içe aktarılac
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "Yazarsız içe aktar"
+
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "ISBN sütunu bulunamadı"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "Okunan sütunlar: {columns}. ISBN olmadan bu kitapların kapağı ve otomatik tamamlaması olmaz, istek listesinde bulunduran kütüphanelere de gösterilmezler. Yine de içe aktarılsın mı?"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "ISBN olmadan içe aktar"
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "Sütunu seç"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "{count} kitap içe aktarıldı, {with_isbn} tanesi ISBN'li."
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "{count} kitap içe aktarıldı, hiçbiri ISBN'li değil."
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "{count} ISBN yok sayıldı (10 veya 13 karakter değil)."

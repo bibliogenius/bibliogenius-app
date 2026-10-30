@@ -12321,3 +12321,31 @@ msgstr "Файлът няма и колона за автор: книгите щ
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "Импортиране без автор"
+
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "Не е разпозната колона за ISBN"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "Прочетени колони: {columns}. Без ISBN тези книги няма да имат корица и автоматично допълване и няма да бъдат показвани на библиотеките, които ги имат в списъка си с желания. Да се импортира ли въпреки това?"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "Импортиране без ISBN"
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "Избор на колона"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "Импортирани книги: {count}, от тях с ISBN: {with_isbn}."
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "Импортирани книги: {count}, нито една с ISBN."
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "Пропуснати ISBN: {count} (нито 10, нито 13 знака)."

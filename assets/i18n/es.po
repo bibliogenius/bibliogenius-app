@@ -12209,3 +12209,31 @@ msgstr "El archivo tampoco tiene columna de autor: los libros también se import
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
 msgstr "Importar sin autor"
+
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "No se ha reconocido ninguna columna ISBN"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "Columnas leídas: {columns}. Sin ISBN, estos libros no tendrán portada ni completado automático, y no se señalarán a las bibliotecas que los tengan en su lista de deseos. ¿Importar de todos modos?"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "Importar sin ISBN"
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "Elegir la columna"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "{count} libros importados, {with_isbn} con ISBN."
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "{count} libros importados, ninguno con ISBN."
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "{count} ISBN ignorados (ni 10 ni 13 caracteres)."

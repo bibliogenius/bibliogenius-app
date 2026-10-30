@@ -7880,7 +7880,7 @@ msgstr "No ISBN column found"
 
 #. Import - dialog body ({columns} = headers read from the file)
 msgid "import_isbn_column_missing_body"
-msgstr "Columns read: {columns}. Without an ISBN, covers, completion and matching with other libraries cannot work for these books. Import anyway?"
+msgstr "Columns read: {columns}. Without an ISBN, these books get no cover or automatic completion, and are not flagged to libraries that have them on their wishlist. Import anyway?"
 
 #. Import - dialog button to import a file that has no ISBN column
 msgid "import_continue_without_isbn"
