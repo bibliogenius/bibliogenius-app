@@ -11474,3 +11474,987 @@ msgstr "拍摄封面照片时，自动识别书本、裁剪并校正。关闭后
 #. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
 msgid "module_cover_auto_crop_desc_android"
 msgstr "拍摄封面照片时，自动识别书本、裁剪并校正。关闭后将使用普通相机。在 Android 上，裁剪功能由 Google Play 服务提供。"
+
+msgid "delete_contact_unfollow_note"
+msgstr "您也将在名录中取消关注此图书馆。如果它仍列在名录中，您可以从名录重新关注。"
+
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr "架空历史"
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr "古代"
+
+#. Architecture
+msgid "genre_architecture"
+msgstr "建筑"
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr "艺术与画册"
+
+#. Biography
+msgid "genre_biography"
+msgstr "传记"
+
+#. Cinema
+msgid "genre_cinema"
+msgstr "电影"
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr "经典小说"
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr "漫画与日漫"
+
+#. American comics
+msgid "genre_comics_us"
+msgstr "美漫"
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr "当代小说"
+
+#. Cooking
+msgid "genre_cooking"
+msgstr "烹饪"
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr "犯罪与惊悚"
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr "赛博朋克"
+
+#. Detective novel
+msgid "genre_detective"
+msgstr "侦探小说"
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr "反乌托邦"
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr "近代早期"
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr "史诗奇幻"
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr "随笔与纪实"
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr "奇幻"
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr "美术"
+
+#. First reads
+msgid "genre_first_reads"
+msgstr "启蒙读物"
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr "法比漫画"
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr "图像小说"
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr "历史小说"
+
+#. History
+msgid "genre_history"
+msgstr "历史"
+
+#. Horror
+msgid "genre_horror"
+msgstr "恐怖"
+
+#. Manga
+msgid "genre_manga"
+msgstr "日本漫画"
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr "中世纪"
+
+#. Music
+msgid "genre_music"
+msgstr "音乐"
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr "自然与园艺"
+
+#. Near future
+msgid "genre_near_future"
+msgstr "近未来"
+
+#. Noir
+msgid "genre_noir"
+msgstr "黑色小说"
+
+#. Fiction
+msgid "genre_novel"
+msgstr "小说"
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr "哲学"
+
+#. Photography
+msgid "genre_photography"
+msgstr "摄影"
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr "推荐类型。选择一个即可将图书归入对应书架。"
+
+#. Genre
+msgid "genre_picker_label"
+msgstr "类型"
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr "绘本"
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr "诗歌与戏剧"
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr "政治与社会"
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr "实用与休闲"
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr "细化（可选）"
+
+#. Romance
+msgid "genre_romance"
+msgstr "爱情"
+
+#. Genre
+msgid "genre_root"
+msgstr "类型"
+
+#. Science
+msgid "genre_science"
+msgstr "科学"
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr "科幻"
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr "短篇小说"
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr "太空歌剧"
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr "灵性"
+
+#. Sport
+msgid "genre_sport"
+msgstr "体育"
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr "间谍小说"
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr "超自然"
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr "青少年小说"
+
+#. Thriller
+msgid "genre_thriller"
+msgstr "惊悚"
+
+#. Travel
+msgid "genre_travel"
+msgstr "旅行"
+
+#. True crime
+msgid "genre_true_crime"
+msgstr "真实犯罪"
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr "20 世纪"
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr "都市奇幻"
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr "身心健康"
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr "青年小说"
+
+#. Children & teens
+msgid "genre_youth"
+msgstr "少儿与青少年"
+
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "我的城市"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "保存在本设备上。是否在公开名录中分享它，是另一项选择。"
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "请先选择您的国家/地区，以便加载城市列表。"
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "移除我的城市"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "请先在上方选择一个城市。"
+
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "此文件不是可读取的 BiblioGenius 备份。"
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "此备份由较早版本的 BiblioGenius 创建，其格式已不再兼容。请保留该文件：它可以被转换。"
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "无法连接到您的本地图书馆。请稍后再试。"
+
+msgid "backup_restore_error_generic"
+msgstr "还原失败（{error}）"
+
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "未找到 ISBN 列"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "已读取的列：{columns}。没有 ISBN，这些图书将无法获得封面或自动补全，也不会提示给心愿单中有这些书的图书馆。仍要导入吗？"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "不带 ISBN 导入"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "已导入 {count} 本书，其中 {with_isbn} 本带有 ISBN。"
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "已导入 {count} 本书，均无 ISBN。"
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "已忽略 {count} 个 ISBN（不是 10 位或 13 位）。"
+
+msgid "settings_goal_set_city"
+msgstr "设置我的城市"
+
+msgid "discover_dismiss_suggestion"
+msgstr "隐藏此建议"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "其他图书馆看到的内容"
+
+msgid "peer_view_entry_desc"
+msgstr "预览您已发布的书目"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "在公开自己之前值得查看一下"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "其他图书馆从您这里收到的内容"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "发布前先查看"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "名录发送的内容更少：仅包括您拥有的图书的书名、作者、封面和 ISBN。"
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "此列表正是您的设备发送给浏览您书目的其他图书馆的原样响应。这里不做任何重新计算：相同的数据，相同的筛选代码。"
+
+msgid "peer_view_hidden_note"
+msgstr "您的私密图书不会出现，您的备注、阅读状态、评分、购买价格和当前借阅也不会出现。"
+
+msgid "peer_view_count"
+msgstr "{count} 本书可见"
+
+msgid "peer_view_empty"
+msgstr "目前没有可见的图书。"
+
+msgid "peer_view_error"
+msgstr "无法读取您已发布的书目。"
+
+msgid "peer_view_available_copies"
+msgstr "{count} 本可借"
+
+#. Visibility of this book: public, or hidden from the network
+msgid "book_visibility"
+msgstr "可见性"
+
+#. Visibility option: the book is part of the public catalogue
+msgid "book_visibility_public"
+msgstr "公开"
+
+#. Description of the public visibility option
+msgid "book_visibility_public_desc"
+msgstr "对您的联系人可见，且可供借阅"
+
+#. Visibility option: listed but never offered for loan
+msgid "book_visibility_not_lendable"
+msgstr "公开，不外借"
+
+#. Description of the not-for-loan visibility option
+msgid "book_visibility_not_lendable_desc"
+msgstr "可见，但绝不提供借阅"
+
+msgid "book_ownership"
+msgstr "拥有情况"
+
+msgid "book_ownership_not_owned"
+msgstr "我没有这本书"
+
+msgid "book_ownership_delete_copies"
+msgstr "其 {count} 个已登记的藏本将被删除，连同其价格和日期。"
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "这本书将移出您的心愿单。"
+
+msgid "book_ownership_release_blocked"
+msgstr "有一个藏本尚在外流转。请先将其取回或归还。"
+
+msgid "acquire_book_title"
+msgstr "获取这本书"
+
+msgid "acquire_nobody_has_it"
+msgstr "目前您的网络中没有人拥有这本书。"
+
+msgid "acquire_once_obtained"
+msgstr "拿到之后"
+
+msgid "acquire_i_borrowed_it"
+msgstr "我借到了"
+
+msgid "acquire_i_bought_it"
+msgstr "我买了"
+
+msgid "acquire_add_to_wishlist"
+msgstr "加入我的心愿单"
+
+msgid "read_more"
+msgstr "展开全文"
+
+msgid "read_less"
+msgstr "收起"
+
+msgid "book_links_configure"
+msgstr "配置我的链接"
+
+#. Screen reader announcement once a typed name becomes an author
+msgid "author_added_announcement"
+msgstr "已添加作者：{name}"
+
+msgid "completeness_books_without_author"
+msgstr "有 {n} 本书完全没有作者。自动补全无法填写作者：作者是关联的记录，而不是图书上的字段。这些图书在上方被计为完整。请在图书页面添加作者。"
+
+msgid "account_sync_devices_subtitle"
+msgstr "设备可以访问该账号。"
+
+msgid "account_sync_account_section_title"
+msgstr "账号"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "账号让图书馆在您的各设备间保持同步，并由您的密码短语保护。"
+
+msgid "account_sync_synced_partial"
+msgstr "部分同步：有些内容未能在此设备上应用。请更新您的设备后再试。"
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "更改密码短语"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "请选择新的密码短语。您不需要旧的密码短语：此设备已持有您的账号密钥。您的其他设备将继续正常使用，您的恢复短语仍然有效。"
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "更改密码短语不会让已连接的设备退出登录。如需排除某台设备，请将其从设备列表中移除。"
+
+msgid "account_sync_new_passphrase_label"
+msgstr "新密码短语"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "确认新密码短语"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "两次输入的密码短语不一致。"
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "保存新密码短语"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "密码短语已更改。在其他设备上加入此账号时，请使用新的密码短语。"
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "无法更改密码短语。请检查您的网络连接后重试。"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "系列"
+
+msgid "collection_series_toggle_desc"
+msgstr "为各卷排序"
+
+msgid "series_reorder_handle"
+msgstr "拖动以重新排序"
+
+msgid "series_help_text"
+msgstr "拖动各卷的手柄可更改顺序，或点按封面上的编号进行设置。"
+
+msgid "series_frieze_title"
+msgstr "系列"
+
+#. Series frieze heading on the book page, with the collection name inlined; {name} is the series name
+msgid "series_frieze_title_named"
+msgstr "系列：{name}"
+
+msgid "series_edit_volume"
+msgstr "卷号"
+
+msgid "series_volume_number"
+msgstr "卷号"
+
+msgid "series_volume_hint"
+msgstr "例如 3"
+
+msgid "series_volume_abbrev"
+msgstr "卷"
+
+msgid "series_clear_volume"
+msgstr "清除"
+
+msgid "series_invalid_volume"
+msgstr "请输入正数"
+
+msgid "series_unnumbered"
+msgstr "无编号"
+
+msgid "series_read"
+msgstr "已读"
+
+msgid "series_unread"
+msgstr "未读"
+
+msgid "series_current_volume"
+msgstr "当前卷"
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr "选择来源："
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr "作者：{name}"
+
+msgid "duplicates_title"
+msgstr "重复条目"
+
+msgid "duplicates_intro"
+msgstr "当两台设备各自登记了同一本书时，同步会把两个条目汇集在一起，但无法判断它们描述的是同一本书。此页面会将它们合并为一个。"
+
+msgid "duplicates_scanning"
+msgstr "正在扫描图书馆..."
+
+msgid "duplicates_none"
+msgstr "您的图书馆中没有重复条目。"
+
+msgid "duplicates_error"
+msgstr "扫描未能完成。"
+
+msgid "duplicates_certain_section"
+msgstr "确定重复"
+
+msgid "duplicates_certain_summary"
+msgstr "涉及 {groups} 本书，多出 {books} 个条目。这些条目的 ISBN 相同。"
+
+msgid "duplicates_merge_all"
+msgstr "合并确定重复的条目"
+
+msgid "duplicates_probable_section"
+msgstr "可能重复"
+
+msgid "duplicates_probable_hint"
+msgstr "这些条目的书名和作者相同，但没有 ISBN 加以确认。它们也可能是同一作品的两个版本，因此需逐一确认。"
+
+msgid "duplicates_merge_one"
+msgstr "合并"
+
+msgid "duplicates_kept_label"
+msgstr "保留的条目，创建于"
+
+msgid "duplicates_removed_label"
+msgstr "并入的条目，创建于"
+
+msgid "duplicates_confirm_title"
+msgstr "合并这些条目？"
+
+msgid "duplicates_confirm_all_body"
+msgstr "{books} 个条目将并入您保留的条目。书架、合集、藏本和备注会一并保留。"
+
+msgid "duplicates_confirm_one_body"
+msgstr "“{title}”的各条目将合并为一个。书架、合集、藏本和备注会一并保留。"
+
+msgid "duplicates_confirm_replicates"
+msgstr "此操作适用于您的所有设备：它们会在下次同步时应用。"
+
+msgid "duplicates_confirm_backup"
+msgstr "事先做一次备份，便可撤回。"
+
+msgid "duplicates_confirm_cta"
+msgstr "合并"
+
+msgid "duplicates_report"
+msgstr "已合并 {books} 个条目，归并 {copies} 个藏本。"
+
+msgid "duplicates_banner_body"
+msgstr "您的图书馆中有 {count} 个重复条目，产生于您的设备合并各自图书馆之时。"
+
+msgid "duplicates_banner_cta"
+msgstr "查看重复条目"
+
+msgid "account_join_existing_library_warning"
+msgstr "此设备上已有 {count} 本书。它们将与账号中的图书合并：不会丢失任何内容，但两边都登记过的书会出现两次。之后可使用提供的工具将其合并。"
+
+msgid "duplicates_settings_subtitle"
+msgstr "合并描述同一本书的条目"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "清除"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "头像已更新"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "重试"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "已复制到剪贴板"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "描述"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "已启用"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "请输入身份验证器应用中的 6 位数字验证码。"
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "无法借阅这本书"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "设置两步验证时出错"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "网络错误"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "保存失败"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "更新失败"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "错误"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "此字段为必填项"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "两步验证已启用"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "名称"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "暂无联系人"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "确定"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "上级"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "刷新"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "重置"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "密钥"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "设置两步验证"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "切换摄像头"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "请输入书名"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "今天"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "更新"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "验证码"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "添加图书"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "点按此处，将图书添加到您的图书馆。"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "扫描条形码"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "将摄像头对准封底，通过 ISBN 查找图书。"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "搜索您的图书馆"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "按书名、作者或 ISBN 筛选您的图书。"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "在线搜索"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "在在线书目中查找图书，一键添加。"
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "切换视图"
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "从文件补全"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "补全"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "有 {count} 本书在同一天添加，且都没有 ISBN。如果它们来自某个文件，说明该文件的 ISBN 列未被识别：重新读取该文件即可补全它们。"
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "哪一列包含 ISBN？"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "未能识别任何列名。请选择此文件中包含 ISBN 的列；该选择仅对本次读取有效。"
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "补全结果"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "读取 {rows} 行，补全 {completed} 本书，{no_match} 行无匹配，{ambiguous} 行有歧义。"
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "未处理的行"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "没有图书与此行匹配"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "此行在文件中出现了两次"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "有多本图书与此行匹配"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "撤销此次补全"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "已将 {count} 个字段恢复为之前的状态"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "无法从此文件中读取任何行。"
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "另有 {count} 行未在此列出"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "上次补全：{n} 本书"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "全部撤销"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "撤销此次补全？"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n} 本书将恢复到之前的状态。此后您亲自修改过的字段不受影响。"
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "选择列"
+
+msgid "status_change_ownership_title"
+msgstr "这本书在您的书架上吗？"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "它将加入“我的全部图书”。"
+
+msgid "status_change_ownership_no_desc"
+msgstr "它仍会按阅读状态显示在图书馆中。"
+
+msgid "status_change_ownership_show_all"
+msgstr "在图书馆中显示全部"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "无论是否拥有，您的所有图书都在一起。可在设置中调整。"
+
+msgid "settings_show_not_owned_books"
+msgstr "显示我未拥有的图书"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "心愿单中的书以及读过但未拥有的书，将与其他图书一起显示在图书馆中。"
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "查看图书"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "%d 个子书架"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "%d 个子书架"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "这些图书仍保留在您的图书馆中，只是离开此书架。"
+
+#. Household readers
+msgid "household_title"
+msgstr "读者"
+
+#. Household readers
+msgid "household_subtitle"
+msgstr "一位读者就是一个人，拥有自己的阅读记录。"
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "点按一个名字，选择在此设备上阅读的人。"
+
+#. Household readers
+msgid "household_note"
+msgstr "请为每个人创建一位读者：每人各自保留阅读状态、日期和评分。图书馆和心愿单保持共享。"
+
+#. Household readers
+msgid "household_create_me"
+msgstr "创建我的读者"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "在此设备上添加读者"
+
+#. Household readers
+msgid "household_name"
+msgstr "名字"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "创建"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "在此阅读"
+
+#. Household readers
+msgid "household_error"
+msgstr "无法更改读者。请重试。"
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "想要的人：{names}"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "从心愿单移除"
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "重命名读者"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "返回共享视图"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "选择读者之前，请先在此账号的每台设备上更新应用：旧版本将看不到他们的阅读记录。"
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "此账号中已有读者。请选择在此设备上阅读的人。"
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "选择"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "删除 {name}？"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "此人的阅读状态、日期和评分将在此账号的所有设备上被清除。此人想要的图书仍保留在心愿单中，但不再显示其名字。"
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "导入我的阅读记录"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "导入我的阅读记录"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "图书馆中已有的 {matched} 本书获得了您的阅读记录。{created} 本书已添加到图书馆。"
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count} 本书与图书馆中的多本图书匹配，未作更改："
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count} 行无法使用，已跳过。"
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "无法导入该文件：{detail}"
+
+#. Import - dialog title when the file has no recognisable author column
+msgid "import_author_column_missing_title"
+msgstr "未找到作者列"
+
+#. Import - dialog body when the file has no author column ({columns} = headers read from the file)
+msgid "import_author_column_missing_body"
+msgstr "已读取的列：{columns}。没有作者列，这些图书导入后将没有作者。仍要导入吗？"
+
+#. Import - sentence added to the missing ISBN dialog when the author column is missing too
+msgid "import_author_column_missing_too"
+msgstr "该文件也没有作者列：这些图书导入后同样没有作者。"
+
+#. Import - dialog button to import a file that has no author column
+msgid "import_continue_without_author"
+msgstr "不带作者导入"

@@ -11474,3 +11474,987 @@ msgstr "表紙を撮影するときに本を検出し、トリミングしてま
 #. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
 msgid "module_cover_auto_crop_desc_android"
 msgstr "表紙を撮影するときに本を検出し、トリミングしてまっすぐに補正します。オフにすると通常のカメラを使用します。Android では、トリミングは Google Play 開発者サービスによって提供されます。"
+
+msgid "delete_contact_unfollow_note"
+msgstr "ディレクトリでのこのライブラリのフォローも解除されます。掲載されていれば、ディレクトリから再びフォローできます。"
+
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr "歴史改変"
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr "古代"
+
+#. Architecture
+msgid "genre_architecture"
+msgstr "建築"
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr "美術・画集"
+
+#. Biography
+msgid "genre_biography"
+msgstr "伝記"
+
+#. Cinema
+msgid "genre_cinema"
+msgstr "映画"
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr "古典文学"
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr "コミック・マンガ"
+
+#. American comics
+msgid "genre_comics_us"
+msgstr "アメコミ"
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr "現代文学"
+
+#. Cooking
+msgid "genre_cooking"
+msgstr "料理"
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr "犯罪・スリラー"
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr "サイバーパンク"
+
+#. Detective novel
+msgid "genre_detective"
+msgstr "探偵小説"
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr "ディストピア"
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr "近世"
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr "エピックファンタジー"
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr "エッセイ・ノンフィクション"
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr "ファンタジー"
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr "美術"
+
+#. First reads
+msgid "genre_first_reads"
+msgstr "はじめての本"
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr "バンド・デシネ"
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr "グラフィックノベル"
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr "歴史小説"
+
+#. History
+msgid "genre_history"
+msgstr "歴史"
+
+#. Horror
+msgid "genre_horror"
+msgstr "ホラー"
+
+#. Manga
+msgid "genre_manga"
+msgstr "マンガ"
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr "中世"
+
+#. Music
+msgid "genre_music"
+msgstr "音楽"
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr "自然・園芸"
+
+#. Near future
+msgid "genre_near_future"
+msgstr "近未来"
+
+#. Noir
+msgid "genre_noir"
+msgstr "ノワール"
+
+#. Fiction
+msgid "genre_novel"
+msgstr "小説"
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr "哲学"
+
+#. Photography
+msgid "genre_photography"
+msgstr "写真"
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr "おすすめのジャンルです。選ぶと本がその本棚に整理されます。"
+
+#. Genre
+msgid "genre_picker_label"
+msgstr "ジャンル"
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr "絵本"
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr "詩・戯曲"
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr "政治・社会"
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr "実用・趣味"
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr "絞り込む（任意）"
+
+#. Romance
+msgid "genre_romance"
+msgstr "恋愛"
+
+#. Genre
+msgid "genre_root"
+msgstr "ジャンル"
+
+#. Science
+msgid "genre_science"
+msgstr "科学"
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr "SF"
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr "短編集"
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr "スペースオペラ"
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr "精神世界"
+
+#. Sport
+msgid "genre_sport"
+msgstr "スポーツ"
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr "スパイ小説"
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr "超自然"
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr "ティーン向け小説"
+
+#. Thriller
+msgid "genre_thriller"
+msgstr "スリラー"
+
+#. Travel
+msgid "genre_travel"
+msgstr "旅行"
+
+#. True crime
+msgid "genre_true_crime"
+msgstr "実録犯罪"
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr "20世紀"
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr "アーバンファンタジー"
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr "ウェルビーイング"
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr "ヤングアダルト"
+
+#. Children & teens
+msgid "genre_youth"
+msgstr "児童・ティーン"
+
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "私の街"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "このデバイスに保存されます。公開ディレクトリで共有するかは別に選べます。"
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "街の一覧を読み込むため、先に国を選んでください。"
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "街を削除"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "先に上で街を選んでください。"
+
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "このファイルは読み込める BiblioGenius のバックアップではありません。"
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "このバックアップは以前のバージョンの BiblioGenius で作成されたもので、形式に互換性がなくなっています。ファイルは保管しておいてください。変換できます。"
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "ローカルのライブラリに接続できませんでした。しばらくしてからもう一度お試しください。"
+
+msgid "backup_restore_error_generic"
+msgstr "復元に失敗しました（{error}）"
+
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "ISBN の列が見つかりません"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "読み込んだ列：{columns}。ISBN がないと、これらの本には表紙も自動補完もつかず、ほしいものリストに登録しているライブラリにも知らされません。このままインポートしますか？"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "ISBN なしでインポート"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "{count}冊をインポートしました。うち{with_isbn}冊に ISBN があります。"
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "{count}冊をインポートしました。ISBN のある本はありません。"
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "{count}件の ISBN を無視しました（10桁または13桁ではありません）。"
+
+msgid "settings_goal_set_city"
+msgstr "街を設定"
+
+msgid "discover_dismiss_suggestion"
+msgstr "この提案を非表示"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "他のライブラリからの見え方"
+
+msgid "peer_view_entry_desc"
+msgstr "公開されているとおりにカタログをプレビュー"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "公開する前に確認しておきましょう"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "他のライブラリがあなたから受け取る内容"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "公開前に確認"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "ディレクトリに送られる内容はこれより少なく、所有している本のタイトル、著者、表紙、ISBN のみです。"
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "この一覧は、あなたのカタログを閲覧する他のライブラリにデバイスが送る応答そのものです。ここでは何も再計算していません。同じデータ、同じフィルタリングのコードです。"
+
+msgid "peer_view_hidden_note"
+msgstr "非公開の本は含まれず、メモ、読書ステータス、評価、購入価格、現在の貸出も含まれません。"
+
+msgid "peer_view_count"
+msgstr "{count}冊が表示されています"
+
+msgid "peer_view_empty"
+msgstr "現在表示されている本はありません。"
+
+msgid "peer_view_error"
+msgstr "公開中のカタログを読み込めませんでした。"
+
+msgid "peer_view_available_copies"
+msgstr "{count}冊貸出可能"
+
+#. Visibility of this book: public, or hidden from the network
+msgid "book_visibility"
+msgstr "公開設定"
+
+#. Visibility option: the book is part of the public catalogue
+msgid "book_visibility_public"
+msgstr "公開"
+
+#. Description of the public visibility option
+msgid "book_visibility_public_desc"
+msgstr "連絡先に表示され、借りることができます"
+
+#. Visibility option: listed but never offered for loan
+msgid "book_visibility_not_lendable"
+msgstr "公開・貸出不可"
+
+#. Description of the not-for-loan visibility option
+msgid "book_visibility_not_lendable_desc"
+msgstr "表示されますが、貸し出しには出しません"
+
+msgid "book_ownership"
+msgstr "所有"
+
+msgid "book_ownership_not_owned"
+msgstr "この本を所有していません"
+
+msgid "book_ownership_delete_copies"
+msgstr "登録されている{count}冊の蔵書が、価格や日付とともに削除されます。"
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "この本はほしいものリストから外れます。"
+
+msgid "book_ownership_release_blocked"
+msgstr "貸出中または借用中の蔵書があります。先に返却を済ませてください。"
+
+msgid "acquire_book_title"
+msgstr "この本を手に入れる"
+
+msgid "acquire_nobody_has_it"
+msgstr "現在、あなたのネットワークでこの本を持っている人はいません。"
+
+msgid "acquire_once_obtained"
+msgstr "手に入れたら"
+
+msgid "acquire_i_borrowed_it"
+msgstr "借りました"
+
+msgid "acquire_i_bought_it"
+msgstr "買いました"
+
+msgid "acquire_add_to_wishlist"
+msgstr "ほしいものリストに追加"
+
+msgid "read_more"
+msgstr "続きを読む"
+
+msgid "read_less"
+msgstr "閉じる"
+
+msgid "book_links_configure"
+msgstr "リンクを設定"
+
+#. Screen reader announcement once a typed name becomes an author
+msgid "author_added_announcement"
+msgstr "著者を追加しました：{name}"
+
+msgid "completeness_books_without_author"
+msgstr "{n}冊の本に著者がまったく登録されていません。著者は本の項目ではなく関連付けられたレコードのため、一括補完では埋められません。これらの本は上記では完成として数えられています。本のページから著者を追加してください。"
+
+msgid "account_sync_devices_subtitle"
+msgstr "デバイスはアカウントへのアクセス手段です。"
+
+msgid "account_sync_account_section_title"
+msgstr "アカウント"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "アカウントは、パスフレーズで保護しながらライブラリをデバイス間で同期します。"
+
+msgid "account_sync_synced_partial"
+msgstr "部分的に同期しました。一部の項目をこのデバイスに適用できませんでした。デバイスを更新してから、もう一度お試しください。"
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "パスフレーズを変更"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "新しいパスフレーズを選んでください。古いパスフレーズは不要です。このデバイスがすでにアカウントの鍵を保持しています。他のデバイスはそのまま使え、復旧フレーズも有効なままです。"
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "パスフレーズを変更しても、接続済みのデバイスはサインアウトされません。除外するには、デバイス一覧から削除してください。"
+
+msgid "account_sync_new_passphrase_label"
+msgstr "新しいパスフレーズ"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "新しいパスフレーズを確認"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "2つのパスフレーズが一致しません。"
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "新しいパスフレーズを保存"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "パスフレーズを変更しました。別のデバイスからこのアカウントに参加するときは新しいパスフレーズを使ってください。"
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "パスフレーズを変更できませんでした。接続を確認して、もう一度お試しください。"
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "シリーズ"
+
+msgid "collection_series_toggle_desc"
+msgstr "巻を順番に並べる"
+
+msgid "series_reorder_handle"
+msgstr "ドラッグして並べ替え"
+
+msgid "series_help_text"
+msgstr "ハンドルで巻をドラッグして順番を変えるか、表紙の番号をタップして設定します。"
+
+msgid "series_frieze_title"
+msgstr "シリーズ"
+
+#. Series frieze heading on the book page, with the collection name inlined; {name} is the series name
+msgid "series_frieze_title_named"
+msgstr "シリーズ「{name}」"
+
+msgid "series_edit_volume"
+msgstr "巻数"
+
+msgid "series_volume_number"
+msgstr "巻数"
+
+msgid "series_volume_hint"
+msgstr "例：3"
+
+msgid "series_volume_abbrev"
+msgstr "巻"
+
+msgid "series_clear_volume"
+msgstr "クリア"
+
+msgid "series_invalid_volume"
+msgstr "正の数を入力してください"
+
+msgid "series_unnumbered"
+msgstr "番号なし"
+
+msgid "series_read"
+msgstr "既読"
+
+msgid "series_unread"
+msgstr "未読"
+
+msgid "series_current_volume"
+msgstr "現在の巻"
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr "ソースを選択："
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr "作成：{name}"
+
+msgid "duplicates_title"
+msgstr "重複"
+
+msgid "duplicates_intro"
+msgstr "2台のデバイスがそれぞれ同じ本を別々に登録していた場合、同期すると両方の項目がまとめられますが、同じ本であることは判別できません。このページでそれらを1つに統合します。"
+
+msgid "duplicates_scanning"
+msgstr "ライブラリをスキャン中..."
+
+msgid "duplicates_none"
+msgstr "ライブラリに重複はありません。"
+
+msgid "duplicates_error"
+msgstr "スキャンが完了しませんでした。"
+
+msgid "duplicates_certain_section"
+msgstr "確実な重複"
+
+msgid "duplicates_certain_summary"
+msgstr "{groups}冊が該当し、余分な項目が{books}件あります。これらの項目は同じ ISBN を持っています。"
+
+msgid "duplicates_merge_all"
+msgstr "確実な重複を統合"
+
+msgid "duplicates_probable_section"
+msgstr "重複の可能性"
+
+msgid "duplicates_probable_hint"
+msgstr "これらの項目はタイトルと著者が同じですが、ISBN による裏付けはありません。同じ作品の別の版である可能性もあるため、1件ずつ確認します。"
+
+msgid "duplicates_merge_one"
+msgstr "統合"
+
+msgid "duplicates_kept_label"
+msgstr "残す項目、作成日"
+
+msgid "duplicates_removed_label"
+msgstr "統合される項目、作成日"
+
+msgid "duplicates_confirm_title"
+msgstr "これらの項目を統合しますか？"
+
+msgid "duplicates_confirm_all_body"
+msgstr "{books}件の項目が、残す項目に統合されます。本棚、コレクション、蔵書、メモも引き継がれます。"
+
+msgid "duplicates_confirm_one_body"
+msgstr "「{title}」の項目が1つに統合されます。本棚、コレクション、蔵書、メモも引き継がれます。"
+
+msgid "duplicates_confirm_replicates"
+msgstr "すべてのデバイスに適用されます。次回の同期で反映されます。"
+
+msgid "duplicates_confirm_backup"
+msgstr "事前に作成したバックアップから元に戻せます。"
+
+msgid "duplicates_confirm_cta"
+msgstr "統合"
+
+msgid "duplicates_report"
+msgstr "{books}件の項目を統合し、{copies}冊の蔵書をまとめました。"
+
+msgid "duplicates_banner_body"
+msgstr "デバイス同士がライブラリをまとめた際に生じた重複項目が{count}件あります。"
+
+msgid "duplicates_banner_cta"
+msgstr "重複を確認"
+
+msgid "account_join_existing_library_warning"
+msgstr "このデバイスにはすでに{count}冊の本があります。アカウントの本とまとめられます。何も失われませんが、両方に登録されている本は2回表示されます。あとで統合するためのツールを用意しています。"
+
+msgid "duplicates_settings_subtitle"
+msgstr "同じ本を表す項目を統合"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "クリア"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "アバターを更新しました"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "再試行"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "クリップボードにコピーしました"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "説明"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "有効"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "認証アプリに表示される6桁のコードを入力してください。"
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "この本を借りられませんでした"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "2要素認証の設定中にエラーが発生しました"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "ネットワークエラー"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "保存に失敗しました"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "更新に失敗しました"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "エラー"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "この項目は必須です"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "2要素認証を有効にしました"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "名前"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "連絡先がまだありません"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "OK"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "親"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "更新"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "リセット"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "シークレットキー"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "2要素認証を設定"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "カメラを切り替え"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "タイトルを入力してください"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "今日"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "更新"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "確認コード"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "本を追加"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "ここをタップしてライブラリに本を追加します。"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "バーコードをスキャン"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "裏表紙にカメラを向けると、ISBN から本を見つけます。"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "ライブラリを検索"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "タイトル、著者、ISBN で本を絞り込みます。"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "オンラインで検索"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "オンラインカタログで本を探し、ワンタップで追加できます。"
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "表示を切り替え"
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "ファイルから補完"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "補完"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "同じ日に{count}冊が追加され、どれにも ISBN がありません。ファイルから取り込んだ場合、ISBN の列が認識されませんでした。そのファイルをもう一度読み込んで補完してください。"
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "ISBN はどの列にありますか？"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "列名を認識できませんでした。このファイルで ISBN が入っている列を選んでください。この選択は今回の読み込みにのみ適用されます。"
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "補完の結果"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows}行を読み込み、{completed}冊を補完、一致なし{no_match}件、判別不能{ambiguous}件。"
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "見送った行"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "この行に一致する本はありません"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "この行はファイル内に重複しています"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "この行に一致する本が複数あります"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "この補完を取り消す"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "{count}件の項目を元の状態に戻しました"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "このファイルから読み込める行はありませんでした。"
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "ほか{count}行（ここには表示されていません）"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "前回の補完：{n}冊"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "すべて取り消す"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "この補完を取り消しますか？"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "{n}冊の本が補完前の状態に戻ります。その後ご自身で編集した項目はそのまま残ります。"
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "列を選択"
+
+msgid "status_change_ownership_title"
+msgstr "この本はあなたの本棚にありますか？"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "「すべての本」に加わります。"
+
+msgid "status_change_ownership_no_desc"
+msgstr "ライブラリ内で読書ステータスのもとに表示されたままになります。"
+
+msgid "status_change_ownership_show_all"
+msgstr "ライブラリのすべてを表示"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "所有の有無にかかわらず、すべての本をまとめて表示します。設定で変更できます。"
+
+msgid "settings_show_not_owned_books"
+msgstr "所有していない本を表示"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "ほしい本や、所有せずに読んだ本も、ライブラリでほかの本と一緒に表示されます。"
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "本を見る"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "%d 個のサブ本棚"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "%d 個のサブ本棚"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "本はライブラリに残り、この本棚から外れるだけです。"
+
+#. Household readers
+msgid "household_title"
+msgstr "読者"
+
+#. Household readers
+msgid "household_subtitle"
+msgstr "読者とは一人の人で、それぞれ自分の読書記録を持ちます。"
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "名前をタップして、このデバイスで読む人を選んでください。"
+
+#. Household readers
+msgid "household_note"
+msgstr "一人につき一人の読者を作成してください。読書ステータス、日付、評価はそれぞれ個別に記録されます。ライブラリとほしいものリストは共有のままです。"
+
+#. Household readers
+msgid "household_create_me"
+msgstr "自分の読者を作成"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "このデバイスに読者を追加"
+
+#. Household readers
+msgid "household_name"
+msgstr "名前"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "作成"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "このデバイスで読書中"
+
+#. Household readers
+msgid "household_error"
+msgstr "読者を変更できませんでした。もう一度お試しください。"
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "{names}がほしい本"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "ほしいものリストから削除"
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "読者の名前を変更"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "共有表示に戻る"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "読者を選ぶ前に、このアカウントのすべてのデバイスでアプリを更新してください。古いバージョンでは読書記録が表示されません。"
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "このアカウントには読者がいます。このデバイスで読む人を選んでください。"
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "選択"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "{name}を削除しますか？"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "この読者の読書ステータス、日付、評価は、このアカウントのすべてのデバイスから消去されます。この読者がほしいと登録した本は、名前なしでほしいものリストに残ります。"
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "読書記録をインポート"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "読書記録をインポート"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "ライブラリにある{matched}冊に読書記録を反映しました。{created}冊をライブラリに追加しました。"
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "{count}冊はライブラリ内の複数の本に一致したため、変更していません："
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "{count}行は使用できないためスキップしました。"
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "ファイルをインポートできませんでした：{detail}"
+
+#. Import - dialog title when the file has no recognisable author column
+msgid "import_author_column_missing_title"
+msgstr "著者の列が見つかりません"
+
+#. Import - dialog body when the file has no author column ({columns} = headers read from the file)
+msgid "import_author_column_missing_body"
+msgstr "読み込んだ列：{columns}。著者の列がないため、これらの本は著者なしでインポートされます。このままインポートしますか？"
+
+#. Import - sentence added to the missing ISBN dialog when the author column is missing too
+msgid "import_author_column_missing_too"
+msgstr "このファイルには著者の列もありません。本は著者なしでもインポートされます。"
+
+#. Import - dialog button to import a file that has no author column
+msgid "import_continue_without_author"
+msgstr "著者なしでインポート"

@@ -11474,3 +11474,987 @@ msgstr "표지 사진을 찍을 때 책을 감지해 자르고 반듯하게 보�
 #. Modules > Advanced: description of the automatic cover crop toggle on Android, naming Google Play services as the provider
 msgid "module_cover_auto_crop_desc_android"
 msgstr "표지 사진을 찍을 때 책을 감지해 자르고 반듯하게 보정합니다. 끄면 일반 카메라를 사용합니다. Android에서는 Google Play 서비스가 자르기 기능을 제공합니다."
+
+msgid "delete_contact_unfollow_note"
+msgstr "디렉터리에서 이 서재에 대한 팔로우도 해제됩니다. 디렉터리에 등록되어 있다면 다시 팔로우할 수 있습니다."
+
+#. Alternate history
+msgid "genre_alternate_history"
+msgstr "대체 역사"
+
+#. Antiquity
+msgid "genre_antiquity"
+msgstr "고대"
+
+#. Architecture
+msgid "genre_architecture"
+msgstr "건축"
+
+#. Art & illustrated books
+msgid "genre_arts"
+msgstr "예술 및 화보집"
+
+#. Biography
+msgid "genre_biography"
+msgstr "전기"
+
+#. Cinema
+msgid "genre_cinema"
+msgstr "영화"
+
+#. Classic fiction
+msgid "genre_classic_fiction"
+msgstr "고전 소설"
+
+#. Comics & manga
+msgid "genre_comics"
+msgstr "만화 및 망가"
+
+#. American comics
+msgid "genre_comics_us"
+msgstr "미국 코믹스"
+
+#. Contemporary fiction
+msgid "genre_contemporary_fiction"
+msgstr "현대 소설"
+
+#. Cooking
+msgid "genre_cooking"
+msgstr "요리"
+
+#. Crime & thriller
+msgid "genre_crime"
+msgstr "범죄 및 스릴러"
+
+#. Cyberpunk
+msgid "genre_cyberpunk"
+msgstr "사이버펑크"
+
+#. Detective novel
+msgid "genre_detective"
+msgstr "추리 소설"
+
+#. Dystopia
+msgid "genre_dystopia"
+msgstr "디스토피아"
+
+#. Early modern
+msgid "genre_early_modern"
+msgstr "근세"
+
+#. Epic fantasy
+msgid "genre_epic_fantasy"
+msgstr "에픽 판타지"
+
+#. Essays & non-fiction
+msgid "genre_essay"
+msgstr "에세이 및 논픽션"
+
+#. Fantasy
+msgid "genre_fantasy"
+msgstr "판타지"
+
+#. Fine arts
+msgid "genre_fine_arts"
+msgstr "미술"
+
+#. First reads
+msgid "genre_first_reads"
+msgstr "첫 독서"
+
+#. Franco-Belgian comics
+msgid "genre_franco_belgian"
+msgstr "프랑스·벨기에 만화"
+
+#. Graphic novel
+msgid "genre_graphic_novel"
+msgstr "그래픽 노블"
+
+#. Historical fiction
+msgid "genre_historical_fiction"
+msgstr "역사 소설"
+
+#. History
+msgid "genre_history"
+msgstr "역사"
+
+#. Horror
+msgid "genre_horror"
+msgstr "호러"
+
+#. Manga
+msgid "genre_manga"
+msgstr "망가"
+
+#. Middle Ages
+msgid "genre_middle_ages"
+msgstr "중세"
+
+#. Music
+msgid "genre_music"
+msgstr "음악"
+
+#. Nature & garden
+msgid "genre_nature_garden"
+msgstr "자연 및 정원"
+
+#. Near future
+msgid "genre_near_future"
+msgstr "근미래"
+
+#. Noir
+msgid "genre_noir"
+msgstr "누아르"
+
+#. Fiction
+msgid "genre_novel"
+msgstr "소설"
+
+#. Philosophy
+msgid "genre_philosophy"
+msgstr "철학"
+
+#. Photography
+msgid "genre_photography"
+msgstr "사진"
+
+#. Suggested genres. Picking one files the book on a shelf.
+msgid "genre_picker_helper"
+msgstr "추천 장르입니다. 하나를 선택하면 책이 책장에 정리됩니다."
+
+#. Genre
+msgid "genre_picker_label"
+msgstr "장르"
+
+#. Picture book
+msgid "genre_picture_book"
+msgstr "그림책"
+
+#. Poetry & theatre
+msgid "genre_poetry_theatre"
+msgstr "시 및 희곡"
+
+#. Politics & society
+msgid "genre_politics_society"
+msgstr "정치 및 사회"
+
+#. Practical & hobbies
+msgid "genre_practical"
+msgstr "실용 및 취미"
+
+#. Refine (optional)
+msgid "genre_refine"
+msgstr "세부 선택(선택 사항)"
+
+#. Romance
+msgid "genre_romance"
+msgstr "로맨스"
+
+#. Genre
+msgid "genre_root"
+msgstr "장르"
+
+#. Science
+msgid "genre_science"
+msgstr "과학"
+
+#. Science fiction
+msgid "genre_scifi"
+msgstr "SF"
+
+#. Short stories
+msgid "genre_short_stories"
+msgstr "단편집"
+
+#. Space opera
+msgid "genre_space_opera"
+msgstr "스페이스 오페라"
+
+#. Spirituality
+msgid "genre_spirituality"
+msgstr "영성"
+
+#. Sport
+msgid "genre_sport"
+msgstr "스포츠"
+
+#. Spy fiction
+msgid "genre_spy"
+msgstr "첩보 소설"
+
+#. Supernatural
+msgid "genre_supernatural"
+msgstr "초자연"
+
+#. Teen fiction
+msgid "genre_teen_fiction"
+msgstr "청소년 소설"
+
+#. Thriller
+msgid "genre_thriller"
+msgstr "스릴러"
+
+#. Travel
+msgid "genre_travel"
+msgstr "여행"
+
+#. True crime
+msgid "genre_true_crime"
+msgstr "실화 범죄"
+
+#. 20th century
+msgid "genre_twentieth_century"
+msgstr "20세기"
+
+#. Urban fantasy
+msgid "genre_urban_fantasy"
+msgstr "어반 판타지"
+
+#. Wellbeing
+msgid "genre_wellbeing"
+msgstr "웰빙"
+
+#. Young adult
+msgid "genre_young_adult"
+msgstr "영어덜트"
+
+#. Children & teens
+msgid "genre_youth"
+msgstr "어린이 및 청소년"
+
+#. Section heading: the city stored on this device (ADR-035 amended)
+msgid "settings_city_title"
+msgstr "내 도시"
+
+#. Explains that filling in a city is local and does not publish anything
+msgid "settings_city_local_desc"
+msgstr "이 기기에 저장됩니다. 공개 디렉터리에 공유할지는 별도로 선택합니다."
+
+#. Shown instead of the city picker when no country is set yet
+msgid "settings_city_requires_country"
+msgstr "도시 목록을 불러올 수 있도록 먼저 국가를 선택하세요."
+
+#. Tooltip: remove the city stored on this device
+msgid "settings_city_clear"
+msgstr "내 도시 삭제"
+
+#. Shown under the share toggle when no city has been picked yet
+msgid "settings_share_city_requires_city"
+msgstr "먼저 위에서 도시를 선택하세요."
+
+#. Catalogue restore: shown when the picked file cannot be read at all.
+msgid "backup_restore_error_unreadable"
+msgstr "이 파일은 읽을 수 있는 BiblioGenius 백업이 아닙니다."
+
+#. Catalogue restore: the core refused the payload (HTTP 422). Exports made
+#. before the uuid primary keys carry integer ids and land here.
+msgid "backup_restore_error_incompatible"
+msgstr "이 백업은 이전 버전의 BiblioGenius로 만들어졌으며 형식이 더 이상 호환되지 않습니다. 파일을 보관해 두세요. 변환할 수 있습니다."
+
+#. Catalogue restore: the local library could not be reached.
+msgid "backup_restore_error_network"
+msgstr "로컬 서재에 연결할 수 없습니다. 잠시 후 다시 시도하세요."
+
+msgid "backup_restore_error_generic"
+msgstr "복원 실패({error})"
+
+#. Import - dialog title when the file names no ISBN column
+msgid "import_isbn_column_missing_title"
+msgstr "ISBN 열을 찾을 수 없습니다"
+
+#. Import - dialog body ({columns} = headers read from the file)
+msgid "import_isbn_column_missing_body"
+msgstr "읽은 열: {columns}. ISBN이 없으면 이 책들은 표지나 자동 완성을 받지 못하며, 위시리스트에 담아 둔 서재에도 알려지지 않습니다. 그래도 가져오시겠습니까?"
+
+#. Import - dialog button to import a file that has no ISBN column
+msgid "import_continue_without_isbn"
+msgstr "ISBN 없이 가져오기"
+
+#. Import outcome ({count} = books imported, {with_isbn} = those carrying an ISBN)
+msgid "migration_import_success_with_isbn"
+msgstr "책 {count}권을 가져왔으며, 그중 {with_isbn}권에 ISBN이 있습니다."
+
+#. Import outcome when no imported book carries an ISBN ({count} = books imported)
+msgid "migration_import_success_no_isbn"
+msgstr "책 {count}권을 가져왔으며, ISBN이 있는 책은 없습니다."
+
+#. Import outcome suffix ({count} = ISBN cells dropped because they are not 10 or 13 characters)
+msgid "migration_import_rejected_isbn"
+msgstr "ISBN {count}개를 무시했습니다(10자 또는 13자가 아님)."
+
+msgid "settings_goal_set_city"
+msgstr "내 도시 설정"
+
+msgid "discover_dismiss_suggestion"
+msgstr "이 추천 숨기기"
+
+#. Peer view mirror: screen title and Settings entry
+msgid "peer_view_title"
+msgstr "다른 서재에 보이는 모습"
+
+msgid "peer_view_entry_desc"
+msgstr "게시된 그대로 카탈로그 미리 보기"
+
+#. Peer view mirror: entry from the public directory sheet, before opting in
+msgid "peer_view_entry_preflight_desc"
+msgstr "공개하기 전에 확인해 보세요"
+
+#. Peer view mirror: same entry, once already listed
+msgid "peer_view_entry_listed_desc"
+msgstr "다른 서재가 받는 내 정보"
+
+#. Peer view mirror: secondary action on the Discover tab publish banner
+msgid "peer_view_before_publishing"
+msgstr "게시 전에 확인"
+
+#. Peer view mirror: the directory lane publishes strictly less than this list
+msgid "peer_view_directory_scope"
+msgstr "디렉터리에는 이보다 적은 정보가 전송됩니다. 소장한 책의 제목, 저자, 표지, ISBN만 전송됩니다."
+
+#. Peer view mirror: explanation card
+msgid "peer_view_intro"
+msgstr "이 목록은 다른 서재가 내 카탈로그를 둘러볼 때 기기가 보내는 응답 그대로입니다. 여기서 다시 계산하지 않습니다. 같은 데이터, 같은 필터링 코드입니다."
+
+msgid "peer_view_hidden_note"
+msgstr "비공개 책은 표시되지 않으며, 메모, 읽기 상태, 평점, 구매 가격, 진행 중인 대출도 포함되지 않습니다."
+
+msgid "peer_view_count"
+msgstr "표시되는 책 {count}권"
+
+msgid "peer_view_empty"
+msgstr "현재 표시되는 책이 없습니다."
+
+msgid "peer_view_error"
+msgstr "게시된 카탈로그를 읽을 수 없습니다."
+
+msgid "peer_view_available_copies"
+msgstr "{count}권 대출 가능"
+
+#. Visibility of this book: public, or hidden from the network
+msgid "book_visibility"
+msgstr "공개 범위"
+
+#. Visibility option: the book is part of the public catalogue
+msgid "book_visibility_public"
+msgstr "공개"
+
+#. Description of the public visibility option
+msgid "book_visibility_public_desc"
+msgstr "연락처에 표시되며 대출할 수 있습니다"
+
+#. Visibility option: listed but never offered for loan
+msgid "book_visibility_not_lendable"
+msgstr "공개, 대출 불가"
+
+#. Description of the not-for-loan visibility option
+msgid "book_visibility_not_lendable_desc"
+msgstr "표시되지만 대출로 제공되지 않습니다"
+
+msgid "book_ownership"
+msgstr "소유 상태"
+
+msgid "book_ownership_not_owned"
+msgstr "이 책을 소유하고 있지 않습니다"
+
+msgid "book_ownership_delete_copies"
+msgstr "기록된 소장본 {count}권이 가격 및 날짜와 함께 삭제됩니다."
+
+msgid "book_ownership_leaves_wishlist"
+msgstr "책이 위시리스트에서 제거됩니다."
+
+msgid "book_ownership_release_blocked"
+msgstr "소장본 하나가 나가 있습니다. 먼저 돌려받거나 돌려주세요."
+
+msgid "acquire_book_title"
+msgstr "이 책 구하기"
+
+msgid "acquire_nobody_has_it"
+msgstr "현재 네트워크에 이 책을 가진 사람이 없습니다."
+
+msgid "acquire_once_obtained"
+msgstr "책을 구한 후"
+
+msgid "acquire_i_borrowed_it"
+msgstr "빌렸어요"
+
+msgid "acquire_i_bought_it"
+msgstr "샀어요"
+
+msgid "acquire_add_to_wishlist"
+msgstr "내 위시리스트에 추가"
+
+msgid "read_more"
+msgstr "더 보기"
+
+msgid "read_less"
+msgstr "접기"
+
+msgid "book_links_configure"
+msgstr "내 링크 설정"
+
+#. Screen reader announcement once a typed name becomes an author
+msgid "author_added_announcement"
+msgstr "저자 추가됨: {name}"
+
+msgid "completeness_books_without_author"
+msgstr "책 {n}권에 저자가 전혀 없습니다. 저자는 책의 항목이 아니라 연결된 기록이므로 자동 채우기로 채울 수 없습니다. 이 책들은 위에서 완성된 것으로 집계됩니다. 책 페이지에서 저자를 추가하세요."
+
+msgid "account_sync_devices_subtitle"
+msgstr "기기는 계정에 접근할 수 있습니다."
+
+msgid "account_sync_account_section_title"
+msgstr "계정"
+
+msgid "account_sync_account_section_subtitle"
+msgstr "계정은 암호 구문으로 보호되며, 모든 기기에서 서재를 동기화합니다."
+
+msgid "account_sync_synced_partial"
+msgstr "부분 동기화: 일부 항목을 이 기기에 적용할 수 없습니다. 기기를 업데이트한 후 다시 시도하세요."
+
+#. Account screen button + change-passphrase screen title (ADR-042 lot B)
+msgid "account_sync_change_passphrase"
+msgstr "암호 구문 변경"
+
+#. Change-passphrase screen intro: the old passphrase is never asked for
+msgid "account_sync_change_passphrase_intro"
+msgstr "새 암호 구문을 선택하세요. 이전 암호 구문은 필요 없습니다. 이 기기에 이미 계정 키가 있습니다. 다른 기기는 계속 작동하며 복구 문구도 유효합니다."
+
+#. Honest residual: a rotation is not a device revocation
+msgid "account_sync_change_passphrase_note"
+msgstr "암호 구문을 변경해도 이미 연결된 기기는 로그아웃되지 않습니다. 기기를 제외하려면 기기 목록에서 제거하세요."
+
+msgid "account_sync_new_passphrase_label"
+msgstr "새 암호 구문"
+
+msgid "account_sync_change_passphrase_confirm_label"
+msgstr "새 암호 구문 확인"
+
+msgid "account_sync_change_passphrase_mismatch"
+msgstr "두 암호 구문이 일치하지 않습니다."
+
+msgid "account_sync_change_passphrase_submit"
+msgstr "새 암호 구문 저장"
+
+msgid "account_sync_change_passphrase_done"
+msgstr "암호 구문이 변경되었습니다. 다른 기기에서 이 계정에 참여할 때 새 암호 구문을 사용하세요."
+
+msgid "account_sync_change_passphrase_failed"
+msgstr "암호 구문을 변경할 수 없습니다. 연결을 확인한 후 다시 시도하세요."
+
+#. Series (reading-order timeline)
+msgid "collection_series_toggle"
+msgstr "시리즈"
+
+msgid "collection_series_toggle_desc"
+msgstr "권 순서 정하기"
+
+msgid "series_reorder_handle"
+msgstr "끌어서 순서 변경"
+
+msgid "series_help_text"
+msgstr "핸들을 끌어 권 순서를 바꾸거나, 표지의 번호를 눌러 직접 지정하세요."
+
+msgid "series_frieze_title"
+msgstr "시리즈"
+
+#. Series frieze heading on the book page, with the collection name inlined; {name} is the series name
+msgid "series_frieze_title_named"
+msgstr "{name} 시리즈"
+
+msgid "series_edit_volume"
+msgstr "권 번호"
+
+msgid "series_volume_number"
+msgstr "권 번호"
+
+msgid "series_volume_hint"
+msgstr "예: 3"
+
+msgid "series_volume_abbrev"
+msgstr "권"
+
+msgid "series_clear_volume"
+msgstr "지우기"
+
+msgid "series_invalid_volume"
+msgstr "양수를 입력하세요"
+
+msgid "series_unnumbered"
+msgstr "번호 없음"
+
+msgid "series_read"
+msgstr "읽음"
+
+msgid "series_unread"
+msgstr "읽지 않음"
+
+msgid "series_current_volume"
+msgstr "현재 권"
+
+#. Shared list import: the step where the reader picks a file or pastes
+msgid "import_choose_source"
+msgstr "소스를 선택하세요:"
+
+#. Shared list import: who wrote the list, shown under its title
+msgid "shared_list_by_contributor"
+msgstr "작성: {name}"
+
+msgid "duplicates_title"
+msgstr "중복 항목"
+
+msgid "duplicates_intro"
+msgstr "두 기기가 각자 같은 책을 기록한 경우, 동기화하면 두 항목이 모두 합쳐지지만 같은 책인지 알 수는 없습니다. 이 페이지에서 하나로 병합합니다."
+
+msgid "duplicates_scanning"
+msgstr "서재 검사 중..."
+
+msgid "duplicates_none"
+msgstr "서재에 중복 항목이 없습니다."
+
+msgid "duplicates_error"
+msgstr "검사가 완료되지 않았습니다."
+
+msgid "duplicates_certain_section"
+msgstr "확실한 중복"
+
+msgid "duplicates_certain_summary"
+msgstr "책 {groups}권 해당, 초과 항목 {books}개. 이 항목들은 같은 ISBN을 가지고 있습니다."
+
+msgid "duplicates_merge_all"
+msgstr "확실한 중복 병합"
+
+msgid "duplicates_probable_section"
+msgstr "중복 가능성 있음"
+
+msgid "duplicates_probable_hint"
+msgstr "이 항목들은 제목과 저자가 같지만 ISBN으로 확인되지는 않습니다. 같은 작품의 서로 다른 판일 수도 있으므로 하나씩 확인합니다."
+
+msgid "duplicates_merge_one"
+msgstr "병합"
+
+msgid "duplicates_kept_label"
+msgstr "유지할 항목, 생성일"
+
+msgid "duplicates_removed_label"
+msgstr "병합될 항목, 생성일"
+
+msgid "duplicates_confirm_title"
+msgstr "이 항목들을 병합하시겠습니까?"
+
+msgid "duplicates_confirm_all_body"
+msgstr "항목 {books}개가 유지할 항목에 병합됩니다. 책장, 컬렉션, 소장본, 메모도 함께 옮겨집니다."
+
+msgid "duplicates_confirm_one_body"
+msgstr "\"{title}\"의 항목들이 하나로 병합됩니다. 책장, 컬렉션, 소장본, 메모도 함께 옮겨집니다."
+
+msgid "duplicates_confirm_replicates"
+msgstr "모든 기기에 적용됩니다. 다음 동기화 때 반영됩니다."
+
+msgid "duplicates_confirm_backup"
+msgstr "미리 만든 백업으로 되돌릴 수 있습니다."
+
+msgid "duplicates_confirm_cta"
+msgstr "병합"
+
+msgid "duplicates_report"
+msgstr "항목 {books}개를 병합하고 소장본 {copies}권을 합쳤습니다."
+
+msgid "duplicates_banner_body"
+msgstr "기기들의 서재를 합칠 때 생긴 중복 항목 {count}개가 서재에 있습니다."
+
+msgid "duplicates_banner_cta"
+msgstr "중복 항목 검토"
+
+msgid "account_join_existing_library_warning"
+msgstr "이 기기에는 이미 책 {count}권이 있습니다. 계정의 책과 합쳐집니다. 손실되는 것은 없지만 양쪽에 기록된 책은 두 번 표시됩니다. 나중에 병합할 수 있는 도구가 제공됩니다."
+
+msgid "duplicates_settings_subtitle"
+msgstr "같은 책을 가리키는 항목 병합"
+
+#. Keys called from the code but absent from every catalogue until now,
+#. so the raw key was rendered on screen. Added 2026-08-29.
+#. Tooltip on the clear icon of the settings search field.
+msgid "action_clear"
+msgstr "지우기"
+
+#. Snackbar shown after the profile avatar is changed.
+msgid "avatar_updated"
+msgstr "아바타가 업데이트되었습니다"
+
+#. Retry button on the mini-game loading error state.
+msgid "button_retry"
+msgstr "다시 시도"
+
+#. Snackbar shown after a value is copied to the clipboard.
+msgid "copied"
+msgstr "클립보드에 복사되었습니다"
+
+#. Label of the description field of a collection.
+msgid "description"
+msgstr "설명"
+
+#. Subtitle under Two-Factor Authentication when it is active.
+msgid "enabled"
+msgstr "활성화됨"
+
+#. Instruction in the two-factor code dialog at login.
+msgid "enter_mfa_code"
+msgstr "인증 앱의 6자리 코드를 입력하세요."
+
+#. Snackbar when a borrow request could not be recorded.
+msgid "error_borrowing_book"
+msgstr "이 책을 빌릴 수 없습니다"
+
+#. Prefix of the error shown when 2FA setup fails.
+msgid "error_initializing_mfa"
+msgstr "2단계 인증 설정 중 오류"
+
+#. Generic network failure snackbar.
+msgid "error_network"
+msgstr "네트워크 오류"
+
+#. Snackbar when saving a book fails.
+msgid "error_save_failed"
+msgstr "저장 실패"
+
+#. Prefix of the error shown when an update call fails.
+msgid "error_update"
+msgstr "업데이트 실패"
+
+#. Sync statistics tile counting failed operations.
+msgid "errors"
+msgstr "오류"
+
+#. Form validation message for an empty mandatory field.
+msgid "field_required"
+msgstr "필수 항목입니다"
+
+#. Snackbar confirming two-factor authentication is on.
+msgid "mfa_enabled_success"
+msgstr "2단계 인증이 활성화되었습니다"
+
+#. Label of the name field of a collection.
+msgid "name"
+msgstr "이름"
+
+#. Snackbar when a sale cannot be recorded for lack of contacts.
+msgid "no_contacts"
+msgstr "아직 연락처가 없습니다"
+
+#. Dismiss button of a confirmation dialog.
+msgid "ok"
+msgstr "확인"
+
+#. Label prefixing the parent shelf of a shelf.
+msgid "parent"
+msgstr "상위"
+
+#. Tooltip on the refresh button of shelf management.
+msgid "refresh"
+msgstr "새로 고침"
+
+#. Button restoring the default order of the profile stat cards.
+msgid "reset"
+msgstr "초기화"
+
+#. Label of the TOTP secret shown during 2FA setup.
+msgid "secret_key"
+msgstr "비밀 키"
+
+#. Title of the two-factor authentication setup dialog.
+msgid "setup_2fa"
+msgstr "2단계 인증 설정"
+
+#. Tooltip on the front/back camera toggle of the scanner.
+msgid "switch_camera"
+msgstr "카메라 전환"
+
+#. Form validation message for an empty title field.
+msgid "title_required"
+msgstr "제목을 입력하세요"
+
+#. Sync statistics tile counting today's operations.
+msgid "today"
+msgstr "오늘"
+
+#. Confirm button of the edit shelf dialog.
+msgid "update"
+msgstr "업데이트"
+
+#. Label of the code field during 2FA setup.
+msgid "verification_code"
+msgstr "인증 코드"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_title"
+msgstr "책 추가"
+
+#. Books tutorial, step on the add button.
+msgid "wizard_books_add_desc"
+msgstr "여기를 눌러 서재에 책을 추가하세요."
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_title"
+msgstr "바코드 스캔"
+
+#. Books tutorial, step on the barcode scanner.
+msgid "wizard_books_scan_desc"
+msgstr "카메라를 뒤표지에 대면 ISBN으로 책을 찾습니다."
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_title"
+msgstr "서재 검색"
+
+#. Books tutorial, step on the local search.
+msgid "wizard_books_search_desc"
+msgstr "제목, 저자 또는 ISBN으로 책을 필터링하세요."
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_title"
+msgstr "온라인 검색"
+
+#. Books tutorial, step on the online search.
+msgid "wizard_books_external_desc"
+msgstr "온라인 카탈로그에서 책을 찾아 한 번에 추가하세요."
+
+#. Books tutorial, step on the view switch.
+msgid "wizard_books_view_title"
+msgstr "보기 변경"
+
+#. Field label for the ISBN in the completeness lists (ADR-071).
+msgid "field_isbn"
+msgstr "ISBN"
+
+#. Reimport to complete (ADR-071) - button opening the file picker.
+msgid "reimport_action"
+msgstr "파일에서 채우기"
+
+#. Reimport to complete - action on the import summary when no book got an ISBN.
+msgid "reimport_snackbar_action"
+msgstr "채우기"
+
+#. Reimport to complete - banner shown when the library looks like an import
+#. that lost its ISBN column ({count} = books added on the same day).
+msgid "flash_reimport_to_complete"
+msgstr "같은 날 추가된 책 {count}권 중 ISBN이 있는 책이 없습니다. 파일에서 가져온 경우 ISBN 열이 인식되지 않은 것입니다. 해당 파일을 다시 읽어 정보를 채우세요."
+
+#. Reimport to complete - title of the manual column choice dialog.
+msgid "reimport_pick_column"
+msgstr "ISBN이 있는 열은 무엇입니까?"
+
+#. Reimport to complete - body of the manual column choice dialog.
+msgid "reimport_pick_column_body"
+msgstr "인식된 열 이름이 없습니다. 이 파일에서 ISBN이 담긴 열을 선택하세요. 이 선택은 이번 읽기에만 적용됩니다."
+
+#. Reimport to complete - title of the summary sheet.
+msgid "reimport_summary_title"
+msgstr "채우기 요약"
+
+#. Reimport to complete - the four counts of a campaign.
+msgid "reimport_summary_counts"
+msgstr "{rows}행 읽음, 책 {completed}권 채움, 일치 없음 {no_match}건, 모호함 {ambiguous}건."
+
+#. Reimport to complete - expandable list of the rows that filled nothing.
+msgid "reimport_summary_skipped_list"
+msgstr "제외된 행"
+
+#. Reimport to complete - reason: no book carries this title, author and year.
+msgid "reimport_reason_no_match"
+msgstr "이 행과 일치하는 책이 없습니다"
+
+#. Reimport to complete - reason: the file holds this book more than once.
+msgid "reimport_reason_ambiguous_in_file"
+msgstr "이 행이 파일에 두 번 나옵니다"
+
+#. Reimport to complete - reason: several books carry the same title and author.
+msgid "reimport_reason_ambiguous_in_library"
+msgstr "이 행과 일치하는 책이 여러 권입니다"
+
+#. Reimport to complete - cancel the whole campaign.
+msgid "reimport_undo"
+msgstr "이 채우기 실행 취소"
+
+#. Reimport to complete - confirmation after an undo ({count} = fields reverted).
+msgid "reimport_undone"
+msgstr "항목 {count}개가 이전 상태로 복원되었습니다"
+
+#. Reimport to complete - the file yielded no usable row.
+msgid "reimport_no_rows"
+msgstr "이 파일에서 읽을 수 있는 행이 없습니다."
+
+#. Reimport to complete - the skipped list is a sample ({count} = rows not shown).
+msgid "reimport_summary_skipped_truncated"
+msgstr "외 {count}행, 여기에 표시되지 않음"
+
+#. Completeness - undo a whole completion run ({n} = books it touched).
+msgid "completeness_undo_run_hint"
+msgstr "마지막 채우기: 책 {n}권"
+
+#. Completeness - button undoing a whole completion run.
+msgid "completeness_undo_run"
+msgstr "모두 실행 취소"
+
+#. Completeness - confirmation before undoing a whole completion run.
+msgid "completeness_undo_run_confirm"
+msgstr "이 채우기를 실행 취소하시겠습니까?"
+
+#. Completeness - body of that confirmation ({n} = books it touched).
+msgid "completeness_undo_run_confirm_body"
+msgstr "책 {n}권이 이전 상태로 돌아갑니다. 그 후 직접 편집한 항목은 그대로 유지됩니다."
+
+#. Import - third option when no ISBN column is recognised: point at it.
+msgid "import_choose_isbn_column"
+msgstr "열 선택"
+
+msgid "status_change_ownership_title"
+msgstr "이 책이 책장에 있나요?"
+
+msgid "status_change_ownership_yes_desc"
+msgstr "\"내 모든 책\"에 추가됩니다."
+
+msgid "status_change_ownership_no_desc"
+msgstr "서재에서 읽기 상태에 따라 계속 표시됩니다."
+
+msgid "status_change_ownership_show_all"
+msgstr "서재의 모든 책 표시"
+
+msgid "status_change_ownership_show_all_desc"
+msgstr "소유 여부와 관계없이 모든 책을 함께 표시합니다. 설정에서 변경할 수 있습니다."
+
+msgid "settings_show_not_owned_books"
+msgstr "소유하지 않은 책 표시"
+
+msgid "settings_show_not_owned_books_desc"
+msgstr "위시리스트의 책과 소유하지 않고 읽은 책이 서재에 다른 책과 함께 표시됩니다."
+
+#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
+msgid "view_shelf_books"
+msgstr "책 보기"
+
+#. Shelf card: how many sub-shelves the tap opens, singular
+msgid "sub_shelves_count"
+msgstr "하위 책장 %d개"
+
+#. Shelf card: how many sub-shelves the tap opens, plural
+msgid "sub_shelves_count_plural"
+msgstr "하위 책장 %d개"
+
+#. Delete shelf dialog: the books are unfiled, not deleted
+msgid "delete_shelf_books_kept"
+msgstr "책은 서재에 그대로 남고, 이 책장에서만 빠집니다."
+
+#. Household readers
+msgid "household_title"
+msgstr "독자"
+
+#. Household readers
+msgid "household_subtitle"
+msgstr "독자는 자신만의 독서 기록을 가진 한 사람입니다."
+
+#. Household readers
+msgid "household_pick_prompt"
+msgstr "이름을 눌러 이 기기에서 읽을 사람을 선택하세요."
+
+#. Household readers
+msgid "household_note"
+msgstr "한 사람당 독자 하나를 만드세요. 각자 읽기 상태, 날짜, 평점을 따로 관리합니다. 서재와 위시리스트는 공유됩니다."
+
+#. Household readers
+msgid "household_create_me"
+msgstr "내 독자 만들기"
+
+#. Household readers
+msgid "household_add_reader"
+msgstr "이 기기에 독자 추가"
+
+#. Household readers
+msgid "household_name"
+msgstr "이름"
+
+#. Household readers
+msgid "household_confirm"
+msgstr "만들기"
+
+#. Household readers
+msgid "household_reads_here"
+msgstr "이 기기에서 읽는 중"
+
+#. Household readers
+msgid "household_error"
+msgstr "독자를 변경할 수 없습니다. 다시 시도하세요."
+
+#. Household readers: who put the book on the wishlist
+msgid "wishlist_wished_by"
+msgstr "{names} 님이 원함"
+
+#. Household readers: a reader with their own status drops the shared wish
+msgid "wishlist_remove_action"
+msgstr "위시리스트에서 제거"
+
+#. Household readers
+msgid "household_rename_title"
+msgstr "독자 이름 변경"
+
+#. Household readers
+msgid "household_leave_reader"
+msgstr "공유 보기로 돌아가기"
+
+#. Household readers
+msgid "household_update_note"
+msgstr "독자를 선택하기 전에 이 계정의 모든 기기에서 앱을 업데이트하세요. 이전 버전에서는 독자의 독서 기록이 보이지 않습니다."
+
+#. Household readers
+msgid "household_pick_reader_banner"
+msgstr "이 계정에 독자가 있습니다. 이 기기에서 읽을 사람을 선택하세요."
+
+#. Household readers
+msgid "household_pick_reader_action"
+msgstr "선택"
+
+#. Household readers
+msgid "household_delete_title"
+msgstr "{name}을(를) 삭제하시겠습니까?"
+
+#. Household readers
+msgid "household_delete_body"
+msgstr "이 독자의 읽기 상태, 날짜, 평점이 이 계정의 모든 기기에서 삭제됩니다. 이 독자가 원했던 책은 이름 없이 위시리스트에 남습니다."
+
+#. Household readers: import my readings
+msgid "household_import_button"
+msgstr "내 독서 기록 가져오기"
+
+#. Household readers: import my readings
+msgid "household_import_title"
+msgstr "내 독서 기록 가져오기"
+
+#. Household readers: import my readings
+msgid "household_import_summary"
+msgstr "서재에 이미 있던 책 {matched}권에 독서 기록이 반영되었습니다. 책 {created}권이 서재에 추가되었습니다."
+
+#. Household readers: import my readings
+msgid "household_import_ambiguous"
+msgstr "책 {count}권이 서재의 여러 책과 일치하여 변경하지 않았습니다:"
+
+#. Household readers: import my readings
+msgid "household_import_skipped"
+msgstr "사용할 수 없는 행 {count}개를 건너뛰었습니다."
+
+#. Household readers: import my readings
+msgid "household_import_error"
+msgstr "파일을 가져올 수 없습니다: {detail}"
+
+#. Import - dialog title when the file has no recognisable author column
+msgid "import_author_column_missing_title"
+msgstr "저자 열을 찾을 수 없습니다"
+
+#. Import - dialog body when the file has no author column ({columns} = headers read from the file)
+msgid "import_author_column_missing_body"
+msgstr "읽은 열: {columns}. 저자 열이 없으면 이 책들은 저자 없이 가져와집니다. 그래도 가져오시겠습니까?"
+
+#. Import - sentence added to the missing ISBN dialog when the author column is missing too
+msgid "import_author_column_missing_too"
+msgstr "파일에 저자 열도 없습니다. 책이 저자 없이 가져와집니다."
+
+#. Import - dialog button to import a file that has no author column
+msgid "import_continue_without_author"
+msgstr "저자 없이 가져오기"
