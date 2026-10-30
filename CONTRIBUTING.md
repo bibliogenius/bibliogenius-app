@@ -2,15 +2,17 @@
 
 Merci de votre intérêt ! BiblioGenius est un projet Open Source et votre aide est précieuse.
 
+Le dépôt de référence est sur [Codeberg](https://codeberg.org/bibliogenius/bibliogenius-app). La copie GitHub est un miroir en lecture seule : les issues et les Pull Requests se font sur Codeberg.
+
 ## 🆕 Nouveau contributeur ? Commencez ici
 
-Consultez nos issues avec le label **"good first issue"** — ce sont des tâches accessibles spécialement conçues pour vous accueillir :
+Consultez les issues ouvertes, ou ouvrez-en une pour dire sur quoi vous aimeriez travailler :
 
-👉 [**Good First Issues — bibliogenius-app**](https://github.com/bibliogenius/bibliogenius-app/issues?q=is%3Aopen+label%3A%22good+first+issue%22)
+👉 [**Issues — bibliogenius-app**](https://codeberg.org/bibliogenius/bibliogenius-app/issues)
 
 Exemples de contributions bienvenues :
 
-- 🌍 **Ajouter une traduction** (italien, portugais…)
+- 🌍 **Relire une traduction** (bulgare, japonais, coréen, turc, chinois…)
 - 🧪 **Écrire des tests unitaires**
 - 📖 **Améliorer la documentation**
 - 🎨 **Corriger un bug UI**
@@ -23,7 +25,7 @@ Restez bienveillants et constructifs.
 
 ## Comment Contribuer ?
 
-1. **Forkez** le dépôt.
+1. **Forkez** le dépôt sur Codeberg.
 2. Créez une branche (`git checkout -b feature/ma-feature`).
 3. Committez vos modifications (`git commit -am 'Add some feature'`).
 4. Pushez vers la branche (`git push origin feature/ma-feature`).
@@ -31,7 +33,7 @@ Restez bienveillants et constructifs.
 
 ## Signaler un Bug
 
-Utilisez l'onglet [Issues](https://github.com/bibliogenius/bibliogenius-app/issues) sur GitHub.
+Utilisez l'onglet [Issues](https://codeberg.org/bibliogenius/bibliogenius-app/issues) sur Codeberg.
 Donnez le maximum de détails :
 
 - Version utilisée
