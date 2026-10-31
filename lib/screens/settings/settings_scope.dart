@@ -290,5 +290,10 @@ bool settingsMatches(BuildContext context, List<String> keys) {
   return false;
 }
 
+/// Whether the search query matches [label], a text with no i18n key, or the
+/// hidden synonyms registered under [key]. Always true when not searching.
+bool settingsMatchesLabel(BuildContext context, String key, String label) =>
+    settingsKeyMatches(key: key, label: label, query: _query(context));
+
 /// Whether the settings search box holds a query.
 bool settingsIsSearching(BuildContext context) => _query(context).isNotEmpty;

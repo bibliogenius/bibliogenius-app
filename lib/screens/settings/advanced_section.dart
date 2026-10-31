@@ -49,17 +49,23 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    if (!settingsMatches(context, [
-      'modules_group_advanced',
-      'mcp_integration',
-      'mcp_description',
-      'module_operation_log_viewer',
-      'module_operation_log_desc',
-      'enable_taxonomy',
-      'enable_taxonomy_desc',
-      'system_reset_title',
-      'system_reset_subtitle',
-    ])) {
+    final versionLabel = 'BiblioGenius v$_appVersion';
+    // Shown while searching too, when the query is the version or names it.
+    final showVersion =
+        _appVersion.isNotEmpty &&
+        settingsMatchesLabel(context, 'app_version', versionLabel);
+    if (!showVersion &&
+        !settingsMatches(context, [
+          'modules_group_advanced',
+          'mcp_integration',
+          'mcp_description',
+          'module_operation_log_viewer',
+          'module_operation_log_desc',
+          'enable_taxonomy',
+          'enable_taxonomy_desc',
+          'system_reset_title',
+          'system_reset_subtitle',
+        ])) {
       return const SizedBox.shrink();
     }
     return SettingsAccordion(
@@ -134,11 +140,11 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
               },
             ),
           ),
-        if (_appVersion.isNotEmpty && !settingsIsSearching(context))
+        if (showVersion)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text(
-              'BiblioGenius v$_appVersion',
+              versionLabel,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(
                   context,

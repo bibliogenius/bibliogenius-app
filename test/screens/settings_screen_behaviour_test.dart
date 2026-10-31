@@ -19,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -425,6 +426,30 @@ void main() {
       expect(mcp, findsOneWidget);
       expect(find.text(_t(tester, 'modules')), findsNothing);
     });
+  });
+
+  testWidgets('a search for the version shows it under Advanced', (
+    tester,
+  ) async {
+    PackageInfo.setMockInitialValues(
+      appName: 'BiblioGenius',
+      packageName: 'com.federico.bibliogenius',
+      version: '1.3.0',
+      buildNumber: '42',
+      buildSignature: '',
+    );
+    await _pumpSettings(tester);
+    final version = find.text('BiblioGenius v1.3.0 (42)');
+
+    await tester.enterText(find.byType(TextField).first, 'version');
+    await _settle(tester);
+    await tester.ensureVisible(version);
+    expect(version, findsOneWidget);
+
+    // Any other search leaves it out.
+    await tester.enterText(find.byType(TextField).first, 'mcp');
+    await _settle(tester);
+    expect(version, findsNothing);
   });
 
   group('focus deep links', () {

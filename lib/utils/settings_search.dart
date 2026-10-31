@@ -56,7 +56,9 @@ const Map<String, String> settingsSearchSynonyms = {
   'settings_notifications': 'notification notifications alerte alertes alert',
   'modules_group_advanced':
       'avance advanced mcp ia ai assistant claude journal log operations '
-      'developpeur developer experimental version reinitialiser reset',
+      'developpeur developer experimental reinitialiser reset',
+  // The version line under Advanced, which has no i18n key.
+  'app_version': 'version',
 };
 
 /// Whether a setting identified by [key] matches the [query], considering both
