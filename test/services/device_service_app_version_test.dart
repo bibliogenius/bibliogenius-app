@@ -17,7 +17,7 @@ void main() {
     () async {
       PackageInfo.setMockInitialValues(
         appName: 'BiblioGenius',
-        packageName: 'com.federico.bibliogenius',
+        packageName: 'com.example.bibliogenius',
         version: '0.9.0-alpha.1',
         buildNumber: '422',
         buildSignature: '',
@@ -32,7 +32,7 @@ void main() {
     () async {
       PackageInfo.setMockInitialValues(
         appName: 'BiblioGenius',
-        packageName: 'com.federico.bibliogenius',
+        packageName: 'com.example.bibliogenius',
         version: '0.9.0',
         buildNumber: '',
         buildSignature: '',
@@ -45,7 +45,7 @@ void main() {
   test('getAppVersion truncates to 32 chars', () async {
     PackageInfo.setMockInitialValues(
       appName: 'BiblioGenius',
-      packageName: 'com.federico.bibliogenius',
+      packageName: 'com.example.bibliogenius',
       version: '9' * 40,
       buildNumber: '1',
       buildSignature: '',
@@ -59,7 +59,7 @@ void main() {
   test('getAppVersion returns null on fully empty version', () async {
     PackageInfo.setMockInitialValues(
       appName: 'BiblioGenius',
-      packageName: 'com.federico.bibliogenius',
+      packageName: 'com.example.bibliogenius',
       version: '',
       buildNumber: '',
       buildSignature: '',

@@ -477,7 +477,7 @@ void main() {
   ) async {
     PackageInfo.setMockInitialValues(
       appName: 'BiblioGenius',
-      packageName: 'com.federico.bibliogenius',
+      packageName: 'com.example.bibliogenius',
       version: '1.3.0',
       buildNumber: '42',
       buildSignature: '',
