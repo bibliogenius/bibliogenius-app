@@ -10,6 +10,7 @@ class Tag {
   final String name;
   final String? parentId;
   final String path;
+
   /// Books on this shelf that the DEFAULT library view shows.
   final int count;
 
@@ -90,20 +91,72 @@ class Tag {
     );
   }
 
-  /// Get all descendant IDs (children, grandchildren, etc.) for this tag
-  /// Requires a flat list of all tags to traverse the hierarchy
+  /// The parent this tag is shown under, or null for the first level.
+  ///
+  /// Sync can bring a tree the app would never write: a shelf whose parent
+  /// row is gone, or a cycle (two devices moving shelves concurrently). Such
+  /// a shelf must neither vanish from the tree nor send a walk round forever,
+  /// so a missing parent, and any shelf caught in a cycle, read as first
+  /// level. A shelf merely hanging below a cycle keeps its own parent. Every
+  /// tree helper goes through this, never through [parentId] directly.
+  static String? effectiveParentId(Tag tag, List<Tag> allTags) =>
+      _effectiveParentIn(tag, _parentIndex(allTags));
+
+  /// Effective parent of every tag in [allTags], keyed by id.
+  static Map<String, String?> effectiveParentIds(List<Tag> allTags) =>
+      _treeIndexOf(allTags).parents;
+
+  /// One tree index per list instance. Screens ask for the children and the
+  /// total of every row they draw, so recomputing the index per call made a
+  /// whole-tree screen quadratic. A list is only ever replaced on reload or
+  /// grown in place (the length check catches that), and [Tag] is immutable.
+  static final _treeIndexCache = Expando<_TreeIndex>('shelfTreeIndex');
+
+  static _TreeIndex _treeIndexOf(List<Tag> allTags) {
+    final cached = _treeIndexCache[allTags];
+    if (cached != null && cached.length == allTags.length) return cached;
+    final built = _TreeIndex.build(allTags);
+    _treeIndexCache[allTags] = built;
+    return built;
+  }
+
+  /// Stored parent per id, an empty parent read as none.
+  static Map<String, String?> _parentIndex(List<Tag> allTags) => {
+    for (final t in allTags)
+      if (t.id.isNotEmpty)
+        t.id: (t.parentId == null || t.parentId!.isEmpty) ? null : t.parentId,
+  };
+
+  static String? _effectiveParentIn(Tag tag, Map<String, String?> parentOf) {
+    final parent = tag.parentId;
+    if (parent == null || parent.isEmpty) return null;
+    if (!parentOf.containsKey(parent)) return null;
+    // Climb from the parent: meeting this tag again means it is in a cycle.
+    final seen = <String>{};
+    String? current = parent;
+    while (current != null && seen.add(current)) {
+      if (current == tag.id) return null;
+      current = parentOf[current];
+    }
+    return parent;
+  }
+
+  /// Get all descendant IDs (children, grandchildren, etc.) for this tag.
+  /// Requires a flat list of all tags; terminates on any tree sync can bring
+  /// (see [effectiveParentId]).
   static Set<String> getDescendantIds(String tagId, List<Tag> allTags) {
+    final children = _treeIndexOf(allTags).children;
     final descendants = <String>{};
-    void collectChildren(String parentId) {
-      for (final tag in allTags) {
-        if (tag.parentId == parentId && tag.id.isNotEmpty) {
-          descendants.add(tag.id);
-          collectChildren(tag.id);
+    final pending = <String>[tagId];
+    while (pending.isNotEmpty) {
+      for (final child in children[pending.removeLast()] ?? const <Tag>[]) {
+        if (child.id.isNotEmpty &&
+            child.id != tagId &&
+            descendants.add(child.id)) {
+          pending.add(child.id);
         }
       }
     }
-
-    collectChildren(tagId);
     return descendants;
   }
 
@@ -147,15 +200,183 @@ class Tag {
     return null;
   }
 
-  /// Get only root-level tags (no parent)
-  static List<Tag> getRootTags(List<Tag> allTags) {
-    return allTags.where((t) => t.parentId == null).toList();
-  }
+  /// First-level tags: no parent, or one that reads as none (see
+  /// [effectiveParentId]). In [compareShelves] order.
+  static List<Tag> getRootTags(List<Tag> allTags) =>
+      List.of(childrenIndex(allTags)[null] ?? const <Tag>[]);
 
-  /// Get direct children of a tag
-  static List<Tag> getDirectChildren(String tagId, List<Tag> allTags) {
-    return allTags.where((t) => t.parentId == tagId).toList();
+  /// Direct children of a tag, as the tree shows them (see
+  /// [effectiveParentId]). In [compareShelves] order.
+  static List<Tag> getDirectChildren(String tagId, List<Tag> allTags) =>
+      List.of(childrenIndex(allTags)[tagId] ?? const <Tag>[]);
+
+  /// Every level of the tree in one pass: the tags under each effective
+  /// parent id (null for the first level), each list in [compareShelves]
+  /// order. A caller rendering a whole tree builds this once instead of
+  /// asking [getDirectChildren] per node, which recomputes it every time.
+  static Map<String?, List<Tag>> childrenIndex(List<Tag> allTags) =>
+      _treeIndexOf(allTags).children;
+}
+
+/// The effective parents of a tag list and its children per level, computed
+/// together and read-only, since one instance is shared by every caller of
+/// the same list.
+class _TreeIndex {
+  final int length;
+  final Map<String, String?> parents;
+  final Map<String?, List<Tag>> children;
+
+  _TreeIndex._(this.length, this.parents, this.children);
+
+  factory _TreeIndex.build(List<Tag> allTags) {
+    final stored = Tag._parentIndex(allTags);
+    final parents = {
+      for (final t in allTags) t.id: Tag._effectiveParentIn(t, stored),
+    };
+    final levels = <String?, List<Tag>>{};
+    for (final tag in allTags) {
+      levels.putIfAbsent(parents[tag.id], () => []).add(tag);
+    }
+    return _TreeIndex._(
+      allTags.length,
+      Map.unmodifiable(parents),
+      Map.unmodifiable({
+        for (final entry in levels.entries)
+          entry.key: List<Tag>.unmodifiable(entry.value..sort(compareShelves)),
+      }),
+    );
   }
+}
+
+/// The one order shelves are listed in, everywhere in the app.
+///
+/// Alphabetical the way a reader expects it: case and accents ignored, so
+/// "écrits" sits with the e's and "atelier" before "Bureau", and digits
+/// compared as numbers, so "Tome 2" comes before "Tome 10". Dart has no
+/// locale collation and the core ships without ICU, so accented Latin letters
+/// are folded to their base letter here, without a new dependency. Names that
+/// fold to the same text fall back to their raw order, so the sort is stable.
+int compareShelfNames(String a, String b) {
+  final folded = _compareNatural(_foldShelfName(a), _foldShelfName(b));
+  return folded != 0 ? folded : a.compareTo(b);
+}
+
+/// [compareShelfNames] over tags, by name.
+int compareShelves(Tag a, Tag b) => compareShelfNames(a.name, b.name);
+
+const _foldedLetters = <String, String>{
+  'à': 'a',
+  'á': 'a',
+  'â': 'a',
+  'ã': 'a',
+  'ä': 'a',
+  'å': 'a',
+  'ā': 'a',
+  'ă': 'a',
+  'ą': 'a',
+  'æ': 'ae',
+  'ç': 'c',
+  'ć': 'c',
+  'č': 'c',
+  'ď': 'd',
+  'đ': 'd',
+  'è': 'e',
+  'é': 'e',
+  'ê': 'e',
+  'ë': 'e',
+  'ē': 'e',
+  'ė': 'e',
+  'ę': 'e',
+  'ě': 'e',
+  'ğ': 'g',
+  'ì': 'i',
+  'í': 'i',
+  'î': 'i',
+  'ï': 'i',
+  'ī': 'i',
+  'į': 'i',
+  'ı': 'i',
+  'ł': 'l',
+  'ñ': 'n',
+  'ń': 'n',
+  'ň': 'n',
+  'ò': 'o',
+  'ó': 'o',
+  'ô': 'o',
+  'õ': 'o',
+  'ö': 'o',
+  'ø': 'o',
+  'ō': 'o',
+  'ő': 'o',
+  'œ': 'oe',
+  'ř': 'r',
+  'ś': 's',
+  'š': 's',
+  'ş': 's',
+  'ș': 's',
+  'ß': 'ss',
+  'ť': 't',
+  'ţ': 't',
+  'ț': 't',
+  'ù': 'u',
+  'ú': 'u',
+  'û': 'u',
+  'ü': 'u',
+  'ū': 'u',
+  'ů': 'u',
+  'ű': 'u',
+  'ų': 'u',
+  'ý': 'y',
+  'ÿ': 'y',
+  'ź': 'z',
+  'ż': 'z',
+  'ž': 'z',
+};
+
+String _foldShelfName(String name) {
+  final lower = name.trim().toLowerCase();
+  final out = StringBuffer();
+  for (final rune in lower.runes) {
+    final char = String.fromCharCode(rune);
+    out.write(_foldedLetters[char] ?? char);
+  }
+  return out.toString();
+}
+
+final _leadingZeros = RegExp(r'^0+(?=.)');
+
+bool _isDigit(int unit) => unit >= 0x30 && unit <= 0x39;
+
+/// Compare with runs of digits read as numbers.
+int _compareNatural(String a, String b) {
+  var i = 0;
+  var j = 0;
+  while (i < a.length && j < b.length) {
+    final ca = a.codeUnitAt(i);
+    final cb = b.codeUnitAt(j);
+    if (_isDigit(ca) && _isDigit(cb)) {
+      final startA = i;
+      final startB = j;
+      while (i < a.length && _isDigit(a.codeUnitAt(i))) {
+        i++;
+      }
+      while (j < b.length && _isDigit(b.codeUnitAt(j))) {
+        j++;
+      }
+      // Compare digit runs by value without overflowing: strip leading
+      // zeros, then the longer run is the larger number.
+      final runA = a.substring(startA, i).replaceFirst(_leadingZeros, '');
+      final runB = b.substring(startB, j).replaceFirst(_leadingZeros, '');
+      if (runA.length != runB.length) return runA.length - runB.length;
+      final byDigits = runA.compareTo(runB);
+      if (byDigits != 0) return byDigits;
+      continue;
+    }
+    if (ca != cb) return ca - cb;
+    i++;
+    j++;
+  }
+  return (a.length - i) - (b.length - j);
 }
 
 /// The number a shelf badge must print under [scope].

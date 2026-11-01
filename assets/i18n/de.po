@@ -1572,14 +1572,6 @@ msgstr "Regal löschen"
 msgid "delete_shelf_confirm"
 msgstr "Möchtest du das Regal „%s“ wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden."
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "Diese Aktion kann nicht rückgängig gemacht werden"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "Dieses Regal enthält Unterregale, die ebenfalls gelöscht werden"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "Demodaten importiert!"
@@ -11855,6 +11847,14 @@ msgstr "%d Unterregale"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Die Bücher bleiben in deiner Bibliothek; sie verlassen nur dieses Regal."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "Sein Unterregal rückt eine Ebene nach oben."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "Seine %d Unterregale rücken eine Ebene nach oben."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"

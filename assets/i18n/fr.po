@@ -1729,14 +1729,6 @@ msgstr "Supprimer l'étagère"
 msgid "delete_shelf_confirm"
 msgstr "Voulez-vous vraiment supprimer l'étagère « %s » ? Cette action est irréversible."
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "Cela supprimera aussi les sous-étagères"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "Cela supprimera aussi toutes les sous-étagères !"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "Données de démo importées !"
@@ -12107,6 +12099,14 @@ msgstr "%d sous-étagères"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Les livres restent dans votre bibliothèque ; ils quittent seulement cette étagère."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "Sa sous-étagère remonte d'un niveau."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "Ses %d sous-étagères remontent d'un niveau."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"

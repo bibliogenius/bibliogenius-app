@@ -1450,14 +1450,6 @@ msgstr "蔵書を削除"
 msgid "delete_shelf"
 msgstr "本棚を削除"
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "サブ本棚も削除されます"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "すべてのサブ本棚も削除されます！"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "デモデータをインポートしました！"
@@ -12342,6 +12334,14 @@ msgstr "%d 個のサブ本棚"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "本はライブラリに残り、この本棚から外れるだけです。"
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "サブ本棚は1つ上の階層に移動します。"
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "%d 個のサブ本棚は1つ上の階層に移動します。"
 
 #. Household readers
 msgid "household_title"

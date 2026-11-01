@@ -1572,14 +1572,6 @@ msgstr "Eliminar estantería"
 msgid "delete_shelf_confirm"
 msgstr "¿Seguro que quieres eliminar la estantería «%s»? Esta acción no se puede deshacer."
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "Esta acción no se puede deshacer"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "Esta estantería contiene sub-estanterías que también serán eliminadas"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "¡Datos de demo importados!"
@@ -11854,6 +11846,14 @@ msgstr "%d subestanterías"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Los libros permanecen en tu biblioteca; solo salen de esta estantería."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "Su subestantería sube un nivel."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "Sus %d subestanterías suben un nivel."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"

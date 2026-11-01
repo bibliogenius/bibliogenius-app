@@ -1729,14 +1729,6 @@ msgstr "Elimina scaffalatura"
 msgid "delete_shelf_confirm"
 msgstr "Sei sicuro di voler eliminare lo scaffale \"%s\"? Questa azione non può essere annullata."
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "Questo eliminerà anche le sotto-scaffalature"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "Questo eliminerà anche tutte le sotto-scaffalature!"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "Dati demo importati!"
@@ -11974,6 +11966,14 @@ msgstr "%d sotto-scaffali"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "I libri restano nella tua biblioteca; lasciano solo questo scaffale."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "Il suo sotto-scaffale sale di un livello."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "I suoi %d sotto-scaffali salgono di un livello."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"

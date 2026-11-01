@@ -1736,14 +1736,6 @@ msgstr "Deletar Estante"
 msgid "delete_shelf_confirm"
 msgstr "Tem certeza de que deseja excluir a estante \"%s\"? Esta ação não pode ser desfeita."
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "Isso também excluirá sub-prateleiras"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "Isso também excluirá todas as prateleiras secundárias!"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "Dados de demonstração importados!"
@@ -11989,6 +11981,14 @@ msgstr "%d subprateleiras"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Os livros continuam na sua biblioteca; eles apenas saem desta prateleira."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "A subprateleira sobe um nível."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "As %d subprateleiras sobem um nível."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"

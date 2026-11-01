@@ -7,6 +7,11 @@ import '../models/tag.dart';
 import '../services/translation_service.dart';
 import 'tag_tree_view.dart';
 
+/// Menu value standing for "no parent". `PopupMenuButton` reports a null
+/// value as a dismissal, so the first level needs a real value to be
+/// selectable once a parent has been picked. Compared by identity.
+final Tag _firstLevelSentinel = Tag(id: '', name: '', count: 0);
+
 class HierarchicalTagSelector extends StatefulWidget {
   final List<String> selectedTags;
   final Function(List<String>) onTagsChanged;
@@ -526,7 +531,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
               // Parent selector
               Tooltip(
                 message: TranslationService.translate(context, 'root_tag'),
-                child: PopupMenuButton<Tag?>(
+                child: PopupMenuButton<Tag>(
                   icon: Icon(
                     Icons.account_tree_outlined,
                     color: _parentTagForNew != null
@@ -536,8 +541,8 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                   itemBuilder: (context) {
                     final validParents = _tags.where((t) => t.id.isNotEmpty).toList();
                     return [
-                      PopupMenuItem<Tag?>(
-                        value: null,
+                      PopupMenuItem<Tag>(
+                        value: _firstLevelSentinel,
                         child: Row(
                           children: [
                             const Icon(Icons.home_outlined, size: 18),
@@ -549,7 +554,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                         ),
                       ),
                       ...validParents.map(
-                        (t) => PopupMenuItem<Tag?>(
+                        (t) => PopupMenuItem<Tag>(
                           value: t,
                           child: Padding(
                             padding: EdgeInsets.only(
@@ -564,8 +569,13 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                       ),
                     ];
                   },
-                  onSelected: (Tag? parent) {
-                    setState(() => _parentTagForNew = parent);
+                  onSelected: (Tag parent) {
+                    setState(
+                      () => _parentTagForNew =
+                          identical(parent, _firstLevelSentinel)
+                          ? null
+                          : parent,
+                    );
                   },
                 ),
               ),

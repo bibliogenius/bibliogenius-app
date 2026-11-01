@@ -118,38 +118,18 @@ class _TagTreeViewState extends State<TagTreeView> {
     );
   }
 
-  /// Build tree structure from flat list with parent_id
+  /// Build tree structure from flat list with parent_id. Goes through the
+  /// [Tag] tree index, so a cycle or a vanished parent merged from sync shows
+  /// at the first level instead of hiding a branch, and every level is in
+  /// [compareShelves] order. The index is built once per call: this runs on
+  /// every build (each toggle, each search keystroke).
   List<Tag> _buildTree(List<Tag> flatTags) {
-    final Map<String, Tag> tagMap = {};
-    final List<Tag> rootTags = [];
-
-    // First pass: create map of all tags
-    for (final tag in flatTags) {
-      tagMap[tag.id] = tag;
-    }
-
-    // Second pass: build tree by assigning children
-    for (final tag in flatTags) {
-      if (tag.parentId == null) {
-        // Root tag - add to root list with children
-        final children = flatTags
-            .where((t) => t.parentId == tag.id)
-            .map((t) => _attachChildren(t, flatTags))
-            .toList();
-        rootTags.add(tag.copyWithChildren(children));
-      }
-    }
-
-    return rootTags;
-  }
-
-  /// Recursively attach children to a tag
-  Tag _attachChildren(Tag tag, List<Tag> allTags) {
-    final children = allTags
-        .where((t) => t.parentId == tag.id)
-        .map((t) => _attachChildren(t, allTags))
-        .toList();
-    return tag.copyWithChildren(children);
+    final children = Tag.childrenIndex(flatTags);
+    // Terminates: the index never makes a tag its own descendant.
+    Tag attach(Tag tag) => tag.copyWithChildren(
+      (children[tag.id] ?? const <Tag>[]).map(attach).toList(),
+    );
+    return (children[null] ?? const <Tag>[]).map(attach).toList();
   }
 
   /// Build a single tree node with expand/collapse

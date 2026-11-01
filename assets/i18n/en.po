@@ -1729,14 +1729,6 @@ msgstr "Delete Shelf"
 msgid "delete_shelf_confirm"
 msgstr "Are you sure you want to delete the shelf \"%s\"? This action cannot be undone."
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "This will also delete sub-shelves"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "This will also delete all sub-shelves!"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "Demo data imported!"
@@ -12112,6 +12104,14 @@ msgstr "%d sub-shelves"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "The books stay in your library; they just leave this shelf."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "Its sub-shelf moves up one level."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "Its %d sub-shelves move up one level."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"

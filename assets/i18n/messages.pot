@@ -1651,14 +1651,6 @@ msgstr ""
 msgid "delete_shelf_confirm"
 msgstr ""
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr ""
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr ""
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr ""
@@ -11856,6 +11848,14 @@ msgstr ""
 msgid "delete_shelf_books_kept"
 msgstr ""
 
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr ""
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr ""
+
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"
 msgstr ""
@@ -12388,6 +12388,8 @@ msgstr ""
 
 #. Import - dialog button to import a file that has no author column
 msgid "import_continue_without_author"
+msgstr ""
+
 #. Settings: header of the group of sections about the library itself
 msgid "settings_group_library"
 msgstr ""

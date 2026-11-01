@@ -1450,14 +1450,6 @@ msgstr "소장본 삭제"
 msgid "delete_shelf"
 msgstr "책장 삭제"
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "하위 책장도 함께 삭제됩니다"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "모든 하위 책장도 함께 삭제됩니다!"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "데모 데이터를 가져왔습니다!"
@@ -12342,6 +12334,14 @@ msgstr "하위 책장 %d개"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "책은 서재에 그대로 남고, 이 책장에서만 빠집니다."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "하위 책장은 한 단계 위로 이동합니다."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "하위 책장 %d개는 한 단계 위로 이동합니다."
 
 #. Household readers
 msgid "household_title"

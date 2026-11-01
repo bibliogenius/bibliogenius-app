@@ -7,9 +7,13 @@ class TagRepositoryImpl implements TagRepository {
 
   TagRepositoryImpl(this._apiService);
 
+  /// Every shelf, in the one order the app lists shelves in
+  /// ([compareShelves]): the core sorts by raw bytes, which puts "Zola"
+  /// before "écrits".
   @override
-  Future<List<Tag>> getTags() {
-    return _apiService.getTags();
+  Future<List<Tag>> getTags() async {
+    final tags = await _apiService.getTags();
+    return [...tags]..sort(compareShelves);
   }
 
   @override

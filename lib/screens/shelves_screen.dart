@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
+import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
@@ -126,8 +127,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     }
   }
 
-  List<Tag> _childrenOf(Tag tag) =>
-      _allTags.where((t) => t.parentId == tag.id).toList();
+  List<Tag> _childrenOf(Tag tag) => Tag.getDirectChildren(tag.id, _allTags);
 
   /// Own books plus every descendant's: the number the shelf's book list
   /// will show, since filtering on a parent includes its whole subtree.
@@ -143,8 +143,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   /// Get tags to display at current level
   List<Tag> get _visibleTags {
     if (_currentParent == null) {
-      // Show only root tags (no parent)
-      return _allTags.where((t) => t.parentId == null).toList();
+      // First level: no parent, a vanished one, or caught in a cycle.
+      return Tag.getRootTags(_allTags);
     } else {
       // Show direct children of current parent
       return _childrenOf(_currentParent!);
@@ -680,12 +680,18 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     final controller = TextEditingController(text: tag.name);
     final formKey = GlobalKey<FormState>();
     // Find the parent tag object from the list of all tags
+    final excludedParents = Tag.getDescendantIds(tag.id, _allTags);
     Tag? selectedParent;
     if (tag.parentId != null) {
       try {
         selectedParent = _allTags.firstWhere((t) => t.id == tag.parentId);
       } catch (e) {
         // Parent not found, can happen if tags are out of sync
+        selectedParent = null;
+      }
+      // Only a parent the dropdown lists can be its value.
+      if (selectedParent != null &&
+          excludedParents.contains(selectedParent.id)) {
         selectedParent = null;
       }
     }
@@ -756,9 +762,16 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                               ),
                             ),
                           ),
-                          // Exclude the current tag and its children from being a parent
-                          ..._allTags
-                              .where((t) => t.id != tag.id)
+                          // A shelf cannot move under itself or any of its
+                          // sub-shelves: the branch would leave the tree.
+                          ...(_allTags
+                                  .where(
+                                    (t) =>
+                                        t.id != tag.id &&
+                                        !excludedParents.contains(t.id),
+                                  )
+                                  .toList()
+                                ..sort(compareShelves))
                               .map(
                                 (t) => DropdownMenuItem<Tag?>(
                                   value: t,
@@ -840,38 +853,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     }
   }
 
-  void _showDeleteConfirmDialog(Tag tag) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(TranslationService.translate(context, 'delete_shelf')),
-          content: Text(
-            '${TranslationService.translate(context, 'delete_shelf_confirm').replaceAll('%s', tag.name)}\n\n'
-            '${TranslationService.translate(context, 'delete_shelf_books_kept')}',
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: Text(TranslationService.translate(context, 'cancel')),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              child: Text(
-                TranslationService.translate(context, 'delete'),
-                style: const TextStyle(color: Colors.white),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _deleteShelf(tag);
-              },
-            ),
-          ],
-        );
-      },
+  Future<void> _showDeleteConfirmDialog(Tag tag) async {
+    final confirmed = await confirmDeleteShelf(
+      context,
+      tag,
+      subShelfCount: _childrenOf(tag).length,
     );
+    if (confirmed && mounted) await _deleteShelf(tag);
   }
 
   Future<void> _deleteShelf(Tag tag) async {

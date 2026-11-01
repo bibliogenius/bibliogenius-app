@@ -1453,14 +1453,6 @@ msgstr "Изтриване на копие"
 msgid "delete_shelf"
 msgstr "Изтриване на полица"
 
-#. This will also delete sub-shelves
-msgid "delete_shelf_warning"
-msgstr "Това ще изтрие и подполиците"
-
-#. This will also delete all sub-shelves!
-msgid "delete_with_children_warning"
-msgstr "Това ще изтрие и всички подполици!"
-
 #. Demo data imported!
 msgid "demo_data_imported"
 msgstr "Демо данните са внесени!"
@@ -11981,6 +11973,14 @@ msgstr "%d подрафта"
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Книгите остават в библиотеката ви; те само напускат този рафт."
+
+#. Delete shelf dialog: its one sub-shelf moves up one level
+msgid "delete_shelf_children_moved_up"
+msgstr "Подрафтът му се премества едно ниво нагоре."
+
+#. Delete shelf dialog: its N sub-shelves move up one level (%d = N)
+msgid "delete_shelf_children_moved_up_plural"
+msgstr "%d подрафта му се преместват едно ниво нагоре."
 
 #. Title of the single invitation screen (QR code + link)
 msgid "invite_screen_title"
