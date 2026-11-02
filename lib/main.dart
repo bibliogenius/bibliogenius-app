@@ -151,7 +151,19 @@ GoRouter? _globalRouter;
 /// Public so `test/widget_test.dart` can render it directly without
 /// having to fake `kReleaseMode`. Renders no exception text or stack.
 class ReleaseErrorScreen extends StatelessWidget {
-  const ReleaseErrorScreen({super.key});
+  const ReleaseErrorScreen({super.key, this.router});
+
+  /// App router to navigate with. Defaults to [_globalRouter]; injectable so
+  /// tests can register one without building the whole app.
+  final GoRouter? router;
+
+  /// Navigates on the app router, staying inert if it is gone or in a bad
+  /// state rather than crashing again.
+  void _goTo(String location) {
+    try {
+      (router ?? _globalRouter)?.go(location);
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -165,13 +177,17 @@ class ReleaseErrorScreen extends StatelessWidget {
       'error_unexpected_message',
     );
     final retryLabel = TranslationService.translateByLocale(lang, 'retry');
+    final reportLabel = TranslationService.translateByLocale(
+      lang,
+      'help_report_problem',
+    );
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: SafeArea(
           child: Center(
-            child: Padding(
+            child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -194,20 +210,72 @@ class ReleaseErrorScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   FilledButton.icon(
-                    onPressed: () {
-                      try {
-                        _globalRouter?.go('/');
-                      } catch (_) {
-                        // Router is gone or in a bad state; the button
-                        // becomes inert rather than crashing again.
-                      }
-                    },
+                    onPressed: () => _goTo('/'),
                     icon: const Icon(Icons.refresh),
                     label: Text(retryLabel),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => _goTo('/feedback'),
+                    icon: const Icon(Icons.bug_report_outlined),
+                    label: Text(reportLabel),
                   ),
                 ],
               ),
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Shown by the GoRouter `errorBuilder` when no route matches. Public so
+/// tests can mount it under a minimal router.
+class PageNotFoundScreen extends StatelessWidget {
+  const PageNotFoundScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 64),
+              const SizedBox(height: 16),
+              Text(
+                TranslationService.translate(context, 'page_not_found_title'),
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                TranslationService.translate(context, 'page_not_found_message'),
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 24),
+              FilledButton.icon(
+                onPressed: () => context.go('/books'),
+                icon: const Icon(Icons.home),
+                label: Text(
+                  TranslationService.translate(context, 'back_to_library'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                // `push` is a no-op from the router error state, which
+                // has no matched route stack to push onto.
+                onPressed: () => context.go('/feedback'),
+                icon: const Icon(Icons.bug_report_outlined),
+                label: Text(
+                  TranslationService.translate(context, 'help_report_problem'),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -870,37 +938,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         debugPrint(
           'GoRouter error: no route for uri=${state.uri} path=${state.uri.path} scheme=${state.uri.scheme} host=${state.uri.host} query=${state.uri.query}',
         );
-        return Scaffold(
-          body: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline, size: 64),
-                const SizedBox(height: 16),
-                Text(
-                  TranslationService.translate(context, 'page_not_found_title'),
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  TranslationService.translate(
-                    context,
-                    'page_not_found_message',
-                  ),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 24),
-                FilledButton.icon(
-                  onPressed: () => context.go('/books'),
-                  icon: const Icon(Icons.home),
-                  label: Text(
-                    TranslationService.translate(context, 'back_to_library'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
+        return const PageNotFoundScreen();
       },
       redirect: (context, state) async {
         // Handle custom scheme deep links (bibliogenius://invite?d=...).

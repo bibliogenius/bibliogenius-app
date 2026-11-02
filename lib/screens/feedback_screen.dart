@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:http/http.dart' as http;
@@ -146,7 +147,13 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
             context,
             '${TranslationService.translate(context, 'feedback_success')} (${data['issueKey']})',
           );
-          Navigator.of(context).pop();
+          // Error pages open this form with `go`, leaving nothing to pop.
+          final router = GoRouter.of(context);
+          if (router.canPop()) {
+            router.pop();
+          } else {
+            router.go('/books');
+          }
         } else {
           final data = jsonDecode(response.body);
           throw Exception(data['error'] ?? 'Unknown error');
