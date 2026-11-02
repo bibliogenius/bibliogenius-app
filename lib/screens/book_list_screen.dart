@@ -979,8 +979,8 @@ class _BookListScreenState extends State<BookListScreen>
                   header: true,
                   child: Text(
                     TranslationService.translate(context, 'to_shelve_title'),
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -990,7 +990,9 @@ class _BookListScreenState extends State<BookListScreen>
                       context,
                       count == 1 ? 'to_shelve_count' : 'to_shelve_count_plural',
                     ).replaceAll('%d', '$count'),
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
               ],
             ),

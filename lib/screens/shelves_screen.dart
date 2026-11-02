@@ -454,14 +454,19 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                         header: true,
                         child: Text(
                           parent.name,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.bold,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Text(summary, style: theme.textTheme.bodyMedium),
+                      Text(
+                        summary,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
                     ],
                   ),
                 ),
