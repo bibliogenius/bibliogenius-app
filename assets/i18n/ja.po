@@ -223,7 +223,7 @@ msgstr "すべての蔵書が現在貸出中です。"
 
 #. All Shelves
 msgid "all_shelves"
-msgstr "すべての棚"
+msgstr "すべての本棚"
 
 #. All Sources
 msgid "all_sources"
@@ -7065,10 +7065,6 @@ msgstr "選択中"
 #. Shelf Picker - Empty state
 msgid "no_shelves_yet"
 msgstr "本棚がまだありません"
-
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "一致する本棚がありません"
 
 #. Offline banner shown on scan screen when no internet
 msgid "scan_offline_banner"

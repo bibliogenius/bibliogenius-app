@@ -6978,10 +6978,6 @@ msgstr "избрани"
 msgid "no_shelves_yet"
 msgstr "Все още няма рафтове"
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "Няма съвпадащи рафтове"
-
 #. Offline banner shown on scan screen when no internet
 msgid "scan_offline_banner"
 msgstr "Офлайн - търсенето на метаданни е недостъпно"

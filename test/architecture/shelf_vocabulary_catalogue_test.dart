@@ -111,6 +111,8 @@ void main() {
     'search_shelves_hint',
     'create_new_tag',
     'tag_name_hint',
+    // The old shelf tree's empty search; the picker lists matches instead.
+    'no_shelves_match',
   ];
 
   test('the new keys exist, translated, in every catalogue and the template', () {
@@ -236,6 +238,22 @@ void main() {
         .toList();
     expect(offenders, isEmpty);
     expect(catalogues['fr']!['help_desc_recommendations'], isNot(contains('rayons')));
+  });
+
+  test('a label that names the shelves uses the word of the shelves tab', () {
+    // Japanese once said 棚 here while the tab says 本棚: one object, one
+    // word, in every language.
+    const keys = ['all_shelves'];
+    for (final lang in _languages) {
+      final word = catalogues[lang]!['shelves']!.toLowerCase();
+      for (final key in keys) {
+        expect(
+          catalogues[lang]![key]!.toLowerCase(),
+          contains(word),
+          reason: '$lang.po: $key must say "$word"',
+        );
+      }
+    }
   });
 
   test('Spanish and Portuguese keep one word on the shelves empty state', () {

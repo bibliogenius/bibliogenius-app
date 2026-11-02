@@ -128,9 +128,8 @@ class FfiService {
               parentId: t.parentId,
               count: t.count.toInt(),
               totalCount: t.totalCount.toInt(),
-              // Children will be built by the UI tree builder or we could do it here
-              // The TagTreeView expects a flat list and builds hierarchy itself via `_buildTree`
-              // or assumes we pass a list of tags. The `Tag` model has `copyWithChildren`.
+              // A flat list: the shelf tree widgets build the hierarchy
+              // themselves (see flattenShelfTree).
             ),
           )
           .toList();

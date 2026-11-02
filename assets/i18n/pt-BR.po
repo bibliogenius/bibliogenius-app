@@ -6496,10 +6496,6 @@ msgstr "selecionadas"
 msgid "no_shelves_yet"
 msgstr "Ainda sem estantes"
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "Nenhuma estante correspondente"
-
 msgid "sale_date"
 msgstr "Data de Venda"
 

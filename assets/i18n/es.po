@@ -8320,10 +8320,6 @@ msgstr "Sin datos por ahora"
 msgid "no_shelves_for_inventory"
 msgstr "Crea una estanteria primero para usar el modo inventario."
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "Ninguna estanteria encontrada"
-
 #. Shelf Picker - Empty state
 msgid "no_shelves_yet"
 msgstr "Ninguna estanteria por ahora"

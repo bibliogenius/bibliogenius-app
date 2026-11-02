@@ -6888,10 +6888,6 @@ msgstr "seçili"
 msgid "no_shelves_yet"
 msgstr "Henüz raf yok"
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "Eşleşen raf yok"
-
 #. Offline banner shown on scan screen when no internet
 msgid "scan_offline_banner"
 msgstr "Çevrimdışı - üst veri araması kullanılamıyor"

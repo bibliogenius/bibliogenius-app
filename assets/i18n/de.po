@@ -8320,10 +8320,6 @@ msgstr "Noch keine Daten"
 msgid "no_shelves_for_inventory"
 msgstr "Erstellen Sie zuerst ein Regal, um den Inventurmodus zu nutzen."
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "Kein passendes Regal gefunden"
-
 #. Shelf Picker - Empty state
 msgid "no_shelves_yet"
 msgstr "Noch keine Regale vorhanden"

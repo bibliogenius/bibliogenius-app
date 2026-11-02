@@ -124,17 +124,28 @@ void main() {
     expect(_row('Polar'), findsNothing);
   });
 
-  testWidgets('a cycle merged from sync still lists both shelves', (
-    tester,
-  ) async {
+  // Sync can leave a cycle (two devices moving shelves concurrently) or a
+  // shelf whose parent row is gone. Neither may drop out of the tree: no
+  // root reaches them, so both are listed at the first level.
+  testWidgets('a cycle and an orphan merged from sync show at the first '
+      'level', (tester) async {
     await _pump(
       tester,
       tags: [
-        Tag(id: 'a', name: 'A', parentId: 'b', count: 0),
-        Tag(id: 'b', name: 'B', parentId: 'a', count: 0),
+        Tag(id: 'a', name: 'Alpha', parentId: 'b', count: 0),
+        Tag(id: 'b', name: 'Beta', parentId: 'a', count: 0),
+        Tag(id: 'o', name: 'Orphan', parentId: 'gone', count: 0),
+        Tag(id: 'z', name: 'Zeta', count: 0),
       ],
     );
-    expect(_row('A'), findsOneWidget);
-    expect(_row('B'), findsOneWidget);
+    final names = ['Alpha', 'Beta', 'Orphan', 'Zeta'];
+    for (final name in names) {
+      expect(_row(name), findsOneWidget, reason: name);
+    }
+    // One level: every name starts at the same indent, in shelf order.
+    final starts = names.map((n) => tester.getTopLeft(find.text(n))).toList();
+    expect(starts.map((o) => o.dx).toSet(), hasLength(1));
+    final tops = starts.map((o) => o.dy).toList();
+    expect(tops, List.of(tops)..sort());
   });
 }

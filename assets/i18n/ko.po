@@ -7066,10 +7066,6 @@ msgstr "선택됨"
 msgid "no_shelves_yet"
 msgstr "아직 책장이 없습니다"
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "일치하는 책장이 없습니다"
-
 #. Offline banner shown on scan screen when no internet
 msgid "scan_offline_banner"
 msgstr "오프라인 - 메타데이터 검색을 사용할 수 없습니다"

@@ -5654,10 +5654,6 @@ msgstr "sélectionnée(s)"
 msgid "no_shelves_yet"
 msgstr "Aucune étagère pour le moment"
 
-#. Shelf Picker - Search empty
-msgid "no_shelves_match"
-msgstr "Aucune étagère trouvée"
-
 msgid "sale_date"
 msgstr "Date de vente"
 
