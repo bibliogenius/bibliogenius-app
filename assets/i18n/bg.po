@@ -1324,9 +1324,6 @@ msgstr "Създаване и даване назаем"
 msgid "create_new_collection"
 msgstr "Създаване на нова колекция"
 
-msgid "create_new_tag"
-msgstr "Създаване на нов етикет"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "Създаване на полица"
@@ -3591,10 +3588,6 @@ msgstr "Управление на полици"
 msgid "manage_shelves_desc"
 msgstr "Преименувайте, изтрийте или реорганизирайте полици"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "Управление на полици"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "Ръчно свързване"
@@ -5620,9 +5613,6 @@ msgstr "Грешка при създаване на етикет"
 msgid "tag_experimental"
 msgstr "БЕТА"
 
-msgid "tag_name_hint"
-msgstr "Въведете име на етикет"
-
 #. Shelves
 msgid "tags"
 msgstr "Полици"
@@ -6979,10 +6969,6 @@ msgstr "Несвързано"
 #. Remote server URL label
 msgid "relay_url_label"
 msgstr "URL на отдалечен сървър"
-
-#. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "Търсене в рафтове..."
 
 #. Shelf Picker
 msgid "shelves_selected"
@@ -12477,3 +12463,71 @@ msgstr "Редът има значение? Колекция. Иначе пол�
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "Първо ниво"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "Изберете полици"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "Може да изберете няколко"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "Търсете или създайте полица"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "Създаване на „{name}“"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "На първо ниво, избрана веднага"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "Създаване в полица…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "Създаване на „{name}“ в…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "Едно докосване създава полицата там"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "По-добре на първо ниво"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "Филтриране на полиците"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "вече съществува"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "вече съществува, в {path}"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "в {path}"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "Една книга може да е на няколко полици: изберете Криминални и Хол и тя ще е и на двете."
+
+#. Recent
+msgid "recent_shelves"
+msgstr "Последни"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "Добавяне на полицата {name}"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "Подобни полици"

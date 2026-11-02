@@ -70,6 +70,25 @@ void main() {
     'collection_concept',
     'shelf_or_collection_rule',
     'first_level',
+    // The shelf picker of the book form.
+    'choose_shelves',
+    'choose_shelves_subtitle',
+    'search_or_create_shelf_hint',
+    'create_shelf_named',
+    'create_shelf_first_level_hint',
+    'create_shelf_inside',
+    'create_shelf_in_title',
+    'create_shelf_in_subtitle',
+    'create_shelf_first_level_instead',
+    'filter_shelves_hint',
+    'shelf_already_exists',
+    'shelf_already_exists_in',
+    'shelf_in_path',
+    'shelf_name_taken_hint',
+    'recent_shelves',
+    'all_shelves',
+    'matching_shelves',
+    'add_shelf_named',
   ];
 
   // Replaced by the keys above, or never read by the app.
@@ -86,6 +105,12 @@ void main() {
     // Saving a shelf order now says what it changes: see
     // shelf_order_saved_sort_hint.
     'shelf_order_saved',
+    // The old shelf picker: its title, search hint and create form, replaced
+    // by choose_shelves, search_or_create_shelf_hint and create_shelf_named.
+    'manage_tags',
+    'search_shelves_hint',
+    'create_new_tag',
+    'tag_name_hint',
   ];
 
   test('the new keys exist, translated, in every catalogue and the template', () {
@@ -229,6 +254,16 @@ void main() {
       // The shelf order: its sort entry and the message that announces it.
       'sort_shelf_order',
       'shelf_order_saved_sort_hint',
+      // The shelf picker of the book form.
+      'choose_shelves',
+      'search_or_create_shelf_hint',
+      'create_shelf_inside',
+      'create_shelf_in_subtitle',
+      'filter_shelves_hint',
+      'shelf_name_taken_hint',
+      'all_shelves',
+      'matching_shelves',
+      'add_shelf_named',
     ];
     for (final lang in ['es', 'pt-BR']) {
       for (final key in keys) {

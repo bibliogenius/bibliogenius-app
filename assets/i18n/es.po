@@ -1423,9 +1423,6 @@ msgstr "Crear y Prestar"
 msgid "create_new_collection"
 msgstr "Crear nueva colección"
 
-msgid "create_new_tag"
-msgstr "Crear nueva estantería"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "Crear estantería"
@@ -3810,10 +3807,6 @@ msgstr "Gestionar estanterías"
 msgid "manage_shelves_desc"
 msgstr "Renombrar, eliminar o reorganizar estanterías"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "Gestionar estanterías"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "Conexión manual"
@@ -6052,9 +6045,6 @@ msgstr "Error al crear la estantería"
 #. BETA
 msgid "tag_experimental"
 msgstr "Experimental"
-
-msgid "tag_name_hint"
-msgstr "Nombre de la estantería"
 
 #. Shelves
 msgid "tags"
@@ -8529,10 +8519,6 @@ msgstr "Buscar libros o acciones..."
 #. Search placeholder in loans tabs
 msgid "search_loans"
 msgstr "Buscar por titulo o nombre..."
-
-#. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "Buscar una estanteria..."
 
 #. Sections - Drag hint
 msgid "sections_drag_hint"
@@ -12345,3 +12331,71 @@ msgstr "¿Importa el orden? Una colección. Si no, una estantería."
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "Primer nivel"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "Elegir estanterías"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "Puede elegir varias"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "Buscar o crear una estantería"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "Crear «{name}»"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "En el primer nivel, elegida al instante"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "Crear dentro de una estantería…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "Crear «{name}» en…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "Un toque crea la estantería en ese lugar"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "Mejor en el primer nivel"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "Filtrar estanterías"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "ya existe"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "ya existe, en {path}"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "en {path}"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "Un libro puede estar en varias estanterías: elija Novela negra y Salón, y estará en las dos."
+
+#. Recent
+msgid "recent_shelves"
+msgstr "Recientes"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "Añadir la estantería {name}"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "Estanterías parecidas"

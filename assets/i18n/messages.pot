@@ -1502,9 +1502,6 @@ msgstr ""
 msgid "create_new_collection"
 msgstr ""
 
-msgid "create_new_tag"
-msgstr ""
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr ""
@@ -3689,10 +3686,6 @@ msgstr ""
 msgid "manage_shelves_desc"
 msgstr ""
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr ""
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr ""
@@ -5110,10 +5103,6 @@ msgid "role_library"
 msgstr ""
 
 #. Shelf Picker
-msgid "search_shelves_hint"
-msgstr ""
-
-#. Shelf Picker
 msgid "shelves_selected"
 msgstr ""
 
@@ -6291,9 +6280,6 @@ msgstr ""
 
 #. BETA
 msgid "tag_experimental"
-msgstr ""
-
-msgid "tag_name_hint"
 msgstr ""
 
 #. Shelves
@@ -12417,4 +12403,72 @@ msgstr ""
 
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
+msgstr ""
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr ""
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr ""
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr ""
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr ""
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr ""
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr ""
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr ""
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr ""
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr ""
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr ""
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr ""
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr ""
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr ""
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr ""
+
+#. Recent
+msgid "recent_shelves"
+msgstr ""
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr ""
+
+#. Matching shelves
+msgid "matching_shelves"
 msgstr ""

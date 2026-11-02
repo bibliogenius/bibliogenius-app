@@ -1324,9 +1324,6 @@ msgstr "创建并借出"
 msgid "create_new_collection"
 msgstr "创建新合集"
 
-msgid "create_new_tag"
-msgstr "创建新书架"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "创建书架"
@@ -3352,10 +3349,6 @@ msgstr "管理书架"
 msgid "manage_shelves_desc"
 msgstr "重命名、删除或重新整理书架"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "管理书架"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "手动连接"
@@ -5350,9 +5343,6 @@ msgstr "创建书架时出错"
 msgid "tag_experimental"
 msgstr "测试版"
 
-msgid "tag_name_hint"
-msgstr "书架名称"
-
 #. Shelves
 msgid "tags"
 msgstr "书架"
@@ -7067,10 +7057,6 @@ msgstr "未连接"
 #. Remote server URL label
 msgid "relay_url_label"
 msgstr "远程服务器 URL"
-
-#. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "搜索书架…"
 
 #. Shelf Picker
 msgid "shelves_selected"
@@ -12486,3 +12472,71 @@ msgstr "顺序重要吗？用合集。否则，用书架。"
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "第一层"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "选择书架"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "可多选"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "搜索或创建书架"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "创建“{name}”"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "在第一层创建并立即选中"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "在书架中创建…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "将“{name}”创建在…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "轻点即可在该位置创建书架"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "改为放在第一层"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "筛选书架"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "已存在"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "已存在，位于 {path}"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "位于 {path}"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "一本书可以放在多个书架上：选择“推理”和“客厅”，它就会同时在两个书架上。"
+
+#. Recent
+msgid "recent_shelves"
+msgstr "最近使用"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "添加书架“{name}”"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "相近的书架"

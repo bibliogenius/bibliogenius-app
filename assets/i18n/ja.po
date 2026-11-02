@@ -1324,9 +1324,6 @@ msgstr "作成して貸出"
 msgid "create_new_collection"
 msgstr "新しいコレクションを作成"
 
-msgid "create_new_tag"
-msgstr "新しい本棚を作成"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "本棚を作成"
@@ -3352,10 +3349,6 @@ msgstr "本棚を管理"
 msgid "manage_shelves_desc"
 msgstr "本棚の名前変更、削除、並べ替え"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "本棚を管理"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "手動接続"
@@ -5350,9 +5343,6 @@ msgstr "本棚の作成中にエラーが発生しました"
 msgid "tag_experimental"
 msgstr "ベータ"
 
-msgid "tag_name_hint"
-msgstr "本棚の名前"
-
 #. Shelves
 msgid "tags"
 msgstr "本棚"
@@ -7067,10 +7057,6 @@ msgstr "未接続"
 #. Remote server URL label
 msgid "relay_url_label"
 msgstr "リモートサーバーのURL"
-
-#. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "本棚を検索..."
 
 #. Shelf Picker
 msgid "shelves_selected"
@@ -12486,3 +12472,71 @@ msgstr "順番が大事？ならコレクション。そうでなければ本棚
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "最上位"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "本棚を選ぶ"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "複数選べます"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "本棚を検索または作成"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "「{name}」を作成"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "最上位に作成し、すぐに選択します"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "本棚の中に作成…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "「{name}」の作成先…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "タップした場所に本棚を作成します"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "代わりに最上位に作成"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "本棚を絞り込む"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "既にあります"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "既にあります（{path} 内）"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "{path} 内"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "1冊の本を複数の本棚に置けます。「ミステリー」と「リビング」を選べば、両方に入ります。"
+
+#. Recent
+msgid "recent_shelves"
+msgstr "最近使用"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "本棚「{name}」を追加"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "近い本棚"

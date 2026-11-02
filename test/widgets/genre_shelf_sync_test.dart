@@ -68,6 +68,7 @@ class _AddBookLikeHostState extends State<_AddBookLikeHost> {
           },
         ),
         HierarchicalTagSelector(
+          genresShownAbove: true,
           selectedTags: List.of(_selectedTags),
           onTagsChanged: (tags) {
             setState(() {
@@ -98,9 +99,9 @@ void main() {
     });
   });
 
-  testWidgets('a genre picked from the chips shows up in the shelf section', (
-    tester,
-  ) async {
+  testWidgets('a genre picked from the chips shows once, and the shelf '
+      'picker has it', (tester) async {
+    final handle = tester.ensureSemantics();
     await tester.pumpWidget(
       MultiProvider(
         providers: [
@@ -115,19 +116,30 @@ void main() {
       ),
     );
 
-    // Only the suggestion chip carries the genre at this point.
     expect(find.text('Crime & thriller'), findsOneWidget);
 
     await tester.tap(find.text('Crime & thriller'));
     await tester.pumpAndSettle();
 
-    // Once picked, the genre is an ordinary shelf: it must also appear as a
-    // chip in the shelf section, otherwise the form silently hides what it is
-    // about to save.
+    // The lit genre chip already says the book is on that shelf: a second
+    // chip in the shelf row would say it twice.
     expect(
       find.text('Crime & thriller'),
-      findsNWidgets(2),
-      reason: 'the suggestion chip AND the shelf chip',
+      findsOneWidget,
+      reason: 'the suggestion chip only',
     );
+
+    // Hidden from the row is not missing from the selection: the selector
+    // must have received the genre, or the picker would show it unchecked
+    // and "Done" would drop it from the book.
+    await tester.tap(find.text('Add'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.getSemantics(
+        find.byKey(const ValueKey('shelfRow:Crime & thriller')),
+      ),
+      containsSemantics(isButton: true, hasCheckedState: true, isChecked: true),
+    );
+    handle.dispose();
   });
 }

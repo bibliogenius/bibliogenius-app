@@ -1560,9 +1560,6 @@ msgstr "Create & Lend"
 msgid "create_new_collection"
 msgstr "Create New Collection"
 
-msgid "create_new_tag"
-msgstr "Create New Shelf"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "Create Shelf"
@@ -4095,10 +4092,6 @@ msgstr "Manage Shelves"
 msgid "manage_shelves_desc"
 msgstr "Rename, delete or reorganize shelves"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "Manage Shelves"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "Manual Connection"
@@ -5654,10 +5647,6 @@ msgid "role_library"
 msgstr "Library"
 
 #. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "Search shelves..."
-
-#. Shelf Picker
 msgid "shelves_selected"
 msgstr "selected"
 
@@ -6850,9 +6839,6 @@ msgstr "Error creating shelf"
 #. BETA
 msgid "tag_experimental"
 msgstr "BETA"
-
-msgid "tag_name_hint"
-msgstr "Shelf name"
 
 #. Shelves
 msgid "tags"
@@ -12492,3 +12478,71 @@ msgstr "Does the order matter? A collection. Otherwise, a shelf."
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "First level"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "Choose shelves"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "You can pick several"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "Search or create a shelf"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "Create “{name}”"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "At the first level, picked right away"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "Create in a shelf…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "Create “{name}” in…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "One tap creates the shelf there"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "At the first level instead"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "Filter shelves"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "already exists"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "already exists, in {path}"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "in {path}"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "A book can be on several shelves: pick Crime and Living room, and it will be on both."
+
+#. Recent
+msgid "recent_shelves"
+msgstr "Recent"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "Add the shelf {name}"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "Matching shelves"

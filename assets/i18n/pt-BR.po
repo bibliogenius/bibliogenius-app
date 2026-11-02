@@ -1567,9 +1567,6 @@ msgstr "Criar e Empréstimo"
 msgid "create_new_collection"
 msgstr "Criar Nova Coleção"
 
-msgid "create_new_tag"
-msgstr "Criar nova etiqueta"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "Criar Estante"
@@ -4921,10 +4918,6 @@ msgstr "Gerenciar Prateleiras"
 msgid "manage_shelves_desc"
 msgstr "Renomeie, exclua ou reorganize as prateleiras"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "Gerenciar Prateleiras"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "Conexão Manual"
@@ -6496,10 +6489,6 @@ msgid "role_library"
 msgstr "Biblioteca"
 
 #. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "Buscar estantes..."
-
-#. Shelf Picker
 msgid "shelves_selected"
 msgstr "selecionadas"
 
@@ -7692,9 +7681,6 @@ msgstr "Erro ao criar prateleira"
 #. BETA
 msgid "tag_experimental"
 msgstr "BETA"
-
-msgid "tag_name_hint"
-msgstr "Nome da prateleira"
 
 #. Shelves
 msgid "tags"
@@ -12480,3 +12466,71 @@ msgstr "A ordem importa? Uma coleção. Senão, uma prateleira."
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "Primeiro nível"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "Escolher prateleiras"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "Pode escolher várias"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "Pesquisar ou criar uma prateleira"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "Criar “{name}”"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "No primeiro nível, escolhida na hora"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "Criar dentro de uma prateleira…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "Criar “{name}” em…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "Um toque cria a prateleira nesse lugar"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "No primeiro nível, em vez disso"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "Filtrar prateleiras"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "já existe"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "já existe, em {path}"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "em {path}"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "Um livro pode estar em várias prateleiras: escolha Policial e Sala, e ele ficará nas duas."
+
+#. Recent
+msgid "recent_shelves"
+msgstr "Recentes"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "Adicionar a prateleira {name}"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "Prateleiras parecidas"

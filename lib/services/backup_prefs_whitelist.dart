@@ -88,6 +88,10 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'ffi_show_borrowed_books',
   'ffi_tags',
 
+  // Shelves last picked in a book form: a shortcut on this device, by
+  // decision never synced, so not carried to another install either.
+  'recent_shelf_names',
+
   // Onboarding / install state (mirrored in DB or device-specific).
   'isSetupComplete',
   'libraryName',

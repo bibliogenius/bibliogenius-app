@@ -1423,9 +1423,6 @@ msgstr "Erstellen & Ausleihen"
 msgid "create_new_collection"
 msgstr "Neue Sammlung erstellen"
 
-msgid "create_new_tag"
-msgstr "Neues Regal erstellen"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "Regal erstellen"
@@ -3810,10 +3807,6 @@ msgstr "Regale verwalten"
 msgid "manage_shelves_desc"
 msgstr "Regale umbenennen, löschen oder neu organisieren"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "Regale verwalten"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "Manuelle Verbindung"
@@ -6052,9 +6045,6 @@ msgstr "Fehler beim Erstellen des Regals"
 #. BETA
 msgid "tag_experimental"
 msgstr "Experimentell"
-
-msgid "tag_name_hint"
-msgstr "Regalname"
 
 #. Shelves
 msgid "tags"
@@ -8529,10 +8519,6 @@ msgstr "Buecher oder Aktionen suchen..."
 #. Search placeholder in loans tabs
 msgid "search_loans"
 msgstr "Nach Titel oder Name suchen..."
-
-#. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "Regal suchen..."
 
 #. Sections - Drag hint
 msgid "sections_drag_hint"
@@ -12346,3 +12332,71 @@ msgstr "Zählt die Reihenfolge? Eine Sammlung. Sonst ein Regal."
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "Oberste Ebene"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "Regale wählen"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "Mehrere möglich"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "Regal suchen oder erstellen"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "„{name}“ erstellen"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "Auf der obersten Ebene, sofort ausgewählt"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "In einem Regal erstellen…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "„{name}“ erstellen in…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "Ein Tippen erstellt das Regal an dieser Stelle"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "Lieber auf der obersten Ebene"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "Regale filtern"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "existiert bereits"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "existiert bereits, in {path}"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "in {path}"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "Ein Buch kann in mehreren Regalen stehen: Wählen Sie Krimi und Wohnzimmer, dann steht es in beiden."
+
+#. Recent
+msgid "recent_shelves"
+msgstr "Zuletzt verwendet"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "Regal {name} hinzufügen"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "Ähnliche Regale"

@@ -1380,9 +1380,6 @@ msgstr "Oluştur ve Ödünç Ver"
 msgid "create_new_collection"
 msgstr "Yeni Koleksiyon Oluştur"
 
-msgid "create_new_tag"
-msgstr "Yeni Raf Oluştur"
-
 #. Create Shelf
 msgid "create_shelf"
 msgstr "Raf Oluştur"
@@ -3651,10 +3648,6 @@ msgstr "Rafları Yönet"
 msgid "manage_shelves_desc"
 msgstr "Rafları yeniden adlandırın, silin veya organize edin"
 
-#. Manage Shelves
-msgid "manage_tags"
-msgstr "Rafları Yönet"
-
 #. Manual Connection
 msgid "manual_connection_btn"
 msgstr "Manuel Bağlantı"
@@ -5673,9 +5666,6 @@ msgstr "Raf oluşturulurken hata oluştu"
 msgid "tag_experimental"
 msgstr "BETA"
 
-msgid "tag_name_hint"
-msgstr "Raf adı"
-
 #. Shelves
 msgid "tags"
 msgstr "Raflar"
@@ -6889,10 +6879,6 @@ msgstr "Bağlı değil"
 #. Remote server URL label
 msgid "relay_url_label"
 msgstr "Uzak sunucu URL'si"
-
-#. Shelf Picker
-msgid "search_shelves_hint"
-msgstr "Raflarda ara..."
 
 #. Shelf Picker
 msgid "shelves_selected"
@@ -12477,3 +12463,71 @@ msgstr "Sıra önemli mi? Koleksiyon. Değilse, raf."
 #. Shelves: the top of the shelf tree, offered as a parent choice
 msgid "first_level"
 msgstr "İlk seviye"
+
+#. Choose shelves
+msgid "choose_shelves"
+msgstr "Rafları seç"
+
+#. You can pick several
+msgid "choose_shelves_subtitle"
+msgstr "Birden fazla seçebilirsiniz"
+
+#. Search or create a shelf
+msgid "search_or_create_shelf_hint"
+msgstr "Raf ara veya oluştur"
+
+#. Create “{name}”
+msgid "create_shelf_named"
+msgstr "“{name}” oluştur"
+
+#. At the first level, picked right away
+msgid "create_shelf_first_level_hint"
+msgstr "İlk seviyede, hemen seçilir"
+
+#. Create in a shelf…
+msgid "create_shelf_inside"
+msgstr "Bir rafın içinde oluştur…"
+
+#. Create “{name}” in…
+msgid "create_shelf_in_title"
+msgstr "“{name}” şurada oluştur…"
+
+#. One tap creates the shelf there
+msgid "create_shelf_in_subtitle"
+msgstr "Bir dokunuş rafı oraya oluşturur"
+
+#. At the first level instead
+msgid "create_shelf_first_level_instead"
+msgstr "Bunun yerine ilk seviyede"
+
+#. Filter shelves
+msgid "filter_shelves_hint"
+msgstr "Rafları filtrele"
+
+#. already exists
+msgid "shelf_already_exists"
+msgstr "zaten var"
+
+#. already exists, in {path}
+msgid "shelf_already_exists_in"
+msgstr "zaten var, {path} içinde"
+
+#. in {path}
+msgid "shelf_in_path"
+msgstr "{path} içinde"
+
+#. A book can be on several shelves: pick Crime and Living room, and it will be on both.
+msgid "shelf_name_taken_hint"
+msgstr "Bir kitap birden fazla rafta olabilir: Polisiye ve Salon'u seçin, ikisinde de olur."
+
+#. Recent
+msgid "recent_shelves"
+msgstr "Son kullanılanlar"
+
+#. Add the shelf {name}
+msgid "add_shelf_named"
+msgstr "{name} rafını ekle"
+
+#. Matching shelves
+msgid "matching_shelves"
+msgstr "Benzer raflar"

@@ -98,7 +98,9 @@ import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/sync_service.dart';
+import 'package:bibliogenius/services/recent_shelves_store.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/widgets/hierarchical_tag_selector.dart';
 import 'package:bibliogenius/widgets/book_cover_grid.dart';
 import 'package:bibliogenius/widgets/collection_selector.dart';
 import 'package:bibliogenius/widgets/collection_stack_widget.dart';
@@ -795,6 +797,40 @@ Future<void> _expandAll(WidgetTester tester) async {
   }
 }
 
+final _shelfSheet = find.byKey(const Key('shelfPickerSheet'));
+
+Finder _inShelfSheet(Finder finder) =>
+    find.descendant(of: _shelfSheet, matching: finder);
+
+/// Scrolls the add form until [finder] is built: the form is a lazy list,
+/// and its shelves section sits below the fold on a phone.
+Future<void> _revealInForm(WidgetTester tester, Finder finder) async {
+  await tester.scrollUntilVisible(
+    finder,
+    200,
+    scrollable: find
+        .descendant(
+          of: find.byType(ListView).first,
+          matching: find.byType(Scrollable),
+        )
+        .first,
+  );
+  await _settle(tester);
+}
+
+/// Opens the shelf picker from the add form's "Add" chip.
+Future<void> _openShelfPicker(WidgetTester tester) async {
+  final add = find.byKey(const Key('addShelfChip'));
+  await _revealInForm(tester, add);
+  await _tap(tester, add);
+}
+
+/// Types in the picker's one field, past its debounce.
+Future<void> _typeInShelfPicker(WidgetTester tester, String text) async {
+  await tester.enterText(_inShelfSheet(find.byType(TextField)), text);
+  await _settle(tester);
+}
+
 /// The main journey: the four destinations of the bottom bar and what a
 /// reader opens from them. Listed by what they render, not by route, since
 /// one route renders several states.
@@ -845,6 +881,34 @@ final _probes = <_Probe>[
   const _Probe('library, collections tab', '/collections', collections: true),
   const _Probe('collection detail', '/collections/c1', collections: true),
   const _Probe('add a book', '/books/add'),
+  // The shelf picker the form opens: its tree, a name to create, and the
+  // placement tree behind "Create in a shelf…".
+  _Probe('add a book, shelf picker', '/books/add', reach: _openShelfPicker),
+  _Probe(
+    'add a book, shelf picker, a new name',
+    '/books/add',
+    reach: (t) async {
+      await _openShelfPicker(t);
+      await _typeInShelfPicker(t, 'Night');
+    },
+  ),
+  _Probe(
+    'add a book, shelf picker, a taken name',
+    '/books/add',
+    reach: (t) async {
+      await _openShelfPicker(t);
+      await _typeInShelfPicker(t, 'science FICTION');
+    },
+  ),
+  _Probe(
+    'add a book, placement tree',
+    '/books/add',
+    reach: (t) async {
+      await _openShelfPicker(t);
+      await _typeInShelfPicker(t, 'Night');
+      await _tap(t, find.text('Create in a shelf…'));
+    },
+  ),
   // The book page, in the three states its actions branch on.
   const _Probe('book details, being read', '/books/b2'),
   const _Probe('book details, finished and rated', '/books/b3'),
@@ -938,6 +1002,9 @@ Future<void> _setUpAll() async {
 void _setUp() {
   SharedPreferences.setMockInitialValues({
     'languageCode': 'en',
+    // A shelf picked in an earlier form, plus one deleted since: the add
+    // form shows the first and hides the second.
+    'recent_shelf_names': ['Novel', 'Gone shelf'],
     // The dashboard's quote of the day is drawn at random unless a fresh one
     // is cached; a fixed one keeps the probe the same from run to run.
     'quote_cache_v2_en': jsonEncode({
@@ -1553,6 +1620,250 @@ void main() {
       await openSortMenu(tester, 'Author');
       expect(find.text('Shelf order'), findsOneWidget);
       expect(checkedMenuItem('Author (A-Z)'), findsOneWidget);
+    });
+  });
+
+  // The shelves of the add form, on the real route: the genre chips above
+  // them, the recent shelves under them, and the picker they open.
+  group('shelves in the add form on the real route', () {
+    final addForm = _probes.firstWhere((p) => p.name == 'add a book');
+    final selector = find.byType(HierarchicalTagSelector);
+    Finder recent(String name) => find.byKey(ValueKey('recentShelf:$name'));
+    Finder row(String name) => _inShelfSheet(
+      find.byKey(ValueKey('shelfRow:$name')),
+    );
+    Finder createNamed(String name) =>
+        _inShelfSheet(find.text('Create “$name”'));
+    final takenHint = _inShelfSheet(
+      find.textContaining('A book can be on several shelves'),
+    );
+
+    testWidgets('a recent shelf is one tap away, and leaves the row once '
+        'picked', (tester) async {
+      await _render(tester, addForm);
+      await _revealInForm(tester, recent('Novel'));
+
+      expect(find.descendant(of: selector, matching: find.text('Recent')),
+          findsOneWidget);
+      expect(recent('Novel'), findsOneWidget);
+      expect(recent('Gone shelf'), findsNothing, reason: 'deleted since');
+
+      await _tap(tester, recent('Novel'));
+
+      expect(
+        find.descendant(of: selector, matching: find.widgetWithText(Chip,
+            'Novel')),
+        findsOneWidget,
+      );
+      expect(recent('Novel'), findsNothing);
+      expect(
+        find.descendant(of: selector, matching: find.text('Recent')),
+        findsNothing,
+        reason: 'nothing left to suggest',
+      );
+    });
+
+    testWidgets('a genre picked above is not repeated in the shelves row', (
+      tester,
+    ) async {
+      await _render(tester, addForm);
+      await _revealInForm(tester, find.text('Science fiction'));
+      await _tap(tester, find.text('Science fiction'));
+      await _revealInForm(tester, find.byKey(const Key('addShelfChip')));
+
+      expect(find.text('Science fiction'), findsOneWidget);
+      expect(
+        find.descendant(of: selector, matching: find.text('Science fiction')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('saving the book remembers its shelves as recent', (
+      tester,
+    ) async {
+      await _render(tester, addForm);
+      await tester.enterText(find.byKey(const Key('titleField')), 'Germinal');
+      await _revealInForm(tester, find.text('Science fiction'));
+      await _tap(tester, find.text('Science fiction'));
+      await _tap(tester, find.byKey(const Key('saveBookButton')));
+      await tester.pump(const Duration(seconds: 1));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('recent_shelf_names'), [
+        'Science fiction',
+        'Novel',
+        'Gone shelf',
+      ]);
+    });
+
+    testWidgets('a failing recent-shelves write still saves and closes the '
+        'form', (tester) async {
+      RecentShelvesStore.prefs = () async => throw StateError('disk full');
+      addTearDown(
+        () => RecentShelvesStore.prefs = SharedPreferences.getInstance,
+      );
+      final harness = await _render(tester, addForm);
+      await tester.enterText(find.byKey(const Key('titleField')), 'Germinal');
+      // A shelf, or there is nothing to record and the write never runs.
+      await _revealInForm(tester, find.text('Science fiction'));
+      await _tap(tester, find.text('Science fiction'));
+      await _tap(tester, find.byKey(const Key('saveBookButton')));
+      await tester.pump(const Duration(seconds: 1));
+      await _settle(tester);
+
+      expect(harness.books.lastCreate?['title'], 'Germinal');
+      expect(harness.books.lastCreate?['subjects'], ['Science fiction']);
+      expect(find.textContaining('Error saving'), findsNothing);
+      expect(find.byType(AddBookScreen), findsNothing);
+    });
+
+    testWidgets('the picker says what it is for, without a checkbox', (
+      tester,
+    ) async {
+      await _render(tester, addForm);
+      await _openShelfPicker(tester);
+
+      expect(_inShelfSheet(find.text('Choose shelves')), findsOneWidget);
+      expect(_inShelfSheet(find.text('You can pick several')), findsOneWidget);
+      expect(_inShelfSheet(find.byType(Checkbox)), findsNothing);
+      expect(_inShelfSheet(find.text('Recent')), findsOneWidget);
+      expect(_inShelfSheet(find.text('All Shelves')), findsOneWidget);
+      // Unfolded: the sub-shelf is there without opening its parent.
+      expect(row('Science fiction'), findsOneWidget);
+    });
+
+    testWidgets('each row is a toggle that says whether it is checked', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, addForm);
+      await _openShelfPicker(tester);
+
+      expect(
+        tester.getSemantics(row('Novel')),
+        containsSemantics(
+          label: 'Novel',
+          isButton: true,
+          hasCheckedState: true,
+          isChecked: false,
+        ),
+      );
+      await _tap(tester, row('Novel'));
+      expect(
+        tester.getSemantics(row('Novel')),
+        containsSemantics(isButton: true, hasCheckedState: true,
+            isChecked: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a taken name offers no "Create" and raises the existing '
+        'shelf', (tester) async {
+      final harness = await _render(tester, addForm);
+      await _openShelfPicker(tester);
+      // Case and accents ignored: names are unique across the whole tree.
+      await _typeInShelfPicker(tester, 'sciénce FICTION');
+
+      expect(_inShelfSheet(find.textContaining('Create')), findsNothing);
+      expect(row('Science fiction'), findsOneWidget);
+      expect(
+        _inShelfSheet(find.text('already exists, in Genre')),
+        findsOneWidget,
+      );
+      expect(takenHint, findsOneWidget);
+
+      await _tap(tester, row('Science fiction'));
+      expect(harness.tags.created, isEmpty);
+      await _tap(tester, _inShelfSheet(find.text('Done')));
+
+      // Kept in the selection: the picker opens with it checked. (Not in
+      // the shelves row, being a genre the chips above light.)
+      final handle = tester.ensureSemantics();
+      await _openShelfPicker(tester);
+      expect(
+        tester.getSemantics(row('Science fiction')),
+        containsSemantics(hasCheckedState: true, isChecked: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a first-level shelf already taken says so, with no parent', (
+      tester,
+    ) async {
+      await _render(tester, addForm);
+      await _openShelfPicker(tester);
+      await _typeInShelfPicker(tester, 'nóvel');
+
+      expect(_inShelfSheet(find.text('already exists')), findsOneWidget);
+      expect(createNamed('nóvel'), findsNothing);
+    });
+
+    testWidgets('a new name is created at the first level and checked in '
+        'one tap', (tester) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(tester, addForm);
+      await _openShelfPicker(tester);
+      await _typeInShelfPicker(tester, 'Night');
+
+      // The create block leads the results.
+      expect(createNamed('Night'), findsOneWidget);
+      expect(
+        _inShelfSheet(find.text('At the first level, picked right away')),
+        findsOneWidget,
+      );
+      await _tap(tester, createNamed('Night'));
+
+      expect(harness.tags.created, ['Night']);
+      expect(
+        tester.getSemantics(row('Night')),
+        containsSemantics(isButton: true, hasCheckedState: true,
+            isChecked: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('Enter in the field creates the name it offers', (
+      tester,
+    ) async {
+      final harness = await _render(tester, addForm);
+      await _openShelfPicker(tester);
+      await _typeInShelfPicker(tester, 'Night');
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await _settle(tester);
+
+      expect(harness.tags.created, ['Night']);
+    });
+
+    testWidgets('"Create in a shelf…" places the new shelf where tapped', (
+      tester,
+    ) async {
+      final harness = await _render(tester, addForm);
+      await _openShelfPicker(tester);
+      await _typeInShelfPicker(tester, 'Night');
+      await _tap(tester, _inShelfSheet(find.text('Create in a shelf…')));
+
+      expect(_inShelfSheet(find.text('Create “Night” in…')), findsOneWidget);
+      await _tap(
+        tester,
+        _inShelfSheet(find.byKey(const ValueKey('placementRow:Genre'))),
+      );
+
+      expect(harness.tags.created, ['Night < t2']);
+      // Back on the picker, the new shelf checked.
+      expect(_inShelfSheet(find.text('Choose shelves')), findsOneWidget);
+      expect(row('Night'), findsOneWidget);
+    });
+
+    testWidgets('a search result names its parent instead of nesting', (
+      tester,
+    ) async {
+      await _render(tester, addForm);
+      await _openShelfPicker(tester);
+      await _typeInShelfPicker(tester, 'fic');
+
+      expect(_inShelfSheet(find.text('Matching shelves')), findsOneWidget);
+      expect(_inShelfSheet(find.text('in Genre')), findsOneWidget);
     });
   });
 

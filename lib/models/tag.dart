@@ -264,6 +264,11 @@ int compareShelfNames(String a, String b) {
 /// [compareShelfNames] over tags, by name.
 int compareShelves(Tag a, Tag b) => compareShelfNames(a.name, b.name);
 
+/// [name] as [compareShelfNames] sees it: trimmed, lowercased, accented
+/// Latin letters folded. Two names with the same key are the same shelf to
+/// a reader, so a search or a "name taken" check compares these keys.
+String shelfNameKey(String name) => _foldShelfName(name);
+
 const _foldedLetters = <String, String>{
   'à': 'a',
   'á': 'a',

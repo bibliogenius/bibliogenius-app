@@ -44,18 +44,16 @@ void main() {
       'en': {
         'tags_label': 'Shelves',
         'add_tag': 'Add',
-        'create_new_tag': 'New shelf',
-        'tag_name_hint': 'Shelf name',
-        'first_level': 'First level',
+        'search_or_create_shelf_hint': 'Search or create a shelf',
+        'create_shelf_named': 'Create “{name}”',
+        'create_shelf_inside': 'Create in a shelf…',
+        'create_shelf_in_title': 'Create “{name}” in…',
+        'create_shelf_first_level_instead': 'At the first level instead',
       },
     });
   });
 
-  // `PopupMenuButton` reports a null value as a dismissal, so the first-level
-  // entry could never be picked back once a parent had been chosen.
-  testWidgets('the first level can be picked again after a parent', (
-    tester,
-  ) async {
+  Future<_RecordingTagRepository> pumpAndType(WidgetTester tester) async {
     tester.view.physicalSize = const Size(1200, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -80,34 +78,43 @@ void main() {
 
     await tester.tap(find.text('Add'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('New shelf').first);
-    await tester.pumpAndSettle();
     await tester.enterText(
-      find.widgetWithText(TextField, 'Shelf name'),
+      find.widgetWithText(TextField, 'Search or create a shelf'),
       'Night',
     );
+    await tester.pumpAndSettle();
+    return repo;
+  }
 
-    // Choose a parent ...
-    await tester.tap(find.byIcon(Icons.account_tree_outlined));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Living room').last);
-    await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.subdirectory_arrow_right), findsOneWidget);
+  // The first level used to be unreachable once a parent had been offered:
+  // `PopupMenuButton` reports a null value as a dismissal. The placement
+  // tree that replaced the menu must keep the first level one tap away.
+  testWidgets('the first level can still be picked from the placement tree', (
+    tester,
+  ) async {
+    final repo = await pumpAndType(tester);
 
-    // ... then go back to the first level.
-    await tester.tap(find.byIcon(Icons.account_tree_outlined));
+    await tester.tap(find.text('Create in a shelf…'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('First level').last);
-    await tester.pumpAndSettle();
-    expect(
-      find.byIcon(Icons.subdirectory_arrow_right),
-      findsNothing,
-      reason: 'the chosen parent is cleared',
-    );
+    expect(find.text('Create “Night” in…'), findsOneWidget);
+    expect(find.text('Living room'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.add));
+    await tester.tap(find.text('At the first level instead'));
     await tester.pumpAndSettle();
 
     expect(repo.createdParents, [null], reason: 'created without a parent');
+  });
+
+  testWidgets('a shelf picked in the placement tree becomes the parent', (
+    tester,
+  ) async {
+    final repo = await pumpAndType(tester);
+
+    await tester.tap(find.text('Create in a shelf…'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Living room'));
+    await tester.pumpAndSettle();
+
+    expect(repo.createdParents, ['living']);
   });
 }

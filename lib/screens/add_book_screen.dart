@@ -13,6 +13,7 @@ import '../widgets/cover_scan_tips_dialog.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
+import '../services/recent_shelves_store.dart';
 import '../services/translation_service.dart';
 import '../services/sync_service.dart';
 import '../providers/book_refresh_notifier.dart';
@@ -456,6 +457,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
       final levelsBefore = await MilestoneCelebration.snapshot();
       final createdBook = await bookRepo.createBook(book.toJson());
       final newBookId = createdBook.id; // uuid (cross-device identity)
+      // Offered as "Recent" in the next form.
+      await RecentShelvesStore.record(_selectedTags);
 
       // Rename temp cover file with the real book uuid (covers are
       // named `<uuid>.jpg` on disk).
@@ -1785,6 +1788,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
               // Tags (shelves)
               HierarchicalTagSelector(
+                genresShownAbove: true,
                 // A copy, not the field: the selector only re-reads its
                 // selection when the list it is handed differs from the
                 // previous one, and `_selectedTags` is mutated in place.

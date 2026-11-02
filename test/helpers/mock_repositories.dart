@@ -86,9 +86,15 @@ class MockTagRepository implements TagRepository {
   @override
   Future<int> countUnshelvedBooks() async => mockUnshelvedCount;
 
+  /// Every shelf created, as `name` or `name < parentId`, in order. The
+  /// created shelf is not added to [mockTags], which tests often share.
+  final List<String> created = [];
+
   @override
-  Future<Tag> createTag(String name, {String? parentId}) async =>
-      Tag(id: '1', name: name, parentId: parentId, count: 0);
+  Future<Tag> createTag(String name, {String? parentId}) async {
+    created.add(parentId == null ? name : '$name < $parentId');
+    return Tag(id: '1', name: name, parentId: parentId, count: 0);
+  }
 
   @override
   Future<Tag> updateTag(String uuid, String name, {String? parentId}) async =>

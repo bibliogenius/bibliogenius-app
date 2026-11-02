@@ -12,6 +12,7 @@ import '../data/repositories/copy_repository.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
+import '../services/recent_shelves_store.dart';
 import '../services/translation_service.dart';
 import '../services/milestone_celebration.dart';
 import '../utils/ownership_actions.dart';
@@ -552,7 +553,12 @@ class _EditBookScreenState extends State<EditBookScreen> {
         throw Exception("Book ID is missing");
       }
       final levelsBefore = await MilestoneCelebration.snapshot();
+      final shelvesBefore = _book.subjects ?? const <String>[];
       await bookRepo.updateBook(widget.book.id!, bookData);
+      // Only the shelves picked in this edit count as recently chosen.
+      await RecentShelvesStore.record(
+        _selectedTags.where((s) => !shelvesBefore.contains(s)),
+      );
       if (mounted) {
         context.read<HubDirectoryProvider>()
           ..markCatalogDirty()
@@ -1401,6 +1407,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
 
               // Tags
               HierarchicalTagSelector(
+                genresShownAbove: true,
                 selectedTags: _selectedTags,
                 onTagsChanged: (tags) {
                   setState(() {
