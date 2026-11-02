@@ -185,10 +185,6 @@ msgstr "Ekle"
 msgid "add_tag_hint"
 msgstr "Bir raf ekle..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "Raf Ekle"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "Koleksiyona Ekle"
@@ -1760,9 +1756,9 @@ msgstr "Oyunlaştırmayı Etkinleştir"
 msgid "enable_network_discovery"
 msgstr "Yerel Ağ Keşfi"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "Hiyerarşik Etiketler"
+msgstr "Hiyerarşik raflar"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -2642,9 +2638,9 @@ msgstr "Kataloglarda Ara"
 msgid "help_cta_view_requests"
 msgstr "İstekleri Görüntüle"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "Koleksiyonlar; kitap serileri, okuma meydan okumaları veya tematik listeler gibi ilgili kitapları bir araya getirmenizi sağlar."
+msgstr "Koleksiyon: birlikte giden, belirli bir sırası olan kitap listesi. Bir serinin ciltleri, ödünç vermek için bir seçki, favorileriniz.\n\nSıra önemli mi? Koleksiyon. Değilse, raf."
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -2810,9 +2806,9 @@ msgstr "Kitap metadataları için hangi katalogların aranacağını seçin"
 msgid "help_ctx_settings_title"
 msgstr "Ayarlar Yardımı"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "Raflar, kitaplarınızı kategorilere ayırmanıza yardımcı olur. \"Okunacaklar\", \"Favoriler\" veya türe göre özel raflar oluşturun."
+msgstr "Raf: bir kitabı yerleştirdiğiniz yer. Konuya, odaya, türe göre. Bir kitap birden çok rafta olabilir, bir raf da başka rafları içerebilir.\n\nSıra önemli mi? Koleksiyon. Değilse, raf."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2874,9 +2870,9 @@ msgstr "\"Kütüphanem\"e gidin ve \"+\" düğmesine dokunun. Bir barkod tarayab
 msgid "help_desc_audio"
 msgstr "Etkinleştirildiğinde, Ses modülü kitaplarınızın ücretsiz sesli kitap versiyonlarını LibriVox, Littérature Audio ve Archive.org'da otomatik olarak arar. Profil ayarlarından etkinleştirin, ardından her kitabın detay sayfasından doğrudan dinleyin."
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "Koleksiyonlar kitaplarınızı kendi listelerinizde toplar (seriler, temalar, okuma listeleri). Koleksiyonlar sekmesinden bir tane oluşturun, sonra kitaplığınızdan kitap ekleyin veya mevcut bir listeyi içe aktarın.\n\nBir koleksiyon paylaşılabilir: «Paylaş» onu dosya ya da kopyalanmış metin olarak gönderir, «İçe aktar» aldığınızı geri okur. Onay verilmeden hiçbir kitaplığa hiçbir şey girmez.\n\nFavoriler koleksiyonu kendi kendine dolar: kitap sayfasındaki yıldız yer imini izler."
+msgstr "Koleksiyon: birlikte giden, belirli bir sırası olan kitap listesi. Bir serinin ciltleri, ödünç vermek için bir seçki, favorileriniz. Koleksiyonlar sekmesinden bir tane oluşturun, sonra kitaplığınızdan kitap ekleyin veya mevcut bir listeyi içe aktarın. Sıra önemli mi? Koleksiyon. Değilse, raf.\n\nBir koleksiyon paylaşılabilir: «Paylaş» onu dosya ya da kopyalanmış metin olarak gönderir, «İçe aktar» aldığınızı geri okur. Onay verilmeden hiçbir kitaplığa hiçbir şey girmez.\n\nFavoriler koleksiyonu kendi kendine dolar: kitap sayfasındaki yıldız yer imini izler."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -2906,9 +2902,9 @@ msgstr "Kütüphanenizde kitabı bulun, \"Kopyaları Yönet\"e, ardından \"Öd�
 msgid "help_desc_network"
 msgstr "\"Ağ\" bölümü, eklediğiniz kütüphanelerin kataloglarını keşfetmenizi ve göz atmanızı sağlar. Oradan kitap ödünç alma isteği gönderebilirsiniz."
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. Kitaplarınız için tematik raflar oluşturun (örn. \"Bilim Kurgu\", \"Favoriler\").\n2. Kütüphanenizde, filtrelemek için bir rafa dokunun.\n3. Yeniden düzenleme moduna girmek için Sırala simgesine (≡) dokunun.\n4. Kitapları tercih ettiğiniz sıraya sürükleyin veya yazara göre otomatik sıralama için A→Z'ye dokunun.\n5. Özel düzenlemenizi kaydetmek için ✓ düğmesine dokunun!"
+msgstr "Raf: bir kitabı yerleştirdiğiniz yer. Konuya, odaya, türe göre. Bir kitap birden çok rafta olabilir, bir raf da başka rafları içerebilir.\n\nSıra önemli mi? Koleksiyon. Değilse, raf.\n\n1. Kitaplarınız için raflar oluşturun (örn. \"Oturma odası\", \"Polisiye\").\n2. Kütüphanenizde, filtrelemek için bir rafa dokunun.\n3. Yeniden düzenleme moduna girmek için Sırala simgesine (≡) dokunun.\n4. Kitapları tercih ettiğiniz sıraya sürükleyin veya yazara göre otomatik sıralama için A→Z'ye dokunun.\n5. Özel düzenlemenizi kaydetmek için ✓ düğmesine dokunun!"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -3013,10 +3009,6 @@ msgstr "Nasıl yardımcı olabiliriz?"
 #. Hierarchical shelf management
 msgid "hierarchical_shelf_management"
 msgstr "Hiyerarşik raf yönetimi"
-
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "İpucu: Alt raflar oluşturmak için \"Üst > Alt\" kullanın"
 
 #. Home
 msgid "home"
@@ -3133,10 +3125,6 @@ msgstr "Panonuzdaki içeriği yapıştırın"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "Elimde metin veya bağlantı var"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "İçe Aktarma Seçenekleri (Raflar ve Koleksiyonlar)"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -3868,9 +3856,9 @@ msgstr "Taşı"
 msgid "move_shelf"
 msgstr "Rafı Taşı"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "Üst kategoriyi değiştir"
+msgstr "Üst rafı değiştir"
 
 #. Moving
 msgid "moving"
@@ -4146,10 +4134,6 @@ msgstr "Sonuç bulunamadı"
 msgid "no_shelves"
 msgstr "Henüz raf yok"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "Kitaplarınızı düzenlemek için onlara raflar ekleyin."
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "Henüz Raf Yok"
@@ -4165,10 +4149,6 @@ msgstr "Özet mevcut değil."
 #. No shelves in library
 msgid "no_tags"
 msgstr "Kütüphanede raf yok"
-
-#. None (root level)
-msgid "none"
-msgstr "Hiçbiri (kök seviye)"
 
 #. Not set
 msgid "not_set"
@@ -4837,13 +4817,6 @@ msgstr "Ödünç Alan"
 msgid "role_library"
 msgstr "Kütüphane"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "Kök Seviye (Üst Yok)"
-
-msgid "root_tag"
-msgstr "Kök (üst yok)"
-
 msgid "sale_date"
 msgstr "Satış Tarihi"
 
@@ -5055,10 +5028,6 @@ msgstr "Üst (isteğe bağlı)"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "Profil Tipini Seç"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "Rafları Seç"
 
 msgid "select_tags_title"
 msgstr "Rafları Yönet"
@@ -5587,9 +5556,9 @@ msgstr "Kütüphanenize adanmış koca bir hafta!"
 msgid "street_address_label"
 msgstr "Sokak Adresi"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "Alt kategoriler"
+msgstr "Alt raflar"
 
 #. Subject
 msgid "subject_label"
@@ -6199,10 +6168,6 @@ msgstr "Ödünç alma kabul edildi! Kitap kütüphanenize eklendi."
 #. Collection tag (library grouped view)
 msgid "collection_tag"
 msgstr "Koleksiyon"
-
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "Kitapları birlikte gruplayın, örn. Yaz okumaları, Kitap kulübü"
 
 #. Coming soon
 msgid "coming_soon"
@@ -7263,9 +7228,9 @@ msgstr "%d dk önce güncellendi"
 msgid "last_updated_hours"
 msgstr "%d sa önce güncellendi"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "Kitaplarınızı sınıflandırın, örn. Oturma odası, Kurgu > Bilim Kurgu"
+msgstr "Bir kitabı yerleştirdiğiniz yer."
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -10901,7 +10866,7 @@ msgstr "Sahip olmadığınız ama okumak istediğiniz bir kitabın yeri burasıd
 msgid "help_topic_recommendations"
 msgstr "Okuma önerileri nereden geliyor?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
 msgstr "Panodaki «Size öneriler», kitap sayfasındaki «Şunları da beğenebilirsiniz» ve kitaplığınızın üstündeki «Keşfedilecek» sekmesi, kendi raflarınızdan seçilmiş kitaplar önerir. Bir seriye ya da aynı yazarın birkaç kitabına sahipseniz eksik cilt veya başlık da önerilebilir: anonim bir sorgu onu bulur, hesaplama ise bu cihazda kalır.\n\nHer kart nedenini söyler: aynı yazar, benzer konu, aynı yayınevi, aynı dönem, yüksek puan verdiğiniz bir kitap ya da okuma yığınınızdaki bir kitap. Favori bir kitap iki kat ağırlık taşır.\n\n«İlgilenmiyorum» bir öneriyi göründüğü her yerde gizler, hemen ardından geri alma sunar. Bu seçim bu cihazda saklanır."
 
@@ -12480,3 +12445,19 @@ msgstr "Dikkatli kullanın"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "Deneysel: raf içinde raf."
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "Raf: bir kitabı yerleştirdiğiniz yer. Konuya, odaya, türe göre. Bir kitap birden çok rafta olabilir, bir raf da başka rafları içerebilir."
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "Koleksiyon: birlikte giden, belirli bir sırası olan kitap listesi. Bir serinin ciltleri, ödünç vermek için bir seçki, favorileriniz."
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "Sıra önemli mi? Koleksiyon. Değilse, raf."
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "İlk seviye"

@@ -205,10 +205,6 @@ msgstr "Hinzufügen"
 msgid "add_tag_hint"
 msgstr "Tag hinzufügen..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "Tags hinzufügen"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "Zur Sammlung hinzufügen"
@@ -1019,10 +1015,6 @@ msgstr "Sammlungsstatistiken"
 #. Collections
 msgid "collections"
 msgstr "Sammlungen"
-
-#. Buecher gruppieren, z.B. Sommerlektuere, Buchclub
-msgid "collections_helper"
-msgstr "Bücher gruppieren, z.B. Sommerlektüre, Buchclub"
 
 #. Collections
 msgid "collections_label"
@@ -1859,9 +1851,9 @@ msgstr "Gamification aktivieren"
 msgid "enable_network_discovery"
 msgstr "Netzwerkerkennung aktivieren"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "Hierarchische Tags"
+msgstr "Hierarchische Regale"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -2785,9 +2777,9 @@ msgstr "Kataloge durchsuchen"
 msgid "help_cta_view_requests"
 msgstr "Anfragen anzeigen"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "Sammlungen ermöglichen es dir, Bücher in thematischen Listen zu gruppieren."
+msgstr "Sammlung: eine Liste von Büchern, die zusammengehören, in einer Reihenfolge. Die Bände einer Reihe, eine Auswahl zum Verleihen, Ihre Favoriten.\n\nZählt die Reihenfolge? Eine Sammlung. Sonst ein Regal."
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -2953,9 +2945,9 @@ msgstr "Wähle, welche Kataloge für die Buchsuche verwendet werden"
 msgid "help_ctx_settings_title"
 msgstr "Einstellungen"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "Regale ermöglichen es dir, deine Bücher nach Kategorien zu organisieren."
+msgstr "Regal: wo Sie ein Buch einordnen. Nach Thema, nach Raum, nach Genre. Ein Buch kann in mehreren Regalen stehen, und ein Regal kann weitere enthalten.\n\nZählt die Reihenfolge? Eine Sammlung. Sonst ein Regal."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -3021,9 +3013,9 @@ msgstr "Gehen Sie zu \"Meine Bibliothek\" und tippen Sie auf \"+\". Sie können 
 msgid "help_desc_audio"
 msgstr "Wenn aktiviert, sucht das Audio-Modul automatisch nach kostenlosen Hörbuchversionen Ihrer Bücher auf LibriVox, Littérature Audio und Archive.org. Aktivieren Sie es in Ihren Profileinstellungen und hören Sie dann direkt auf der Detailseite jedes Buches."
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "Sammlungen bündeln Ihre Bücher in eigenen Listen (Reihen, Themen, Leselisten). Legen Sie eine im Tab Sammlungen an und fügen Sie Bücher aus Ihrer Bibliothek hinzu oder importieren Sie eine bestehende Liste.\n\nEine Sammlung lässt sich teilen: „Teilen“ verschickt sie als Datei oder als kopierten Text, „Importieren“ liest zurück, was Sie erhalten. Nichts gelangt ohne Bestätigung in eine Bibliothek.\n\nDie Sammlung Favoriten füllt sich von selbst: Sie folgt dem Stern-Lesezeichen auf den Buchseiten."
+msgstr "Sammlung: eine Liste von Büchern, die zusammengehören, in einer Reihenfolge. Die Bände einer Reihe, eine Auswahl zum Verleihen, Ihre Favoriten. Legen Sie eine im Tab Sammlungen an und fügen Sie Bücher aus Ihrer Bibliothek hinzu oder importieren Sie eine bestehende Liste. Zählt die Reihenfolge? Eine Sammlung. Sonst ein Regal.\n\nEine Sammlung lässt sich teilen: „Teilen“ verschickt sie als Datei oder als kopierten Text, „Importieren“ liest zurück, was Sie erhalten. Nichts gelangt ohne Bestätigung in eine Bibliothek.\n\nDie Sammlung Favoriten füllt sich von selbst: Sie folgt dem Stern-Lesezeichen auf den Buchseiten."
 
 #. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
@@ -3053,14 +3045,9 @@ msgstr "Finden Sie das Buch, tippen Sie auf \"Exemplare verwalten\", dann auf \"
 msgid "help_desc_network"
 msgstr "Der Bereich \"Netzwerk\" ermöglicht es Ihnen, Kataloge von hinzugefügten Bibliotheken zu entdecken und zu durchsuchen. Von dort können Sie Ausleiheanfragen stellen."
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr ""
-"1. Erstellen Sie thematische Regale für Ihre Bücher (z.B. \"SciFi\", \"Favoriten\").\n"
-"2. Tippen Sie in Ihrer Bibliothek auf ein Regal zum Filtern.\n"
-"3. Tippen Sie auf das Sortier-Symbol (≡) für den Neuordnungsmodus.\n"
-"4. Ziehen Sie Bücher in Ihre bevorzugte Reihenfolge oder tippen Sie auf A→Z für Auto-Sortierung.\n"
-"5. Tippen Sie auf ✓ zum Speichern!"
+msgstr "Regal: wo Sie ein Buch einordnen. Nach Thema, nach Raum, nach Genre. Ein Buch kann in mehreren Regalen stehen, und ein Regal kann weitere enthalten.\n\nZählt die Reihenfolge? Eine Sammlung. Sonst ein Regal.\n\n1. Erstellen Sie Regale für Ihre Bücher (z.B. \"Wohnzimmer\", \"Krimi\").\n2. Tippen Sie in Ihrer Bibliothek auf ein Regal zum Filtern.\n3. Tippen Sie auf das Sortier-Symbol (≡) für den Neuordnungsmodus.\n4. Ziehen Sie Bücher in Ihre bevorzugte Reihenfolge oder tippen Sie auf A→Z für Auto-Sortierung.\n5. Tippen Sie auf ✓ zum Speichern!"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -3182,10 +3169,6 @@ msgstr "Wie können wir helfen?"
 msgid "hierarchical_shelf_management"
 msgstr "Hierarchische Regalverwaltung"
 
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "Wähle einen Elternteil, um eine Hierarchie zu erstellen"
-
 #. Home
 msgid "home"
 msgstr "Startseite"
@@ -3301,10 +3284,6 @@ msgstr "Eine Liste von ISBNs oder Titeln einfügen"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "Aus der Zwischenablage"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "Importoptionen"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -4036,9 +4015,9 @@ msgstr "Verschieben"
 msgid "move_shelf"
 msgstr "Regal verschieben"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "Übergeordnete Kategorie ändern"
+msgstr "Übergeordnetes Regal ändern"
 
 #. Moving
 msgid "moving"
@@ -4334,10 +4313,6 @@ msgstr "Keine Ergebnisse gefunden"
 msgid "no_shelves"
 msgstr "Keine Regale"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "Fügen Sie Tags zu Ihren Büchern hinzu, um sie in Regalen zu organisieren."
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "Noch keine Regale"
@@ -4353,10 +4328,6 @@ msgstr "Keine Zusammenfassung verfügbar."
 #. No shelves in library
 msgid "no_tags"
 msgstr "Keine Tags"
-
-#. None (root level)
-msgid "none"
-msgstr "Keine"
 
 #. Not set
 msgid "not_set"
@@ -5045,13 +5016,6 @@ msgstr "Entleiher"
 msgid "role_library"
 msgstr "Bibliothek"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "Stammebene"
-
-msgid "root_tag"
-msgstr "Wurzel (kein Elternteil)"
-
 msgid "sale_date"
 msgstr "Verkaufsdatum"
 
@@ -5275,10 +5239,6 @@ msgstr "Elternteil (optional)"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "Profiltyp auswählen"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "Tags auswählen"
 
 msgid "select_tags_title"
 msgstr "Regale verwalten"
@@ -5976,9 +5936,9 @@ msgstr "Eine ganze Woche Lesen!"
 msgid "street_address_label"
 msgstr "Straßenadresse"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "Unterkategorien"
+msgstr "Unterregale"
 
 #. Subject
 msgid "subject_label"
@@ -6096,9 +6056,9 @@ msgstr "Regalname"
 msgid "tags"
 msgstr "Tags"
 
-#. Buecher einordnen, z.B. Wohnzimmer, Belletristik > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "Bücher einordnen, z.B. Wohnzimmer, Belletristik > Sci-Fi"
+msgstr "Wo Sie ein Buch einordnen."
 
 msgid "tags_label"
 msgstr "Regale"
@@ -10775,7 +10735,7 @@ msgstr "Ein Buch, das Sie lesen möchten, aber nicht besitzen, gehört hierher: 
 msgid "help_topic_recommendations"
 msgstr "Woher kommen die Lesevorschläge?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
 msgstr "„Vorschläge für Sie“ auf der Übersicht, „Das könnte Ihnen auch gefallen“ auf einer Buchseite und der Tab „Zu entdecken“ oben in Ihrer Bibliothek schlagen Titel aus Ihren eigenen Regalen vor. Wenn Sie eine Reihe oder mehrere Bücher desselben Autors besitzen, kann auch der fehlende Band oder Titel vorgeschlagen werden: Eine anonyme Suche findet ihn, und die Berechnung bleibt auf diesem Gerät.\n\nJede Karte sagt warum: gleicher Autor, ähnliches Thema, gleicher Verlag, gleiche Zeit, ein von Ihnen hoch bewertetes Buch oder ein Buch aus Ihrem Lesestapel. Ein Favorit zählt doppelt.\n\n„Kein Interesse“ blendet einen Vorschlag überall aus, mit einem Rückgängig direkt danach. Diese Entscheidung bleibt auf diesem Gerät."
 
@@ -12354,3 +12314,19 @@ msgstr "Mit Vorsicht verwenden"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "Experimentell: Regale in Regalen."
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "Regal: wo Sie ein Buch einordnen. Nach Thema, nach Raum, nach Genre. Ein Buch kann in mehreren Regalen stehen, und ein Regal kann weitere enthalten."
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "Sammlung: eine Liste von Büchern, die zusammengehören, in einer Reihenfolge. Die Bände einer Reihe, eine Auswahl zum Verleihen, Ihre Favoriten."
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "Zählt die Reihenfolge? Eine Sammlung. Sonst ein Regal."
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "Oberste Ebene"

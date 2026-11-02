@@ -15,6 +15,7 @@ import 'import_curated_list_screen.dart' as import_curated;
 import 'import_shared_list_screen.dart';
 import '../../widgets/genie_app_bar.dart';
 import '../../widgets/scaffold_with_nav.dart';
+import '../../widgets/shelf_or_collection_note.dart';
 import '../../widgets/contextual_help_sheet.dart';
 import '../../widgets/collection_stack_widget.dart';
 import 'collection_delete_dialog.dart';
@@ -513,7 +514,7 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                     child: Text(
                       TranslationService.translate(
                         context,
-                        'collection_empty_state_desc',
+                        'collection_concept',
                       ),
                       textAlign: TextAlign.center,
                       style: TextStyle(
@@ -547,6 +548,8 @@ class _CollectionListScreenState extends State<CollectionListScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 32),
+                  const ShelfOrCollectionNote(conceptKey: 'shelf_concept'),
                   const SizedBox(height: 48),
                   Container(
                     padding: const EdgeInsets.all(20),

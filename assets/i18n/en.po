@@ -237,10 +237,6 @@ msgstr "Add"
 msgid "add_tag_hint"
 msgstr "Add a shelf..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "Add Tags"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "Add to Collection"
@@ -1114,10 +1110,6 @@ msgstr "Collections"
 #. Collection tag (library grouped view)
 msgid "collection_tag"
 msgstr "Collection"
-
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "Group books together, e.g. Summer reads, Book club"
 
 #. Collections
 msgid "collections_label"
@@ -2052,9 +2044,9 @@ msgstr "Enable Gamification"
 msgid "enable_network_discovery"
 msgstr "Local Network Discovery"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "Hierarchical Tags"
+msgstr "Hierarchical shelves"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -3014,9 +3006,9 @@ msgstr "Search Catalogs"
 msgid "help_cta_view_requests"
 msgstr "View Requests"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "Collections let you group related books together, like book series, reading challenges, or thematic lists."
+msgstr "Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf."
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -3182,9 +3174,9 @@ msgstr "Choose which catalogs to search for book metadata"
 msgid "help_ctx_settings_title"
 msgstr "Settings Help"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre."
+msgstr "Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -3250,9 +3242,9 @@ msgstr "Go to \"My Library\" and tap the \"+\" button. You can scan a barcode or
 msgid "help_desc_audio"
 msgstr "When enabled, the Audio module automatically searches for free audiobook versions of your books on LibriVox, Littérature Audio, and Archive.org. Enable it in your profile settings, then listen directly from each book's details page."
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "Collections group your books into custom lists (sagas, themes, reading lists). Create one from the Collections tab, then add books from your library or import an existing list.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages."
+msgstr "Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages."
 
 #. Connect with friends by scanning their QR code, sharing an invite link, or using the hub directory. Once connected, you can browse each other's catalogs, send borrow requests, and stay in sync.
 msgid "help_desc_connect"
@@ -3290,14 +3282,9 @@ msgstr "Open a book in your library and tap \"Lend\" in the copies section. Choo
 msgid "help_desc_network"
 msgstr "The \"Network\" section lets you discover and browse catalogs of libraries you've added. You can request to borrow books from there."
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr ""
-"1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n"
-"2. In your Library, tap a shelf to filter.\n"
-"3. Tap the Sort icon (≡) to enter reorder mode.\n"
-"4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n"
-"5. Tap ✓ to save your custom arrangement!"
+msgstr "Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!"
 
 #. Track your reading by marking books as "To Read", "Reading" or "Read". Each book read earns XP and can unlock achievements and badges visible on your profile. Set reading goals to stay motivated!
 msgid "help_desc_reading_progress"
@@ -3455,10 +3442,6 @@ msgstr "How can we help?"
 msgid "hierarchical_shelf_management"
 msgstr "Hierarchical shelf management"
 
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "Tip: Use \"Parent > Child\" to create sub-tags"
-
 #. Home
 msgid "home"
 msgstr "Home"
@@ -3574,10 +3557,6 @@ msgstr "Paste content from your clipboard"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "I have a text or link"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "Import Options (Tags & Collections)"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -4321,9 +4300,9 @@ msgstr "Move"
 msgid "move_shelf"
 msgstr "Move Shelf"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "Change parent category"
+msgstr "Change parent shelf"
 
 #. Moving
 msgid "moving"
@@ -4619,10 +4598,6 @@ msgstr "No results found"
 msgid "no_shelves"
 msgstr "No shelves yet"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "Add shelves to your books to organize them."
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "No Shelves Yet"
@@ -4638,10 +4613,6 @@ msgstr "No summary available."
 #. No shelves in library
 msgid "no_tags"
 msgstr "No shelves in library"
-
-#. None (root level)
-msgid "none"
-msgstr "None (root level)"
 
 #. Not set
 msgid "not_set"
@@ -5682,13 +5653,6 @@ msgstr "Borrower"
 msgid "role_library"
 msgstr "Library"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "Root Level (No Parent)"
-
-msgid "root_tag"
-msgstr "Root (no parent)"
-
 #. Shelf Picker
 msgid "search_shelves_hint"
 msgstr "Search shelves..."
@@ -5932,10 +5896,6 @@ msgstr "Parent (optional)"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "Select Profile Type"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "Select Tags"
 
 msgid "select_tags_title"
 msgstr "Manage Shelves"
@@ -6761,9 +6721,9 @@ msgstr "A full week of dedication to your library!"
 msgid "street_address_label"
 msgstr "Street Address"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "Sub-categories"
+msgstr "Sub-shelves"
 
 #. Subject
 msgid "subject_label"
@@ -6894,9 +6854,9 @@ msgstr "Shelf name"
 msgid "tags"
 msgstr "Shelves"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "Classify your books, e.g. Living room, Fiction > Sci-Fi"
+msgstr "Where you put a book."
 
 msgid "tags_label"
 msgstr "Shelves"
@@ -10946,7 +10906,7 @@ msgstr "A book you want but do not own has its place here: add it, then give it 
 msgid "help_topic_recommendations"
 msgstr "Where do reading suggestions come from?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
 msgstr "“Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device."
 
@@ -12500,3 +12460,19 @@ msgstr "Handle with care"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "Experimental: shelves inside shelves."
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves."
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites."
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "Does the order matter? A collection. Otherwise, a shelf."
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "First level"

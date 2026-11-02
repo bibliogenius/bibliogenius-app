@@ -173,10 +173,6 @@ msgstr "Добавяне на етикет"
 msgid "add_tag_hint"
 msgstr "Добавяне на полица..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "Добавяне на етикети"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "Добавяне към колекция"
@@ -1704,9 +1700,9 @@ msgstr "Активиране на геймификация"
 msgid "enable_network_discovery"
 msgstr "Откриване на локална мрежа"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "Йерархични етикети"
+msgstr "Йерархични полици"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -2586,9 +2582,9 @@ msgstr "Търсене в каталози"
 msgid "help_cta_view_requests"
 msgstr "Преглед на заявки"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "Колекциите ви позволяват да групирате свързани книги заедно, като поредици, предизвикателства за четене или тематични списъци."
+msgstr "Колекция: списък от книги, които вървят заедно, в определен ред. Томовете на поредица, подбор за заемане, любимите ви.\n\nРедът има значение? Колекция. Иначе полица."
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -2754,9 +2750,9 @@ msgstr "Изберете кои каталози да търсите за мет
 msgid "help_ctx_settings_title"
 msgstr "Помощ за настройки"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "Полиците ви помагат да организирате книгите в категории. Създайте персонализирани полици като \"За четене\", \"Любими\" или по жанр."
+msgstr "Полица: мястото, където подреждате книга. По тема, по стая, по жанр. Една книга може да е на няколко полици, а една полица може да съдържа други.\n\nРедът има значение? Колекция. Иначе полица."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2818,9 +2814,9 @@ msgstr "Отидете в \"Моята библиотека\" и натисне�
 msgid "help_desc_audio"
 msgstr "Когато е активиран, Аудио модулът автоматично търси безплатни версии на аудиокниги на вашите книги в LibriVox, Littérature Audio и Archive.org. Активирайте го в настройките на профила и слушайте директно от страницата с детайли на всяка книга."
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "Колекциите групират книгите ви в собствени списъци (поредици, теми, списъци за четене). Създайте една от раздела Колекции и добавете книги от библиотеката си или внесете съществуващ списък.\n\nКолекция може да се сподели: «Споделяне» я изпраща като файл или като копиран текст, а «Внасяне» прочита това, което получавате. Нищо не влиза в библиотека преди потвърждение.\n\nКолекцията Любими се пълни сама: тя следва звездата-отметка, поставена на страницата на книгите."
+msgstr "Колекция: списък от книги, които вървят заедно, в определен ред. Томовете на поредица, подбор за заемане, любимите ви. Създайте една от раздела Колекции и добавете книги от библиотеката си или внесете съществуващ списък. Редът има значение? Колекция. Иначе полица.\n\nКолекция може да се сподели: «Споделяне» я изпраща като файл или като копиран текст, а «Внасяне» прочита това, което получавате. Нищо не влиза в библиотека преди потвърждение.\n\nКолекцията Любими се пълни сама: тя следва звездата-отметка, поставена на страницата на книгите."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -2850,9 +2846,9 @@ msgstr "Намерете книгата в библиотеката си, нат
 msgid "help_desc_network"
 msgstr "Секцията \"Мрежа\" ви позволява да откривате и разглеждате каталози на библиотеки, които сте добавили. Можете да заявявате заемане на книги оттам."
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. Създайте тематични полици за книгите си (напр. \"Научна фантастика\", \"Любими\").\n2. В библиотеката си натиснете полица за филтриране.\n3. Натиснете иконата за сортиране (≡), за да влезете в режим на пренареждане.\n4. Плъзнете книгите в предпочитания ред или натиснете А→Я за автоматично сортиране по автор.\n5. Натиснете ✓, за да запазите персонализираното си наредбение!"
+msgstr "Полица: мястото, където подреждате книга. По тема, по стая, по жанр. Една книга може да е на няколко полици, а една полица може да съдържа други.\n\nРедът има значение? Колекция. Иначе полица.\n\n1. Създайте полици за книгите си (напр. \"Хол\", \"Криминални\").\n2. В библиотеката си натиснете полица за филтриране.\n3. Натиснете иконата за сортиране (≡), за да влезете в режим на пренареждане.\n4. Плъзнете книгите в предпочитания ред или натиснете А→Я за автоматично сортиране по автор.\n5. Натиснете ✓, за да запазите персонализираното си наредбение!"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -2957,10 +2953,6 @@ msgstr "Как можем да помогнем?"
 #. Hierarchical shelf management
 msgid "hierarchical_shelf_management"
 msgstr "Йерархично управление на полици"
-
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "Съвет: Използвайте \"Родител > Дете\", за да създавате под-етикети"
 
 #. Home
 msgid "home"
@@ -3077,10 +3069,6 @@ msgstr "Поставете съдържание от клипборда"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "Имам текст или връзка"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "Опции за внасяне (Етикети и колекции)"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -3815,9 +3803,9 @@ msgstr "Преместване"
 msgid "move_shelf"
 msgstr "Преместване на полица"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "Смяна на родителска категория"
+msgstr "Смяна на родителската полица"
 
 #. Moving
 msgid "moving"
@@ -4093,10 +4081,6 @@ msgstr "Не са намерени резултати"
 msgid "no_shelves"
 msgstr "Все още няма полици"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "Добавете полици към книгите си, за да ги организирате."
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "Все още няма полици"
@@ -4112,10 +4096,6 @@ msgstr "Няма налично резюме."
 #. No shelves in library
 msgid "no_tags"
 msgstr "Няма полици в библиотеката"
-
-#. None (root level)
-msgid "none"
-msgstr "Без (корен)"
 
 #. Not set
 msgid "not_set"
@@ -4784,13 +4764,6 @@ msgstr "Заемател"
 msgid "role_library"
 msgstr "Библиотека"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "Корен (без родител)"
-
-msgid "root_tag"
-msgstr "Основен етикет"
-
 msgid "sale_date"
 msgstr "Дата на продажба"
 
@@ -5002,10 +4975,6 @@ msgstr "Избиране на родител (по желание)"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "Избиране на тип профил"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "Избиране на етикети"
 
 msgid "select_tags_title"
 msgstr "Избиране на етикети"
@@ -5534,9 +5503,9 @@ msgstr "Цяла седмица отдаденост на библиотекат
 msgid "street_address_label"
 msgstr "Адрес на улица"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "Подкатегории"
+msgstr "Подполици"
 
 #. Subject
 msgid "subject_label"
@@ -5655,7 +5624,7 @@ msgid "tags"
 msgstr "Полици"
 
 msgid "tags_label"
-msgstr "Етикети"
+msgstr "Полици"
 
 #. Tap to view details
 msgid "tap_to_view"
@@ -6277,10 +6246,6 @@ msgstr "Заето копие ще бъде добавено към същест
 #. Collection tag (library grouped view)
 msgid "collection_tag"
 msgstr "Колекция"
-
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "Групирайте книги заедно, напр. Летни четива, Книжен клуб"
 
 #. Coming soon
 msgid "coming_soon"
@@ -7353,9 +7318,9 @@ msgstr "Обновено преди %d мин"
 msgid "last_updated_hours"
 msgstr "Обновено преди %d ч"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "Класифицирайте книгите си, напр. Хол, Художествена > Научна фантастика"
+msgstr "Мястото, където подреждате книга."
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -10901,9 +10866,9 @@ msgstr "Книга, която искате да прочетете, без да
 msgid "help_topic_recommendations"
 msgstr "Откъде идват предложенията за четене?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
-msgstr "«Предложения за вас» на таблото, «Може да ви хареса и» на страницата на книга и разделът «За откриване» най-горе в библиотеката предлагат заглавия от вашите собствени рафтове. Ако притежавате поредица или няколко книги от един автор, липсващият том или заглавие също може да ви бъде предложен: анонимно търсене го намира, а изчислението остава на това устройство.\n\nВсяка карта казва защо: същият автор, сходна тема, същото издателство, същият период, книга, която сте оценили високо, или книга вече в купа за четене. Любима книга тежи двойно.\n\n«Не ме интересува» скрива предложението навсякъде, с отмяна веднага след това. Изборът се пази на това устройство."
+msgstr "«Предложения за вас» на таблото, «Може да ви хареса и» на страницата на книга и разделът «За откриване» най-горе в библиотеката предлагат заглавия от вашите собствени полици. Ако притежавате поредица или няколко книги от един автор, липсващият том или заглавие също може да ви бъде предложен: анонимно търсене го намира, а изчислението остава на това устройство.\n\nВсяка карта казва защо: същият автор, сходна тема, същото издателство, същият период, книга, която сте оценили високо, или книга вече в купа за четене. Любима книга тежи двойно.\n\n«Не ме интересува» скрива предложението навсякъде, с отмяна веднага след това. Изборът се пази на това устройство."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -12480,3 +12445,19 @@ msgstr "Използвайте внимателно"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "Експериментално: рафтове в рафтовете."
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "Полица: мястото, където подреждате книга. По тема, по стая, по жанр. Една книга може да е на няколко полици, а една полица може да съдържа други."
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "Колекция: списък от книги, които вървят заедно, в определен ред. Томовете на поредица, подбор за заемане, любимите ви."
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "Редът има значение? Колекция. Иначе полица."
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "Първо ниво"

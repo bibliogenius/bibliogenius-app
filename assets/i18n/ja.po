@@ -173,10 +173,6 @@ msgstr "追加"
 msgid "add_tag_hint"
 msgstr "棚を追加..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "タグを追加"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "コレクションに追加"
@@ -1701,9 +1697,9 @@ msgstr "ゲーミフィケーションを有効にする"
 msgid "enable_network_discovery"
 msgstr "ローカルネットワーク検出"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "階層タグ"
+msgstr "階層型の本棚"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -2343,9 +2339,9 @@ msgstr "カタログを検索"
 msgid "help_cta_view_requests"
 msgstr "リクエストを見る"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "コレクションを使うと、シリーズ、読書チャレンジ、テーマ別リストなど、関連する本をまとめてグループ化できます。"
+msgstr "コレクション：順番のある、ひとまとまりの本のリスト。シリーズの各巻、貸し出す本のセレクション、お気に入りなど。\n\n順番が大事？ならコレクション。そうでなければ本棚。"
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -2511,9 +2507,9 @@ msgstr "本のメタデータを検索するカタログを選びます"
 msgid "help_ctx_settings_title"
 msgstr "設定のヘルプ"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "本棚を使うと本をカテゴリー別に整理できます。「未読」「お気に入り」やジャンル別など、独自の本棚を作成しましょう。"
+msgstr "本棚：本を置く場所。テーマ別、部屋別、ジャンル別に。1冊の本を複数の本棚に置くことができ、本棚の中に別の本棚を入れることもできます。\n\n順番が大事？ならコレクション。そうでなければ本棚。"
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2575,9 +2571,9 @@ msgstr "「マイライブラリ」を開き、「＋」ボタンをタップし
 msgid "help_desc_audio"
 msgstr "有効にすると、オーディオモジュールが LibriVox、Littérature Audio、Archive.org であなたの本の無料オーディオブック版を自動的に検索します。プロフィール設定で有効にすると、各本の詳細ページから直接聴けます。"
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "コレクションは本を自由なリスト（シリーズ、テーマ、読書リスト）にまとめます。コレクションタブで作成し、ライブラリから本を追加するか、既存のリストをインポートしてください。\n\nコレクションは共有できます。「共有」はファイルまたはコピーしたテキストとして送り、「インポート」は受け取ったものを読み込みます。確認するまで、どのライブラリにも何も入りません。\n\nお気に入りコレクションは自動でたまります。本のページの星のしおりに従います。"
+msgstr "コレクション：順番のある、ひとまとまりの本のリスト。シリーズの各巻、貸し出す本のセレクション、お気に入りなど。コレクションタブで作成し、ライブラリから本を追加するか、既存のリストをインポートしてください。順番が大事？ならコレクション。そうでなければ本棚。\n\nコレクションは共有できます。「共有」はファイルまたはコピーしたテキストとして送り、「インポート」は受け取ったものを読み込みます。確認するまで、どのライブラリにも何も入りません。\n\nお気に入りコレクションは自動でたまります。本のページの星のしおりに従います。"
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -2607,9 +2603,9 @@ msgstr "ライブラリで本を開き、所蔵セクションの「貸す」を
 msgid "help_desc_network"
 msgstr "「つながり」セクションでは、追加したライブラリのカタログを見つけて閲覧できます。そこから本の貸出をリクエストできます。"
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. 本のためにテーマ別の本棚を作成します（例：「SF」「お気に入り」）。\n2. ライブラリで本棚をタップして絞り込みます。\n3. 並べ替えアイコン（≡）をタップして並べ替えモードに入ります。\n4. 本をドラッグして好みの順に並べるか、A→Z をタップして著者順に自動並べ替えします。\n5. ✓ をタップして並び順を保存しましょう！"
+msgstr "本棚：本を置く場所。テーマ別、部屋別、ジャンル別に。1冊の本を複数の本棚に置くことができ、本棚の中に別の本棚を入れることもできます。\n\n順番が大事？ならコレクション。そうでなければ本棚。\n\n1. 本のための本棚を作成します（例：「リビング」「ミステリー」）。\n2. ライブラリで本棚をタップして絞り込みます。\n3. 並べ替えアイコン（≡）をタップして並べ替えモードに入ります。\n4. 本をドラッグして好みの順に並べるか、A→Z をタップして著者順に自動並べ替えします。\n5. ✓ をタップして並び順を保存しましょう！"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -2714,10 +2710,6 @@ msgstr "どのようなお手伝いができますか？"
 #. Hierarchical shelf management
 msgid "hierarchical_shelf_management"
 msgstr "階層的な棚の管理"
-
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "ヒント：「親 > 子」と入力するとサブタグを作成できます"
 
 #. Home
 msgid "home"
@@ -2834,10 +2826,6 @@ msgstr "クリップボードから内容を貼り付け"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "テキストまたはリンクがある"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "インポートオプション（タグとコレクション）"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -3569,9 +3557,9 @@ msgstr "移動"
 msgid "move_shelf"
 msgstr "本棚を移動"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "親カテゴリを変更"
+msgstr "親の本棚を変更"
 
 #. Moving
 msgid "moving"
@@ -3847,10 +3835,6 @@ msgstr "結果が見つかりません"
 msgid "no_shelves"
 msgstr "本棚がまだありません"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "本を本棚に追加して整理しましょう。"
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "本棚がまだありません"
@@ -3866,10 +3850,6 @@ msgstr "概要がありません。"
 #. No shelves in library
 msgid "no_tags"
 msgstr "ライブラリに本棚がありません"
-
-#. None (root level)
-msgid "none"
-msgstr "なし（ルートレベル）"
 
 #. Not set
 msgid "not_set"
@@ -4538,13 +4518,6 @@ msgstr "借り手"
 msgid "role_library"
 msgstr "ライブラリ"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "ルートレベル（親なし）"
-
-msgid "root_tag"
-msgstr "ルート（親なし）"
-
 msgid "sale_date"
 msgstr "販売日"
 
@@ -4756,10 +4729,6 @@ msgstr "親（任意）"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "プロフィールの種類を選択"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "本棚を選択"
 
 msgid "select_tags_title"
 msgstr "本棚を管理"
@@ -5264,9 +5233,9 @@ msgstr "ライブラリに1週間ずっと取り組みました！"
 msgid "street_address_label"
 msgstr "住所"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "サブカテゴリー"
+msgstr "下位の本棚"
 
 #. Subject
 msgid "subject_label"
@@ -6390,10 +6359,6 @@ msgstr "借用が承認されました！本がライブラリに追加されま
 msgid "collection_tag"
 msgstr "コレクション"
 
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "本をまとめてグループ化します。例：夏の読書、読書クラブ"
-
 #. Coming soon
 msgid "coming_soon"
 msgstr "近日公開"
@@ -7465,9 +7430,9 @@ msgstr "%d 分前に更新"
 msgid "last_updated_hours"
 msgstr "%d 時間前に更新"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "本を分類します。例: リビング、フィクション > SF"
+msgstr "本を置く場所。"
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -10423,9 +10388,9 @@ msgstr "持っていないけれど読みたい本もここに置けます。追
 msgid "help_topic_recommendations"
 msgstr "読書のおすすめはどこから来る？"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
-msgstr "ダッシュボードの「あなたへの提案」、本のページの「こちらもおすすめ」、ライブラリ上部の「見つける」タブは、あなた自身の蔵書から選んだ本を提案します。シリーズや同じ著者の本を複数持っている場合は、欠けている巻やタイトルも提案されます。匿名の検索で見つけ、計算自体はこの端末に留まります。\n\n各カードには理由が示されます。同じ著者、似た主題、同じ出版社、同じ時代、高く評価した本、すでに積読にある本などです。お気に入りは二倍の重みを持ちます。\n\n「興味がない」を選ぶと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
+msgstr "ダッシュボードの「あなたへの提案」、本のページの「こちらもおすすめ」、ライブラリ上部の「見つける」タブは、あなた自身の本棚から選んだ本を提案します。シリーズや同じ著者の本を複数持っている場合は、欠けている巻やタイトルも提案されます。匿名の検索で見つけ、計算自体はこの端末に留まります。\n\n各カードには理由が示されます。同じ著者、似た主題、同じ出版社、同じ時代、高く評価した本、すでに積読にある本などです。お気に入りは二倍の重みを持ちます。\n\n「興味がない」を選ぶと、その提案はどこでも非表示になり、直後に取り消しもできます。この選択はこの端末に保存されます。"
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -12489,3 +12454,19 @@ msgstr "注意して操作してください"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "試験運用：棚の中に棚を作成します。"
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "本棚：本を置く場所。テーマ別、部屋別、ジャンル別に。1冊の本を複数の本棚に置くことができ、本棚の中に別の本棚を入れることもできます。"
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "コレクション：順番のある、ひとまとまりの本のリスト。シリーズの各巻、貸し出す本のセレクション、お気に入りなど。"
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "順番が大事？ならコレクション。そうでなければ本棚。"
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "最上位"

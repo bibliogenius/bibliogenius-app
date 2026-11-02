@@ -173,10 +173,6 @@ msgstr "添加"
 msgid "add_tag_hint"
 msgstr "添加书架…"
 
-#. Add Tags
-msgid "add_tags"
-msgstr "添加标签"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "添加到合集"
@@ -1701,9 +1697,9 @@ msgstr "启用成就系统"
 msgid "enable_network_discovery"
 msgstr "本地网络发现"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "分层标签"
+msgstr "分层书架"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -2343,9 +2339,9 @@ msgstr "搜索目录"
 msgid "help_cta_view_requests"
 msgstr "查看请求"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "合集让您把相关的图书归到一起，例如书籍系列、阅读挑战或主题书单。"
+msgstr "合集：一组放在一起、有先后顺序的书。一个系列的各册、一份准备借出的书单、你的收藏。\n\n顺序重要吗？用合集。否则，用书架。"
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -2511,9 +2507,9 @@ msgstr "选择用于查找图书元数据的目录"
 msgid "help_ctx_settings_title"
 msgstr "设置帮助"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "书架帮助您把图书整理到不同类别。创建自定义书架，例如“待读”“收藏”，或按类型划分。"
+msgstr "书架：放书的地方。按主题、按房间、按类型。一本书可以放在多个书架上，一个书架也可以包含其他书架。\n\n顺序重要吗？用合集。否则，用书架。"
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2575,9 +2571,9 @@ msgstr "前往“我的图书馆”并点按“+”按钮。您可以扫描条�
 msgid "help_desc_audio"
 msgstr "启用后，音频模块会自动在 LibriVox、Littérature Audio 和 Archive.org 上搜索您图书的免费有声书版本。在个人资料设置中启用它，然后直接从每本图书的详情页收听。"
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "合集把你的书归入自定义书单（系列、主题、阅读清单）。在合集页新建一个，然后从书库添加书籍，或导入现有书单。\n\n合集可以分享：「分享」以文件或复制文本发出，「导入」读回你收到的内容。未经确认，任何内容都不会进入书库。\n\n收藏合集会自动填充：它跟随书籍页面上的星形书签。"
+msgstr "合集：一组放在一起、有先后顺序的书。一个系列的各册、一份准备借出的书单、你的收藏。在合集页新建一个，然后从书库添加书籍，或导入现有书单。顺序重要吗？用合集。否则，用书架。\n\n合集可以分享：「分享」以文件或复制文本发出，「导入」读回你收到的内容。未经确认，任何内容都不会进入书库。\n\n收藏合集会自动填充：它跟随书籍页面上的星形书签。"
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -2607,9 +2603,9 @@ msgstr "在图书馆中打开一本图书，在藏本部分点按“出借”。
 msgid "help_desc_network"
 msgstr "“网络”部分让您发现并浏览已添加图书馆的目录。您可以在那里申请借阅图书。"
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. 为您的图书创建主题书架（例如“科幻”“收藏”）。\n2. 在图书馆中，点按某个书架进行筛选。\n3. 点按排序图标（≡）进入重排模式。\n4. 拖动图书排成您喜欢的顺序，或点按 A→Z 按作者自动排序。\n5. 点按 ✓ 保存您的自定义排列！"
+msgstr "书架：放书的地方。按主题、按房间、按类型。一本书可以放在多个书架上，一个书架也可以包含其他书架。\n\n顺序重要吗？用合集。否则，用书架。\n\n1. 为您的图书创建书架（例如“客厅”“推理”）。\n2. 在图书馆中，点按某个书架进行筛选。\n3. 点按排序图标（≡）进入重排模式。\n4. 拖动图书排成您喜欢的顺序，或点按 A→Z 按作者自动排序。\n5. 点按 ✓ 保存您的自定义排列！"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -2714,10 +2710,6 @@ msgstr "有什么可以帮您？"
 #. Hierarchical shelf management
 msgid "hierarchical_shelf_management"
 msgstr "分层书架管理"
-
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "小贴士：使用“父级 > 子级”来创建子标签"
 
 #. Home
 msgid "home"
@@ -2834,10 +2826,6 @@ msgstr "从剪贴板粘贴内容"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "我有一段文本或链接"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "导入选项（标签和合集）"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -3569,9 +3557,9 @@ msgstr "移动"
 msgid "move_shelf"
 msgstr "移动书架"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "更改上级分类"
+msgstr "更改上级书架"
 
 #. Moving
 msgid "moving"
@@ -3847,10 +3835,6 @@ msgstr "未找到结果"
 msgid "no_shelves"
 msgstr "暂无书架"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "为您的图书添加书架以进行整理。"
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "暂无书架"
@@ -3866,10 +3850,6 @@ msgstr "暂无简介。"
 #. No shelves in library
 msgid "no_tags"
 msgstr "图书馆中没有书架"
-
-#. None (root level)
-msgid "none"
-msgstr "无（根层级）"
 
 #. Not set
 msgid "not_set"
@@ -4538,13 +4518,6 @@ msgstr "借阅者"
 msgid "role_library"
 msgstr "图书馆"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "根级别（无上级）"
-
-msgid "root_tag"
-msgstr "根（无上级）"
-
 msgid "sale_date"
 msgstr "销售日期"
 
@@ -4756,10 +4729,6 @@ msgstr "上级（可选）"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "选择资料类型"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "选择书架"
 
 msgid "select_tags_title"
 msgstr "管理书架"
@@ -5264,9 +5233,9 @@ msgstr "整整一周对您图书馆的投入！"
 msgid "street_address_label"
 msgstr "街道地址"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "子分类"
+msgstr "子书架"
 
 #. Subject
 msgid "subject_label"
@@ -6390,10 +6359,6 @@ msgstr "借阅已接受！图书已添加到您的图书馆。"
 msgid "collection_tag"
 msgstr "合集"
 
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "将图书归类，例如：夏日书单、读书会"
-
 #. Coming soon
 msgid "coming_soon"
 msgstr "敬请期待"
@@ -7465,9 +7430,9 @@ msgstr "%d 分钟前更新"
 msgid "last_updated_hours"
 msgstr "%d 小时前更新"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "对您的图书进行分类，例如：客厅、小说 > 科幻"
+msgstr "放书的地方。"
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -10423,7 +10388,7 @@ msgstr "想读却还没有的书也有位置：把它加进来，然后把状态
 msgid "help_topic_recommendations"
 msgstr "阅读推荐从哪里来？"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
 msgstr "面板上的「为你推荐」、书籍页面的「你可能也喜欢」，以及书库顶部的「待发现」标签，都会从你自己的书架中挑选书目。如果你拥有某个系列或同一作者的多本书，缺少的那一册或那一本也可能被推荐：匿名查询找到它，而计算始终留在本机。\n\n每张卡片都会说明原因：同一作者、相近主题、同一出版社、同一时期、你评分很高的书，或已在待读堆里的书。收藏的书权重加倍。\n\n「不感兴趣」会在所有位置隐藏该推荐，之后可立即撤销。该选择保存在本机。"
 
@@ -12489,3 +12454,19 @@ msgstr "请谨慎操作"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "实验功能：书架中的书架。"
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "书架：放书的地方。按主题、按房间、按类型。一本书可以放在多个书架上，一个书架也可以包含其他书架。"
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "合集：一组放在一起、有先后顺序的书。一个系列的各册、一份准备借出的书单、你的收藏。"
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "顺序重要吗？用合集。否则，用书架。"
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "第一层"

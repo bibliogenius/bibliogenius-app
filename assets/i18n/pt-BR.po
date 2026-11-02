@@ -244,10 +244,6 @@ msgstr "Adicionar"
 msgid "add_tag_hint"
 msgstr "Adicionar uma prateleira..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "Adicionar etiquetas"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "Adicionar à Coleção"
@@ -1121,10 +1117,6 @@ msgstr "Coleções"
 #. Collection tag (library grouped view)
 msgid "collection_tag"
 msgstr "Coleção"
-
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "Agrupe livros, ex.: Leituras de verão, Clube do livro"
 
 #. Collections
 msgid "collections_label"
@@ -2059,9 +2051,9 @@ msgstr "Habilite Gamificação"
 msgid "enable_network_discovery"
 msgstr "Descoberta de Rede Local"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "Etiquetas Hierárquicas"
+msgstr "Prateleiras hierárquicas"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -3021,9 +3013,9 @@ msgstr "Pesquisar Catálogos"
 msgid "help_cta_view_requests"
 msgstr "Visualizar Solicitações"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "Coleções permitem agrupar livros relacionados, como séries de livros, desafios de leitura ou listas temáticas."
+msgstr "Coleção: uma lista de livros que andam juntos, em uma ordem. Os volumes de uma série, uma seleção para emprestar, seus favoritos.\n\nA ordem importa? Uma coleção. Senão, uma prateleira."
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -3189,9 +3181,9 @@ msgstr "Escolha quais catálogos procurar por metadados do livro"
 msgid "help_ctx_settings_title"
 msgstr "Configurações Ajuda"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "Prateleiras ajudam a organizar seus livros em categorias. Crie prateleiras personalizadas como \"Para Ler\", \"Favoritos\", ou por gênero."
+msgstr "Prateleira: onde você guarda um livro. Por tema, por cômodo, por gênero. Um livro pode estar em várias prateleiras, e uma prateleira pode conter outras.\n\nA ordem importa? Uma coleção. Senão, uma prateleira."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -3257,9 +3249,9 @@ msgstr "Acesse \"Biblioteca\" e toque no botão \"+\". Você pode escanear um c�
 msgid "help_desc_audio"
 msgstr "Quando ativado, o módulo de Áudio busca automaticamente versões gratuitas de audiobooks dos seus livros no LibriVox, Littérature Audio e Archive.org. Ative-o nas configurações do perfil e ouça diretamente na página de detalhes de cada livro."
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "As Coleções agrupam seus livros em listas personalizadas (sagas, temas, listas de leitura). Crie uma na aba Coleções e adicione livros da sua biblioteca ou importe uma lista existente.\n\nUma coleção pode ser compartilhada: «Compartilhar» a envia como arquivo ou como texto copiado, e «Importar» relê o que você recebe. Nada entra numa biblioteca antes da confirmação.\n\nA coleção Favoritos se enche sozinha: ela segue o marcador de estrela colocado na página dos livros."
+msgstr "Coleção: uma lista de livros que andam juntos, em uma ordem. Os volumes de uma série, uma seleção para emprestar, seus favoritos. Crie uma na aba Coleções e adicione livros da sua biblioteca ou importe uma lista existente. A ordem importa? Uma coleção. Senão, uma prateleira.\n\nUma coleção pode ser compartilhada: «Compartilhar» a envia como arquivo ou como texto copiado, e «Importar» relê o que você recebe. Nada entra numa biblioteca antes da confirmação.\n\nA coleção Favoritos se enche sozinha: ela segue o marcador de estrela colocado na página dos livros."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -3297,14 +3289,9 @@ msgstr "Encontre o livro na sua biblioteca, toque \"Gerenciar Cópias\", então 
 msgid "help_desc_network"
 msgstr "A seção \"Rede\" permite descobrir e navegar pelos catálogos das bibliotecas que você adicionou. Você pode solicitar emprestado livros de lá."
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr ""
-"1. Crie prateleiras temáticas para seus livros (por exemplo, \"Ficção Científica\", \"Favoritos\").\n"
-"2. Na sua Biblioteca, pressione uma prateleira para filtrar.\n"
-"3. Pressione o ícone de Ordenação (≡) para entrar em modo de reorganização.\n"
-"4. Arraste os livros para a ordem preferida ou pressione A→Z para ordenar automaticamente por autor.\n"
-"5. Pressione ✓ para salvar sua arranjo personalizado!"
+msgstr "Prateleira: onde você guarda um livro. Por tema, por cômodo, por gênero. Um livro pode estar em várias prateleiras, e uma prateleira pode conter outras.\n\nA ordem importa? Uma coleção. Senão, uma prateleira.\n\n1. Crie prateleiras para seus livros (por exemplo, \"Sala de estar\", \"Policial\").\n2. Na sua Biblioteca, pressione uma prateleira para filtrar.\n3. Pressione o ícone de Ordenação (≡) para entrar em modo de reorganização.\n4. Arraste os livros para a ordem preferida ou pressione A→Z para ordenar automaticamente por autor.\n5. Pressione ✓ para salvar sua arranjo personalizado!"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -3462,10 +3449,6 @@ msgstr "Como podemos ajudar?"
 msgid "hierarchical_shelf_management"
 msgstr "Gerenciamento de prateleiras hierárquico"
 
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "Dica: Use \"Pai > Filho\" para criar sub-etiqueta"
-
 #. Home
 msgid "home"
 msgstr "Início"
@@ -3581,10 +3564,6 @@ msgstr "Colar conteúdo da área de transferência"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "Tenho um texto ou link"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "Opções de Importação (Marcas e Coleções)"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -5163,9 +5142,9 @@ msgstr "Mover"
 msgid "move_shelf"
 msgstr "Mover Estante"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "Mudar categoria pai"
+msgstr "Mudar a prateleira pai"
 
 #. Moving
 msgid "moving"
@@ -5461,13 +5440,9 @@ msgstr "Nenhum resultado encontrado"
 msgid "no_shelves"
 msgstr "Nenhuma prateleira ainda"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "Adicionar prateleiras aos seus livros para organizá-los."
-
 #. No Shelves Yet
 msgid "no_shelves_title"
-msgstr "Nenhuma Estante Ainda"
+msgstr "Nenhuma prateleira ainda"
 
 #. No sub-shelves
 msgid "no_sub_shelves"
@@ -5480,10 +5455,6 @@ msgstr "Resumo não disponível."
 #. No shelves in library
 msgid "no_tags"
 msgstr "Nenhuma prateleira na biblioteca"
-
-#. None (root level)
-msgid "none"
-msgstr "Nenhum (nível raiz)"
 
 #. Not set
 msgid "not_set"
@@ -6524,13 +6495,6 @@ msgstr "Quem pegou emprestado"
 msgid "role_library"
 msgstr "Biblioteca"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "Nível Raiz (Sem Pai)"
-
-msgid "root_tag"
-msgstr "Raiz (sem pai)"
-
 #. Shelf Picker
 msgid "search_shelves_hint"
 msgstr "Buscar estantes..."
@@ -6774,10 +6738,6 @@ msgstr "Pai (opcional)"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "Selecionar Tipo de Perfil"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "Selecione Etiquetas"
 
 msgid "select_tags_title"
 msgstr "Gerenciar Prateleiras"
@@ -7603,9 +7563,9 @@ msgstr "Uma semana completa cuidando da sua biblioteca!"
 msgid "street_address_label"
 msgstr "Endereço da Rua"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "Subcategorias"
+msgstr "Subprateleiras"
 
 #. Subject
 msgid "subject_label"
@@ -7736,9 +7696,9 @@ msgstr "Nome da prateleira"
 msgid "tags"
 msgstr "Prateleiras"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "Classifique seus livros, ex.: Sala de estar, Ficção > Ficção científica"
+msgstr "Onde você guarda um livro."
 
 msgid "tags_label"
 msgstr "Prateleiras"
@@ -10909,9 +10869,9 @@ msgstr "Um livro que você quer ler sem possuir tem lugar aqui: adicione-o e dê
 msgid "help_topic_recommendations"
 msgstr "De onde vêm as sugestões de leitura?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
-msgstr "«Sugestões para você» no painel, «Você também pode gostar» na página de um livro e a aba «A descobrir» no topo da sua biblioteca propõem títulos tirados das suas próprias estantes. Se você tem uma série ou vários livros do mesmo autor, o volume ou título que falta também pode ser proposto: uma busca anônima o encontra, e o cálculo fica neste aparelho.\n\nCada cartão diz por quê: mesmo autor, assunto parecido, mesma editora, mesma época, um livro que você avaliou bem ou um livro já na sua pilha de leitura. Um favorito pesa em dobro.\n\n«Não tenho interesse» esconde uma sugestão em todos os lugares, com um desfazer logo depois. Essa escolha fica neste aparelho."
+msgstr "«Sugestões para você» no painel, «Você também pode gostar» na página de um livro e a aba «A descobrir» no topo da sua biblioteca propõem títulos tirados das suas próprias prateleiras. Se você tem uma série ou vários livros do mesmo autor, o volume ou título que falta também pode ser proposto: uma busca anônima o encontra, e o cálculo fica neste aparelho.\n\nCada cartão diz por quê: mesmo autor, assunto parecido, mesma editora, mesma época, um livro que você avaliou bem ou um livro já na sua pilha de leitura. Um favorito pesa em dobro.\n\n«Não tenho interesse» esconde uma sugestão em todos os lugares, com um desfazer logo depois. Essa escolha fica neste aparelho."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -12488,3 +12448,19 @@ msgstr "Use com cuidado"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "Experimental: estantes dentro de estantes."
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "Prateleira: onde você guarda um livro. Por tema, por cômodo, por gênero. Um livro pode estar em várias prateleiras, e uma prateleira pode conter outras."
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "Coleção: uma lista de livros que andam juntos, em uma ordem. Os volumes de uma série, uma seleção para emprestar, seus favoritos."
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "A ordem importa? Uma coleção. Senão, uma prateleira."
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "Primeiro nível"

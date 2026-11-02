@@ -578,8 +578,7 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
                     value: null,
                     groupValue: selectedParent,
                     title: Text(
-                      TranslationService.translate(context, 'root_level') ??
-                          'Root Level (No Parent)',
+                      TranslationService.translate(context, 'first_level'),
                       style: const TextStyle(fontWeight: FontWeight.w500),
                     ),
                     secondary: const Icon(Icons.home),

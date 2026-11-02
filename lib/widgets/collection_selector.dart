@@ -155,7 +155,7 @@ class _CollectionSelectorState extends State<CollectionSelector> {
                     Text(
                       TranslationService.translate(
                         context,
-                        'collections_helper',
+                        'collection_concept',
                       ),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(

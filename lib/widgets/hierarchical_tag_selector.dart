@@ -530,7 +530,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
               const SizedBox(width: 8),
               // Parent selector
               Tooltip(
-                message: TranslationService.translate(context, 'root_tag'),
+                message: TranslationService.translate(context, 'parent_shelf'),
                 child: PopupMenuButton<Tag>(
                   icon: Icon(
                     Icons.account_tree_outlined,
@@ -548,7 +548,10 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
                             const Icon(Icons.home_outlined, size: 18),
                             const SizedBox(width: 8),
                             Text(
-                              TranslationService.translate(context, 'root_tag'),
+                              TranslationService.translate(
+                                context,
+                                'first_level',
+                              ),
                             ),
                           ],
                         ),

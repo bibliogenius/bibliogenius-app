@@ -475,10 +475,9 @@ class QuickActionsSheet extends StatelessWidget {
                                 value: null,
                                 child: Text(
                                   TranslationService.translate(
-                                        stateContext,
-                                        'none',
-                                      ) ??
-                                      'None (root level)',
+                                    stateContext,
+                                    'first_level',
+                                  ),
                                 ),
                               ),
                               ...shelves.map((shelf) {

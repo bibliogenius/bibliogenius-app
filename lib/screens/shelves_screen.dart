@@ -6,6 +6,7 @@ import '../models/tag.dart';
 import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/scaffold_with_nav.dart';
+import '../widgets/shelf_or_collection_note.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
@@ -582,8 +583,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   }
 
   Widget _buildEmptyState(BuildContext context) {
+    // Scrollable: the two concept sentences make the column taller than a
+    // small phone in landscape or with large text.
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -606,11 +609,11 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              TranslationService.translate(context, 'no_shelves_hint'),
+              TranslationService.translate(context, 'shelf_concept'),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
-                color: Colors.grey[600],
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 height: 1.5,
               ),
             ),
@@ -635,6 +638,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 ),
               ),
             ),
+            const SizedBox(height: 32),
+            const ShelfOrCollectionNote(conceptKey: 'collection_concept'),
           ],
         ),
       ),
@@ -754,8 +759,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                           DropdownMenuItem<Tag?>(
                             value: null,
                             child: Text(
-                              TranslationService.translate(context, 'none') ??
-                                  'None (root level)',
+                              TranslationService.translate(
+                                context,
+                                'first_level',
+                              ),
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontStyle: FontStyle.italic,
@@ -1253,8 +1260,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                           DropdownMenuItem<Tag?>(
                             value: null,
                             child: Text(
-                              TranslationService.translate(context, 'none') ??
-                                  'None (root level)',
+                              TranslationService.translate(
+                                context,
+                                'first_level',
+                              ),
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontStyle: FontStyle.italic,

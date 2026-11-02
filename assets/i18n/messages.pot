@@ -236,10 +236,6 @@ msgstr ""
 msgid "add_tag_hint"
 msgstr ""
 
-#. Add Tags
-msgid "add_tags"
-msgstr ""
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr ""
@@ -1090,10 +1086,6 @@ msgstr ""
 msgid "collection_tag"
 msgstr ""
 
-#. Regroupez vos livres, ex. : Lectures d'été, Club de lecture
-msgid "collections_helper"
-msgstr ""
-
 #. Collections
 msgid "collections_label"
 msgstr ""
@@ -1942,7 +1934,7 @@ msgstr ""
 msgid "enable_network_discovery"
 msgstr ""
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
 msgstr ""
 
@@ -2628,7 +2620,7 @@ msgstr ""
 msgid "help_cta_view_requests"
 msgstr ""
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
 msgstr ""
 
@@ -2796,7 +2788,7 @@ msgstr ""
 msgid "help_ctx_settings_title"
 msgstr ""
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
 msgstr ""
 
@@ -2864,7 +2856,7 @@ msgstr ""
 msgid "help_desc_audio"
 msgstr ""
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
 msgstr ""
 
@@ -2904,7 +2896,7 @@ msgstr ""
 msgid "help_desc_network"
 msgstr ""
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
 msgstr ""
 
@@ -3052,10 +3044,6 @@ msgstr ""
 msgid "hierarchical_shelf_management"
 msgstr ""
 
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr ""
-
 #. Home
 msgid "home"
 msgstr ""
@@ -3170,10 +3158,6 @@ msgstr ""
 
 #. I have a text or link
 msgid "import_method_paste_title"
-msgstr ""
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
 msgstr ""
 
 #. Ready to import {count} books into your library.
@@ -3893,7 +3877,7 @@ msgstr ""
 msgid "move_shelf"
 msgstr ""
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
 msgstr ""
 
@@ -4191,10 +4175,6 @@ msgstr ""
 msgid "no_shelves"
 msgstr ""
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr ""
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr ""
@@ -4209,10 +4189,6 @@ msgstr ""
 
 #. No shelves in library
 msgid "no_tags"
-msgstr ""
-
-#. None (root level)
-msgid "none"
 msgstr ""
 
 #. Not set
@@ -5133,13 +5109,6 @@ msgstr ""
 msgid "role_library"
 msgstr ""
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr ""
-
-msgid "root_tag"
-msgstr ""
-
 #. Shelf Picker
 msgid "search_shelves_hint"
 msgstr ""
@@ -5430,10 +5399,6 @@ msgstr ""
 
 #. Select Profile Type
 msgid "select_profile_type"
-msgstr ""
-
-#. Select Tags
-msgid "select_tags"
 msgstr ""
 
 msgid "select_tags_title"
@@ -6211,7 +6176,7 @@ msgstr ""
 msgid "street_address_label"
 msgstr ""
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
 msgstr ""
 
@@ -6331,7 +6296,7 @@ msgstr ""
 msgid "tags"
 msgstr ""
 
-#. Classez vos livres, ex. : Salon, Fiction > SF
+#. Where you put a book.
 msgid "tags_helper"
 msgstr ""
 
@@ -8578,7 +8543,7 @@ msgstr ""
 msgid "help_topic_recommendations"
 msgstr ""
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
 msgstr ""
 
@@ -12420,4 +12385,20 @@ msgstr ""
 
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
+msgstr ""
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr ""
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr ""
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr ""
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
 msgstr ""

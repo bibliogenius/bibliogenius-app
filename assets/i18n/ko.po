@@ -173,10 +173,6 @@ msgstr "추가"
 msgid "add_tag_hint"
 msgstr "책장 추가..."
 
-#. Add Tags
-msgid "add_tags"
-msgstr "태그 추가"
-
 #. Add to Collection
 msgid "add_to_collection"
 msgstr "컬렉션에 추가"
@@ -1701,9 +1697,9 @@ msgstr "게임화 활성화"
 msgid "enable_network_discovery"
 msgstr "로컬 네트워크 검색"
 
-#. Hierarchical Tags
+#. Hierarchical shelves
 msgid "enable_taxonomy"
-msgstr "계층형 태그"
+msgstr "계층형 책장"
 
 #. Use \"Parent > Child\" naming to create sub-tags
 msgid "enable_taxonomy_subtitle"
@@ -2343,9 +2339,9 @@ msgstr "카탈로그 검색"
 msgid "help_cta_view_requests"
 msgstr "요청 보기"
 
-#. Collections let you group related books together, like book series, reading challenges, or thematic lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_collections_content"
-msgstr "컬렉션을 사용하면 도서 시리즈, 독서 챌린지, 테마별 목록처럼 관련된 책을 함께 묶을 수 있습니다."
+msgstr "컬렉션: 함께 묶이는 책들을 순서대로 담은 목록. 시리즈의 각 권, 빌려줄 책 모음, 즐겨찾기.\n\n순서가 중요한가요? 컬렉션. 아니라면 책장."
 
 #. Create a collection
 msgid "help_ctx_collections_tip_create"
@@ -2511,9 +2507,9 @@ msgstr "책 메타데이터를 검색할 카탈로그를 선택하세요"
 msgid "help_ctx_settings_title"
 msgstr "설정 도움말"
 
-#. Shelves help you organize your books into categories. Create custom shelves like \"To Read\", \"Favorites\", or by genre.
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.
 msgid "help_ctx_shelves_content"
-msgstr "책장은 책을 카테고리별로 정리하는 데 도움이 됩니다. \"읽을 책\", \"즐겨찾기\" 같은 맞춤 책장을 만들거나 장르별로 만드세요."
+msgstr "책장: 책을 꽂아 두는 곳. 주제별, 방별, 장르별로. 한 권의 책이 여러 책장에 있을 수 있고, 책장 안에 다른 책장을 둘 수도 있습니다.\n\n순서가 중요한가요? 컬렉션. 아니라면 책장."
 
 #. Assign books
 msgid "help_ctx_shelves_tip_assign"
@@ -2575,9 +2571,9 @@ msgstr "\"내 서재\"로 이동하여 \"+\" 버튼을 누르세요. 바코드�
 msgid "help_desc_audio"
 msgstr "활성화하면 오디오 모듈이 LibriVox, Littérature Audio, Archive.org에서 책의 무료 오디오북 버전을 자동으로 검색합니다. 프로필 설정에서 활성화한 다음, 각 책의 세부 정보 페이지에서 바로 들어보세요."
 
-#. Collections let you group books into custom lists (sagas, themes, reading lists). Create a collection from the Collections tab, then add books from your library or import existing lists.
+#. Collection: a list of books that belong together, in an order. The volumes of a series, a selection to lend, your favorites. Create one from the Collections tab, then add books from your library or import an existing list. Does the order matter? A collection. Otherwise, a shelf.\n\nA collection can be shared: “Share” sends it as a file or as copied text, and “Import” reads back what you receive. Nothing enters a library before it is confirmed.\n\nThe Favorites collection fills itself: it follows the star bookmark set on book pages.
 msgid "help_desc_collections"
-msgstr "컬렉션은 책을 원하는 목록(시리즈, 주제, 독서 목록)으로 묶습니다. 컬렉션 탭에서 만들고 서재의 책을 추가하거나 기존 목록을 가져오세요.\n\n컬렉션은 공유할 수 있습니다. ‘공유’는 파일이나 복사한 텍스트로 보내고, ‘가져오기’는 받은 것을 읽어 들입니다. 확인 전에는 어떤 서재에도 아무것도 들어가지 않습니다.\n\n즐겨찾기 컬렉션은 저절로 채워집니다. 책 화면의 별 북마크를 따릅니다."
+msgstr "컬렉션: 함께 묶이는 책들을 순서대로 담은 목록. 시리즈의 각 권, 빌려줄 책 모음, 즐겨찾기. 컬렉션 탭에서 만들고 서재의 책을 추가하거나 기존 목록을 가져오세요. 순서가 중요한가요? 컬렉션. 아니라면 책장.\n\n컬렉션은 공유할 수 있습니다. ‘공유’는 파일이나 복사한 텍스트로 보내고, ‘가져오기’는 받은 것을 읽어 들입니다. 확인 전에는 어떤 서재에도 아무것도 들어가지 않습니다.\n\n즐겨찾기 컬렉션은 저절로 채워집니다. 책 화면의 별 북마크를 따릅니다."
 
 #. Go to \"Connect Library\" to share your QR code or scan a friend's code.
 msgid "help_desc_connect"
@@ -2607,9 +2603,9 @@ msgstr "서재에서 책을 열고 소장본 섹션에서 \"빌려주기\"를 �
 msgid "help_desc_network"
 msgstr "\"네트워크\" 섹션에서는 추가한 서재의 카탈로그를 발견하고 둘러볼 수 있습니다. 거기에서 대출을 요청할 수 있습니다."
 
-#. 1. Create thematic shelves for your books (e.g., \"SciFi\", \"Favorites\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
+#. Shelf: where you put a book. By theme, by room, by genre. A book can sit on several shelves, and a shelf can hold other shelves.\n\nDoes the order matter? A collection. Otherwise, a shelf.\n\n1. Create shelves for your books (e.g., \"Living room\", \"Crime\").\n2. In your Library, tap a shelf to filter.\n3. Tap the Sort icon (≡) to enter reorder mode.\n4. Drag books to your preferred order, or tap A→Z for auto-sort by author.\n5. Tap ✓ to save your custom arrangement!
 msgid "help_desc_organize_shelf"
-msgstr "1. 책을 위한 테마별 책장을 만드세요(예: \"SF\", \"즐겨찾기\").\n2. 서재에서 책장을 눌러 필터링하세요.\n3. 정렬 아이콘(≡)을 눌러 재정렬 모드로 들어가세요.\n4. 책을 원하는 순서로 드래그하거나, A→Z를 눌러 저자별로 자동 정렬하세요.\n5. ✓를 눌러 맞춤 정렬을 저장하세요!"
+msgstr "책장: 책을 꽂아 두는 곳. 주제별, 방별, 장르별로. 한 권의 책이 여러 책장에 있을 수 있고, 책장 안에 다른 책장을 둘 수도 있습니다.\n\n순서가 중요한가요? 컬렉션. 아니라면 책장.\n\n1. 책을 위한 책장을 만드세요(예: \"거실\", \"추리소설\").\n2. 서재에서 책장을 눌러 필터링하세요.\n3. 정렬 아이콘(≡)을 눌러 재정렬 모드로 들어가세요.\n4. 책을 원하는 순서로 드래그하거나, A→Z를 눌러 저자별로 자동 정렬하세요.\n5. ✓를 눌러 맞춤 정렬을 저장하세요!"
 
 #. Open a book and tap \"Mark as Reading\" to start tracking. Update your progress as you read. When finished, mark it as \"Read\" to earn XP and unlock achievements!
 msgid "help_desc_reading_progress"
@@ -2714,10 +2710,6 @@ msgstr "무엇을 도와드릴까요?"
 #. Hierarchical shelf management
 msgid "hierarchical_shelf_management"
 msgstr "계층형 책장 관리"
-
-#. Tip: Use \"Parent > Child\" to create sub-tags
-msgid "hierarchical_tag_hint"
-msgstr "팁: '상위 > 하위'를 사용하여 하위 태그를 만드세요"
 
 #. Home
 msgid "home"
@@ -2834,10 +2826,6 @@ msgstr "클립보드의 내용을 붙여넣으세요"
 #. I have a text or link
 msgid "import_method_paste_title"
 msgstr "텍스트나 링크가 있습니다"
-
-#. Import Options (Tags & Collections)
-msgid "import_options"
-msgstr "가져오기 옵션 (태그 및 컬렉션)"
 
 #. Ready to import {count} books into your library.
 msgid "import_preview_subtitle"
@@ -3569,9 +3557,9 @@ msgstr "이동"
 msgid "move_shelf"
 msgstr "책장 이동"
 
-#. Change parent category
+#. Change parent shelf
 msgid "move_shelf_hint"
-msgstr "상위 카테고리 변경"
+msgstr "상위 책장 변경"
 
 #. Moving
 msgid "moving"
@@ -3847,10 +3835,6 @@ msgstr "결과를 찾을 수 없습니다"
 msgid "no_shelves"
 msgstr "아직 책장이 없습니다"
 
-#. Add shelves to your books to organize them.
-msgid "no_shelves_hint"
-msgstr "책을 정리하기 위해 책장을 추가하세요."
-
 #. No Shelves Yet
 msgid "no_shelves_title"
 msgstr "아직 책장이 없습니다"
@@ -3866,10 +3850,6 @@ msgstr "요약이 없습니다."
 #. No shelves in library
 msgid "no_tags"
 msgstr "라이브러리에 책장이 없습니다"
-
-#. None (root level)
-msgid "none"
-msgstr "없음 (최상위)"
 
 #. Not set
 msgid "not_set"
@@ -4538,13 +4518,6 @@ msgstr "대출자"
 msgid "role_library"
 msgstr "서재"
 
-#. Root Level (No Parent)
-msgid "root_level"
-msgstr "최상위 (부모 없음)"
-
-msgid "root_tag"
-msgstr "최상위 (부모 없음)"
-
 msgid "sale_date"
 msgstr "판매 날짜"
 
@@ -4756,10 +4729,6 @@ msgstr "상위 항목 (선택)"
 #. Select Profile Type
 msgid "select_profile_type"
 msgstr "프로필 유형 선택"
-
-#. Select Tags
-msgid "select_tags"
-msgstr "책장 선택"
 
 msgid "select_tags_title"
 msgstr "책장 관리"
@@ -5264,9 +5233,9 @@ msgstr "일주일 내내 서재에 헌신하셨네요!"
 msgid "street_address_label"
 msgstr "도로명 주소"
 
-#. Sub-categories
+#. Sub-shelves
 msgid "sub_categories"
-msgstr "하위 카테고리"
+msgstr "하위 책장"
 
 #. Subject
 msgid "subject_label"
@@ -6390,10 +6359,6 @@ msgstr "대출이 승인되었습니다! 책이 라이브러리에 추가되었�
 msgid "collection_tag"
 msgstr "컬렉션"
 
-#. Group books together, e.g. Summer reads, Book club
-msgid "collections_helper"
-msgstr "책을 함께 묶으세요. 예: 여름 독서, 북클럽"
-
 #. Coming soon
 msgid "coming_soon"
 msgstr "출시 예정"
@@ -7465,9 +7430,9 @@ msgstr "%d분 전 업데이트됨"
 msgid "last_updated_hours"
 msgstr "%d시간 전 업데이트됨"
 
-#. Classify your books, e.g. Living room, Fiction > Sci-Fi
+#. Where you put a book.
 msgid "tags_helper"
-msgstr "책을 분류하세요. 예: 거실, 소설 > SF"
+msgstr "책을 꽂아 두는 곳."
 
 #. Navigation style label
 msgid "nav_style_label"
@@ -10423,9 +10388,9 @@ msgstr "갖고 있지 않지만 읽고 싶은 책도 여기에 둘 수 있습니
 msgid "help_topic_recommendations"
 msgstr "읽을거리 추천은 어디에서 오나요?"
 
-#. Where the suggestions show up, why a book is suggested, and how to dismiss one. Mentions series completion through an anonymous hub search (ADR-060).
+#. “Suggestions for you” on the dashboard, “You might also like” on a book page and the “To discover” tab at the top of your library offer titles drawn from your own shelves. If you own a series or several books by the same author, the missing volume or title can be offered too: an anonymous lookup finds it, and the ranking stays on this device.\n\nEvery card says why: same author, similar subject, same publisher, same period, a book you rated highly, or a book already in your to-read pile. A favorite weighs double.\n\n“Not interested” hides a suggestion everywhere it appears, with an undo right after. That choice is kept on this device.
 msgid "help_desc_recommendations"
-msgstr "대시보드의 ‘당신을 위한 추천’, 책 화면의 ‘이런 책도 좋아할 거예요’, 서재 상단의 ‘발견하기’ 탭은 당신의 서가에서 뽑은 책을 제안합니다. 시리즈나 같은 작가의 책을 여러 권 갖고 있다면 빠진 권이나 제목도 제안될 수 있습니다. 익명 조회로 찾아내고, 계산 자체는 이 기기에 남습니다.\n\n각 카드는 이유를 밝힙니다. 같은 작가, 비슷한 주제, 같은 출판사, 같은 시기, 높게 평가한 책, 이미 읽을 책 더미에 있는 책 등입니다. 즐겨찾기는 두 배로 반영됩니다.\n\n‘관심 없음’을 누르면 그 추천은 어디에서나 숨겨지고, 바로 뒤에 실행 취소도 할 수 있습니다. 이 선택은 이 기기에 저장됩니다."
+msgstr "대시보드의 ‘당신을 위한 추천’, 책 화면의 ‘이런 책도 좋아할 거예요’, 서재 상단의 ‘발견하기’ 탭은 당신의 책장에서 뽑은 책을 제안합니다. 시리즈나 같은 작가의 책을 여러 권 갖고 있다면 빠진 권이나 제목도 제안될 수 있습니다. 익명 조회로 찾아내고, 계산 자체는 이 기기에 남습니다.\n\n각 카드는 이유를 밝힙니다. 같은 작가, 비슷한 주제, 같은 출판사, 같은 시기, 높게 평가한 책, 이미 읽을 책 더미에 있는 책 등입니다. 즐겨찾기는 두 배로 반영됩니다.\n\n‘관심 없음’을 누르면 그 추천은 어디에서나 숨겨지고, 바로 뒤에 실행 취소도 할 수 있습니다. 이 선택은 이 기기에 저장됩니다."
 
 #. Reading suggestions CTA
 msgid "help_cta_see_suggestions"
@@ -12489,3 +12454,19 @@ msgstr "신중하게 사용하세요"
 #. Settings > Advanced: description of the experimental hierarchical shelves toggle
 msgid "enable_taxonomy_desc"
 msgstr "실험 기능: 선반 안에 선반을 만듭니다."
+
+#. Shelves and collections: what a shelf is, shown in empty states and help
+msgid "shelf_concept"
+msgstr "책장: 책을 꽂아 두는 곳. 주제별, 방별, 장르별로. 한 권의 책이 여러 책장에 있을 수 있고, 책장 안에 다른 책장을 둘 수도 있습니다."
+
+#. Shelves and collections: what a collection is, shown in empty states and help
+msgid "collection_concept"
+msgstr "컬렉션: 함께 묶이는 책들을 순서대로 담은 목록. 시리즈의 각 권, 빌려줄 책 모음, 즐겨찾기."
+
+#. Shelves and collections: the rule that tells them apart
+msgid "shelf_or_collection_rule"
+msgstr "순서가 중요한가요? 컬렉션. 아니라면 책장."
+
+#. Shelves: the top of the shelf tree, offered as a parent choice
+msgid "first_level"
+msgstr "최상위"

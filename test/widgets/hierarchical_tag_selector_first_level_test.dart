@@ -43,7 +43,7 @@ void main() {
         'add_tag': 'Add',
         'create_new_tag': 'New shelf',
         'tag_name_hint': 'Shelf name',
-        'root_tag': 'First level',
+        'first_level': 'First level',
       },
     });
   });
