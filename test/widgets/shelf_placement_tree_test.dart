@@ -19,6 +19,8 @@ Future<List<Tag?>> _pump(
   WidgetTester tester, {
   List<Tag>? tags,
   String? disabledBranchRootId,
+  String? currentParentId,
+  bool markCurrentPlace = false,
 }) async {
   tester.view.physicalSize = const Size(800, 1600);
   tester.view.devicePixelRatio = 1.0;
@@ -34,6 +36,8 @@ Future<List<Tag?>> _pump(
             title: 'Move “Salon” to…',
             firstLevelLabel: 'At the first level',
             disabledBranchRootId: disabledBranchRootId,
+            currentParentId: currentParentId,
+            markCurrentPlace: markCurrentPlace,
             onPlace: placed.add,
           ),
         ),
@@ -50,7 +54,10 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     TranslationService.setPoTranslationsForTest({
-      'en': {'filter_shelves_hint': 'Filter shelves'},
+      'en': {
+        'filter_shelves_hint': 'Filter shelves',
+        'shelf_current_place': 'Current place',
+      },
     });
   });
 
@@ -167,6 +174,109 @@ void main() {
     await tester.pumpAndSettle();
     expect(placed.map((t) => t?.id), ['bureau']);
     handle.dispose();
+  });
+
+  // Moving a shelf: tapping where it already is would change nothing, so
+  // the current place is marked and not offered as a choice.
+  testWidgets('the current parent is marked, announced and not tappable', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final placed = await _pump(
+      tester,
+      disabledBranchRootId: 'polar',
+      currentParentId: 'romans',
+      markCurrentPlace: true,
+    );
+
+    expect(
+      find.descendant(of: _row('Romans'), matching: find.text('Current place')),
+      findsOneWidget,
+    );
+    expect(find.text('Current place'), findsOneWidget);
+    // The row is greyed out, its note is not: it is what tells this row
+    // from the greyed branch.
+    final note = tester.widget<Text>(find.text('Current place'));
+    expect(
+      note.style?.color,
+      Theme.of(tester.element(_row('Romans'))).colorScheme.onSurfaceVariant,
+    );
+    expect(
+      tester.getSemantics(_row('Romans')),
+      containsSemantics(
+        label: 'Romans',
+        value: 'Current place',
+        isButton: true,
+        hasEnabledState: true,
+        isEnabled: false,
+      ),
+    );
+    await tester.tap(_row('Romans'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(placed, isEmpty);
+
+    // Everywhere else is a choice, the first level included.
+    await tester.tap(_row('Salon'));
+    await tester.tap(find.text('At the first level'));
+    await tester.pumpAndSettle();
+    expect(placed.map((t) => t?.id), ['salon', null]);
+    handle.dispose();
+  });
+
+  testWidgets('a first-level shelf finds the footer link marked instead', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final placed = await _pump(
+      tester,
+      disabledBranchRootId: 'bureau',
+      markCurrentPlace: true,
+    );
+
+    final footer = find.byKey(const ValueKey('placementFirstLevel'));
+    expect(
+      tester.getSemantics(footer),
+      containsSemantics(
+        label: 'At the first level',
+        value: 'Current place',
+        isButton: true,
+        hasEnabledState: true,
+        isEnabled: false,
+      ),
+    );
+    await tester.tap(find.text('At the first level'), warnIfMissed: false);
+    await tester.pumpAndSettle();
+    expect(placed, isEmpty);
+
+    await tester.tap(_row('Romans'));
+    await tester.pumpAndSettle();
+    expect(placed.map((t) => t?.id), ['romans']);
+    handle.dispose();
+  });
+
+  testWidgets('creating a shelf marks no place: a null parent is not the '
+      'current one', (tester) async {
+    final placed = await _pump(tester);
+    expect(find.text('Current place'), findsNothing);
+    await tester.tap(find.text('At the first level'));
+    await tester.pumpAndSettle();
+    expect(placed, [null]);
+  });
+
+  testWidgets('the filter keeps the current place marked', (tester) async {
+    await _pump(tester, currentParentId: 'romans', markCurrentPlace: true);
+    await tester.enterText(
+      find.widgetWithText(TextField, 'Filter shelves'),
+      'rom',
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.descendant(
+        of: _row('Romans'),
+        matching: find.textContaining('Current place'),
+      ),
+      findsOneWidget,
+    );
   });
 
   testWidgets('the filter narrows the tree, case and accents ignored', (

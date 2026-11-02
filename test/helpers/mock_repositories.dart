@@ -96,9 +96,15 @@ class MockTagRepository implements TagRepository {
     return Tag(id: '1', name: name, parentId: parentId, count: 0);
   }
 
+  /// Every shelf update, as `uuid: name` (first level) or
+  /// `uuid: name < parentId`, in order. [mockTags] is left as it was.
+  final List<String> updated = [];
+
   @override
-  Future<Tag> updateTag(String uuid, String name, {String? parentId}) async =>
-      Tag(id: uuid, name: name, parentId: parentId, count: 0);
+  Future<Tag> updateTag(String uuid, String name, {String? parentId}) async {
+    updated.add(parentId == null ? '$uuid: $name' : '$uuid: $name < $parentId');
+    return Tag(id: uuid, name: name, parentId: parentId, count: 0);
+  }
 
   @override
   Future<void> deleteTag(String uuid) async {}

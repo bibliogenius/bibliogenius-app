@@ -5,6 +5,7 @@ import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
 import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/move_shelf_sheet.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/shelf_or_collection_note.dart';
 import '../widgets/configurable_action_card.dart';
@@ -797,22 +798,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   void _showEditShelfDialog(Tag tag) {
     final controller = TextEditingController(text: tag.name);
     final formKey = GlobalKey<FormState>();
-    // Find the parent tag object from the list of all tags
-    final excludedParents = Tag.getDescendantIds(tag.id, _allTags);
-    Tag? selectedParent;
-    if (tag.parentId != null) {
-      try {
-        selectedParent = _allTags.firstWhere((t) => t.id == tag.parentId);
-      } catch (e) {
-        // Parent not found, can happen if tags are out of sync
-        selectedParent = null;
-      }
-      // Only a parent the dropdown lists can be its value.
-      if (selectedParent != null &&
-          excludedParents.contains(selectedParent.id)) {
-        selectedParent = null;
-      }
-    }
 
     showDialog(
       context: context,
@@ -853,59 +838,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                         return null;
                       },
                     ),
-                    if (AppConstants.enableHierarchicalTags &&
-                        _allTags.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<Tag?>(
-                        value: selectedParent,
-                        decoration: InputDecoration(
-                          labelText:
-                              TranslationService.translate(
-                                context,
-                                'parent_shelf',
-                              ) ??
-                              'Parent Shelf (optional)',
-                          border: const OutlineInputBorder(),
-                        ),
-                        isExpanded: true,
-                        items: [
-                          DropdownMenuItem<Tag?>(
-                            value: null,
-                            child: Text(
-                              TranslationService.translate(
-                                context,
-                                'first_level',
-                              ),
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                          // A shelf cannot move under itself or any of its
-                          // sub-shelves: the branch would leave the tree.
-                          ...(_allTags
-                                  .where(
-                                    (t) =>
-                                        t.id != tag.id &&
-                                        !excludedParents.contains(t.id),
-                                  )
-                                  .toList()
-                                ..sort(compareShelves))
-                              .map(
-                                (t) => DropdownMenuItem<Tag?>(
-                                  value: t,
-                                  child: Text(t.name),
-                                ),
-                              ),
-                        ],
-                        onChanged: (Tag? value) {
-                          setDialogState(() {
-                            selectedParent = value;
-                          });
-                        },
-                      ),
-                    ],
                   ],
                 ),
               ),
@@ -920,10 +852,12 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       Navigator.pop(context);
+                      // Renaming only: the shelf stays where the tree shows
+                      // it. Moving goes through "Move to…".
                       await _updateShelf(
                         tag.id,
                         controller.text.trim(),
-                        parentId: selectedParent?.id,
+                        parentId: Tag.effectiveParentId(tag, _allTags),
                       );
                     }
                   },
@@ -971,6 +905,15 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         );
       }
     }
+  }
+
+  Future<void> _moveShelf(Tag tag) async {
+    final moved = await showMoveShelfSheet(
+      context,
+      shelf: tag,
+      allTags: _allTags,
+    );
+    if (moved && mounted) _loadTags();
   }
 
   Future<void> _showDeleteConfirmDialog(Tag tag) async {
@@ -1120,6 +1063,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                             .then((_) => _loadTags());
                       } else if (value == 'edit') {
                         _showEditShelfDialog(tag);
+                      } else if (value == 'move') {
+                        _moveShelf(tag);
                       } else if (value == 'delete') {
                         _showDeleteConfirmDialog(tag);
                       }
@@ -1170,6 +1115,19 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                               ),
                             ),
                           ),
+                          if (AppConstants.enableHierarchicalTags)
+                            PopupMenuItem<String>(
+                              value: 'move',
+                              child: ListTile(
+                                leading: const Icon(Icons.drive_file_move),
+                                title: Text(
+                                  TranslationService.translate(
+                                    context,
+                                    'move_shelf_to',
+                                  ),
+                                ),
+                              ),
+                            ),
                           PopupMenuItem<String>(
                             value: 'delete',
                             child: ListTile(

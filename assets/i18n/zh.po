@@ -3542,10 +3542,6 @@ msgstr "更多"
 msgid "most_lent_books"
 msgstr "借出最多的图书"
 
-#. Move
-msgid "move"
-msgstr "移动"
-
 #. Move Shelf
 msgid "move_shelf"
 msgstr "移动书架"
@@ -3553,10 +3549,6 @@ msgstr "移动书架"
 #. Change parent shelf
 msgid "move_shelf_hint"
 msgstr "更改上级书架"
-
-#. Moving
-msgid "moving"
-msgstr "移动中"
 
 #. Multiple editions found
 msgid "multiple_editions_found"
@@ -4711,10 +4703,6 @@ msgstr "从树状结构中选择"
 #. Who did you borrow this book from?
 msgid "select_lender"
 msgstr "您是从哪里借到这本书的？"
-
-#. Select new parent:
-msgid "select_new_parent"
-msgstr "选择新的上级："
 
 msgid "select_parent_optional"
 msgstr "上级（可选）"
@@ -12536,3 +12524,31 @@ msgstr "添加书架“{name}”"
 #. Matching shelves
 msgid "matching_shelves"
 msgstr "相近的书架"
+
+#. Move to…
+msgid "move_shelf_to"
+msgstr "移动到…"
+
+#. Move “{name}” to…
+msgid "move_shelf_to_title"
+msgstr "将“{name}”移动到…"
+
+#. One tap moves the shelf there
+msgid "move_shelf_to_subtitle"
+msgstr "轻点即可将书架移到该位置"
+
+#. At the first level
+msgid "move_shelf_to_first_level"
+msgstr "移到第一层"
+
+#. Current place
+msgid "shelf_current_place"
+msgstr "当前位置"
+
+#. {name} moved under {parent}
+msgid "shelf_moved_under"
+msgstr "已将{name}移到{parent}下"
+
+#. {name} moved to the first level
+msgid "shelf_moved_to_first_level"
+msgstr "已将{name}移到第一层"

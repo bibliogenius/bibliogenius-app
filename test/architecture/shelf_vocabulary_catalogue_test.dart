@@ -89,6 +89,14 @@ void main() {
     'all_shelves',
     'matching_shelves',
     'add_shelf_named',
+    // Moving a shelf through the placement tree.
+    'move_shelf_to',
+    'move_shelf_to_title',
+    'move_shelf_to_subtitle',
+    'move_shelf_to_first_level',
+    'shelf_current_place',
+    'shelf_moved_under',
+    'shelf_moved_to_first_level',
   ];
 
   // Replaced by the keys above, or never read by the app.
@@ -113,6 +121,10 @@ void main() {
     'tag_name_hint',
     // The old shelf tree's empty search; the picker lists matches instead.
     'no_shelves_match',
+    // The radio-button move dialog, replaced by the placement tree.
+    'moving',
+    'select_new_parent',
+    'move',
   ];
 
   test('the new keys exist, translated, in every catalogue and the template', () {
@@ -151,6 +163,25 @@ void main() {
         .map((f) => f.path)
         .toList();
     expect(offenders, isEmpty, reason: 'retired keys still translated');
+  });
+
+  test('the move messages keep their placeholders in every language', () {
+    const placeholders = {
+      'move_shelf_to_title': ['{name}'],
+      'shelf_moved_under': ['{name}', '{parent}'],
+      'shelf_moved_to_first_level': ['{name}'],
+    };
+    for (final lang in _languages) {
+      placeholders.forEach((key, holes) {
+        for (final hole in holes) {
+          expect(
+            catalogues[lang]![key],
+            contains(hole),
+            reason: '$lang.po: $key lost $hole',
+          );
+        }
+      });
+    }
   });
 
   test('every catalogue holds the same keys as the template', () {
@@ -282,6 +313,8 @@ void main() {
       'all_shelves',
       'matching_shelves',
       'add_shelf_named',
+      // Moving a shelf.
+      'move_shelf_to_subtitle',
     ];
     for (final lang in ['es', 'pt-BR']) {
       for (final key in keys) {

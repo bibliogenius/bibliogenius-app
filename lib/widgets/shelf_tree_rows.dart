@@ -96,6 +96,11 @@ class ShelfTreeRow extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
+  /// Draws [subtitle] at full legibility even when the row is not
+  /// tappable: for a note that tells a disabled row apart, such as the
+  /// current place of a shelf being moved.
+  final bool legibleSubtitle;
+
   const ShelfTreeRow({
     super.key,
     required this.name,
@@ -105,6 +110,7 @@ class ShelfTreeRow extends StatelessWidget {
     this.highlighted = false,
     this.trailing,
     this.onTap,
+    this.legibleSubtitle = false,
   });
 
   @override
@@ -221,7 +227,9 @@ class ShelfTreeRow extends StatelessWidget {
             Text(
               subtitle!,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: onTap != null ? scheme.onSurfaceVariant : foreground,
+                color: onTap != null || legibleSubtitle
+                    ? scheme.onSurfaceVariant
+                    : foreground,
               ),
             ),
         ],

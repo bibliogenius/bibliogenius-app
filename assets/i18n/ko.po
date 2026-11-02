@@ -3542,10 +3542,6 @@ msgstr "더 보기"
 msgid "most_lent_books"
 msgstr "가장 많이 대출된 책"
 
-#. Move
-msgid "move"
-msgstr "이동"
-
 #. Move Shelf
 msgid "move_shelf"
 msgstr "책장 이동"
@@ -3553,10 +3549,6 @@ msgstr "책장 이동"
 #. Change parent shelf
 msgid "move_shelf_hint"
 msgstr "상위 책장 변경"
-
-#. Moving
-msgid "moving"
-msgstr "이동 중"
 
 #. Multiple editions found
 msgid "multiple_editions_found"
@@ -4711,10 +4703,6 @@ msgstr "트리에서 선택"
 #. Who did you borrow this book from?
 msgid "select_lender"
 msgstr "어디서 또는 누구에게 빌렸나요?"
-
-#. Select new parent:
-msgid "select_new_parent"
-msgstr "새 상위 항목 선택:"
 
 msgid "select_parent_optional"
 msgstr "상위 항목 (선택)"
@@ -12536,3 +12524,31 @@ msgstr "책장 ‘{name}’ 추가"
 #. Matching shelves
 msgid "matching_shelves"
 msgstr "비슷한 책장"
+
+#. Move to…
+msgid "move_shelf_to"
+msgstr "이동할 위치…"
+
+#. Move “{name}” to…
+msgid "move_shelf_to_title"
+msgstr "‘{name}’ 이동할 위치…"
+
+#. One tap moves the shelf there
+msgid "move_shelf_to_subtitle"
+msgstr "탭하면 그 위치로 책장을 옮깁니다"
+
+#. At the first level
+msgid "move_shelf_to_first_level"
+msgstr "최상위로"
+
+#. Current place
+msgid "shelf_current_place"
+msgstr "현재 위치"
+
+#. {name} moved under {parent}
+msgid "shelf_moved_under"
+msgstr "{name}을(를) {parent}(으)로 옮겼습니다"
+
+#. {name} moved to the first level
+msgid "shelf_moved_to_first_level"
+msgstr "{name}을(를) 최상위로 옮겼습니다"

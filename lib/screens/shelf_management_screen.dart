@@ -5,6 +5,7 @@ import '../models/tag.dart';
 import '../services/translation_service.dart';
 import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/move_shelf_sheet.dart';
 
 /// Back-office screen for managing shelf hierarchy
 /// Accessible from Profile > Data Management
@@ -535,98 +536,15 @@ class _ShelfManagementScreenState extends State<ShelfManagementScreen> {
     );
   }
 
-  void _showMoveDialog(Tag tag) {
-    Tag? selectedParent;
-    // Filter out the tag itself and its descendants (can't move to self or child)
-    final descendants = Tag.getDescendantIds(tag.id, _allTags);
-    final validParents =
-        _allTags
-            .where((t) => t.id != tag.id && !descendants.contains(t.id))
-            .toList()
-          ..sort(compareShelves);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(
-                TranslationService.translate(context, 'move_shelf') ??
-                    'Move Shelf',
-              ),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '${TranslationService.translate(context, 'moving') ?? 'Moving'}: ${tag.name}',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    TranslationService.translate(
-                          context,
-                          'select_new_parent',
-                        ) ??
-                        'Select new parent:',
-                  ),
-                  const SizedBox(height: 8),
-
-                  // Root option
-                  RadioListTile<Tag?>(
-                    value: null,
-                    groupValue: selectedParent,
-                    title: Text(
-                      TranslationService.translate(context, 'first_level'),
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    secondary: const Icon(Icons.home),
-                    onChanged: (value) {
-                      setDialogState(() => selectedParent = value);
-                    },
-                  ),
-
-                  // Parent options
-                  ...validParents.map(
-                    (t) => RadioListTile<Tag?>(
-                      value: t,
-                      groupValue: selectedParent,
-                      title: Text(t.fullPath),
-                      secondary: Icon(
-                        Tag.getDirectChildren(t.id, _allTags).isNotEmpty
-                            ? Icons.folder
-                            : Icons.label,
-                      ),
-                      onChanged: (value) {
-                        setDialogState(() => selectedParent = value);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    TranslationService.translate(context, 'cancel') ?? 'Cancel',
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    Navigator.pop(context);
-                    await _updateTag(tag.id, tag.name, selectedParent?.id);
-                  },
-                  child: Text(
-                    TranslationService.translate(context, 'move') ?? 'Move',
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+  /// Same tree, same update and same message as "Move to…" in the shelves
+  /// tab.
+  Future<void> _showMoveDialog(Tag tag) async {
+    final moved = await showMoveShelfSheet(
+      context,
+      shelf: tag,
+      allTags: _allTags,
     );
+    if (moved && mounted) await _loadTags();
   }
 
   Future<void> _showDeleteConfirmation(Tag tag) async {

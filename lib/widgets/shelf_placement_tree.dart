@@ -9,10 +9,10 @@ import 'shelf_tree_rows.dart';
 /// The shelf tree in placement mode: a tap on a row picks that shelf as a
 /// parent, the footer link picks the first level.
 ///
-/// Built to create a shelf at a chosen place ("Create “Night” in…"), and
-/// meant to serve moving a shelf as well: [disabledBranchRootId] greys out
-/// that shelf and its whole branch, so a shelf can never be placed under
-/// itself.
+/// Serves both creating a shelf at a chosen place ("Create “Night” in…")
+/// and moving one ("Move “Polar” to…"). When moving, [disabledBranchRootId]
+/// greys out the moved shelf and its whole branch, so a shelf can never be
+/// placed under itself, and [markCurrentPlace] marks where it already is.
 class ShelfPlacementTree extends StatefulWidget {
   final List<Tag> allTags;
   final String title;
@@ -23,6 +23,18 @@ class ShelfPlacementTree extends StatefulWidget {
 
   /// Root of a branch shown but not tappable, or null.
   final String? disabledBranchRootId;
+
+  /// The parent the placed shelf sits under now, null for the first level.
+  /// Read only when [markCurrentPlace] is set.
+  final String? currentParentId;
+
+  /// Whether [currentParentId] names a current place at all.
+  ///
+  /// A null parent already means the first level, so it cannot also mean
+  /// "no current place": a shelf being created has none, a first-level
+  /// shelf being moved has the first level. The current place is marked and
+  /// not tappable, since placing a shelf where it is would change nothing.
+  final bool markCurrentPlace;
 
   /// The chosen parent, null for the first level.
   final ValueChanged<Tag?> onPlace;
@@ -37,6 +49,8 @@ class ShelfPlacementTree extends StatefulWidget {
     this.subtitle,
     required this.firstLevelLabel,
     this.disabledBranchRootId,
+    this.currentParentId,
+    this.markCurrentPlace = false,
     required this.onPlace,
     this.onBack,
   });
@@ -70,10 +84,17 @@ class _ShelfPlacementTreeState extends State<ShelfPlacementTree> {
     return {root, ...Tag.getDescendantIds(root, widget.allTags)};
   }
 
+  bool _isCurrentPlace(String? parentId) =>
+      widget.markCurrentPlace && parentId == widget.currentParentId;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final disabled = _disabledIds;
+    final currentPlace = TranslationService.translate(
+      context,
+      'shelf_current_place',
+    );
     final entries = flattenShelfTree(widget.allTags);
     // Filtering flattens the tree: a match names its parent path instead.
     final filtering = _filter.isNotEmpty;
@@ -151,18 +172,24 @@ class _ShelfPlacementTreeState extends State<ShelfPlacementTree> {
             itemCount: shown.length,
             itemBuilder: (context, index) {
               final entry = shown[index];
+              final current = _isCurrentPlace(entry.tag.id);
+              final path =
+                  filtering || entry.depth > shelfTreeMaxIndentDepth
+                  ? shelfParentPath(context, entry.ancestors)
+                  : null;
               return ShelfTreeRow(
                 key: ValueKey('placementRow:${entry.tag.name}'),
                 name: entry.tag.name,
                 depth: filtering ? 0 : entry.depth,
-                subtitle: filtering || entry.depth > shelfTreeMaxIndentDepth
-                    ? shelfParentPath(context, entry.ancestors)
-                    : null,
+                subtitle: current
+                    ? [currentPlace, ?path].join(' · ')
+                    : path,
+                legibleSubtitle: current,
                 trailing: Icon(
                   Icons.chevron_right,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
-                onTap: disabled.contains(entry.tag.id)
+                onTap: current || disabled.contains(entry.tag.id)
                     ? null
                     : () => widget.onPlace(entry.tag),
               );
@@ -176,14 +203,44 @@ class _ShelfPlacementTreeState extends State<ShelfPlacementTree> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () => widget.onPlace(null),
-                child: Text(widget.firstLevelLabel),
-              ),
+              child: _buildFirstLevelLink(theme, currentPlace),
             ),
           ),
         ),
       ],
+    );
+  }
+
+  /// The footer link. At the shelf's current place it reads as a disabled
+  /// button that says so, like a row of the tree.
+  Widget _buildFirstLevelLink(ThemeData theme, String currentPlace) {
+    final current = _isCurrentPlace(null);
+    return Semantics(
+      key: const ValueKey('placementFirstLevel'),
+      container: true,
+      button: true,
+      enabled: !current,
+      label: widget.firstLevelLabel,
+      value: current ? currentPlace : null,
+      onTap: current ? null : () => widget.onPlace(null),
+      excludeSemantics: true,
+      // Wraps: the link and its mark may not fit one line with large text.
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          TextButton(
+            onPressed: current ? null : () => widget.onPlace(null),
+            child: Text(widget.firstLevelLabel),
+          ),
+          if (current)
+            Text(
+              currentPlace,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

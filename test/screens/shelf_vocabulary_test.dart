@@ -79,6 +79,11 @@ const _catalogue = {
     'shelf_name': 'Shelf name',
     'parent_shelf': 'Parent shelf (optional)',
     'move_shelf': 'Move shelf',
+    'move_shelf_to': 'Move to…',
+    'move_shelf_to_title': 'Move “{name}” to…',
+    'move_shelf_to_first_level': 'At the first level',
+    'shelf_current_place': 'Current place',
+    'filter_shelves_hint': 'Filter shelves',
     'move_shelf_hint': 'Change parent shelf',
     'delete_shelf': 'Delete shelf',
     'scan_into_shelf': 'Scan into this shelf',
@@ -157,7 +162,7 @@ void main() {
     expect(find.text(_rule), findsOneWidget);
   });
 
-  testWidgets('the edit dialog of the tab names the top "First level"', (
+  testWidgets('"Move to…" from the tab names the top "At the first level"', (
     tester,
   ) async {
     await pumpScreen(tester, shelvesTab(), [
@@ -173,21 +178,17 @@ void main() {
       find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Edit').last);
+    await tester.tap(find.text('Move to…'));
     await tester.pumpAndSettle();
 
-    // Genre sits at the top, so the parent field shows the first-level entry.
-    expect(
-      find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.text('First level'),
-      ),
-      findsOneWidget,
-    );
+    // Genre sits at the top: the first level is its current place.
+    expect(find.text('At the first level'), findsOneWidget);
+    expect(find.textContaining(RegExp('root', caseSensitive: false)),
+        findsNothing);
   });
 
-  testWidgets('the move dialog of the management screen names the top '
-      '"First level"', (tester) async {
+  testWidgets('the move tree of the management screen names the top '
+      '"At the first level"', (tester) async {
     await pumpScreen(tester, const ShelfManagementScreen(), [
       Tag(id: 'g', name: 'Genre', count: 0),
       Tag(id: 'r', name: 'Roman', parentId: 'g', count: 3),
@@ -202,6 +203,8 @@ void main() {
     await tester.tap(find.text('Move shelf'));
     await tester.pumpAndSettle();
 
-    expect(find.text('First level'), findsOneWidget);
+    expect(find.text('At the first level'), findsOneWidget);
+    expect(find.textContaining(RegExp('root', caseSensitive: false)),
+        findsNothing);
   });
 }

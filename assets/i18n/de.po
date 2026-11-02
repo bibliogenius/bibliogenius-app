@@ -4000,10 +4000,6 @@ msgstr "Weitere Aktionen"
 msgid "most_lent_books"
 msgstr "Meistverliehene Bücher"
 
-#. Move
-msgid "move"
-msgstr "Verschieben"
-
 #. Move Shelf
 msgid "move_shelf"
 msgstr "Regal verschieben"
@@ -4011,10 +4007,6 @@ msgstr "Regal verschieben"
 #. Change parent shelf
 msgid "move_shelf_hint"
 msgstr "Übergeordnetes Regal ändern"
-
-#. Moving
-msgid "moving"
-msgstr "Verschieben..."
 
 #. Multiple editions found
 msgid "multiple_editions_found"
@@ -5221,10 +5213,6 @@ msgstr "Aus Baum auswählen"
 #. Who did you borrow this book from?
 msgid "select_lender"
 msgstr "Bei wem haben Sie es ausgeliehen?"
-
-#. Select new parent:
-msgid "select_new_parent"
-msgstr "Neues Elternelement auswählen"
 
 msgid "select_parent_optional"
 msgstr "Elternteil (optional)"
@@ -12396,3 +12384,31 @@ msgstr "Regal {name} hinzufügen"
 #. Matching shelves
 msgid "matching_shelves"
 msgstr "Ähnliche Regale"
+
+#. Move to…
+msgid "move_shelf_to"
+msgstr "Verschieben nach…"
+
+#. Move “{name}” to…
+msgid "move_shelf_to_title"
+msgstr "„{name}“ verschieben nach…"
+
+#. One tap moves the shelf there
+msgid "move_shelf_to_subtitle"
+msgstr "Ein Tippen verschiebt das Regal an diese Stelle"
+
+#. At the first level
+msgid "move_shelf_to_first_level"
+msgstr "Auf die oberste Ebene"
+
+#. Current place
+msgid "shelf_current_place"
+msgstr "Aktueller Ort"
+
+#. {name} moved under {parent}
+msgid "shelf_moved_under"
+msgstr "{name} nach {parent} verschoben"
+
+#. {name} moved to the first level
+msgid "shelf_moved_to_first_level"
+msgstr "{name} auf die oberste Ebene verschoben"

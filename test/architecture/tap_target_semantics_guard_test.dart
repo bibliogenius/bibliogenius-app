@@ -93,6 +93,7 @@ import 'package:bibliogenius/screens/settings/settings_scope.dart';
 import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
 import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
+import 'package:bibliogenius/screens/shelf_management_screen.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
@@ -614,6 +615,11 @@ class _Harness {
             ),
           ],
         ),
+        // Outside the shell, as in main.dart.
+        GoRoute(
+          path: '/shelves-management',
+          builder: (_, _) => const ShelfManagementScreen(),
+        ),
       ],
     );
 
@@ -825,6 +831,37 @@ Future<void> _openShelfPicker(WidgetTester tester) async {
   await _tap(tester, add);
 }
 
+/// Opens the menu of the shelves tab card named [name].
+Future<void> _openShelfCardMenu(WidgetTester tester, String name) async {
+  final card = find
+      .ancestor(of: find.text(name), matching: find.byType(Card))
+      .first;
+  await _tap(
+    tester,
+    find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
+  );
+}
+
+/// "Move to…" from the card of the shelf named [name].
+Future<void> _openMoveFromCard(WidgetTester tester, String name) async {
+  await _openShelfCardMenu(tester, name);
+  await _tap(tester, find.text('Move to…'));
+}
+
+/// From the shelves grid down to Genre's level, where Science fiction has
+/// its card: a parent's tap opens its sub-shelves.
+Future<void> _openGenreLevel(WidgetTester tester) => _tap(
+  tester,
+  find.ancestor(of: find.text('Genre'), matching: find.byType(Card)).first,
+);
+
+final _moveSheet = find.byKey(const Key('moveShelfSheet'));
+
+Finder _moveRow(String name) => find.descendant(
+  of: _moveSheet,
+  matching: find.byKey(ValueKey('placementRow:$name')),
+);
+
 /// Types in the picker's one field, past its debounce.
 Future<void> _typeInShelfPicker(WidgetTester tester, String text) async {
   await tester.enterText(_inShelfSheet(find.byType(TextField)), text);
@@ -868,6 +905,16 @@ final _probes = <_Probe>[
   ),
   const _Probe('library, shelves tab', '/shelves'),
   const _Probe('library, sub-shelves', '/shelves?tag=Genre'),
+  // "Move to…" from a card: the placement tree, a branch greyed out and the
+  // current place marked, both read as disabled.
+  _Probe(
+    'library, shelves tab, move tree',
+    '/shelves',
+    reach: (t) async {
+      await _openGenreLevel(t);
+      await _openMoveFromCard(t, 'Science fiction');
+    },
+  ),
   // The "to shelve" card's list: selection armed from the start, a header of
   // its own in a tab that has no app bar.
   const _Probe('library, to shelve', _toShelveLocation),
@@ -1864,6 +1911,152 @@ void main() {
 
       expect(_inShelfSheet(find.text('Matching shelves')), findsOneWidget);
       expect(_inShelfSheet(find.text('in Genre')), findsOneWidget);
+    });
+  });
+
+  // Moving a shelf goes through the placement tree, from the shelves tab and
+  // from the management screen alike. A tap is the choice: there is no
+  // confirm button that could send a shelf to the first level unasked.
+  group('moving a shelf on the real routes', () {
+    final subShelves = _Probe(
+      'sub-shelves',
+      '/shelves',
+      reach: _openGenreLevel,
+    );
+    final firstLevel = find.descendant(
+      of: _moveSheet,
+      matching: find.byKey(const ValueKey('placementFirstLevel')),
+    );
+
+    testWidgets('a card offers "Move to…": its branch greyed, its place '
+        'marked, a tap moves', (tester) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(tester, subShelves);
+      await _openMoveFromCard(tester, 'Science fiction');
+
+      expect(
+        find.descendant(
+          of: _moveSheet,
+          matching: find.text('Move “Science fiction” to…'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester.getSemantics(_moveRow('Science fiction')),
+        containsSemantics(isButton: true, hasEnabledState: true,
+            isEnabled: false),
+      );
+      expect(
+        tester.getSemantics(_moveRow('Genre')),
+        containsSemantics(isButton: true, hasEnabledState: true,
+            isEnabled: false, value: 'Current place'),
+      );
+      await tester.tap(_moveRow('Science fiction'), warnIfMissed: false);
+      await tester.tap(_moveRow('Genre'), warnIfMissed: false);
+      await _settle(tester);
+      expect(harness.tags.updated, isEmpty);
+
+      await _tap(tester, _moveRow('Novel'));
+      expect(harness.tags.updated, ['t3: Science fiction < t1']);
+      expect(_moveSheet, findsNothing);
+      expect(find.text('Science fiction moved under Novel'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('"At the first level" moves with no parent', (tester) async {
+      final harness = await _render(tester, subShelves);
+      await _openMoveFromCard(tester, 'Science fiction');
+
+      await _tap(tester, firstLevel);
+      expect(harness.tags.updated, ['t3: Science fiction']);
+      expect(
+        find.text('Science fiction moved to the first level'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a first-level shelf finds the first level marked as its '
+        'place, not offered', (tester) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(
+        tester,
+        const _Probe('shelves', '/shelves'),
+      );
+      await _openMoveFromCard(tester, 'Novel');
+
+      expect(
+        tester.getSemantics(firstLevel),
+        containsSemantics(isButton: true, hasEnabledState: true,
+            isEnabled: false, value: 'Current place'),
+      );
+      await tester.tap(firstLevel, warnIfMissed: false);
+      await _settle(tester);
+      expect(harness.tags.updated, isEmpty);
+      expect(_moveSheet, findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the management screen moves through the same tree, with the '
+        'same call', (tester) async {
+      final fromTab = await _render(tester, subShelves);
+      await _openMoveFromCard(tester, 'Science fiction');
+      await _tap(tester, _moveRow('Novel'));
+
+      final fromManagement = await _render(
+        tester,
+        const _Probe('management', '/shelves-management'),
+      );
+      await tester.longPress(
+        find
+            .ancestor(
+              of: find.text('Science fiction'),
+              matching: find.byType(InkWell),
+            )
+            .first,
+      );
+      await _settle(tester);
+      await _tap(tester, find.text('Move Shelf'));
+      expect(
+        find.descendant(
+          of: _moveSheet,
+          matching: find.text('Move “Science fiction” to…'),
+        ),
+        findsOneWidget,
+      );
+      expect(find.byType(RadioListTile<Tag?>), findsNothing);
+      await _tap(tester, _moveRow('Novel'));
+
+      expect(fromTab.tags.updated, ['t3: Science fiction < t1']);
+      expect(fromManagement.tags.updated, fromTab.tags.updated);
+      expect(find.text('Science fiction moved under Novel'), findsOneWidget);
+    });
+
+    testWidgets('the edit dialog only renames, and leaves the shelf where it '
+        'is', (tester) async {
+      final harness = await _render(tester, subShelves);
+      await _openShelfCardMenu(tester, 'Science fiction');
+      await _tap(tester, find.text('Edit Shelf'));
+
+      final dialog = find.byType(AlertDialog);
+      expect(dialog, findsOneWidget);
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.byType(DropdownButtonFormField<Tag?>),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: dialog, matching: find.byType(TextFormField)),
+        findsOneWidget,
+      );
+
+      await tester.enterText(
+        find.descendant(of: dialog, matching: find.byType(TextFormField)),
+        'Sci-fi',
+      );
+      await _tap(tester, find.text('Update'));
+      expect(harness.tags.updated, ['t3: Sci-fi < t2']);
     });
   });
 

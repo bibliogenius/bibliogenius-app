@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
 import '../services/recent_shelves_store.dart';
+import '../services/shelf_rows.dart';
 import '../services/translation_service.dart';
 import '../utils/book_genres.dart';
 import 'shelf_placement_tree.dart';
@@ -377,16 +378,25 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
   /// The shelf the typed name would duplicate, case and accents ignored.
   Tag? _taken(String name) => _shelfTakenBy(_tags, name);
 
-  /// Creates [name] under [parentId] (null: first level) and checks it.
-  Future<void> _create(String name, String? parentId) async {
+  /// Creates [name] under [parent] (null: first level) and checks it.
+  Future<void> _create(String name, Tag? parent) async {
     if (name.isEmpty || _isCreating) return;
     setState(() => _isCreating = true);
     final repo = Provider.of<TagRepository>(context, listen: false);
     try {
-      final newTag = await repo.createTag(name, parentId: parentId);
+      final parentRow = await shelfWithRow(repo, parent);
+      final newTag = await repo.createTag(name, parentId: parentRow?.id);
       if (!mounted) return;
       setState(() {
-        _tags = [..._tags, newTag];
+        // A parent known only from subjects now has its row: list that row
+        // in its place, and keep it chosen if it was.
+        _tags = [
+          for (final t in _tags) t.id == parent?.id ? parentRow! : t,
+          newTag,
+        ];
+        if (parent != null && _selectedIds.remove(parent.id)) {
+          _selectedIds.add(parentRow!.id);
+        }
         _selectedIds.add(newTag.id);
         _placing = false;
         _clearSearch();
@@ -499,7 +509,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
         'create_shelf_first_level_instead',
       ),
       onBack: () => setState(() => _placing = false),
-      onPlace: (parent) => _create(name, parent?.id),
+      onPlace: (parent) => _create(name, parent),
     );
   }
 
