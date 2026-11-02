@@ -54,8 +54,13 @@ class MockBookRepository implements BookRepository {
   @override
   Future<void> deleteBook(String uuid) async {}
 
+  /// The ids of the last `reorderBooks` call, in the order sent.
+  List<String>? lastReorder;
+
   @override
-  Future<void> reorderBooks(List<String> bookIds) async {}
+  Future<void> reorderBooks(List<String> bookIds) async {
+    lastReorder = bookIds;
+  }
 
   @override
   Future<Book?> findBookByIsbn(String isbn) async {

@@ -544,7 +544,9 @@ class ApiService {
                     : null),
 
           largeCoverUrl: null, // Not in Book model
-          shelfPosition: null, // Not in Book model
+          // The repository writes this field as sent: null here erased the
+          // order the reader gave the shelf on every edit of a book.
+          shelfPosition: currentBook.shelfPosition,
           userRating: bookData.containsKey('user_rating')
               ? bookData['user_rating']
               : currentBook.userRating,

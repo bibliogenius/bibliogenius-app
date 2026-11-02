@@ -849,6 +849,7 @@ class FfiService {
       price: fb.price,
       private: fb.private,
       pageCount: fb.pageCount,
+      shelfPosition: fb.shelfPosition,
       addedAt: fb.addedAt != null ? DateTime.tryParse(fb.addedAt!) : null,
       hubCoverUploadFailedAt: fb.hubCoverUploadFailedAt != null
           ? DateTime.tryParse(fb.hubCoverUploadFailedAt!)

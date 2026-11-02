@@ -6186,9 +6186,13 @@ msgstr "Nom de l'étagère"
 msgid "shelf_name_hint"
 msgstr "ex. Science Fiction"
 
-#. Shelf order saved!
-msgid "shelf_order_saved"
-msgstr "Ordre de l'étagère enregistré !"
+#. Shelf order (sort field)
+msgid "sort_shelf_order"
+msgstr "Ordre de l'étagère"
+
+#. Order saved. The books on this shelf now follow your order.
+msgid "shelf_order_saved_sort_hint"
+msgstr "Ordre enregistré. Les livres de cette étagère suivent maintenant votre ordre."
 
 #. Shelves
 msgid "shelf_statistics"

@@ -171,4 +171,59 @@ void main() {
       ]);
     });
   });
+
+  // The order a reader saved by dragging books on a shelf. Positions come
+  // from the Rust core as `shelf_position`; SQLite would put the NULLs first,
+  // so the comparator decides, not the query.
+  group('sortWith - shelf order', () {
+    Book placed(String title, int? position, {String? author}) =>
+        Book(title: title, author: author, shelfPosition: position);
+
+    test('follows the saved positions, ascending', () {
+      final books = <Book>[
+        placed('Third', 2),
+        placed('First', 0),
+        placed('Second', 1),
+      ];
+      books.sortWith(SortBy.shelf, SortDir.asc);
+      expect(books.map((b) => b.title).toList(), [
+        'First',
+        'Second',
+        'Third',
+      ]);
+    });
+
+    test('books without a position come last', () {
+      final books = <Book>[
+        placed('Unplaced', null, author: 'Aaron Aardvark'),
+        placed('Placed', 5, author: 'Zed Zola'),
+      ];
+      books.sortWith(SortBy.shelf, SortDir.asc);
+      expect(books.map((b) => b.title).toList(), ['Placed', 'Unplaced']);
+    });
+
+    test('ties and the unplaced tail fall back to author A-Z', () {
+      final books = <Book>[
+        placed('Germinal', 1, author: 'Emile Zola'),
+        placed('La Peste', 1, author: 'Albert Camus'),
+        placed('Orphan', null),
+        placed('Dune', null, author: 'Frank Herbert'),
+        placed('Candide', null, author: 'Voltaire'),
+      ];
+      books.sortWith(SortBy.shelf, SortDir.asc);
+      expect(books.map((b) => b.title).toList(), [
+        'La Peste',
+        'Germinal',
+        'Dune',
+        'Candide',
+        'Orphan',
+      ]);
+    });
+
+    test('has no reverse: the direction is ignored', () {
+      final books = <Book>[placed('Second', 1), placed('First', 0)];
+      books.sortWith(SortBy.shelf, SortDir.desc);
+      expect(books.map((b) => b.title).toList(), ['First', 'Second']);
+    });
+  });
 }

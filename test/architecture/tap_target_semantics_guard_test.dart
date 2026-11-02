@@ -103,6 +103,7 @@ import 'package:bibliogenius/widgets/book_cover_grid.dart';
 import 'package:bibliogenius/widgets/collection_selector.dart';
 import 'package:bibliogenius/widgets/collection_stack_widget.dart';
 import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
+import 'package:bibliogenius/widgets/selectable_book_tile.dart';
 
 import '../helpers/mock_classes.dart';
 import '../helpers/mock_repositories.dart';
@@ -646,8 +647,9 @@ class _Harness {
         ChangeNotifierProvider<FlashMessageProvider>(
           create: (_) => FlashMessageProvider(),
         ),
+        // Loaded as main.dart does, so a remembered sort reaches the list.
         ChangeNotifierProvider<SortPreferenceProvider>(
-          create: (_) => SortPreferenceProvider(),
+          create: (_) => SortPreferenceProvider()..load(),
         ),
         ChangeNotifierProvider<OwnershipPreferenceProvider>(
           create: (_) => OwnershipPreferenceProvider(),
@@ -1248,6 +1250,293 @@ void main() {
       expect(addTo, findsNothing);
       expect(find.byKey(const Key('toShelveCard')), findsNothing);
       expect(find.text('Novel'), findsOneWidget);
+    });
+  });
+
+  // The order a reader gives a shelf by hand, on the real route: the shelves
+  // tab renders the list in the branch that has no app bar, so the action
+  // has to be in the list's own header, and the saved order has to survive
+  // the list's sort.
+  group('shelf order on the real route', () {
+    final reorder = find.byTooltip('Reorder shelf');
+    const shelf = _Probe('shelf, from the shelves tab', '/shelves?tag=Novel');
+
+    // Two books on the Novel shelf, so an order means something.
+    final novels = [
+      for (final b in _books) b,
+      Book(
+        id: 'b5',
+        title: 'Zazie',
+        author: 'Raymond Queneau',
+        readingStatus: 'read',
+        subjects: ['Novel'],
+      ),
+    ];
+
+    /// Top-left of a book's tile in the list, to compare where two books
+    /// sit. Read in the list layout, through the tile's own label: a covered
+    /// book paints no title text, and the activity carousel above the list
+    /// names the same books.
+    Offset at(WidgetTester tester, String title) => tester.getTopLeft(
+      find.byWidgetPredicate(
+        (w) => w is SelectableBookTile && w.semanticLabel.startsWith(title),
+      ),
+    );
+
+    Future<void> toListView(WidgetTester tester) async {
+      await _tap(tester, find.byTooltip('Change View'));
+      await tester.tap(find.text('List view').last);
+      await _settle(tester);
+    }
+
+    bool before(Offset a, Offset b) =>
+        a.dy < b.dy || (a.dy == b.dy && a.dx < b.dx);
+
+    /// Opens the sort menu from its pill, which paints the current field.
+    Future<void> openSortMenu(WidgetTester tester, String field) async {
+      await _tap(tester, find.text(field));
+    }
+
+    Finder checkedMenuItem(String label) => find.descendant(
+      of: find.ancestor(
+        of: find.text(label),
+        matching: find.byWidgetPredicate((w) => w is PopupMenuItem),
+      ),
+      matching: find.byIcon(Icons.check),
+    );
+
+    testWidgets('an open shelf offers the action; the grid and the books tab '
+        'do not', (tester) async {
+      await _render(tester, shelf);
+      expect(reorder, findsOneWidget);
+      expect(find.text('Novel'), findsOneWidget);
+      expect(find.byKey(const Key('shelfBackButton')), findsOneWidget);
+    });
+
+    testWidgets('the shelves grid has no reorder action', (tester) async {
+      await _render(
+        tester,
+        _probes.firstWhere((p) => p.name == 'library, shelves tab'),
+      );
+      expect(reorder, findsNothing);
+    });
+
+    testWidgets('the books tab has no reorder action', (tester) async {
+      await _render(
+        tester,
+        _probes.firstWhere((p) => p.name == 'library, books tab'),
+      );
+      expect(reorder, findsNothing);
+    });
+
+    testWidgets('a long shelf name is cut short, the actions stay put', (
+      tester,
+    ) async {
+      const longName =
+          'A shelf whose name goes on far longer than a phone is wide';
+      await _render(
+        tester,
+        const _Probe('long shelf', '/shelves?tag=$longName'),
+        books: [
+          for (final b in _books) b,
+          Book(
+            id: 'b6',
+            title: 'Long',
+            readingStatus: 'read',
+            subjects: [longName],
+          ),
+        ],
+      );
+      final icon = tester.getRect(reorder);
+      final titleFinder = find.byKey(const Key('shelfHeaderTitle'));
+      final title = tester.getRect(titleFinder);
+      expect(icon.right, lessThanOrEqualTo(_phone.width));
+      expect(title.right, lessThanOrEqualTo(icon.left));
+      // Cut, not wrapped: the paragraph had more than its one line to say.
+      final paragraph = tester.renderObject<RenderParagraph>(titleFinder);
+      expect(paragraph.didExceedMaxLines, isTrue);
+      expect(paragraph.maxLines, 1);
+    });
+
+    testWidgets('saving an order raises the shelf order and gives the grid '
+        'back', (tester) async {
+      final harness = await _render(tester, shelf, books: novels);
+      expect(find.byType(BookCoverGrid), findsOneWidget);
+
+      await _tap(tester, reorder);
+      expect(find.text('Reordering Shelf...'), findsOneWidget);
+      expect(reorder, findsNothing);
+      // Drag and drop needs the list.
+      expect(find.byType(ReorderableListView), findsOneWidget);
+
+      await _tap(tester, find.byTooltip('Save order'));
+
+      // Author A-Z was the order on screen, by surname: Queneau, Le Tellier.
+      expect(harness.books.lastReorder, ['b5', 'b1']);
+      // The covers grid the reader was in comes back, not the list.
+      expect(find.byType(ReorderableListView), findsNothing);
+      expect(find.byType(BookCoverGrid), findsOneWidget);
+      expect(
+        find.text(
+          'Order saved. The books on this shelf now follow your order.',
+        ),
+        findsOneWidget,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('library_shelf_order'), isTrue);
+      expect(prefs.getString('library_sort_by'), isNull);
+      expect(find.text('Shelf order'), findsOneWidget);
+    });
+
+    testWidgets('saving an order leaves the library sort as the reader set '
+        'it', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'library_sort_by': 'title',
+        'library_sort_dir': 'desc',
+      });
+      await _render(tester, shelf, books: novels);
+      await _tap(tester, reorder);
+      await _tap(tester, find.byTooltip('Save order'));
+      expect(find.text('Shelf order'), findsOneWidget);
+
+      // Out of the shelf, into the books tab: "Title Z-A" is still the sort.
+      await _tap(tester, find.byKey(const Key('shelfBackButton')));
+      await _tap(tester, find.widgetWithText(Tab, 'Books'));
+      await toListView(tester);
+      // The list builds only what fits: its first two tiles say the order.
+      // Title Z-A opens on Zazie then The Anomaly; author A-Z would open on
+      // Dune (Herbert), and so would title A-Z.
+      final tiles = tester
+          .widgetList<SelectableBookTile>(find.byType(SelectableBookTile))
+          .map((t) => t.semanticLabel.split(',').first)
+          .toList();
+      expect(tiles.take(2), ['Zazie', 'The Anomaly']);
+      expect(find.text('Title'), findsOneWidget);
+      expect(find.text('Shelf order'), findsNothing);
+      await openSortMenu(tester, 'Title');
+      expect(checkedMenuItem('Title (Z-A)'), findsOneWidget);
+      expect(find.text('Shelf order'), findsNothing);
+    });
+
+    testWidgets('leaving the mode without saving gives the grid back too', (
+      tester,
+    ) async {
+      await _render(tester, shelf, books: novels);
+      await _tap(tester, reorder);
+      expect(find.byType(ReorderableListView), findsOneWidget);
+
+      await _tap(tester, find.byTooltip('Cancel'));
+
+      expect(find.byType(ReorderableListView), findsNothing);
+      expect(find.byType(BookCoverGrid), findsOneWidget);
+      expect(reorder, findsOneWidget);
+    });
+
+    testWidgets('a selection in progress hides the reorder action', (
+      tester,
+    ) async {
+      await _render(tester, shelf, books: novels);
+      await _tap(tester, find.byKey(const Key('selectBooksButton')));
+      expect(reorder, findsNothing);
+
+      await tester.binding.handlePopRoute();
+      await _settle(tester);
+      expect(reorder, findsOneWidget);
+    });
+
+    testWidgets('a saved order is what the shelf shows', (tester) async {
+      // Title Z-A would open on Zazie too: only the positions put The
+      // Anomaly first.
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'library_shelf_order': true,
+        'library_sort_by': 'title',
+        'library_sort_dir': 'desc',
+      });
+      await _render(
+        tester,
+        shelf,
+        books: [
+          for (final b in _books)
+            if (b.id != 'b1') b,
+          // Positions that contradict the author order (Queneau < Tellier).
+          Book(
+            id: 'b1',
+            title: 'The Anomaly',
+            author: 'Herve Le Tellier',
+            readingStatus: 'to_read',
+            subjects: ['Novel'],
+            shelfPosition: 0,
+          ),
+          Book(
+            id: 'b5',
+            title: 'Zazie',
+            author: 'Raymond Queneau',
+            readingStatus: 'read',
+            subjects: ['Novel'],
+            shelfPosition: 1,
+          ),
+        ],
+      );
+      await toListView(tester);
+      expect(before(at(tester, 'The Anomaly'), at(tester, 'Zazie')), isTrue);
+      expect(find.text('Shelf order'), findsOneWidget);
+
+      await openSortMenu(tester, 'Shelf order');
+      expect(checkedMenuItem('Shelf order'), findsOneWidget);
+    });
+
+    testWidgets('outside a shelf the saved order never applies', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'library_shelf_order': true,
+      });
+      await _render(
+        tester,
+        _probes.firstWhere((p) => p.name == 'library, books tab'),
+        books: [
+          for (final b in _books)
+            if (b.id != 'b1' && b.id != 'b2') b,
+          // Positions that contradict the author order.
+          Book(
+            id: 'b1',
+            title: 'The Anomaly',
+            author: 'Herve Le Tellier',
+            readingStatus: 'to_read',
+            subjects: ['Novel'],
+            shelfPosition: 0,
+          ),
+          Book(
+            id: 'b2',
+            title: 'Dune',
+            author: 'Frank Herbert',
+            readingStatus: 'reading',
+            subjects: ['Science fiction'],
+            shelfPosition: 9,
+          ),
+        ],
+      );
+      await toListView(tester);
+      // Herbert before Le Tellier.
+      expect(before(at(tester, 'Dune'), at(tester, 'The Anomaly')), isTrue);
+      expect(find.text('Shelf order'), findsNothing);
+      expect(find.text('Author'), findsOneWidget);
+
+      await openSortMenu(tester, 'Author');
+      expect(find.text('Shelf order'), findsNothing);
+      expect(checkedMenuItem('Author (A-Z)'), findsOneWidget);
+    });
+
+    testWidgets('the sort menu of an open shelf offers the shelf order', (
+      tester,
+    ) async {
+      await _render(tester, shelf);
+      await openSortMenu(tester, 'Author');
+      expect(find.text('Shelf order'), findsOneWidget);
+      expect(checkedMenuItem('Author (A-Z)'), findsOneWidget);
     });
   });
 

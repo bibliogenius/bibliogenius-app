@@ -4925,9 +4925,13 @@ msgstr "本棚の名前"
 msgid "shelf_name_hint"
 msgstr "例：SF"
 
-#. Shelf order saved!
-msgid "shelf_order_saved"
-msgstr "本棚の順序を保存しました！"
+#. Shelf order (sort field)
+msgid "sort_shelf_order"
+msgstr "本棚の順序"
+
+#. Order saved. The books on this shelf now follow your order.
+msgid "shelf_order_saved_sort_hint"
+msgstr "順序を保存しました。この本棚の本はあなたの順序に従います。"
 
 #. Shelves
 msgid "shelf_statistics"

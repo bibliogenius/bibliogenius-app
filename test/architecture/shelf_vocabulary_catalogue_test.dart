@@ -83,6 +83,9 @@ void main() {
     'import_options',
     'select_tags',
     'hierarchical_tag_hint',
+    // Saving a shelf order now says what it changes: see
+    // shelf_order_saved_sort_hint.
+    'shelf_order_saved',
   ];
 
   test('the new keys exist, translated, in every catalogue and the template', () {
@@ -223,6 +226,9 @@ void main() {
       'tags_label',
       'help_ctx_shelves_content',
       'help_desc_organize_shelf',
+      // The shelf order: its sort entry and the message that announces it.
+      'sort_shelf_order',
+      'shelf_order_saved_sort_hint',
     ];
     for (final lang in ['es', 'pt-BR']) {
       for (final key in keys) {

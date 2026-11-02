@@ -5523,9 +5523,13 @@ msgstr "Nombre de estantería"
 msgid "shelf_name_hint"
 msgstr "ej: Ciencia Ficción"
 
-#. Shelf order saved!
-msgid "shelf_order_saved"
-msgstr "¡Orden del estante guardado!"
+#. Shelf order (sort field)
+msgid "sort_shelf_order"
+msgstr "Orden de la estantería"
+
+#. Order saved. The books on this shelf now follow your order.
+msgid "shelf_order_saved_sort_hint"
+msgstr "Orden guardado. Los libros de esta estantería siguen ahora tu orden."
 
 #. Shelves
 msgid "shelf_statistics"

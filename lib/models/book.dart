@@ -34,6 +34,12 @@ class Book {
   final bool private; // When true, hidden from network peers
   final int? pageCount;
 
+  /// The place a reader gave this book by dragging it on a shelf (the
+  /// `shelf_position` column). Null until the reader orders a shelf by hand.
+  /// One value per book, not per shelf: a book on two shelves has one order.
+  /// Carried through every conversion so an edit never erases it.
+  final int? shelfPosition;
+
   /// When this book was added to its owner's library (maps to the owner's
   /// `books.created_at`). Used by the "new" badge on peer library views:
   /// editorial metadata broadcast by the owner, so every viewer agrees on
@@ -108,6 +114,7 @@ class Book {
     this.availableCopies,
     this.private = false,
     this.pageCount,
+    this.shelfPosition,
     this.addedAt,
     this.hubCoverUploadFailedAt,
     this.isBorrowed,
@@ -215,6 +222,7 @@ class Book {
       availableCopies: _asIntOrNull(json['available_copies']),
       private: json['private'] ?? false,
       pageCount: _asIntOrNull(json['page_count']),
+      shelfPosition: _asIntOrNull(json['shelf_position']),
       addedAt: json['added_at'] != null
           ? DateTime.tryParse(json['added_at'])
           : null,
@@ -249,6 +257,7 @@ class Book {
       'available_copies': availableCopies,
       'private': private,
       'page_count': pageCount,
+      'shelf_position': shelfPosition,
       'added_at': addedAt?.toIso8601String(),
       'hub_cover_upload_failed_at': hubCoverUploadFailedAt?.toIso8601String(),
       if (wanted != null) 'wanted': wanted,
@@ -290,6 +299,7 @@ class Book {
       availableCopies: availableCopies,
       private: private,
       pageCount: pageCount,
+      shelfPosition: shelfPosition,
       addedAt: addedAt,
       hubCoverUploadFailedAt: hubCoverUploadFailedAt,
       isBorrowed: isBorrowed,
@@ -352,6 +362,7 @@ class Book {
       availableCopies: availableCopies,
       private: private,
       pageCount: pageCount,
+      shelfPosition: shelfPosition,
       addedAt: addedAt,
       hubCoverUploadFailedAt: hubCoverUploadFailedAt,
       isBorrowed: isBorrowed,

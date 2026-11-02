@@ -5171,9 +5171,13 @@ msgstr "Име на полица"
 msgid "shelf_name_hint"
 msgstr "напр. Научна фантастика"
 
-#. Shelf order saved!
-msgid "shelf_order_saved"
-msgstr "Редът на полиците е запазен!"
+#. Shelf order (sort field)
+msgid "sort_shelf_order"
+msgstr "Ред на полицата"
+
+#. Order saved. The books on this shelf now follow your order.
+msgid "shelf_order_saved_sort_hint"
+msgstr "Редът е запазен. Книгите на тази полица вече следват вашия ред."
 
 #. Shelves
 msgid "shelf_statistics"

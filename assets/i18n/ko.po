@@ -4925,9 +4925,13 @@ msgstr "책장 이름"
 msgid "shelf_name_hint"
 msgstr "예: 공상 과학"
 
-#. Shelf order saved!
-msgid "shelf_order_saved"
-msgstr "책장 순서가 저장되었습니다!"
+#. Shelf order (sort field)
+msgid "sort_shelf_order"
+msgstr "책장 순서"
+
+#. Order saved. The books on this shelf now follow your order.
+msgid "shelf_order_saved_sort_hint"
+msgstr "순서가 저장되었습니다. 이 책장의 책은 이제 회원님의 순서를 따릅니다."
 
 #. Shelves
 msgid "shelf_statistics"

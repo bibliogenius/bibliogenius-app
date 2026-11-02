@@ -48,7 +48,14 @@ enum ViewMode {
   groupedCollections, // Books grouped by collection
 }
 
-enum _SortAction { authorAsc, authorDesc, titleAsc, titleDesc, manualReorder }
+enum _SortAction {
+  authorAsc,
+  authorDesc,
+  titleAsc,
+  titleDesc,
+  shelfOrder,
+  manualReorder,
+}
 
 class BookListScreen extends StatefulWidget {
   final String? initialSearchQuery;
@@ -144,6 +151,10 @@ class _BookListScreenState extends State<BookListScreen>
   /// exit. The grouped view in particular is not offered by the view menu,
   /// so a reader taken out of it could not go back on their own.
   ViewMode? _viewModeBeforeSelection;
+
+  /// The layout the reorder mode replaced with the list, given back when the
+  /// order is saved or the mode left.
+  ViewMode? _viewModeBeforeReordering;
   String? _libraryName; // Store library name for title
 
   // Wishlist availability (wanting filter only): isbn -> provider names.
@@ -397,6 +408,17 @@ class _BookListScreenState extends State<BookListScreen>
     _prevCollectionsEnabled = ce;
 
     final shouldBeGrouped = ce && gbc;
+    // While books are being dragged the list layout must stay: the new
+    // setting applies to the layout given back when the mode ends.
+    if (_isReordering) {
+      final remembered = _viewModeBeforeReordering ?? _viewMode;
+      if (shouldBeGrouped) {
+        _viewModeBeforeReordering = ViewMode.groupedCollections;
+      } else if (remembered == ViewMode.groupedCollections) {
+        _viewModeBeforeReordering = ViewMode.coverGrid;
+      }
+      return;
+    }
     if (shouldBeGrouped && _viewMode != ViewMode.groupedCollections) {
       setState(() => _viewMode = ViewMode.groupedCollections);
       _fetchCollectionGroups();
@@ -514,7 +536,7 @@ class _BookListScreenState extends State<BookListScreen>
                         ),
                         onPressed: () {
                           setState(() {
-                            _isReordering = false;
+                            _stopReordering();
                             _fetchBooks();
                           });
                         },
@@ -535,6 +557,10 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               if (widget.unshelvedOnly) _buildToShelveHeader(),
+              if (widget.showBackToShelves &&
+                  !widget.unshelvedOnly &&
+                  !_isReordering)
+                _buildShelfHeader(),
               _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
@@ -596,7 +622,7 @@ class _BookListScreenState extends State<BookListScreen>
               tooltip: TranslationService.translate(context, 'cancel'),
               onPressed: () {
                 setState(() {
-                  _isReordering = false;
+                  _stopReordering();
                   _fetchBooks(); // Reset to original order
                 });
               },
@@ -629,14 +655,7 @@ class _BookListScreenState extends State<BookListScreen>
               IconButton(
                 icon: const Icon(Icons.sort, color: Colors.white),
                 tooltip: TranslationService.translate(context, 'reorder_shelf'),
-                onPressed: () {
-                  setState(() {
-                    _isReordering = true;
-                    _selectedIds = null;
-                    _viewModeBeforeSelection = null;
-                    _viewMode = ViewMode.list; // Force list view for reordering
-                  });
-                },
+                onPressed: _startReordering,
               ),
 
             IconButton(
@@ -956,17 +975,20 @@ class _BookListScreenState extends State<BookListScreen>
       )
       .length;
 
-  /// Header of the "to shelve" list, in a tab that has no app bar of its
-  /// own: where the reader is, how many books are left, and the way back.
-  Widget _buildToShelveHeader() {
-    final theme = Theme.of(context);
-    final count = _unshelvedLeft;
+  /// Header of a list shown inside the shelves tab, which has no app bar of
+  /// its own: the way back, where the reader is, and the list's actions.
+  Widget _tabListHeader({
+    required Key backKey,
+    required Widget title,
+    Widget? subtitle,
+    List<Widget> actions = const [],
+  }) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
+      padding: EdgeInsets.fromLTRB(4, 4, actions.isEmpty ? 16 : 4, 4),
       child: Row(
         children: [
           IconButton(
-            key: const Key('toShelveBackButton'),
+            key: backKey,
             icon: Icon(Icons.adaptive.arrow_back),
             tooltip: TranslationService.translate(context, 'back'),
             onPressed: () => context.go('/shelves'),
@@ -975,32 +997,109 @@ class _BookListScreenState extends State<BookListScreen>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    TranslationService.translate(context, 'to_shelve_title'),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ),
-                if (!_isLoading)
-                  Text(
-                    TranslationService.translate(
-                      context,
-                      count == 1 ? 'to_shelve_count' : 'to_shelve_count_plural',
-                    ).replaceAll('%d', '$count'),
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
+                Semantics(header: true, child: title),
+                if (subtitle != null) subtitle,
               ],
             ),
           ),
+          ...actions,
         ],
       ),
     );
   }
+
+  TextStyle? get _tabHeaderTitleStyle => Theme.of(
+    context,
+  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600);
+
+  /// Header of the "to shelve" list: how many books are left.
+  Widget _buildToShelveHeader() {
+    final theme = Theme.of(context);
+    final count = _unshelvedLeft;
+    return _tabListHeader(
+      backKey: const Key('toShelveBackButton'),
+      title: Text(
+        TranslationService.translate(context, 'to_shelve_title'),
+        style: _tabHeaderTitleStyle,
+      ),
+      subtitle: _isLoading
+          ? null
+          : Text(
+              TranslationService.translate(
+                context,
+                count == 1 ? 'to_shelve_count' : 'to_shelve_count_plural',
+              ).replaceAll('%d', '$count'),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+    );
+  }
+
+  /// Header of a shelf opened from the shelves tab: its name, and the
+  /// reorder action the stand-alone list keeps in its app bar. A long name
+  /// is cut short rather than pushing the action off a phone screen.
+  Widget _buildShelfHeader() {
+    return _tabListHeader(
+      backKey: const Key('shelfBackButton'),
+      title: Text(
+        _currentShelf?.name ?? _tagFilter ?? '',
+        key: const Key('shelfHeaderTitle'),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: _tabHeaderTitleStyle,
+      ),
+      actions: [
+        // Not during a search (it scans the whole library) nor a selection
+        // (entering the mode would drop it without a word).
+        if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
+          IconButton(
+            icon: const Icon(Icons.sort),
+            tooltip: TranslationService.translate(context, 'reorder_shelf'),
+            onPressed: _startReordering,
+          ),
+      ],
+    );
+  }
+
+  /// Enters the drag-and-drop mode, from the header or the sort menu.
+  void _startReordering() {
+    setState(() {
+      _isReordering = true;
+      // A selection in progress had already swapped the layout: the one to
+      // give back is the reader's, not the selection's.
+      _viewModeBeforeReordering = _viewModeBeforeSelection ?? _viewMode;
+      _selectedIds = null;
+      _viewModeBeforeSelection = null;
+      _viewMode = ViewMode.list; // Drag and drop needs the list layout.
+    });
+  }
+
+  /// Leaves the drag-and-drop mode and gives the previous layout back.
+  /// Called inside setState by the save and cancel paths.
+  void _stopReordering() {
+    _isReordering = false;
+    final restored = _viewModeBeforeReordering;
+    if (restored != null) _viewMode = restored;
+    _viewModeBeforeReordering = null;
+  }
+
+  /// The sort the list applies, which is also the entry the menu checks: the
+  /// saved shelf order inside a shelf when the reader asked for it, else the
+  /// global field and direction. A search counts as outside the shelf: it
+  /// scans the whole library.
+  (SortBy, SortDir) _effectiveSort(SortPreferenceProvider? pref) {
+    if (pref == null) return (SortBy.author, SortDir.asc);
+    final inShelf = _tagFilter != null && _searchQuery.isEmpty;
+    if (pref.shelfOrder && inShelf) return (SortBy.shelf, SortDir.asc);
+    return (pref.sortBy, pref.sortDir);
+  }
+
+  String _sortFieldKey(SortBy sortBy) => switch (sortBy) {
+    SortBy.author => 'sort_field_author',
+    SortBy.title => 'sort_field_title',
+    SortBy.shelf => 'sort_shelf_order',
+  };
 
   /// Loads the wishlist providers (shared Rust join) for the badge shown
   /// under the wanting filter. Fire-and-forget; an empty result simply
@@ -1128,8 +1227,7 @@ class _BookListScreenState extends State<BookListScreen>
     // Apply the user's persisted sort preference (field + direction).
     // Empty-author books always land at the bottom for an author sort,
     // regardless of direction. See utils/book_sort.dart.
-    final sortBy = _sortPrefProvider?.sortBy ?? SortBy.author;
-    final sortDir = _sortPrefProvider?.sortDir ?? SortDir.asc;
+    final (sortBy, sortDir) = _effectiveSort(_sortPrefProvider);
     tempBooks.sortWith(sortBy, sortDir);
 
     _filteredBooks = tempBooks;
@@ -2491,26 +2589,29 @@ class _BookListScreenState extends State<BookListScreen>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final sortPref = context.watch<SortPreferenceProvider>();
-    final asc = sortPref.sortDir == SortDir.asc;
+    final (sortBy, sortDir) = _effectiveSort(sortPref);
+    final asc = sortDir == SortDir.asc;
     final fieldLabel = TranslationService.translate(
       context,
-      sortPref.sortBy == SortBy.author
-          ? 'sort_field_author'
-          : 'sort_field_title',
+      _sortFieldKey(sortBy),
     );
     final sortByLabel = TranslationService.translate(context, 'sort_by_label');
-    final directionLabel = TranslationService.translate(
-      context,
-      asc ? 'sort_direction_ascending' : 'sort_direction_descending',
-    );
+    // A hand-made order has no direction to announce.
+    final directionLabel = sortBy == SortBy.shelf
+        ? null
+        : TranslationService.translate(
+            context,
+            asc ? 'sort_direction_ascending' : 'sort_direction_descending',
+          );
+    final direction = directionLabel == null ? '' : ', $directionLabel';
 
     return Padding(
       padding: const EdgeInsets.only(left: 8),
       child: Tooltip(
-        message: '$sortByLabel: $fieldLabel - $directionLabel',
+        message: '$sortByLabel: $fieldLabel$direction',
         child: Semantics(
           button: true,
-          label: '$sortByLabel: $fieldLabel, $directionLabel',
+          label: '$sortByLabel: $fieldLabel$direction',
           child: PopupMenuButton<_SortAction>(
             onSelected: (action) => _onSortActionSelected(action),
             offset: const Offset(0, 40),
@@ -2544,12 +2645,14 @@ class _BookListScreenState extends State<BookListScreen>
                             fontSize: 13,
                           ),
                         ),
-                        const SizedBox(width: 4),
-                        Icon(
-                          asc ? Icons.arrow_downward : Icons.arrow_upward,
-                          size: 16,
-                          color: theme.primaryColor,
-                        ),
+                        if (directionLabel != null) ...[
+                          const SizedBox(width: 4),
+                          Icon(
+                            asc ? Icons.arrow_downward : Icons.arrow_upward,
+                            size: 16,
+                            color: theme.primaryColor,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -2601,41 +2704,46 @@ class _BookListScreenState extends State<BookListScreen>
       );
     }
 
+    final (sortBy, sortDir) = _effectiveSort(sortPref);
     final items = <PopupMenuEntry<_SortAction>>[
       item(
         action: _SortAction.authorAsc,
         label: '$authorLabel (A-Z)',
         icon: Icons.arrow_downward,
-        selected:
-            sortPref.sortBy == SortBy.author && sortPref.sortDir == SortDir.asc,
+        selected: sortBy == SortBy.author && sortDir == SortDir.asc,
       ),
       item(
         action: _SortAction.authorDesc,
         label: '$authorLabel (Z-A)',
         icon: Icons.arrow_upward,
-        selected:
-            sortPref.sortBy == SortBy.author &&
-            sortPref.sortDir == SortDir.desc,
+        selected: sortBy == SortBy.author && sortDir == SortDir.desc,
       ),
       item(
         action: _SortAction.titleAsc,
         label: '$titleLabel (A-Z)',
         icon: Icons.arrow_downward,
-        selected:
-            sortPref.sortBy == SortBy.title && sortPref.sortDir == SortDir.asc,
+        selected: sortBy == SortBy.title && sortDir == SortDir.asc,
       ),
       item(
         action: _SortAction.titleDesc,
         label: '$titleLabel (Z-A)',
         icon: Icons.arrow_upward,
-        selected:
-            sortPref.sortBy == SortBy.title && sortPref.sortDir == SortDir.desc,
+        selected: sortBy == SortBy.title && sortDir == SortDir.desc,
       ),
     ];
 
-    // Manual shelf reorder only makes sense when scoped to a single shelf.
+    // The shelf order, and the manual reorder that writes it, only make
+    // sense when scoped to a single shelf.
     if (_tagFilter != null) {
       items.add(const PopupMenuDivider());
+      items.add(
+        item(
+          action: _SortAction.shelfOrder,
+          label: TranslationService.translate(context, 'sort_shelf_order'),
+          icon: Icons.format_list_numbered,
+          selected: sortBy == SortBy.shelf,
+        ),
+      );
       items.add(
         PopupMenuItem<_SortAction>(
           value: _SortAction.manualReorder,
@@ -2655,28 +2763,25 @@ class _BookListScreenState extends State<BookListScreen>
 
   void _onSortActionSelected(_SortAction action) {
     final sortPref = context.read<SortPreferenceProvider>();
+    // Picking a field inside a shelf also leaves its saved order behind.
     switch (action) {
       case _SortAction.authorAsc:
-        sortPref.setSortBy(SortBy.author);
-        sortPref.setSortDir(SortDir.asc);
+        sortPref.setFieldSort(SortBy.author, SortDir.asc);
         break;
       case _SortAction.authorDesc:
-        sortPref.setSortBy(SortBy.author);
-        sortPref.setSortDir(SortDir.desc);
+        sortPref.setFieldSort(SortBy.author, SortDir.desc);
         break;
       case _SortAction.titleAsc:
-        sortPref.setSortBy(SortBy.title);
-        sortPref.setSortDir(SortDir.asc);
+        sortPref.setFieldSort(SortBy.title, SortDir.asc);
         break;
       case _SortAction.titleDesc:
-        sortPref.setSortBy(SortBy.title);
-        sortPref.setSortDir(SortDir.desc);
+        sortPref.setFieldSort(SortBy.title, SortDir.desc);
+        break;
+      case _SortAction.shelfOrder:
+        sortPref.setShelfOrder(true);
         break;
       case _SortAction.manualReorder:
-        setState(() {
-          _isReordering = true;
-          _viewMode = ViewMode.list;
-        });
+        _startReordering();
         break;
     }
   }
@@ -3205,21 +3310,29 @@ class _BookListScreenState extends State<BookListScreen>
     try {
       final ids = _filteredBooks.map((b) => b.id!).toList();
       await bookRepo.reorderBooks(ids);
+      if (!mounted) return;
 
-      setState(() {
-        _isReordering = false;
-        _isLoading = false;
-      });
-      // Don't call _fetchBooks() here - it would reload with global order
-      // and lose the tag-filtered order we just saved
+      // From now on this shelf reads in the order just saved. The books are
+      // fetched again so they carry their new positions, and the sort
+      // honours them: what comes back is the order the reader made. The
+      // global field and direction stay as the reader set them.
+      await context.read<SortPreferenceProvider>().setShelfOrder(true);
+      if (!mounted) return;
+      setState(_stopReordering);
+      await _fetchBooks();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            TranslationService.translate(context, 'shelf_order_saved'),
+            TranslationService.translate(
+              context,
+              'shelf_order_saved_sort_hint',
+            ),
           ),
         ),
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

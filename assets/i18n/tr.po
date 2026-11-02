@@ -5224,9 +5224,13 @@ msgstr "Raf Adı"
 msgid "shelf_name_hint"
 msgstr "örn. Bilim Kurgu"
 
-#. Shelf order saved!
-msgid "shelf_order_saved"
-msgstr "Raf sırası kaydedildi!"
+#. Shelf order (sort field)
+msgid "sort_shelf_order"
+msgstr "Raf sırası"
+
+#. Order saved. The books on this shelf now follow your order.
+msgid "shelf_order_saved_sort_hint"
+msgstr "Sıralama kaydedildi. Bu raftaki kitaplar artık sizin sıranızı izliyor."
 
 #. Shelves
 msgid "shelf_statistics"
