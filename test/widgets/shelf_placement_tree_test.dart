@@ -2,6 +2,7 @@ import 'package:bibliogenius/models/tag.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/widgets/shelf_placement_tree.dart';
+import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -68,6 +69,64 @@ void main() {
     expect(
       tester.getTopLeft(find.text('Polar')).dx,
       greaterThan(tester.getTopLeft(find.text('Romans')).dx),
+    );
+  });
+
+  testWidgets('a child name starts right of its parent name, even under '
+      'the first-level icon', (tester) async {
+    await _pump(tester);
+    final salon = tester.getTopLeft(find.text('Salon')).dx;
+    final romans = tester.getTopLeft(find.text('Romans')).dx;
+    final polar = tester.getTopLeft(find.text('Polar')).dx;
+    expect(romans, greaterThan(salon));
+    expect(polar, greaterThan(romans));
+  });
+
+  testWidgets('a checked sub-shelf is tinted after its guide line, a '
+      'first-level one from the edge', (tester) async {
+    tester.view.physicalSize = const Size(800, 600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ThemeProvider>.value(
+        value: ThemeProvider(),
+        child: MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                ShelfTreeRow(
+                  key: const ValueKey('top'),
+                  name: 'Salon',
+                  checked: true,
+                  onTap: () {},
+                ),
+                ShelfTreeRow(
+                  key: const ValueKey('child'),
+                  name: 'Romans',
+                  depth: 1,
+                  checked: true,
+                  onTap: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    Rect tint(String key) => tester.getRect(
+      find.descendant(
+        of: find.byKey(ValueKey(key)),
+        matching: find.byWidgetPredicate(
+          (w) => w is Ink && w.decoration != null,
+        ),
+      ),
+    );
+    expect(tint('top').left, 0, reason: 'first level: the whole row');
+    // The parent's guide line stays outside the tint of its children.
+    expect(tint('child').left, greaterThan(20));
+    expect(
+      tint('child').left,
+      lessThan(tester.getTopLeft(find.text('Romans')).dx),
     );
   });
 

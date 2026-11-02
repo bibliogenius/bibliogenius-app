@@ -120,6 +120,14 @@ class ShelfTreeRow extends StatelessWidget {
         ? scheme.onPrimaryContainer
         : scheme.onSurface;
 
+    // A sub-shelf is tinted from just after its own guide line, so the
+    // lines of its parents stay outside the tint; a first-level shelf from
+    // the edge.
+    final tintStart = level == 0 ? 0.0 : _guideX(level) + 1;
+    final radius = level == 0
+        ? BorderRadius.circular(12)
+        : const BorderRadius.horizontal(right: Radius.circular(12));
+
     return Semantics(
       container: true,
       button: true,
@@ -130,8 +138,7 @@ class ShelfTreeRow extends StatelessWidget {
       onTap: onTap,
       excludeSemantics: true,
       child: Material(
-        color: tinted ? scheme.primaryContainer : Colors.transparent,
-        borderRadius: BorderRadius.circular(12),
+        color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(12),
@@ -141,53 +148,83 @@ class ShelfTreeRow extends StatelessWidget {
             // even when large text makes it taller.
             child: IntrinsicHeight(
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  for (var i = 0; i < level; i++)
-                    _GuideLine(color: scheme.outlineVariant),
-                  const SizedBox(width: 8),
-                  if (depth == 0) ...[
-                    Icon(Icons.shelves, size: 22, color: foreground),
-                    const SizedBox(width: 12),
-                  ],
+                  if (level > 0)
+                    SizedBox(
+                      width: tintStart,
+                      child: CustomPaint(
+                        painter: _GuideLinesPainter(
+                          levels: level,
+                          color: scheme.outlineVariant,
+                        ),
+                      ),
+                    ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+                    child: Ink(
+                      decoration: tinted
+                          ? BoxDecoration(
+                              color: scheme.primaryContainer,
+                              borderRadius: radius,
+                            )
+                          : null,
+                      child: Row(
                         children: [
-                          Text(
-                            name,
-                            style: theme.textTheme.bodyLarge?.copyWith(
+                          if (level == 0) ...[
+                            const SizedBox(width: _rowPadding),
+                            Icon(
+                              Icons.shelves,
+                              size: _iconSize,
                               color: foreground,
-                              fontWeight: depth == 0 || checked == true
-                                  ? FontWeight.w700
-                                  : FontWeight.w400,
                             ),
-                          ),
-                          if (subtitle != null)
-                            Text(
-                              subtitle!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: enabled
-                                    ? scheme.onSurfaceVariant
-                                    : foreground,
-                              ),
-                            ),
+                            const SizedBox(width: _iconGap),
+                          ] else
+                            const SizedBox(width: _childTextGap),
+                          Expanded(child: _buildLabels(theme, foreground)),
+                          if (trailing != null) ...[
+                            const SizedBox(width: 8),
+                            trailing!,
+                          ],
+                          const SizedBox(width: 8),
                         ],
                       ),
                     ),
                   ),
-                  if (trailing != null) ...[
-                    const SizedBox(width: 8),
-                    trailing!,
-                  ],
-                  const SizedBox(width: 8),
                 ],
               ),
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildLabels(ThemeData theme, Color foreground) {
+    final scheme = theme.colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            name,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: foreground,
+              fontWeight: depth == 0 || checked == true
+                  ? FontWeight.w700
+                  : FontWeight.w400,
+            ),
+          ),
+          if (subtitle != null)
+            Text(
+              subtitle!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: onTap != null ? scheme.onSurfaceVariant : foreground,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -218,17 +255,38 @@ class ShelfCheckMarker extends StatelessWidget {
   }
 }
 
-class _GuideLine extends StatelessWidget {
+// Row geometry. A first-level row shows the shelf icon; a sub-shelf hangs
+// its guide line under the right edge of that icon and starts its name just
+// past it, so a child always reads right of its parent, then each deeper
+// level moves [shelfTreeIndent] further.
+const double _rowPadding = 8;
+const double _iconSize = 22;
+const double _iconGap = 12;
+const double _childTextGap = 20;
+
+/// Centre of the guide line of level [k] (1 for a first-level parent).
+double _guideX(int k) =>
+    _rowPadding + _iconSize - 3 + (k - 1) * shelfTreeIndent;
+
+/// One vertical line per level above the row, over its whole height.
+class _GuideLinesPainter extends CustomPainter {
+  final int levels;
   final Color color;
 
-  const _GuideLine({required this.color});
+  const _GuideLinesPainter({required this.levels, required this.color});
 
   @override
-  Widget build(BuildContext context) {
-    // No height: the line takes the row's, set by [IntrinsicHeight].
-    return SizedBox(
-      width: shelfTreeIndent,
-      child: Center(child: Container(width: 2, color: color)),
-    );
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2;
+    for (var k = 1; k <= levels; k++) {
+      final x = _guideX(k);
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
+    }
   }
+
+  @override
+  bool shouldRepaint(_GuideLinesPainter old) =>
+      old.levels != levels || old.color != color;
 }
