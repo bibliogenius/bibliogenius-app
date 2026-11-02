@@ -1313,6 +1313,22 @@ void main() {
       expect(find.byKey(const Key('shelfBackButton')), findsOneWidget);
     });
 
+    testWidgets('the reorder action does not wear the sort pill glyph', (
+      tester,
+    ) async {
+      await _render(tester, shelf);
+      // The sort pill just below uses Icons.sort: the same glyph on the
+      // action made two different controls look like one.
+      expect(
+        find.descendant(of: reorder, matching: find.byIcon(Icons.swap_vert)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: reorder, matching: find.byIcon(Icons.sort)),
+        findsNothing,
+      );
+    });
+
     testWidgets('the shelves grid has no reorder action', (tester) async {
       await _render(
         tester,

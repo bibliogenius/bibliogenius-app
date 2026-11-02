@@ -653,7 +653,7 @@ class _BookListScreenState extends State<BookListScreen>
             // Reorder Button (Only when Tag Filter is Active)
             if (_tagFilter != null && !_isSearching)
               IconButton(
-                icon: const Icon(Icons.sort, color: Colors.white),
+                icon: const Icon(Icons.swap_vert, color: Colors.white),
                 tooltip: TranslationService.translate(context, 'reorder_shelf'),
                 onPressed: _startReordering,
               ),
@@ -1054,7 +1054,7 @@ class _BookListScreenState extends State<BookListScreen>
         // (entering the mode would drop it without a word).
         if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
           IconButton(
-            icon: const Icon(Icons.sort),
+            icon: const Icon(Icons.swap_vert),
             tooltip: TranslationService.translate(context, 'reorder_shelf'),
             onPressed: _startReordering,
           ),
