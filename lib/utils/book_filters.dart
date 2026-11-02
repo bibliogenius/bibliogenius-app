@@ -26,6 +26,19 @@ bool matchesDefaultView(Book book, {required bool showBorrowed}) {
   return book.owned || book.isOnLoan;
 }
 
+/// Whether [book] sits on no shelf: no subject that names one. Blank names
+/// are not shelves, and a genre is one. Same rule as the core's count behind
+/// the shelves tab's "to shelve" card, so the card announces the list it
+/// opens.
+bool isUnshelved(Book book) =>
+    !(book.subjects?.any((s) => s.trim().isNotEmpty) ?? false);
+
+/// Where the "to shelve" card leads: the books on no shelf, listed in the
+/// shelves tab (so back returns to the grid), selection armed, and scoped to
+/// the default view the card counts, whatever ownership axis the reader
+/// remembers. A deep-link axis is never written back to the preference.
+const String toShelveLocation = '/shelves?unshelved=1&select=1&owned=library';
+
 /// Values of the explicit ownership axis (ADR-063). Plain strings so they
 /// travel through the `/books?owned=` deep link unchanged.
 abstract final class OwnershipScope {

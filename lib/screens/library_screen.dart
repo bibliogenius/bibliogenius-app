@@ -25,7 +25,33 @@ class LibraryScreen extends StatefulWidget {
   final int initialIndex;
   final String? shelfTagFilter;
 
-  const LibraryScreen({super.key, this.initialIndex = 0, this.shelfTagFilter});
+  /// The shelves tab lists the books on no shelf instead of the grid: where
+  /// the "to shelve" card leads.
+  final bool shelfUnshelvedFilter;
+
+  /// That list opens with selection mode armed.
+  final bool shelfSelectOnOpen;
+
+  const LibraryScreen({
+    super.key,
+    this.initialIndex = 0,
+    this.shelfTagFilter,
+    this.shelfUnshelvedFilter = false,
+    this.shelfSelectOnOpen = false,
+  });
+
+  /// The `/shelves` route: `?tag=` opens a shelf's books, `?unshelved=1` the
+  /// books on no shelf (`&select=1` arms selection). Both render in the
+  /// shelves tab, so back returns to the grid.
+  factory LibraryScreen.forShelvesUri(Uri uri) {
+    final query = uri.queryParameters;
+    return LibraryScreen(
+      initialIndex: 1,
+      shelfTagFilter: query['tag'],
+      shelfUnshelvedFilter: query['unshelved'] == '1',
+      shelfSelectOnOpen: query['select'] == '1',
+    );
+  }
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -110,7 +136,9 @@ class _LibraryScreenState extends State<LibraryScreen>
     if (widget.initialIndex != oldWidget.initialIndex) {
       _tabController.animateTo(widget.initialIndex, duration: Duration.zero);
     }
-    if (widget.shelfTagFilter != oldWidget.shelfTagFilter) {
+    if (widget.shelfTagFilter != oldWidget.shelfTagFilter ||
+        widget.shelfUnshelvedFilter != oldWidget.shelfUnshelvedFilter ||
+        widget.shelfSelectOnOpen != oldWidget.shelfSelectOnOpen) {
       setState(() {});
     }
   }
@@ -305,12 +333,20 @@ class _LibraryScreenState extends State<LibraryScreen>
                   refreshNotifier: _refreshNotifier,
                   externalSearchQuery: _searchQuery,
                 ),
-                widget.shelfTagFilter != null
+                widget.shelfTagFilter != null || widget.shelfUnshelvedFilter
                     ? BookListScreen(
-                        key: ValueKey('shelf_${widget.shelfTagFilter}'),
+                        // A new list for each filter: the state of one shelf's
+                        // list (selection, scope) must not carry over.
+                        key: ValueKey(
+                          widget.shelfUnshelvedFilter
+                              ? 'shelf_unshelved'
+                              : 'shelf_${widget.shelfTagFilter}',
+                        ),
                         isTabView: true,
                         refreshNotifier: _refreshNotifier,
                         initialTagFilter: widget.shelfTagFilter,
+                        unshelvedOnly: widget.shelfUnshelvedFilter,
+                        startInSelection: widget.shelfSelectOnOpen,
                         showBackToShelves: true,
                         externalSearchQuery: _searchQuery,
                       )

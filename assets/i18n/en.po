@@ -12061,6 +12061,18 @@ msgstr "%d sub-shelf"
 msgid "sub_shelves_count_plural"
 msgstr "%d sub-shelves"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "To shelve"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "%d book on no shelf"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "%d books on no shelf"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "The books stay in your library; they just leave this shelf."

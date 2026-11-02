@@ -12296,6 +12296,18 @@ msgstr "%d 個のサブ本棚"
 msgid "sub_shelves_count_plural"
 msgstr "%d 個のサブ本棚"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "未整理"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "本棚にない本 %d 冊"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "本棚にない本 %d 冊"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "本はライブラリに残り、この本棚から外れるだけです。"

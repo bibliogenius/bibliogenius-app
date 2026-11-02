@@ -43,6 +43,9 @@ class _StaticTagRepository implements TagRepository {
 
   @override
   Future<void> deleteShelf(Tag tag) async {}
+
+  @override
+  Future<int> countUnshelvedBooks() async => 0;
 }
 
 const _shelfConcept =

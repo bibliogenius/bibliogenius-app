@@ -44,6 +44,9 @@ class _RecordingTagRepository implements TagRepository {
     deleted.add(tag.name);
     tags = tags.where((t) => t.id != tag.id).toList();
   }
+
+  @override
+  Future<int> countUnshelvedBooks() async => 0;
 }
 
 const _catalogue = {

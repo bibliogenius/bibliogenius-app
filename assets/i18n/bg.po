@@ -11935,6 +11935,18 @@ msgstr "%d подрафт"
 msgid "sub_shelves_count_plural"
 msgstr "%d подрафта"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "За подреждане"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "%d книга без полица"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "%d книги без полица"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Книгите остават в библиотеката ви; те само напускат този рафт."

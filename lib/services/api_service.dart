@@ -5095,6 +5095,15 @@ class ApiService {
     }
   }
 
+  /// Books in the default library view that sit on no shelf.
+  Future<int> countUnshelvedBooks() async {
+    if (useFfi) {
+      return FfiService().countUnshelvedBooks();
+    }
+    final response = await _dio.get('/api/tags/unshelved-count');
+    return (response.data['count'] as num).toInt();
+  }
+
   Future<Tag> createTag(String name, {String? parentId}) async {
     if (useFfi) {
       return FfiService().createTag(name, parentId: parentId);

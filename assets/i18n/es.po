@@ -11803,6 +11803,18 @@ msgstr "%d subestantería"
 msgid "sub_shelves_count_plural"
 msgstr "%d subestanterías"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "Por colocar"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "%d libro sin estantería"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "%d libros sin estantería"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Los libros permanecen en tu biblioteca; solo salen de esta estantería."

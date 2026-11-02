@@ -37,6 +37,9 @@ class _RecordingTagRepository implements TagRepository {
 
   @override
   Future<void> deleteShelf(Tag tag) async => throw UnimplementedError();
+
+  @override
+  Future<int> countUnshelvedBooks() async => 0;
 }
 
 Tag _shelf(String id, String name, {String? parentId}) =>

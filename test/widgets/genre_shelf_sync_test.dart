@@ -37,6 +37,9 @@ class _FakeTagRepository implements TagRepository {
 
   @override
   Future<void> deleteShelf(Tag tag) async => throw UnimplementedError();
+
+  @override
+  Future<int> countUnshelvedBooks() async => 0;
 }
 
 /// Mirrors how `add_book_screen` owns the shelves: ONE final list, mutated in

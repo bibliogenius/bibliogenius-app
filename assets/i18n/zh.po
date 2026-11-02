@@ -12296,6 +12296,18 @@ msgstr "%d 个子书架"
 msgid "sub_shelves_count_plural"
 msgstr "%d 个子书架"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "待整理"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "%d 本书不在任何书架上"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "%d 本书不在任何书架上"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "这些图书仍保留在您的图书馆中，只是离开此书架。"

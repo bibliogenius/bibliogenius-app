@@ -73,9 +73,13 @@ class MockBookRepository implements BookRepository {
 
 class MockTagRepository implements TagRepository {
   List<Tag> mockTags = [];
+  int mockUnshelvedCount = 0;
 
   @override
   Future<List<Tag>> getTags() async => mockTags;
+
+  @override
+  Future<int> countUnshelvedBooks() async => mockUnshelvedCount;
 
   @override
   Future<Tag> createTag(String name, {String? parentId}) async =>

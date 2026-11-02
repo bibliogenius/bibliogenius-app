@@ -484,7 +484,11 @@ class _Harness {
   final refresh = BookRefreshNotifier();
   final api = _OfflineApiService();
   final books = MockBookRepository()..mockBooks = _books;
-  final tags = MockTagRepository()..mockTags = _tags;
+  final tags = MockTagRepository()
+    ..mockTags = _tags
+    // Mrs Dalloway: owned, on no shelf. Neuromancer is on none either, but
+    // wished, so outside the default view the count covers.
+    ..mockUnshelvedCount = 1;
   final collections = MockCollectionRepository()
     ..mockCollections = _collections
     ..mockCollectionBooks = [
@@ -577,10 +581,7 @@ class _Harness {
             ),
             GoRoute(
               path: '/shelves',
-              builder: (_, state) => LibraryScreen(
-                initialIndex: 1,
-                shelfTagFilter: state.uri.queryParameters['tag'],
-              ),
+              builder: (_, state) => LibraryScreen.forShelvesUri(state.uri),
             ),
             GoRoute(
               path: '/collections',
@@ -767,6 +768,9 @@ class _Probe {
   });
 }
 
+/// Where the shelves tab's "to shelve" card leads.
+const _toShelveLocation = '/shelves?unshelved=1&select=1&owned=library';
+
 // Phone width puts the bottom-bar / drawer shell in play; the wide layout is
 // the navigation rail. Both are the first thing a reader navigates.
 const _phone = Size(390, 844);
@@ -826,6 +830,9 @@ final _probes = <_Probe>[
   ),
   const _Probe('library, shelves tab', '/shelves'),
   const _Probe('library, sub-shelves', '/shelves?tag=Genre'),
+  // The "to shelve" card's list: selection armed from the start, a header of
+  // its own in a tab that has no app bar.
+  const _Probe('library, to shelve', _toShelveLocation),
   // The collections module is off for a new reader and on for many others:
   // it adds a third library tab and groups the book list by collection.
   const _Probe(
@@ -1100,6 +1107,147 @@ void main() {
       final sent = harness.collections.lastAssignment!;
       expect(sent['bookIds'], ['b1']);
       expect(sent['removeShelves'], ['Novel']);
+    });
+  });
+
+  // The list behind the shelves tab's "to shelve" card, on the real route.
+  group('to shelve list on the real route', () {
+    final addTo = find.byKey(const Key('bulkAssignButton'));
+    final selectAll = find.byKey(const Key('selectAllBooksButton'));
+    final toShelve = _probes.firstWhere((p) => p.name == 'library, to shelve');
+
+    testWidgets('holds only the books on no shelf, selection armed', (
+      tester,
+    ) async {
+      await _render(tester, toShelve);
+
+      expect(find.text('To shelve'), findsOneWidget);
+      expect(find.text('1 book on no shelf'), findsOneWidget);
+      // Armed on arrival: the reader came here to pick books.
+      expect(addTo, findsOneWidget);
+      expect(find.text('0 selected'), findsOneWidget);
+      // Two books are on a shelf, the wished one is outside the default view:
+      // one remains.
+      await _tap(tester, selectAll);
+      expect(find.text('1 selected'), findsOneWidget);
+    });
+
+    testWidgets('keeps to the default view whatever axis is remembered', (
+      tester,
+    ) async {
+      // The card counts the default view; a remembered "everything" must not
+      // pull the wished book into the list it opens.
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'library_ownership_scope': 'all',
+      });
+      await _render(tester, toShelve);
+
+      await _tap(tester, selectAll);
+      expect(find.text('1 selected'), findsOneWidget);
+    });
+
+    testWidgets('back from the header returns to the shelves grid', (
+      tester,
+    ) async {
+      await _render(tester, toShelve);
+
+      await _tap(tester, find.byKey(const Key('toShelveBackButton')));
+
+      expect(addTo, findsNothing);
+      expect(find.byKey(const Key('toShelveCard')), findsOneWidget);
+      expect(find.text('Novel'), findsOneWidget);
+    });
+
+    testWidgets('waits for a page opened on top before giving the grid back', (
+      tester,
+    ) async {
+      final harness = await _render(tester, toShelve);
+      await _tap(tester, find.byTooltip('Cancel'));
+      await _tap(tester, find.text('Mrs Dalloway').first);
+      expect(find.byType(BookDetailsScreen), findsOneWidget);
+
+      // The last book gets a shelf from its own page: the list underneath
+      // empties, and must not pull the reader out of the page they are on.
+      harness.books.mockBooks = [
+        for (final b in _books)
+          if (b.id != 'b3') b,
+        Book(
+          id: 'b3',
+          title: 'Mrs Dalloway',
+          author: 'Virginia Woolf',
+          readingStatus: 'read',
+          subjects: ['Novel'],
+        ),
+      ];
+      harness.tags.mockUnshelvedCount = 0;
+      harness.refresh.refresh();
+      await _settle(tester);
+      expect(find.byType(BookDetailsScreen), findsOneWidget);
+
+      // Back on the emptied list: now it hands the grid back.
+      await tester.binding.handlePopRoute();
+      await _settle(tester);
+      expect(find.byType(BookDetailsScreen), findsNothing);
+      expect(find.byKey(const Key('toShelveCard')), findsNothing);
+      expect(find.text('Novel'), findsOneWidget);
+    });
+
+    testWidgets('a status filter that hides every book is not an empty list', (
+      tester,
+    ) async {
+      // Nothing on no shelf is being read, but Mrs Dalloway still waits: the
+      // reader stays where they filtered.
+      await _render(
+        tester,
+        const _Probe('to shelve, reading', '$_toShelveLocation&status=reading'),
+      );
+
+      expect(find.text('To shelve'), findsOneWidget);
+      expect(find.byKey(const Key('toShelveCard')), findsNothing);
+      // The header counts what is left to shelve, as the card did, not what
+      // the filter happens to show.
+      expect(find.text('1 book on no shelf'), findsOneWidget);
+    });
+
+    testWidgets('once its books are shelved, gives the grid back', (
+      tester,
+    ) async {
+      final harness = await _render(tester, toShelve);
+      await _tap(tester, selectAll);
+      await _tap(tester, addTo);
+
+      // What the filing writes, as the next read of the library sees it.
+      harness.books.mockBooks = [
+        for (final b in _books)
+          if (b.id != 'b3') b,
+        Book(
+          id: 'b3',
+          title: 'Mrs Dalloway',
+          author: 'Virginia Woolf',
+          readingStatus: 'read',
+          subjects: ['Novel'],
+        ),
+      ];
+      harness.tags.mockUnshelvedCount = 0;
+      final field = find.descendant(
+        of: find.byType(CollectionSelector),
+        matching: find.byType(TextFormField),
+      );
+      await tester.enterText(field, 'Summer reads');
+      await _tap(
+        tester,
+        find.descendant(
+          of: find.byType(CollectionSelector),
+          matching: find.byIcon(Icons.add),
+        ),
+      );
+      await _tap(tester, find.byKey(const Key('bulkAssignConfirmButton')));
+      await _settle(tester);
+
+      expect(addTo, findsNothing);
+      expect(find.byKey(const Key('toShelveCard')), findsNothing);
+      expect(find.text('Novel'), findsOneWidget);
     });
   });
 

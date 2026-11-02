@@ -44,6 +44,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     ),
   );
   List<Tag> _allTags = [];
+
+  /// Books in the default view on no shelf: drives the "to shelve" card.
+  int _unshelvedCount = 0;
   bool _isLoading = true;
   String? _error;
   Tag? _currentParent; // null = root level
@@ -82,13 +85,16 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   /// reader was in no longer exists or no longer has sub-shelves.
   Future<void> _loadTags() async {
     try {
-      final tags = await Provider.of<TagRepository>(
-        context,
-        listen: false,
-      ).getTags();
+      final repo = Provider.of<TagRepository>(context, listen: false);
+      // Both in flight at once; the count never throws, so a failed tag
+      // load still reaches the error state with its own message.
+      final unshelvedLoad = _loadUnshelvedCount(repo);
+      final tags = await repo.getTags();
+      final unshelved = await unshelvedLoad;
       if (!mounted) return;
       setState(() {
         _allTags = tags;
+        _unshelvedCount = unshelved;
         _error = null;
         _isLoading = false;
         _resolveLevel();
@@ -99,6 +105,17 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         _error = e.toString();
         _isLoading = false;
       });
+    }
+  }
+
+  /// The card is a shortcut: a failed count hides it rather than turning the
+  /// whole grid into an error.
+  Future<int> _loadUnshelvedCount(TagRepository repo) async {
+    try {
+      return await repo.countUnshelvedBooks();
+    } catch (e) {
+      debugPrint('ShelvesScreen: unshelved count failed: $e');
+      return 0;
     }
   }
 
@@ -344,8 +361,18 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     if (_error != null) {
       return _buildErrorState(_error!);
     }
+    // At the head of the tab only, never inside a shelf.
+    final showToShelve = _currentParent == null && _unshelvedCount > 0;
+
     if (_allTags.isEmpty) {
-      return _buildEmptyState(context);
+      // Books scanned before any shelf exists: the card is where to start.
+      if (!showToShelve) return _buildEmptyState(context);
+      return Column(
+        children: [
+          _buildToShelveCard(context),
+          Expanded(child: _buildEmptyState(context)),
+        ],
+      );
     }
 
     final visibleTags = _visibleTags;
@@ -355,6 +382,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       child: Column(
         children: [
           if (_currentParent != null) _buildLevelHeader(context),
+          if (showToShelve) _buildToShelveCard(context),
 
           // Shelves count badge
           if (visibleTags.isNotEmpty)
@@ -530,6 +558,86 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
             ),
           ],
         ],
+      ),
+    );
+  }
+
+  /// The books on no shelf, gathered in one card: a tap lists them in this
+  /// tab with selection armed, ready for the bulk shelving sheet. Coming back
+  /// to the grid remounts this screen, which reloads the count.
+  Widget _buildToShelveCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final radius = BorderRadius.circular(AppDesign.radiusMedium);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      // One button, read as its title then its count.
+      child: MergeSemantics(
+        key: const Key('toShelveCard'),
+        child: Semantics(
+          button: true,
+          child: Material(
+            color: scheme.primaryContainer,
+            borderRadius: radius,
+            child: InkWell(
+              borderRadius: radius,
+              onTap: () => context.go(toShelveLocation),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 14,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: scheme.primary,
+                        borderRadius: BorderRadius.circular(
+                          AppDesign.radiusSmall,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.move_to_inbox_outlined,
+                        color: scheme.onPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            TranslationService.translate(
+                              context,
+                              'to_shelve_title',
+                            ),
+                            style: textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: scheme.onPrimaryContainer,
+                            ),
+                          ),
+                          Text(
+                            _plural(
+                              context,
+                              'to_shelve_count',
+                              _unshelvedCount,
+                            ),
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: scheme.onPrimaryContainer,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: scheme.onPrimaryContainer),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

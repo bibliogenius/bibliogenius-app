@@ -1579,15 +1579,9 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
             ),
             GoRoute(
               path: '/shelves',
-              pageBuilder: (context, state) {
-                final tagFilter = state.uri.queryParameters['tag'];
-                return NoTransitionPage(
-                  child: LibraryScreen(
-                    initialIndex: 1,
-                    shelfTagFilter: tagFilter,
-                  ),
-                );
-              },
+              pageBuilder: (context, state) => NoTransitionPage(
+                child: LibraryScreen.forShelvesUri(state.uri),
+              ),
             ),
             GoRoute(
               path: '/feedback',

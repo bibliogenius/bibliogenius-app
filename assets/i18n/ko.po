@@ -12296,6 +12296,18 @@ msgstr "하위 책장 %d개"
 msgid "sub_shelves_count_plural"
 msgstr "하위 책장 %d개"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "정리할 책"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "책장에 없는 책 %d권"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "책장에 없는 책 %d권"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "책은 서재에 그대로 남고, 이 책장에서만 빠집니다."

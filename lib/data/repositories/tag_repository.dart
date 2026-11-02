@@ -3,6 +3,10 @@ import '../../models/tag.dart';
 abstract class TagRepository {
   Future<List<Tag>> getTags();
 
+  /// Books in the default library view that sit on no shelf (wished books
+  /// left out), for the "to shelve" card of the shelves tab.
+  Future<int> countUnshelvedBooks();
+
   Future<Tag> createTag(String name, {String? parentId});
 
   /// Update a tag addressed by its uuid (cross-device identity). The parent id

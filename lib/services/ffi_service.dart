@@ -140,6 +140,18 @@ class FfiService {
     }
   }
 
+  /// Books in the default library view that sit on no shelf. Zero on error:
+  /// the card it feeds then simply stays hidden.
+  Future<int> countUnshelvedBooks() async {
+    try {
+      final count = await frb.countUnshelvedBooks();
+      return count.toInt();
+    } catch (e) {
+      debugPrint('FFI countUnshelvedBooks error: $e');
+      return 0;
+    }
+  }
+
   /// Create a new tag
   Future<Tag> createTag(String name, {String? parentId}) async {
     try {

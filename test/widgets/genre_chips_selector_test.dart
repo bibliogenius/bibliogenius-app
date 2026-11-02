@@ -38,6 +38,9 @@ class _RecordingTagRepository implements TagRepository {
 
   @override
   Future<void> deleteShelf(Tag tag) async => throw UnimplementedError();
+
+  @override
+  Future<int> countUnshelvedBooks() async => 0;
 }
 
 /// Holds the shelves the way the add/edit screens do, so a tap round-trips

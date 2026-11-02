@@ -17,6 +17,9 @@ class TagRepositoryImpl implements TagRepository {
   }
 
   @override
+  Future<int> countUnshelvedBooks() => _apiService.countUnshelvedBooks();
+
+  @override
   Future<Tag> createTag(String name, {String? parentId}) {
     return _apiService.createTag(name, parentId: parentId);
   }

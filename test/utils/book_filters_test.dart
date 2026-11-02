@@ -597,4 +597,25 @@ void main() {
       );
     });
   });
+
+  // The "to shelve" list: the books the shelf badges credit to no shelf, the
+  // same rule as the core's count (blank names are not shelves).
+  group('isUnshelved', () {
+    Book withSubjects(List<String>? subjects) =>
+        Book(title: 'Le Livre', owned: true, subjects: subjects);
+
+    test('a book with no subjects, or an empty list, is on no shelf', () {
+      expect(isUnshelved(withSubjects(null)), isTrue);
+      expect(isUnshelved(withSubjects(const [])), isTrue);
+    });
+
+    test('blank names are not shelves', () {
+      expect(isUnshelved(withSubjects(const ['', '  '])), isTrue);
+    });
+
+    test('a book on one shelf, a genre included, is shelved', () {
+      expect(isUnshelved(withSubjects(const ['Polar'])), isFalse);
+      expect(isUnshelved(withSubjects(const ['  ', 'Genre'])), isFalse);
+    });
+  });
 }

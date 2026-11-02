@@ -57,6 +57,14 @@ class BookListScreen extends StatefulWidget {
   final String? initialTagFilter;
   final bool showBackToShelves;
 
+  /// Lists only the books on no shelf, under a "to shelve" header: where the
+  /// shelves tab's card leads. Once shelving empties it, the list hands the
+  /// grid back.
+  final bool unshelvedOnly;
+
+  /// Opens with selection mode armed, ready to file books in bulk.
+  final bool startInSelection;
+
   /// When provided (tab mode inside LibraryScreen), this drives the search
   /// query from the sticky sliver header. The internal search UI (filter bar
   /// icon + inline search field) is hidden in this case.
@@ -69,6 +77,8 @@ class BookListScreen extends StatefulWidget {
     this.refreshNotifier,
     this.initialTagFilter,
     this.showBackToShelves = false,
+    this.unshelvedOnly = false,
+    this.startInSelection = false,
     this.externalSearchQuery,
   });
 
@@ -238,6 +248,7 @@ class _BookListScreenState extends State<BookListScreen>
           _filterBooks();
         });
       }
+      if (widget.startInSelection) _enterSelection();
     });
   }
 
@@ -261,6 +272,13 @@ class _BookListScreenState extends State<BookListScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Subscribes to this route coming back on top, which is when an emptied
+    // "to shelve" list may leave (see _leaveToShelveListWhenEmpty).
+    if (widget.unshelvedOnly && (ModalRoute.isCurrentOf(context) ?? false)) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => _leaveToShelveListWhenEmpty(),
+      );
+    }
     final state = GoRouterState.of(context);
     final newTag = state.uri.queryParameters['tag'];
 
@@ -425,6 +443,10 @@ class _BookListScreenState extends State<BookListScreen>
               ? null
               : TranslationService.translate(context, 'my_library_title'));
 
+    if (widget.unshelvedOnly && !_isSearching) {
+      titleWidget = TranslationService.translate(context, 'to_shelve_title');
+    }
+
     if (_isReordering) {
       titleWidget = Text(
         TranslationService.translate(context, 'reordering_shelf') ??
@@ -512,6 +534,7 @@ class _BookListScreenState extends State<BookListScreen>
                   child: Row(children: [Expanded(child: _buildSearchField())]),
                 ),
 
+              if (widget.unshelvedOnly) _buildToShelveHeader(),
               _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
@@ -901,6 +924,7 @@ class _BookListScreenState extends State<BookListScreen>
           _filterBooks(); // Apply filters after fetching all books
           if (!silent) _isLoading = false;
         });
+        _leaveToShelveListWhenEmpty();
       }
     } catch (e) {
       if (mounted) {
@@ -908,6 +932,72 @@ class _BookListScreenState extends State<BookListScreen>
         debugPrint('Error loading books: $e');
       }
     }
+  }
+
+  /// The "to shelve" list exists to be emptied: once its last book is on a
+  /// shelf, the reader goes back to the grid instead of an empty page.
+  void _leaveToShelveListWhenEmpty() {
+    if (!widget.unshelvedOnly || !mounted || _isLoading) return;
+    // go() replaces the whole stack: from under a page pushed on top (the
+    // book being shelved, the shelving sheet) it would pull the reader out
+    // of it. didChangeDependencies calls back once this list is on top.
+    if (ModalRoute.isCurrentOf(context) == false) return;
+    if (_unshelvedLeft == 0) context.go('/shelves');
+  }
+
+  /// Books still to shelve, as the card counts them: the default view, not
+  /// what a status filter or a search shows. A filter that hides every book
+  /// is not an empty list.
+  int get _unshelvedLeft => _books
+      .where(
+        (b) =>
+            isUnshelved(b) &&
+            matchesDefaultView(b, showBorrowed: _showBorrowedConfig),
+      )
+      .length;
+
+  /// Header of the "to shelve" list, in a tab that has no app bar of its
+  /// own: where the reader is, how many books are left, and the way back.
+  Widget _buildToShelveHeader() {
+    final theme = Theme.of(context);
+    final count = _unshelvedLeft;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(4, 4, 16, 4),
+      child: Row(
+        children: [
+          IconButton(
+            key: const Key('toShelveBackButton'),
+            icon: Icon(Icons.adaptive.arrow_back),
+            tooltip: TranslationService.translate(context, 'back'),
+            onPressed: () => context.go('/shelves'),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Semantics(
+                  header: true,
+                  child: Text(
+                    TranslationService.translate(context, 'to_shelve_title'),
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                if (!_isLoading)
+                  Text(
+                    TranslationService.translate(
+                      context,
+                      count == 1 ? 'to_shelve_count' : 'to_shelve_count_plural',
+                    ).replaceAll('%d', '$count'),
+                    style: theme.textTheme.bodyMedium,
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   /// Loads the wishlist providers (shared Rust join) for the badge shown
@@ -1027,6 +1117,9 @@ class _BookListScreenState extends State<BookListScreen>
           showBorrowed: _showBorrowedConfig,
         );
         tempBooks = tempBooks.where(shelfPredicate).toList();
+      }
+      if (widget.unshelvedOnly) {
+        tempBooks = tempBooks.where(isUnshelved).toList();
       }
     }
 

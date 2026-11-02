@@ -12056,6 +12056,18 @@ msgstr "%d sous-étagère"
 msgid "sub_shelves_count_plural"
 msgstr "%d sous-étagères"
 
+#. Shelves tab card and list header: the books that sit on no shelf yet
+msgid "to_shelve_title"
+msgstr "À ranger"
+
+#. To shelve card and list: how many books sit on no shelf, singular
+msgid "to_shelve_count"
+msgstr "%d livre sur aucune étagère"
+
+#. To shelve card and list: how many books sit on no shelf, plural
+msgid "to_shelve_count_plural"
+msgstr "%d livres sur aucune étagère"
+
 #. Delete shelf dialog: the books are unfiled, not deleted
 msgid "delete_shelf_books_kept"
 msgstr "Les livres restent dans votre bibliothèque ; ils quittent seulement cette étagère."
