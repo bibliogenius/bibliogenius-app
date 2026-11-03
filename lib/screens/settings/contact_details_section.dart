@@ -23,10 +23,8 @@ class ContactDetailsSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
-      name: 'contact_details',
-      icon: Icons.contact_mail_outlined,
-      titleKey: 'my_contact_details_title',
+    return SettingsSection(
+      name: 'contact-details',
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),

@@ -13,7 +13,7 @@ import '../backup_restore_wizard_screen.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Backup and export accordion: the local copies of the library, then, in a
+/// Backup and export section: the local copies of the library, then, in a
 /// separate zone, what replaces it (restore, roll back). The encrypted
 /// account lives in "Account and devices".
 class BackupSettingsSection extends StatelessWidget {
@@ -31,10 +31,8 @@ class BackupSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'backup',
-      icon: Icons.backup_outlined,
-      titleKey: 'backup_section_title',
       children: [
         ...backupExportTiles(context),
         const SettingsCarefulZoneHeader(),

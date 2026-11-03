@@ -6,7 +6,7 @@ import '../../providers/theme_provider.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Features accordion: the quick presets, then the switch of each module
+/// Features section: the quick presets, then the switch of each module
 /// that has no section of its own. A module's options live in the section
 /// of what they change (loans, home page display, notifications).
 class ModulesSettingsSection extends StatelessWidget {
@@ -49,10 +49,8 @@ class ModulesSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
-      name: 'modules',
-      icon: Icons.extension_outlined,
-      titleKey: 'modules',
+    return SettingsSection(
+      name: 'features',
       children: [
         if (settingsMatches(context, [
           'quick_presets',

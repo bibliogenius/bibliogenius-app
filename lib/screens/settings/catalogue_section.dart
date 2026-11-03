@@ -11,7 +11,7 @@ import '../../utils/import_actions.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Catalogue accordion: what goes into the library and how it is kept tidy
+/// Catalogue section: what goes into the library and how it is kept tidy
 /// (file import, shelves, duplicates, formats, cover photos).
 class CatalogueSettingsSection extends StatefulWidget {
   const CatalogueSettingsSection({super.key});
@@ -59,10 +59,8 @@ class _CatalogueSettingsSectionState extends State<CatalogueSettingsSection> {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'catalogue',
-      icon: Icons.inventory_2_outlined,
-      titleKey: 'content',
       children: [
         ListTile(
           leading: Icon(Icons.import_contacts, color: Colors.orange.shade400),

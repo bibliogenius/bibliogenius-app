@@ -32,7 +32,7 @@
 // A guard only sees what its probe renders. The probe below mounts the real
 // screens of the main journey with realistic data, walks the states a reader
 // reaches (every library layout, the collections module, every settings
-// section open, the drawer and the rail) and scrolls each page one viewport
+// section page, the drawer and the rail) and scrolls each page one viewport
 // at a time, because a widget off screen is not in the tree. Screens and
 // states outside [_probes] are not covered.
 //
@@ -89,6 +89,9 @@ import 'package:bibliogenius/screens/dashboard_screen.dart';
 import 'package:bibliogenius/screens/library_screen.dart';
 import 'package:bibliogenius/screens/network_screen.dart';
 import 'package:bibliogenius/screens/profile_screen.dart';
+import 'package:bibliogenius/screens/settings/settings_scope.dart';
+import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
+import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
@@ -600,7 +603,11 @@ class _Harness {
               builder: (_, _) => const DashboardScreen(),
             ),
             GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
-            GoRoute(path: '/settings', builder: (_, _) => SettingsScreen()),
+            GoRoute(
+              path: '/settings',
+              builder: (_, _) => SettingsScreen(),
+              routes: [settingsSectionRoute],
+            ),
           ],
         ),
       ],
@@ -655,6 +662,7 @@ class _Harness {
           create: (_) => MetadataFillProvider(),
         ),
         ChangeNotifierProvider<BackupSchedulerService>.value(value: backups),
+        ChangeNotifierProvider<SettingsData>(create: (_) => SettingsData()),
       ],
       child: MaterialApp.router(routerConfig: router),
     );
@@ -856,9 +864,14 @@ final _probes = <_Probe>[
   ),
   const _Probe('profile', '/profile'),
   const _Probe('settings', '/settings'),
-  // Most of the settings page sits in collapsed sections, out of the tree
-  // until opened.
-  _Probe('settings, every section open', '/settings', reach: _expandAll),
+  // Each settings section has its own page, with its inner panels opened.
+  for (final group in settingsSectionGroups)
+    for (final section in group.sections)
+      _Probe(
+        'settings, ${section.name}',
+        '/settings/${section.name}',
+        reach: _expandAll,
+      ),
   // Navigation itself: the drawer (bottom bar off) and the rail (wide).
   _Probe(
     'drawer',
@@ -1051,9 +1064,7 @@ void main() {
       expect(selectButton, findsOneWidget);
     });
 
-    testWidgets('leaving the mode gives the grouped view back', (
-      tester,
-    ) async {
+    testWidgets('leaving the mode gives the grouped view back', (tester) async {
       // The view menu does not offer the grouped view: a reader moved to the
       // covers grid for the selection has no other way back to it.
       await _render(

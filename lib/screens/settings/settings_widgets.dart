@@ -1,47 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../services/translation_service.dart';
 import '../../widgets/contextual_help_sheet.dart';
 import 'settings_scope.dart';
+import 'settings_sections.dart';
 
-/// One settings section: a card holding a collapsed accordion, opened on its
-/// own while a search is running.
-class SettingsAccordion extends StatelessWidget {
-  const SettingsAccordion({
+/// The body of one settings section, in a card. On the section's own page it
+/// is the whole content, under the page title. In the search results it sits
+/// under its title, which opens that page.
+class SettingsSection extends StatelessWidget {
+  const SettingsSection({
     super.key,
     required this.name,
-    required this.icon,
-    required this.titleKey,
     required this.children,
-    this.expandedCrossAxisAlignment,
+    this.crossAxisAlignment = CrossAxisAlignment.center,
   });
 
-  /// Stable name of the section, used to key its tile.
+  /// The section's name in [settingsSectionGroups].
   final String name;
-  final IconData icon;
-  final String titleKey;
   final List<Widget> children;
-  final CrossAxisAlignment? expandedCrossAxisAlignment;
+  final CrossAxisAlignment crossAxisAlignment;
 
   @override
   Widget build(BuildContext context) {
+    final body = Column(
+      crossAxisAlignment: crossAxisAlignment,
+      children: children,
+    );
+    if (!settingsIsSearching(context)) {
+      return Card(
+        margin: EdgeInsets.zero,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: body,
+        ),
+      );
+    }
+    final section = settingsSectionNamed(name)!;
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ExpansionTile(
-        // A new key when the search starts or ends, so the tile picks up
-        // initiallyExpanded again.
-        key: ValueKey('${name}_${settingsIsSearching(context)}'),
-        initiallyExpanded: settingsIsSearching(context),
-        expandedCrossAxisAlignment: expandedCrossAxisAlignment,
-        leading: Icon(icon),
-        title: Semantics(
-          header: true,
-          child: Text(
-            TranslationService.translate(context, titleKey),
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ListTile(
+            leading: Icon(section.icon),
+            title: Semantics(
+              header: true,
+              child: Text(
+                TranslationService.translate(context, section.titleKey),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/settings/$name'),
           ),
-        ),
-        children: children,
+          body,
+        ],
       ),
     );
   }

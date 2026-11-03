@@ -11,7 +11,7 @@ import '../../services/translation_service.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Account and devices accordion: the encrypted account (backup, recovery
+/// Account and devices section: the encrypted account (backup, recovery
 /// after a loss, other devices), shared access, two-factor authentication
 /// and the session.
 class AccountSettingsSection extends StatefulWidget {
@@ -40,10 +40,8 @@ class _AccountSettingsSectionState extends State<AccountSettingsSection> {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'account',
-      icon: Icons.devices,
-      titleKey: 'settings_account_devices_title',
       children: [
         const AccountSyncTile(),
         ListTile(
@@ -275,7 +273,7 @@ class _AccountSettingsSectionState extends State<AccountSettingsSection> {
 }
 
 /// Tile pointing to the encrypted-account hub (backup + recovery + shared
-/// access). Reused by the "Account and devices" accordion (default: pushes
+/// access). Reused by the "Account and devices" section (default: pushes
 /// the hub screen) and the backup capability sheet ([onTap] swaps the sheet
 /// content in place instead of stacking a full screen on the popin).
 class AccountSyncTile extends StatelessWidget {

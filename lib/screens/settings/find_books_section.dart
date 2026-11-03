@@ -5,7 +5,7 @@ import 'search_sources_section.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Find books accordion: where lookups go (search sources), then where to
+/// Find books section: where lookups go (search sources), then where to
 /// buy or borrow (bookshops and libraries).
 class FindBooksSettingsSection extends StatelessWidget {
   const FindBooksSettingsSection({super.key});
@@ -18,11 +18,9 @@ class FindBooksSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return const SettingsAccordion(
-      name: 'find_books',
-      icon: Icons.saved_search,
-      titleKey: 'settings_find_books_title',
-      expandedCrossAxisAlignment: CrossAxisAlignment.start,
+    return const SettingsSection(
+      name: 'find-books',
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SearchSourcesSettings(),
         Divider(height: 1),

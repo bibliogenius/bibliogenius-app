@@ -12,7 +12,7 @@ import '../../themes/base/theme_registry.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Display accordion: theme, text size, navigation style and what the home
+/// Display section: theme, text size, navigation style and what the home
 /// page shows.
 class ThemeSettingsSection extends StatelessWidget {
   const ThemeSettingsSection({super.key});
@@ -47,10 +47,8 @@ class ThemeSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
-      name: 'theme',
-      icon: Icons.palette_outlined,
-      titleKey: 'theme_title',
+    return SettingsSection(
+      name: 'display',
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),

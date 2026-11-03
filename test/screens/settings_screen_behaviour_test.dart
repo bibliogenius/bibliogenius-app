@@ -1,7 +1,8 @@
 // Pins what the settings page does. Each test names a behaviour the reader
 // relies on, not a layout. They were written before the page was split into
 // one file per section and passed unchanged on both; the reorganisation only
-// changed where the presets sit (now inside Features).
+// changed where the presets sit (now inside Features), and the section pages
+// only how a section opens (a page instead of an accordion).
 //
 // - A quick preset confirms itself with the `preset_applied` SnackBar, also on
 //   a first launch (no saved preference at all).
@@ -9,6 +10,7 @@
 // - Each `/settings?focus=` deep link (dashboard tiles, help topics) opens the
 //   sheet it targets.
 // - Each setting has a single place, and a search finds it there.
+// - Each section has its own page; a search result's title opens it.
 
 import 'dart:async';
 import 'dart:io';
@@ -29,6 +31,9 @@ import 'package:bibliogenius/providers/hub_directory_provider.dart';
 import 'package:bibliogenius/providers/notification_provider.dart';
 import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
+import 'package:bibliogenius/screens/settings/settings_scope.dart';
+import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
+import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
@@ -132,6 +137,7 @@ Future<ThemeProvider> _pumpSettings(
         path: '/settings',
         builder: (_, state) =>
             SettingsScreen(initialFocus: state.uri.queryParameters['focus']),
+        routes: [settingsSectionRoute],
       ),
     ],
   );
@@ -154,6 +160,7 @@ Future<ThemeProvider> _pumpSettings(
         ChangeNotifierProvider<FlashMessageProvider>(
           create: (_) => FlashMessageProvider(),
         ),
+        ChangeNotifierProvider<SettingsData>(create: (_) => SettingsData()),
         ChangeNotifierProvider<BackupSchedulerService>(
           create: (_) => BackupSchedulerService(
             prefs: prefs,
@@ -183,17 +190,24 @@ Future<void> _settle(WidgetTester tester) async {
 }
 
 /// [key] in the language the page renders, so a reworded label in the .po
-/// files does not break the test.
+/// files does not break the test. Read from the navigator, which stays
+/// onstage when a section page covers the list.
 String _t(WidgetTester tester, String key) => TranslationService.translate(
-  tester.element(find.byType(SettingsScreen)),
+  tester.element(find.byType(Navigator).first),
   key,
 );
 
-/// Opens the section titled [titleKey].
+/// Opens the page of the section titled [titleKey] from the section list.
 Future<void> _openSection(WidgetTester tester, String titleKey) async {
-  final title = find.text(_t(tester, titleKey));
-  await tester.ensureVisible(title);
-  await tester.tap(title);
+  final entry = find.widgetWithText(ListTile, _t(tester, titleKey));
+  await tester.ensureVisible(entry);
+  await tester.tap(entry);
+  await _settle(tester);
+}
+
+/// Leaves a section page for the section list.
+Future<void> _goBack(WidgetTester tester) async {
+  await tester.tap(find.byTooltip(_t(tester, 'back')));
   await _settle(tester);
 }
 
@@ -303,19 +317,16 @@ void main() {
     expect(theme, findsNothing);
   });
 
-  testWidgets('a relay connection completes with the Network section closed', (
+  testWidgets('a relay connection completes with the Network page closed', (
     tester,
   ) async {
     final api = _RelayApiService();
     final hub = _RecordingHubDirectoryProvider();
     await _pumpSettings(tester, api: api, hub: hub);
 
-    final network = find.text(_t(tester, 'settings_network_title'));
     final details = find.text(_t(tester, 'settings_remote_reachable_details'));
     Future<void> openRelayDetails() async {
-      await tester.ensureVisible(network);
-      await tester.tap(network);
-      await _settle(tester);
+      await _openSection(tester, 'settings_network_title');
       await tester.ensureVisible(details);
       await tester.tap(details);
       await _settle(tester);
@@ -329,9 +340,7 @@ void main() {
     expect(api.setupCalls, 1);
 
     // Close Network before the hub answers.
-    await tester.ensureVisible(network);
-    await tester.tap(network);
-    await _settle(tester);
+    await _goBack(tester);
     expect(connect, findsNothing);
 
     api.setupReply.complete(
@@ -450,6 +459,72 @@ void main() {
     await tester.enterText(find.byType(TextField).first, 'mcp');
     await _settle(tester);
     expect(version, findsNothing);
+  });
+
+  group('section pages', () {
+    Finder pageTitle(WidgetTester tester, String titleKey) => find.descendant(
+      of: find.byType(AppBar),
+      matching: find.text(_t(tester, titleKey)),
+    );
+
+    for (final section in [
+      for (final group in settingsSectionGroups) ...group.sections,
+    ]) {
+      testWidgets('the list opens ${section.name} on its own page', (
+        tester,
+      ) async {
+        await _pumpSettings(tester);
+        await _openSection(tester, section.titleKey);
+
+        expect(pageTitle(tester, section.titleKey), findsOneWidget);
+        expect(
+          find.text(_t(tester, 'settings_springboard_title')),
+          findsNothing,
+        );
+      });
+    }
+
+    testWidgets('a link to a section page opens it', (tester) async {
+      await _pumpSettings(tester, location: '/settings/backup');
+      expect(pageTitle(tester, 'backup_section_title'), findsOneWidget);
+
+      await _goBack(tester);
+      expect(
+        find.text(_t(tester, 'settings_springboard_title')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a link to an unknown section leads to the list', (
+      tester,
+    ) async {
+      await _pumpSettings(tester, location: '/settings/nothing-here');
+      expect(
+        find.text(_t(tester, 'settings_springboard_title')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a search result title opens the whole section', (
+      tester,
+    ) async {
+      await _pumpSettings(tester);
+      await tester.enterText(find.byType(TextField).first, 'mcp');
+      await _settle(tester);
+      final reset = find.text(_t(tester, 'system_reset_title'));
+      expect(reset, findsNothing);
+
+      await _openSection(tester, 'modules_group_advanced');
+      expect(pageTitle(tester, 'modules_group_advanced'), findsOneWidget);
+      // Unfiltered: the page shows what the search left out.
+      await tester.ensureVisible(reset);
+      expect(reset, findsOneWidget);
+
+      // Back to the results, search kept.
+      await _goBack(tester);
+      expect(find.text(_t(tester, 'mcp_integration')), findsOneWidget);
+      expect(reset, findsNothing);
+    });
   });
 
   group('focus deep links', () {

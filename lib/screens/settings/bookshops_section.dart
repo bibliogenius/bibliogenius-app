@@ -9,7 +9,7 @@ import 'settings_scope.dart';
 
 /// Bookshops and libraries: the outbound bridges to book-selling websites
 /// (independent-bookshop portals on wanted books' pages) and the libraries
-/// the reader uses. Shown inside the "Find books" accordion.
+/// the reader uses. Shown inside the "Find books" section.
 class BookshopsSettings extends StatelessWidget {
   const BookshopsSettings({super.key});
 

@@ -14,7 +14,7 @@ import '../../utils/backup_actions.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Advanced accordion: AI assistants, the operation log, the experimental
+/// Advanced section: AI assistants, the operation log, the experimental
 /// hierarchical shelves and the version; then, in a separate zone, the reset.
 class AdvancedSettingsSection extends StatefulWidget {
   const AdvancedSettingsSection({super.key});
@@ -68,10 +68,8 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
         ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'advanced',
-      icon: Icons.tune,
-      titleKey: 'modules_group_advanced',
       children: [
         _buildMcpModuleToggle(),
         SettingsToggleCard(

@@ -100,6 +100,8 @@ import 'screens/borrow_requests_screen.dart';
 import 'screens/library_screen.dart';
 import 'screens/feedback_screen.dart';
 import 'screens/settings_screen.dart';
+import 'screens/settings/settings_scope.dart';
+import 'screens/settings/settings_section_screen.dart';
 import 'screens/migration_wizard_screen.dart';
 
 import 'screens/external_search_screen.dart';
@@ -817,6 +819,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<OwnershipPreferenceProvider>(
           create: (_) => OwnershipPreferenceProvider()..load(),
         ),
+        // Shared by the settings list and the section pages stacked on it.
+        ChangeNotifierProvider<SettingsData>(create: (_) => SettingsData()),
       ],
       child: const AppRouter(),
     );
@@ -1490,6 +1494,8 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   path: 'migration-wizard',
                   builder: (context, state) => const MigrationWizardScreen(),
                 ),
+                // After migration-wizard, which it would otherwise match.
+                settingsSectionRoute,
               ],
             ),
             GoRoute(
@@ -1740,11 +1746,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
           // flash bar only rebuilds for providers it depends on.
           condition: (ctx) =>
               Provider.of<MetadataFillProvider>(ctx).suggestsFailedImport,
-          excludedRoutes: [
-            '/onboarding',
-            '/settings',
-            '/library-completeness',
-          ],
+          excludedRoutes: ['/onboarding', '/settings', '/library-completeness'],
           contentBuilder: (ctx, dismiss) => const _FlashReimportToComplete(),
         ),
       );

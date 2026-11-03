@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../widgets/genie_app_bar.dart';
@@ -14,19 +15,12 @@ import '../theme/app_design.dart';
 import '../widgets/account_sync_summary_sheet.dart';
 import '../widgets/goal_tile.dart';
 import 'settings/account_section.dart';
-import 'settings/advanced_section.dart';
 import 'settings/backup_section.dart';
-import 'settings/catalogue_section.dart';
-import 'settings/contact_details_section.dart';
-import 'settings/find_books_section.dart';
 import 'settings/languages_section.dart';
-import 'settings/loans_section.dart';
-import 'settings/modules_section.dart';
 import 'settings/network_section.dart';
-import 'settings/notifications_section.dart';
 import 'settings/settings_scope.dart';
+import 'settings/settings_sections.dart';
 import 'settings/settings_widgets.dart';
-import 'settings/theme_section.dart';
 
 class SettingsScreen extends StatefulWidget {
   /// When set (via `/settings?focus=...`), the matching capability bottom sheet
@@ -42,8 +36,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  // What the sections share, loaded once on open (see SettingsData).
-  final _data = SettingsData();
+  // What the sections share, loaded again on each open (see SettingsData).
+  late final SettingsData _data;
   // Settings search
   String _settingsSearch = '';
   final _settingsSearchController = TextEditingController();
@@ -51,10 +45,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _data = context.read<SettingsData>();
     _data.addListener(_onDataChanged);
-    _fetchSettings();
-    // Load hub directory config + preferences (non-blocking)
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // After the frame: loading notifies the shared data's listeners, which
+      // may be building.
+      _fetchSettings();
+      // Load hub directory config + preferences (non-blocking)
       final hubProvider = context.read<HubDirectoryProvider>();
       final themeProvider = context.read<ThemeProvider>();
       hubProvider.loadConfig().then((_) {
@@ -116,7 +113,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void dispose() {
     _data.removeListener(_onDataChanged);
-    _data.dispose();
     _settingsSearchController.dispose();
     super.dispose();
   }
@@ -191,9 +187,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// Opens a focused bottom sheet for a springboard capability: an optional
   /// goal-phrased title + the relevant toggle(s)/actions, reusing the same
-  /// widgets shown in the settings accordions. Lighter and more reliable than
-  /// navigating into the long accordion list (no scroll math; dismiss with a
-  /// swipe).
+  /// widgets shown in the section pages. Lighter than a whole section page
+  /// (only what the goal needs; dismiss with a swipe).
   Future<void> _showCapabilitySheet(
     BuildContext context, {
     IconData? icon,
@@ -261,7 +256,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Goal-oriented shortcuts (four at most) shown above the sections when the
   /// search box is empty. Each tile is phrased as something the user wants to
   /// DO (not a subsystem name), making capabilities discoverable without
-  /// spelunking the accordions. Each opens a focused bottom sheet with the
+  /// browsing the sections. Each opens a focused bottom sheet with the
   /// relevant capability, built from the widgets of its section.
   Widget _buildSpringboard(BuildContext context) {
     return Column(
@@ -448,49 +443,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Common-search shortcuts (hidden during search)
-                if (!_isSearching) _buildSpringboard(context),
-
-                // Each section is keyed: the springboard and the group headers
-                // leave the column while searching, and the sections must keep
-                // their state (loan settings, peer cover cache size) across
-                // that shift. The headers go because a search stacks the
-                // matching sections, whatever their group.
-                if (!_isSearching)
-                  const SettingsGroupHeader('settings_group_library'),
-                const CatalogueSettingsSection(
-                  key: ValueKey('catalogue_section'),
-                ),
-                const LoansSettingsSection(key: ValueKey('loans_section')),
-                const FindBooksSettingsSection(
-                  key: ValueKey('find_books_section'),
-                ),
-
-                if (!_isSearching)
-                  const SettingsGroupHeader('settings_group_sharing'),
-                const NetworkSettingsSection(key: ValueKey('network_section')),
-                const ContactDetailsSettingsSection(
-                  key: ValueKey('contact_details_section'),
-                ),
-
-                if (!_isSearching)
-                  const SettingsGroupHeader('settings_group_app'),
-                const ThemeSettingsSection(key: ValueKey('theme_section')),
-                const LanguagesSettingsSection(
-                  key: ValueKey('languages_section'),
-                ),
-                const ModulesSettingsSection(key: ValueKey('modules_section')),
-                const NotificationsSettingsSection(
-                  key: ValueKey('notifications_section'),
-                ),
-
-                if (!_isSearching)
-                  const SettingsGroupHeader('settings_group_account'),
-                const AccountSettingsSection(key: ValueKey('account_section')),
-                const BackupSettingsSection(key: ValueKey('backup_section')),
-                const AdvancedSettingsSection(
-                  key: ValueKey('advanced_section'),
-                ),
+                // Empty search: the shortcuts, then the list of sections.
+                // A search stacks the matching sections instead, whatever
+                // their group, each under a title that opens its page.
+                if (!_isSearching) ...[
+                  _buildSpringboard(context),
+                  for (final group in settingsSectionGroups)
+                    ..._buildSectionGroup(context, group),
+                ] else
+                  for (final group in settingsSectionGroups)
+                    for (final section in group.sections)
+                      section.builder(key: ValueKey('${section.name}_section')),
                 const SizedBox(height: 100),
               ],
             ),
@@ -498,6 +461,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  /// A group header, then a card listing the group's sections. Each entry
+  /// opens the section's page.
+  List<Widget> _buildSectionGroup(
+    BuildContext context,
+    SettingsSectionGroup group,
+  ) {
+    return [
+      SettingsGroupHeader(group.titleKey),
+      Card(
+        margin: const EdgeInsets.only(bottom: 12),
+        child: Column(
+          children: [
+            for (final section in group.sections)
+              ListTile(
+                leading: Icon(section.icon),
+                title: Text(
+                  TranslationService.translate(context, section.titleKey),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.push('/settings/${section.name}'),
+              ),
+          ],
+        ),
+      ),
+    ];
   }
 
   /// Backup capability sheet (springboard tile + dashboard deep-link): the

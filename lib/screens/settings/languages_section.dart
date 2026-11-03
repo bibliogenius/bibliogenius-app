@@ -15,7 +15,7 @@ import 'settings_widgets.dart';
 
 const Map<String, String> _availableLanguages = kLanguageNativeNames;
 
-/// Languages accordion
+/// Languages section
 class LanguagesSettingsSection extends StatelessWidget {
   const LanguagesSettingsSection({super.key});
 
@@ -30,10 +30,8 @@ class LanguagesSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'languages',
-      icon: Icons.translate,
-      titleKey: 'languages_section',
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -130,7 +128,7 @@ class LanguagesSettingsSection extends StatelessWidget {
 
 /// Reading languages: subtitle + selectable chips.
 /// Reading-language subtitle + selectable chips. Self-contained (wraps its
-/// own [Consumer]) so it renders in the Languages accordion and in the
+/// own [Consumer]) so it renders in the Languages section and in the
 /// springboard "Add a reading language" bottom sheet.
 class ReadingLanguagesField extends StatelessWidget {
   const ReadingLanguagesField({super.key});

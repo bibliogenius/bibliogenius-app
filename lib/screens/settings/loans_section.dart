@@ -7,7 +7,7 @@ import '../../services/ffi_service.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Loans accordion: lending and borrowing, and how loans behave.
+/// Loans section: lending and borrowing, and how loans behave.
 class LoansSettingsSection extends StatefulWidget {
   const LoansSettingsSection({super.key});
 
@@ -49,10 +49,8 @@ class _LoansSettingsSectionState extends State<LoansSettingsSection> {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'loans',
-      icon: Icons.handshake_outlined,
-      titleKey: 'modules_group_lending',
       children: [
         SettingsToggleCard(
           titleKey: 'enable_lending_module',

@@ -5,7 +5,7 @@ import '../../providers/theme_provider.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Notifications accordion: the main switch, then what it lets through.
+/// Notifications section: the main switch, then what it lets through.
 class NotificationsSettingsSection extends StatelessWidget {
   const NotificationsSettingsSection({super.key});
 
@@ -25,10 +25,8 @@ class NotificationsSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'notifications',
-      icon: Icons.notifications_outlined,
-      titleKey: 'settings_notifications',
       children: [
         SettingsToggleCard(
           titleKey: 'settings_notif_enabled',

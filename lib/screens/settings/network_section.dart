@@ -16,7 +16,7 @@ import '../../services/ffi_service.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
-/// Network accordion (local + remote reachability + public directory)
+/// Network section (local + remote reachability + public directory)
 class NetworkSettingsSection extends StatelessWidget {
   const NetworkSettingsSection({super.key});
 
@@ -33,10 +33,8 @@ class NetworkSettingsSection extends StatelessWidget {
     ])) {
       return const SizedBox.shrink();
     }
-    return SettingsAccordion(
+    return SettingsSection(
       name: 'network',
-      icon: Icons.wifi,
-      titleKey: 'settings_network_title',
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
@@ -448,7 +446,7 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
     );
   }
 
-  /// Relay technical details shown inside the accordion.
+  /// Relay technical details shown inside the section.
   Widget _buildRelayDetails(BuildContext context) {
     final api = Provider.of<ApiService>(context, listen: false);
     return Padding(
@@ -597,7 +595,7 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
 }
 
 /// The local-network (Wi-Fi/mDNS) toggle card. Self-contained (wraps its own
-/// [Consumer]) so it renders both inside the Network accordion and inside the
+/// [Consumer]) so it renders both inside the Network section and inside the
 /// springboard "Partager sur mon réseau Wi-Fi" bottom sheet.
 class LocalNetworkCard extends StatelessWidget {
   const LocalNetworkCard({super.key});
@@ -649,7 +647,7 @@ class DirectorySettings extends StatefulWidget {
   /// Adds the "what another library receives" shortcut at the bottom of the
   /// card. Set on the standalone capability sheet, where the user is deciding
   /// whether to make themselves visible and has nothing else on screen; left
-  /// off inside the Network accordion, which already carries the same shortcut
+  /// off inside the Network section, which already carries the same shortcut
   /// in its privacy sub-group.
   final bool showPeerViewLink;
 

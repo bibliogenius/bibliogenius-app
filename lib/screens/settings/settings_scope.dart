@@ -13,9 +13,11 @@ import '../../utils/settings_search.dart';
 /// library config and user info, the search-source preferences, the relay
 /// connection and the text fields they fill.
 ///
-/// The page owns it and hands it to its sections through [SettingsScope]. A
-/// section mutates the fields it owns and rebuilds itself with `setState`;
-/// [load] and [autoConnectRelay] notify, since they finish on their own time.
+/// The app provides it, so the section list and a section page stacked on top
+/// of it share one copy; the pages hand it to their sections through
+/// [SettingsScope]. A section mutates the fields it owns and rebuilds itself
+/// with `setState`; [load] and [autoConnectRelay] notify, since they finish on
+/// their own time.
 class SettingsData extends ChangeNotifier {
   bool isLoading = true;
   Map<String, dynamic>? config;
@@ -40,6 +42,7 @@ class SettingsData extends ChangeNotifier {
   ThemeProvider? _theme;
   HubDirectoryProvider? _hub;
   bool _disposed = false;
+  bool _loadStarted = false;
 
   void _notify() {
     if (!_disposed) notifyListeners();
@@ -55,6 +58,7 @@ class SettingsData extends ChangeNotifier {
     _api = api;
     _theme = theme;
     _hub = hub;
+    _loadStarted = true;
 
     isLoading = true;
     _notify();
@@ -148,6 +152,16 @@ class SettingsData extends ChangeNotifier {
     }
   }
 
+  /// Loads unless a load already started, for a section page opened without
+  /// the section list below it.
+  Future<void> ensureLoaded(
+    ApiService api,
+    ThemeProvider theme,
+    HubDirectoryProvider hub,
+  ) async {
+    if (!_loadStarted) await load(api, theme, hub);
+  }
+
   /// Loads again with what the last [load] was given.
   Future<void> reload() async {
     final api = _api, theme = _theme, hub = _hub;
@@ -186,7 +200,7 @@ class SettingsData extends ChangeNotifier {
 
   /// Connects the relay at [url], from the Connect button. Lives here and not
   /// in the Network section so it completes (state, notification, published
-  /// credentials) even when the section is collapsed or hidden by a search
+  /// credentials) even when the section page is closed or hidden by a search
   /// before the hub answers. Returns null on success, else the error to show.
   Future<String?> connectRelay(
     ApiService api,
@@ -242,9 +256,10 @@ class SettingsData extends ChangeNotifier {
   }
 }
 
-/// Hands the page's [SettingsData] and the current search query to its
-/// sections, including those shown in a capability bottom sheet (which sits
-/// outside the page's subtree and gets its own scope).
+/// Hands the [SettingsData] and the current search query to the sections of a
+/// settings page, including those shown in a capability bottom sheet (which
+/// sits outside the page's subtree and gets its own scope). A section page
+/// has no search: its scope holds an empty query.
 class SettingsScope extends InheritedNotifier<SettingsData> {
   const SettingsScope({
     super.key,

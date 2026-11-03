@@ -10,7 +10,7 @@ import '../../services/translation_service.dart';
 import 'settings_scope.dart';
 
 /// Search sources: where a lookup by ISBN or title goes. Shown inside the
-/// "Find books" accordion.
+/// "Find books" section.
 class SearchSourcesSettings extends StatefulWidget {
   const SearchSourcesSettings({super.key});
 
