@@ -18,6 +18,10 @@ import 'package:bibliogenius/services/translation_service.dart';
 /// stay, the sub-shelves move up one level. The management screen used to
 /// delete the whole subtree from Dart while the shelves tab let the core move
 /// the children to the root: same word, two results, two different warnings.
+///
+/// The management screen still asks first; the shelves tab deletes at once
+/// and offers Undo. Both state the rule, word for word: in the dialog there,
+/// in the message here.
 
 class _RecordingTagRepository implements TagRepository {
   List<Tag> tags;
@@ -59,6 +63,8 @@ const _catalogue = {
         'Its %d sub-shelves move up one level.',
     'delete': 'Delete',
     'cancel': 'Cancel',
+    'shelf_deleted_named': 'Shelf "%s" deleted.',
+    'action_undo': 'Undo',
     'shelf_actions_named': 'Actions for {name}',
     'move_shelf_named': 'Move {name}',
     'shelf_collapse_named': 'Collapse {name}',
@@ -83,6 +89,20 @@ List<Tag> _tree() => [
   Tag(id: 'r', name: 'Roman', parentId: 'g', count: 3),
   Tag(id: 'p', name: 'Polar', parentId: 'g', count: 2),
 ];
+
+/// Every text of the message on screen.
+List<String> _messageTexts(WidgetTester tester) => tester
+    .widgetList<Text>(
+      find.descendant(of: find.byType(SnackBar), matching: find.byType(Text)),
+    )
+    .map((t) => t.data ?? '')
+    .toList();
+
+/// Past the five seconds of an Undo message, so no timer outlives the test.
+Future<void> _letMessageGo(WidgetTester tester) async {
+  await tester.pump(const Duration(seconds: 6));
+  await tester.pumpAndSettle();
+}
 
 /// Every text of the open dialog, in reading order.
 List<String> _dialogTexts(WidgetTester tester) => tester
@@ -136,7 +156,7 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Future<List<String>> openDeleteFromShelvesTab(
+  Future<List<String>> deleteFromShelvesTab(
     WidgetTester tester,
     _RecordingTagRepository repo,
   ) async {
@@ -148,8 +168,10 @@ void main() {
     await tester.tap(find.byTooltip('Actions for Genre'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
-    await tester.pumpAndSettle();
-    return _dialogTexts(tester);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.byType(AlertDialog), findsNothing);
+    return _messageTexts(tester);
   }
 
   Future<List<String>> openDeleteFromManagement(
@@ -167,16 +189,46 @@ void main() {
     return _dialogTexts(tester);
   }
 
-  const expectedBody =
-      'Delete "Genre"?\n\n'
-      'The books stay in your library.\n\n'
-      'Its 2 sub-shelves move up one level.';
+  const rule = [
+    'The books stay in your library.',
+    'Its 2 sub-shelves move up one level.',
+  ];
 
-  testWidgets('the shelves tab states the one deletion rule', (tester) async {
+  testWidgets('the shelves tab states the one deletion rule in its Undo '
+      'message', (tester) async {
     final repo = _RecordingTagRepository(_tree());
-    final texts = await openDeleteFromShelvesTab(tester, repo);
+    final texts = await deleteFromShelvesTab(tester, repo);
 
-    expect(texts, contains(expectedBody));
+    expect(texts, contains('Shelf "Genre" deleted. ${rule.join(' ')}'));
+    await _letMessageGo(tester);
+  });
+
+  testWidgets('a language that ends its sentences with 。 runs them '
+      'together, without a space', (tester) async {
+    TranslationService.setPoTranslationsForTest({
+      'en': {
+        ..._catalogue['en']!,
+        'shelf_deleted_named': '本棚「%s」を削除しました。',
+        'delete_shelf_books_kept': '本は本棚から外れるだけです。',
+      },
+    });
+    final repo = _RecordingTagRepository(_tree());
+    await pumpScreen(
+      tester,
+      ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0)),
+      repo,
+    );
+    await tester.tap(find.byTooltip('Actions for Polar'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete shelf'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
+
+    expect(
+      _messageTexts(tester),
+      contains('本棚「Polar」を削除しました。本は本棚から外れるだけです。'),
+    );
+    await _letMessageGo(tester);
   });
 
   testWidgets('the management screen states the same rule, word for word', (
@@ -185,7 +237,7 @@ void main() {
     final repo = _RecordingTagRepository(_tree());
     final texts = await openDeleteFromManagement(tester, repo);
 
-    expect(texts, contains(expectedBody));
+    expect(texts, contains('Delete "Genre"?\n\n${rule.join('\n\n')}'));
   });
 
   testWidgets('the management screen deletes the shelf alone, not its '
@@ -212,11 +264,13 @@ void main() {
     await tester.tap(find.byTooltip('Actions for Polar'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 500));
 
     expect(
-      _dialogTexts(tester),
-      contains('Delete "Polar"?\n\nThe books stay in your library.'),
+      _messageTexts(tester),
+      contains('Shelf "Polar" deleted. The books stay in your library.'),
     );
+    await _letMessageGo(tester);
   });
 }

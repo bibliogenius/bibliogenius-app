@@ -106,6 +106,45 @@ class Tag {
   static Map<String, String?> effectiveParentIds(List<Tag> allTags) =>
       _treeIndexOf(allTags).parents;
 
+  /// [allTags] without the shelves of [ids], each of their sub-shelves shown
+  /// where deleting them puts it: under the removed shelf's own parent, or
+  /// that one's when it is removed too. Tags left in place are the same
+  /// instances; [allTags] itself when there is nothing to remove.
+  static List<Tag> withoutShelves(List<Tag> allTags, Set<String> ids) {
+    if (ids.isEmpty) return allTags;
+    final parents = effectiveParentIds(allTags);
+    String? shownParent(String? id) {
+      final seen = <String>{};
+      while (id != null && ids.contains(id) && seen.add(id)) {
+        id = parents[id];
+      }
+      return id != null && ids.contains(id) ? null : id;
+    }
+
+    return [
+      for (final t in allTags)
+        if (!ids.contains(t.id)) _shownUnder(t, parents[t.id], shownParent),
+    ];
+  }
+
+  static Tag _shownUnder(
+    Tag tag,
+    String? parent,
+    String? Function(String?) shownParent,
+  ) {
+    final shown = shownParent(parent);
+    if (shown == parent) return tag;
+    return Tag(
+      id: tag.id,
+      name: tag.name,
+      parentId: shown,
+      path: tag.path,
+      count: tag.count,
+      totalCount: tag.totalCount,
+      children: tag.children,
+    );
+  }
+
   /// One tree index per list instance. Screens ask for the children and the
   /// total of every row they draw, so recomputing the index per call made a
   /// whole-tree screen quadratic. A list is only ever replaced on reload or

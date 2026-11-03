@@ -115,6 +115,10 @@ void main() {
     'shelf_actions_named',
     'shelf_drop_into',
     'shelf_being_moved',
+    // Undo in the shelves tab: a deletion waits on it, a rename's Undo can
+    // find its old name taken.
+    'shelf_deleted_named',
+    'shelf_undo_name_taken',
   ];
 
   // Replaced by the keys above, or never read by the app.
@@ -198,6 +202,8 @@ void main() {
       'move_shelf_named': ['{name}'],
       'shelf_actions_named': ['{name}'],
       'shelf_drop_into': ['{name}'],
+      'shelf_deleted_named': ['%s'],
+      'shelf_undo_name_taken': ['%s'],
     };
     for (final lang in _languages) {
       placeholders.forEach((key, holes) {
@@ -319,6 +325,19 @@ void main() {
         );
       }
     }
+  });
+
+  test('the Undo messages call a shelf what the shelves tab calls it', () {
+    const keys = ['shelf_deleted_named', 'shelf_undo_name_taken'];
+    _subShelfWord.forEach((lang, word) {
+      for (final key in keys) {
+        expect(
+          catalogues[lang]![key]!.toLowerCase(),
+          contains(word),
+          reason: '$lang.po: $key must say "$word"',
+        );
+      }
+    });
   });
 
   test('Spanish and Portuguese keep one word on the shelves empty state', () {

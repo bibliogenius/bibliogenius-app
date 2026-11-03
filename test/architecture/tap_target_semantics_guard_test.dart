@@ -854,6 +854,69 @@ final _treeSearch = find.byKey(const Key('shelfTreeSearch'));
 Future<void> _openShelfRowMenu(WidgetTester tester, String name) =>
     _tap(tester, find.byTooltip('Actions for $name'));
 
+/// "Delete Shelf" from the menu of the row of the shelf named [name].
+Future<void> _deleteFromRow(WidgetTester tester, String name) async {
+  await _openShelfRowMenu(tester, name);
+  await _tap(tester, find.text('Delete Shelf'));
+}
+
+/// The same, without the settle [_tap] takes before each tap: two of
+/// them would outlast the five seconds of a message already up.
+Future<void> _deleteNowFromRow(WidgetTester tester, String name) async {
+  await _tapNow(tester, find.byTooltip('Actions for $name'));
+  await _tapNow(tester, find.text('Delete Shelf'));
+}
+
+/// Renames the shelf named [name] to [to] through "Edit Shelf".
+Future<void> _renameFromRow(
+  WidgetTester tester,
+  String name,
+  String to,
+) async {
+  await _openShelfRowMenu(tester, name);
+  await _tap(tester, find.text('Edit Shelf'));
+  await tester.enterText(
+    find.descendant(
+      of: find.byType(AlertDialog),
+      matching: find.byType(TextFormField),
+    ),
+    to,
+  );
+  await _tap(tester, find.text('Update'));
+}
+
+/// The message on screen whose text contains [text].
+Finder _messageText(String text) => find.descendant(
+  of: find.byType(SnackBar),
+  matching: find.textContaining(text),
+);
+
+/// The Undo of the message on screen.
+final _undo = find.descendant(
+  of: find.byType(SnackBar),
+  matching: find.text('Undo'),
+);
+
+/// Taps at once: [_tap] settles first, which eats two of the five seconds
+/// an Undo stays up.
+Future<void> _tapNow(WidgetTester tester, Finder finder) async {
+  await tester.tap(finder);
+  await _settle(tester);
+}
+
+/// Past the five seconds of a message and its exit.
+Future<void> _letMessagesGo(WidgetTester tester) async {
+  await tester.pump(const Duration(seconds: 6));
+  await _settle(tester);
+}
+
+/// As with VoiceOver or TalkBack on, for the rest of the test.
+void _holdMessages(WidgetTester tester) {
+  tester.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(accessibleNavigation: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+}
+
 /// "Move to…" from the menu of the row of the shelf named [name].
 Future<void> _openMoveFromRow(WidgetTester tester, String name) async {
   await _openShelfRowMenu(tester, name);
@@ -993,6 +1056,17 @@ final _probes = <_Probe>[
     tags: _treeTags,
     reach: (t) async {
       await _startShelfDrag(t, 'Novels');
+    },
+  ),
+  // A deletion waiting on its Undo, held as a screen reader holds it: the
+  // message is a live region, Undo a named button.
+  _Probe(
+    'library, shelves tab, a deletion to undo',
+    '/shelves',
+    tags: _treeTags,
+    reach: (t) async {
+      _holdMessages(t);
+      await _deleteFromRow(t, 'Study');
     },
   ),
   // "Move to…" from a row: the placement tree, a branch greyed out and the
@@ -1833,7 +1907,8 @@ void main() {
 
       await _openShelfRowMenu(tester, 'Novel');
       await _tap(tester, find.text('Delete Shelf'));
-      await _tap(tester, find.widgetWithText(ElevatedButton, 'Delete'));
+      // The deletion goes, and its order with it, once its Undo is past.
+      await _letMessagesGo(tester);
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getStringList('shelf_order_ids'), ['t3']);
@@ -3076,6 +3151,498 @@ void main() {
       await create('Essays');
 
       expect(harness.tags.created, ['Poetry', 'Essays < s5']);
+    });
+  });
+
+  group('undo on the shelves tab on the real route', () {
+    final tree = _Probe('shelf tree', '/shelves', tags: _treeTags);
+    const livingRoomGone =
+        'Shelf “Living room” deleted. The books stay in your library; '
+        'they just leave this shelf. Its sub-shelf moves up one level.';
+
+    double left(WidgetTester tester, String name) => tester
+        .getTopLeft(
+          find.descendant(of: _treeRow(name), matching: find.text(name)),
+        )
+        .dx;
+
+    testWidgets('deleting asks nothing, hides the row and says the one '
+        'rule', (tester) async {
+      final harness = await _render(tester, tree);
+
+      await _deleteFromRow(tester, 'Living room');
+
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(_messageText(livingRoomGone), findsOneWidget);
+      expect(_treeRow('Living room'), findsNothing);
+      // Its sub-shelf already shows where the deletion will put it.
+      expect(left(tester, 'Novels'), left(tester, 'Study'));
+      expect(harness.tags.deleted, isEmpty);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('the sub-shelves of a deleted shelf show under its parent, '
+        'not at the first level', (tester) async {
+      await _render(tester, tree);
+
+      await _deleteFromRow(tester, 'Novels');
+
+      expect(_treeRow('Novels'), findsNothing);
+      expect(left(tester, 'Crime'), greaterThan(left(tester, 'Living room')));
+      expect(left(tester, 'Crime'), lessThan(left(tester, 'Nordic crime')));
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('Undo within five seconds deletes nothing', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Living room');
+
+      await _tapNow(tester, _undo);
+      await _letMessagesGo(tester);
+
+      expect(harness.tags.deleted, isEmpty);
+      expect(_treeRow('Living room'), findsOneWidget);
+      expect(left(tester, 'Novels'), greaterThan(left(tester, 'Study')));
+    });
+
+    testWidgets('the deletion goes once the message expires', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Living room');
+
+      await _letMessagesGo(tester);
+
+      expect(harness.tags.deleted, ['Living room']);
+      expect(find.byType(SnackBar), findsNothing);
+    });
+
+    testWidgets('leaving the tab sends the deletion and takes its Undo '
+        'away', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Living room');
+
+      await _tapNow(tester, find.widgetWithText(Tab, 'Books'));
+
+      expect(harness.tags.deleted, ['Living room']);
+      expect(_undo, findsNothing);
+      await _letMessagesGo(tester);
+      expect(harness.tags.deleted, ['Living room']);
+    });
+
+    testWidgets('a page opened over the tab sends the deletion', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Study');
+
+      // An opaque page on top: the tab stays mounted, out of sight.
+      Navigator.of(tester.element(find.byType(ShelvesScreen))).push(
+        MaterialPageRoute<void>(builder: (_) => const Scaffold()),
+      );
+      await _settle(tester);
+
+      expect(harness.tags.deleted, ['Study']);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('a second deletion sends the first', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Study');
+
+      // Within the five seconds of the first message.
+      await _deleteNowFromRow(tester, 'Crime');
+
+      expect(harness.tags.deleted, ['Study']);
+      expect(find.byType(SnackBar), findsOneWidget);
+      await _tapNow(tester, _undo);
+      await _letMessagesGo(tester);
+      expect(harness.tags.deleted, ['Study']);
+      expect(_treeRow('Crime'), findsOneWidget);
+    });
+
+    testWidgets('the app going to the background sends the deletion', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      addTearDown(
+        () => tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        ),
+      );
+      await _deleteFromRow(tester, 'Living room');
+
+      tester.binding.handleAppLifecycleStateChanged(
+        AppLifecycleState.inactive,
+      );
+      await tester.pump();
+      // A glance at the control centre is not leaving the app.
+      expect(harness.tags.deleted, isEmpty);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+
+      expect(harness.tags.deleted, ['Living room']);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await _letMessagesGo(tester);
+      expect(harness.tags.deleted, ['Living room']);
+    });
+
+    testWidgets('a deletion forgets the shelf\'s own order only once it '
+        'goes', (tester) async {
+      await _render(tester, tree);
+      final order = tester
+          .element(find.byType(ShelvesScreen))
+          .read<SortPreferenceProvider>();
+      await tester.runAsync(() => order.setShelfOrder('s5', true));
+
+      await _deleteFromRow(tester, 'Study');
+      expect(order.shelfOrderFor('s5'), isTrue);
+      await _tapNow(tester, _undo);
+      await _letMessagesGo(tester);
+      expect(order.shelfOrderFor('s5'), isTrue);
+
+      await _deleteFromRow(tester, 'Study');
+      await _letMessagesGo(tester);
+      expect(order.shelfOrderFor('s5'), isFalse);
+    });
+
+    testWidgets('with a screen reader on, the message waits for the reader '
+        'and so does the deletion', (tester) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(tester, tree);
+      _holdMessages(tester);
+      await _deleteFromRow(tester, 'Living room');
+
+      await tester.pump(const Duration(seconds: 30));
+      await _settle(tester);
+
+      expect(harness.tags.deleted, isEmpty);
+      // Announced as it appears, then reachable for as long as it takes.
+      expect(
+        tester.getSemantics(_messageText(livingRoomGone)),
+        containsSemantics(isLiveRegion: true),
+      );
+      expect(
+        tester.getSemantics(_undo),
+        containsSemantics(isButton: true, label: 'Undo'),
+      );
+      await _tapNow(tester, _undo);
+      expect(harness.tags.deleted, isEmpty);
+      expect(_treeRow('Living room'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('Undo after a move puts the shelf back under its parent', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      await _tap(tester, _treeHandle('Crime'));
+      await _tap(tester, _moveRow('Study'));
+      expect(_messageText('Crime moved under Study'), findsOneWidget);
+
+      await _tapNow(tester, _undo);
+
+      expect(harness.tags.updated, ['s3: Crime < s5', 's3: Crime < s2']);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('Undo after a drop puts the shelf back', (tester) async {
+      final harness = await _render(tester, tree);
+      await _dragShelf(tester, 'Study', _treeRow('Novels'));
+
+      await _tapNow(tester, _undo);
+
+      expect(harness.tags.updated, ['s5: Study < s2', 's5: Study']);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('Undo of a move whose former parent is gone since puts the '
+        'shelf at the first level', (tester) async {
+      final harness = await _render(tester, tree);
+      await _tap(tester, _treeHandle('Crime'));
+      await _tap(tester, _moveRow('Study'));
+      // A sync removed Novels while the message was up.
+      harness.tags.mockTags = [
+        for (final t in _treeTags)
+          if (t.id != 's2') t,
+      ];
+
+      await _tapNow(tester, _undo);
+
+      expect(harness.tags.updated, ['s3: Crime < s5', 's3: Crime']);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('Undo of a move that gave a shelf its row keeps the row, '
+        'at the first level', (tester) async {
+      final legacy = Tag(id: 'legacy:-1', name: 'Poetry', count: 2);
+      final harness = await _render(
+        tester,
+        tree,
+        tags: [..._treeTags, legacy],
+      );
+      await _tap(tester, _treeHandle('Poetry'));
+      await _tap(tester, _moveRow('Study'));
+      expect(harness.tags.created, ['Poetry < s5']);
+      // The row the move created, as the next listing returns it.
+      harness.tags.mockTags = [
+        ..._treeTags,
+        Tag(id: '1', name: 'Poetry', parentId: 's5', count: 2),
+      ];
+
+      await _tapNow(tester, _undo);
+
+      expect(harness.tags.updated, ['1: Poetry']);
+      expect(harness.tags.deleted, isEmpty);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('Undo after a rename brings the name back', (tester) async {
+      final harness = await _render(tester, tree);
+      await _renameFromRow(tester, 'Living room', 'Lounge');
+      expect(_messageText('Shelf updated'), findsOneWidget);
+
+      await _tapNow(tester, _undo);
+
+      expect(harness.tags.updated, ['s1: Lounge', 's1: Living room']);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('Undo of a rename leaves alone a name another shelf took '
+        'since', (tester) async {
+      final harness = await _render(tester, tree);
+      await _renameFromRow(tester, 'Living room', 'Lounge');
+      harness.tags.mockTags = [
+        Tag(id: 's1', name: 'Lounge', count: 2),
+        for (final t in _treeTags)
+          if (t.id != 's1') t,
+        Tag(id: 's9', name: 'Living room', count: 0),
+      ];
+
+      await _tapNow(tester, _undo);
+
+      expect(harness.tags.updated, ['s1: Lounge']);
+      expect(
+        _messageText('The name “Living room” is already taken by another '
+            'shelf.'),
+        findsOneWidget,
+      );
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('a deletion sent while its message still waits behind '
+        'another leaves no Undo behind', (tester) async {
+      final harness = await _render(tester, tree);
+      addTearDown(
+        () => tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        ),
+      );
+      await _renameFromRow(tester, 'Living room', 'Lounge');
+      // A row near the top: the message, above every route, covers the
+      // menu of the last one.
+      await _tapNow(tester, find.byTooltip('Actions for Crime'));
+      await tester.tap(find.text('Delete Shelf'));
+      // Within the 250 ms the rename's message takes to leave: the
+      // deletion's waits behind it.
+      await tester.pump(const Duration(milliseconds: 50));
+      expect(_messageText('Shelf updated'), findsOneWidget);
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await _settle(tester);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await _settle(tester);
+
+      expect(harness.tags.deleted, ['Crime']);
+      expect(_undo, findsNothing);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('leaving the tab takes away the Undo of a rename', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      // Held as a screen reader holds it, or it would follow the reader
+      // from screen to screen.
+      _holdMessages(tester);
+      await _renameFromRow(tester, 'Living room', 'Lounge');
+      expect(_undo, findsOneWidget);
+
+      await _tapNow(tester, find.widgetWithText(Tab, 'Books'));
+
+      expect(_undo, findsNothing);
+      expect(harness.tags.updated, ['s1: Lounge']);
+    });
+
+    testWidgets('with a screen reader on, a message of the tab replaces an '
+        'Undo rather than waiting behind it', (tester) async {
+      final harness = await _render(tester, tree);
+      _holdMessages(tester);
+      await _renameFromRow(tester, 'Living room', 'Lounge');
+
+      await _openShelfRowMenu(tester, 'Study');
+      await _tap(tester, find.text('Add Sub-Shelf'));
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(TextFormField),
+        ),
+        'Poetry',
+      );
+      await _tap(tester, find.text('Create'));
+
+      expect(harness.tags.created, ['Poetry < s5']);
+      expect(_messageText('Shelf created'), findsOneWidget);
+      expect(_undo, findsNothing);
+    });
+
+    testWidgets('a shelf with no row waiting on its deletion stays the one '
+        'hidden when a reload renumbers such shelves', (tester) async {
+      final poetry = Tag(id: 'legacy:-1', name: 'Poetry', count: 2);
+      final essays = Tag(id: 'legacy:-2', name: 'Essays', count: 1);
+      final harness = await _render(
+        tester,
+        tree,
+        tags: [..._treeTags, poetry, essays],
+      );
+      await _deleteFromRow(tester, 'Poetry');
+
+      // The core numbers them in no stable order.
+      harness.tags.mockTags = [
+        ..._treeTags,
+        Tag(id: 'legacy:-1', name: 'Essays', count: 1),
+        Tag(id: 'legacy:-2', name: 'Poetry', count: 2),
+      ];
+      harness.refresh.refresh();
+      await _settle(tester);
+
+      expect(_treeRow('Poetry'), findsNothing);
+      expect(_treeRow('Essays'), findsOneWidget);
+      await _tapNow(tester, _undo);
+      expect(_treeRow('Poetry'), findsOneWidget);
+      expect(harness.tags.deleted, isEmpty);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('a deletion the core refuses comes back with its error, and '
+        'the next one keeps waiting on its Undo', (tester) async {
+      final harness = await _render(tester, tree);
+      harness.tags
+        ..mockDeleteFailsFor = 'Study'
+        ..mockDeleteDelay = const Duration(milliseconds: 800);
+      await _deleteFromRow(tester, 'Study');
+      // Sends Study, whose write fails once Crime's message is up.
+      await _deleteNowFromRow(tester, 'Crime');
+
+      expect(_treeRow('Study'), findsOneWidget);
+      expect(_treeRow('Crime'), findsNothing);
+      expect(harness.tags.deleted, isEmpty);
+      expect(_messageText('Shelf “Crime” deleted.'), findsOneWidget);
+      expect(_undo, findsOneWidget);
+
+      await _letMessagesGo(tester);
+      expect(harness.tags.deleted, ['Crime']);
+      // The error waited its turn.
+      expect(_messageText('core refused'), findsOneWidget);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('a slow listing started before a deletion went does not '
+        'bring the shelf back', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Study');
+      final stale = Completer<List<Tag>>();
+      final before = harness.tags.mockTags;
+      harness.tags.holdNextGetTags = stale;
+      // A book changed elsewhere: a reload that hangs.
+      harness.refresh.refresh();
+      await tester.pump();
+
+      await _letMessagesGo(tester);
+      expect(harness.tags.deleted, ['Study']);
+      expect(_treeRow('Study'), findsNothing);
+
+      stale.complete(before);
+      await _settle(tester);
+      expect(_treeRow('Study'), findsNothing);
+    });
+
+    testWidgets('a reload started while the deletion\'s own reload is out '
+        'keeps the shelf hidden until a fresh listing lands', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Study');
+      final own = Completer<List<Tag>>();
+      harness.tags.holdNextGetTags = own;
+
+      // The message expires: the write lands, its reload hangs.
+      await _letMessagesGo(tester);
+      expect(harness.tags.deleted, ['Study']);
+      final later = Completer<List<Tag>>();
+      harness.tags.holdNextGetTags = later;
+      // A sync starts another reload before the first comes back.
+      harness.refresh.refresh();
+      await tester.pump();
+
+      // The first comes back superseded, and is dropped.
+      own.complete(harness.tags.mockTags);
+      await _settle(tester);
+      expect(_treeRow('Study'), findsNothing);
+
+      later.complete(harness.tags.mockTags);
+      await _settle(tester);
+      expect(_treeRow('Study'), findsNothing);
+      expect(_treeRow('Crime'), findsOneWidget);
+    });
+
+    testWidgets('renaming a sub-shelf of a shelf waiting on its deletion '
+        'keeps it under that shelf', (tester) async {
+      final harness = await _render(tester, tree);
+      // Held, so that the deletion still waits when the rename is saved.
+      _holdMessages(tester);
+      await _deleteFromRow(tester, 'Novels');
+
+      // Shown under Living room meanwhile, stored under Novels still.
+      await _renameFromRow(tester, 'Crime', 'Polar');
+
+      expect(harness.tags.updated, ['s3: Polar < s2']);
+    });
+
+    testWidgets('the app going to the background keeps the Undo of a '
+        'rename', (tester) async {
+      final harness = await _render(tester, tree);
+      addTearDown(
+        () => tester.binding.handleAppLifecycleStateChanged(
+          AppLifecycleState.resumed,
+        ),
+      );
+      await _renameFromRow(tester, 'Living room', 'Lounge');
+
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+      await tester.pump();
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      // Long enough for a closed message to have left, still within five
+      // seconds of the rename.
+      await _settle(tester);
+
+      expect(_undo, findsOneWidget);
+      await _tapNow(tester, _undo);
+      expect(harness.tags.updated, ['s1: Lounge', 's1: Living room']);
+      await _letMessagesGo(tester);
+    });
+
+    testWidgets('one message at a time: a move after a deletion sends the '
+        'deletion', (tester) async {
+      final harness = await _render(tester, tree);
+      await _deleteFromRow(tester, 'Study');
+
+      // Within the five seconds of the deletion's message.
+      await _tapNow(tester, _treeHandle('Crime'));
+      await _tapNow(tester, _moveRow('Living room'));
+
+      expect(harness.tags.deleted, ['Study']);
+      expect(find.byType(SnackBar), findsOneWidget);
+      expect(_messageText('Crime moved under Living room'), findsOneWidget);
+      await _letMessagesGo(tester);
     });
   });
 

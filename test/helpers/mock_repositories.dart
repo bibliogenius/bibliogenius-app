@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bibliogenius/data/repositories/book_repository.dart';
 import 'package:bibliogenius/data/repositories/tag_repository.dart';
 import 'package:bibliogenius/data/repositories/contact_repository.dart';
@@ -80,8 +82,17 @@ class MockTagRepository implements TagRepository {
   List<Tag> mockTags = [];
   int mockUnshelvedCount = 0;
 
+  /// When set, the next listing waits on it instead of answering at once:
+  /// a slow listing that lands after a later one.
+  Completer<List<Tag>>? holdNextGetTags;
+
   @override
-  Future<List<Tag>> getTags() async => mockTags;
+  Future<List<Tag>> getTags() async {
+    final held = holdNextGetTags;
+    if (held == null) return mockTags;
+    holdNextGetTags = null;
+    return held.future;
+  }
 
   @override
   Future<int> countUnshelvedBooks() async => mockUnshelvedCount;
@@ -113,8 +124,27 @@ class MockTagRepository implements TagRepository {
   @override
   Future<void> deleteTag(String uuid) async {}
 
+  /// Every shelf deleted, by name, in order. The shelf also leaves
+  /// [mockTags], replaced rather than changed in place.
+  final List<String> deleted = [];
+
+  /// The name of a shelf whose deletion the core refuses, after
+  /// [mockDeleteDelay].
+  String? mockDeleteFailsFor;
+  Duration mockDeleteDelay = Duration.zero;
+
   @override
-  Future<void> deleteShelf(Tag tag) async {}
+  Future<void> deleteShelf(Tag tag) async {
+    if (tag.name == mockDeleteFailsFor) {
+      await Future<void>.delayed(mockDeleteDelay);
+      throw Exception('core refused');
+    }
+    deleted.add(tag.name);
+    mockTags = [
+      for (final t in mockTags)
+        if (t.id != tag.id) t,
+    ];
+  }
 }
 
 class MockContactRepository implements ContactRepository {

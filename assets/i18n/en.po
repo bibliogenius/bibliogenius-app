@@ -12570,3 +12570,11 @@ msgstr "Drop to file in {name}"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "being moved"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "Shelf “%s” deleted."
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "The name “%s” is already taken by another shelf."

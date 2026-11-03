@@ -12423,3 +12423,11 @@ msgstr "Suelta para guardar en {name}"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "moviéndose"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "Estantería «%s» eliminada."
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "El nombre «%s» ya lo usa otra estantería."

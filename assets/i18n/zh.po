@@ -12564,3 +12564,11 @@ msgstr "松开以放入{name}"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "正在移动"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "已删除书架“%s”。"
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "名称“%s”已被另一个书架使用。"

@@ -12555,3 +12555,11 @@ msgstr "Пуснете, за да подредите в {name}"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "премества се"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "Полицата „%s“ е изтрита."
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "Името „%s“ вече се използва от друга полица."

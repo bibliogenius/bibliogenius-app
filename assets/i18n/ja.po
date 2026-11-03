@@ -12564,3 +12564,11 @@ msgstr "ドロップして{name}に入れる"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "移動中"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "本棚「%s」を削除しました。"
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "「%s」という名前はすでに別の本棚で使われています。"

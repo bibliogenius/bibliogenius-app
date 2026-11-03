@@ -12564,3 +12564,11 @@ msgstr "놓으면 {name}에 정리됩니다"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "이동 중"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "‘%s’ 책장을 삭제했습니다."
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "‘%s’ 이름은 이미 다른 책장에서 사용 중입니다."

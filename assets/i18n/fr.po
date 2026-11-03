@@ -12565,3 +12565,11 @@ msgstr "Déposer pour ranger dans {name}"
 #. Shelves tab tree: second line of the row of the shelf being dragged
 msgid "shelf_being_moved"
 msgstr "en cours de déplacement"
+
+#. Shelves tab: message after deleting a shelf, Undo next to it, %s is its name; the deletion rule follows
+msgid "shelf_deleted_named"
+msgstr "Étagère « %s » supprimée."
+
+#. Shelves tab: Undo of a rename could not give the old name back, %s is that name
+msgid "shelf_undo_name_taken"
+msgstr "Le nom « %s » est déjà pris par une autre étagère."

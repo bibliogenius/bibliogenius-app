@@ -199,7 +199,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
+    // Gone from the tree at once; the write waits on the Undo message.
+    expect(find.text('Thriller'), findsNothing);
+    expect(repo.deleted, isEmpty);
+
+    await tester.pump(const Duration(seconds: 6));
     await tester.pumpAndSettle();
 
     expect(repo.deleted.map((t) => t.name), ['Thriller']);
