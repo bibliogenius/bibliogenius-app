@@ -59,15 +59,16 @@ const _catalogue = {
         'Its %d sub-shelves move up one level.',
     'delete': 'Delete',
     'cancel': 'Cancel',
+    'shelf_actions_named': 'Actions for {name}',
+    'move_shelf_named': 'Move {name}',
+    'shelf_collapse_named': 'Collapse {name}',
+    'shelf_expand_named': 'Expand {name}',
     'sub_shelves_count': '%d sub-shelf',
     'sub_shelves_count_plural': '%d sub-shelves',
     'displayed_books_count': '%d book',
     'displayed_books_count_plural': '%d books',
-    'displayed_shelves_count': '%d shelf',
-    'displayed_shelves_count_plural': '%d shelves',
     'shelves': 'Shelves',
     'all_shelves': 'All shelves',
-    'view_shelf_books': 'View books',
     'book': 'book',
     'books': 'books',
     'back': 'Back',
@@ -144,13 +145,7 @@ void main() {
       ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0)),
       repo,
     );
-    final card = find.ancestor(
-      of: find.text('Genre'),
-      matching: find.byType(Card),
-    );
-    await tester.tap(
-      find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
-    );
+    await tester.tap(find.byTooltip('Actions for Genre'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
     await tester.pumpAndSettle();
@@ -213,15 +208,8 @@ void main() {
       ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0)),
       repo,
     );
-    await tester.tap(find.text('Genre'));
-    await tester.pumpAndSettle();
-    final card = find.ancestor(
-      of: find.text('Polar'),
-      matching: find.byType(Card),
-    );
-    await tester.tap(
-      find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
-    );
+    // Every level shows at once: Polar's row is in reach.
+    await tester.tap(find.byTooltip('Actions for Polar'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
     await tester.pumpAndSettle();

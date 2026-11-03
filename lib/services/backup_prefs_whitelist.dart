@@ -91,6 +91,9 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // Shelves last picked in a book form: a shortcut on this device, by
   // decision never synced, so not carried to another install either.
   'recent_shelf_names',
+  // Shelves folded in the shelves tab tree: how this device shows the tree,
+  // not library data. Behind a const identifier, unseen by the drift test.
+  'shelf_tree_collapsed', // ShelfTreeCollapseStore.prefKey
 
   // Onboarding / install state (mirrored in DB or device-specific).
   'isSetupComplete',

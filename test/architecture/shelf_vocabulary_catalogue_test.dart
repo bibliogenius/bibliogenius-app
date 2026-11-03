@@ -59,6 +59,17 @@ Map<String, String> _entries(String path) {
   return result..remove('');
 }
 
+/// The shelf word inside "sub-shelf", where a test can name it: the one of
+/// the shelves tab, in the singular.
+const _subShelfWord = {
+  'fr': 'étagère',
+  'es': 'estantería',
+  'pt-BR': 'prateleira',
+  'ja': '本棚',
+  'ko': '책장',
+  'zh': '书架',
+};
+
 String _po(String lang) => 'assets/i18n/$lang.po';
 
 void main() {
@@ -97,6 +108,13 @@ void main() {
     'shelf_current_place',
     'shelf_moved_under',
     'shelf_moved_to_first_level',
+    // The shelves tab tree: its row controls and the drag.
+    'shelf_expand_named',
+    'shelf_collapse_named',
+    'move_shelf_named',
+    'shelf_actions_named',
+    'shelf_drop_into',
+    'shelf_being_moved',
   ];
 
   // Replaced by the keys above, or never read by the app.
@@ -125,6 +143,11 @@ void main() {
     'moving',
     'select_new_parent',
     'move',
+    // The shelves grid: its count badge and the parent card's way to its
+    // books. The tree lists every shelf, and a row's tap opens its books.
+    'view_shelf_books',
+    'displayed_shelves_count',
+    'displayed_shelves_count_plural',
   ];
 
   test('the new keys exist, translated, in every catalogue and the template', () {
@@ -170,6 +193,11 @@ void main() {
       'move_shelf_to_title': ['{name}'],
       'shelf_moved_under': ['{name}', '{parent}'],
       'shelf_moved_to_first_level': ['{name}'],
+      'shelf_expand_named': ['{name}'],
+      'shelf_collapse_named': ['{name}'],
+      'move_shelf_named': ['{name}'],
+      'shelf_actions_named': ['{name}'],
+      'shelf_drop_into': ['{name}'],
     };
     for (final lang in _languages) {
       placeholders.forEach((key, holes) {
@@ -276,6 +304,12 @@ void main() {
     // word, in every language.
     const keys = ['all_shelves'];
     for (final lang in _languages) {
+      // A sub-shelf is a shelf: the singular of the tab's word, wherever a
+      // language spells it as a part of the compound.
+      final sub = catalogues[lang]!['add_sub_shelf']!;
+      if (_subShelfWord.containsKey(lang)) {
+        expect(sub, contains(_subShelfWord[lang]!), reason: '$lang.po');
+      }
       final word = catalogues[lang]!['shelves']!.toLowerCase();
       for (final key in keys) {
         expect(
@@ -315,6 +349,8 @@ void main() {
       'add_shelf_named',
       // Moving a shelf.
       'move_shelf_to_subtitle',
+      // The shelves tab tree.
+      'add_sub_shelf',
     ];
     for (final lang in ['es', 'pt-BR']) {
       for (final key in keys) {

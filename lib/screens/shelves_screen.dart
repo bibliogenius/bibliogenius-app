@@ -8,6 +8,7 @@ import '../widgets/genie_app_bar.dart';
 import '../widgets/move_shelf_sheet.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/shelf_or_collection_note.dart';
+import '../widgets/shelf_tree_view.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
@@ -50,8 +51,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   int _unshelvedCount = 0;
   bool _isLoading = true;
   String? _error;
-  Tag? _currentParent; // null = root level
-  List<Tag> _path = []; // breadcrumb path
   BookRefreshNotifier? _bookRefreshNotifier;
 
   @override
@@ -79,11 +78,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
   /// Reload the tags and keep the reader where they are.
   ///
-  /// The grid keeps painting the previous list while the new one loads: a
+  /// The tree keeps painting the previous list while the new one loads: a
   /// spinner on every delete or rename reads as "something is off", while a
-  /// card that simply disappears reads as done. The current level is
-  /// re-resolved against the fresh list, and only dropped when the shelf the
-  /// reader was in no longer exists or no longer has sub-shelves.
+  /// row that simply disappears reads as done.
   Future<void> _loadTags() async {
     try {
       final repo = Provider.of<TagRepository>(context, listen: false);
@@ -98,7 +95,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         _unshelvedCount = unshelved;
         _error = null;
         _isLoading = false;
-        _resolveLevel();
       });
     } catch (e) {
       if (!mounted) return;
@@ -120,32 +116,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     }
   }
 
-  void _resolveLevel() {
-    Tag? find(Tag tag) {
-      for (final t in _allTags) {
-        if (t.id == tag.id) return t;
-      }
-      return null;
-    }
-
-    final resolvedPath = <Tag>[];
-    for (final ancestor in _path) {
-      final found = find(ancestor);
-      if (found == null) break;
-      resolvedPath.add(found);
-    }
-    _path = resolvedPath;
-
-    final parent = _currentParent == null ? null : find(_currentParent!);
-    if (parent == null || _childrenOf(parent).isEmpty) {
-      // The shelf is gone or became a leaf: climb one level rather than
-      // bounce the reader to an empty book list.
-      _currentParent = _path.isNotEmpty ? _path.removeLast() : null;
-    } else {
-      _currentParent = parent;
-    }
-  }
-
   List<Tag> _childrenOf(Tag tag) => Tag.getDirectChildren(tag.id, _allTags);
 
   /// Own books plus every descendant's: the number the shelf's book list
@@ -159,53 +129,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return total;
   }
 
-  /// Get tags to display at current level
-  List<Tag> get _visibleTags {
-    if (_currentParent == null) {
-      // First level: no parent, a vanished one, or caught in a cycle.
-      return Tag.getRootTags(_allTags);
-    } else {
-      // Show direct children of current parent
-      return _childrenOf(_currentParent!);
-    }
-  }
-
-  /// Open a shelf: its sub-shelves when it has some, its books otherwise.
-  void _openShelf(Tag tag) {
-    if (_childrenOf(tag).isNotEmpty) {
-      setState(() {
-        if (_currentParent != null) {
-          _path.add(_currentParent!);
-        }
-        _currentParent = tag;
-      });
-    } else {
-      _openShelfBooks(tag);
-    }
-  }
-
   /// The book list of a shelf, sub-shelves included.
   void _openShelfBooks(Tag tag) {
     context.go('/shelves?tag=${Uri.encodeQueryComponent(tag.name)}');
-  }
-
-  /// Go back one level
-  void _goBack() {
-    setState(() {
-      if (_path.isNotEmpty) {
-        _currentParent = _path.removeLast();
-      } else {
-        _currentParent = null;
-      }
-    });
-  }
-
-  /// Go to root
-  void _goToRoot() {
-    setState(() {
-      _currentParent = null;
-      _path = [];
-    });
   }
 
   String _plural(BuildContext context, String key, int count) =>
@@ -251,17 +177,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         ),
       ),
       appBar: GenieAppBar(
-        preSelectedShelfId: _currentParent?.name,
-        title:
-            _currentParent?.name ??
-            TranslationService.translate(context, 'shelves'),
-        leading: _currentParent != null
-            ? IconButton(
-                icon: Icon(Icons.adaptive.arrow_back, color: Colors.white),
-                tooltip: TranslationService.translate(context, 'back'),
-                onPressed: _goBack,
-              )
-            : buildDrawerLeading(context),
+        title: TranslationService.translate(context, 'shelves'),
+        leading: buildDrawerLeading(context),
         automaticallyImplyLeading: false,
         showQuickActions: true,
         actions: [
@@ -291,7 +208,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 sheetContext,
                 onDone: _loadTags,
               );
-              // Override create_shelf to use the local dialog with parent preselect
+              // Override create_shelf to use the local dialog
               handlers['create_shelf'] = () {
                 Navigator.pop(sheetContext);
                 _showCreateShelfDialog();
@@ -353,17 +270,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
 
   /// Shared by both branches: the standalone route and the library tab.
   Widget _buildBody(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-    final bool isMobile = width <= 600;
-
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
     if (_error != null) {
       return _buildErrorState(_error!);
     }
-    // At the head of the tab only, never inside a shelf.
-    final showToShelve = _currentParent == null && _unshelvedCount > 0;
+    final showToShelve = _unshelvedCount > 0;
 
     if (_allTags.isEmpty) {
       // Books scanned before any shelf exists: the card is where to start.
@@ -376,207 +289,29 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       );
     }
 
-    final visibleTags = _visibleTags;
-
-    return RefreshIndicator(
+    // Every level at once: a tap opens a shelf's books, its sub-shelves
+    // are already in sight below it.
+    return ShelfTreeView(
+      allTags: _allTags,
+      bookCount: _aggregatedCount,
+      header: showToShelve ? _buildToShelveCard(context) : null,
+      onOpen: _openShelfBooks,
+      onMoveRequested: _moveShelf,
+      onDrop: _dropShelf,
+      menuBuilder: _buildRowMenu,
       onRefresh: _loadTags,
-      child: Column(
-        children: [
-          if (_currentParent != null) _buildLevelHeader(context),
-          if (showToShelve) _buildToShelveCard(context),
-
-          // Shelves count badge
-          if (visibleTags.isNotEmpty)
-            _buildShelvesCountBadge(context, visibleTags.length),
-
-          // Grid of shelves
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: isMobile ? 2 : 3,
-                  childAspectRatio: 1.0,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: visibleTags.length,
-                itemBuilder: (context, index) {
-                  final tag = visibleTags[index];
-                  return _buildShelfCard(context, tag, index);
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Where the reader is, and the one thing a level cannot show as a card:
-  /// the books of the shelf itself.
-  ///
-  /// The tab has no app bar of its own, so without this the only trace of
-  /// having entered "Genre" was a thin breadcrumb line above a changed grid.
-  Widget _buildLevelHeader(BuildContext context) {
-    final theme = Theme.of(context);
-    final parent = _currentParent!;
-    final subShelves = _childrenOf(parent).length;
-    final books = _aggregatedCount(parent);
-    final summary =
-        '${_plural(context, 'sub_shelves_count', subShelves)} · '
-        '${_plural(context, 'displayed_books_count', books)}';
-
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 4, 16, 12),
-      color: theme.colorScheme.surface.withValues(alpha: 0.9),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.adaptive.arrow_back),
-                tooltip: TranslationService.translate(context, 'back'),
-                onPressed: _goBack,
-              ),
-              Expanded(child: _buildBreadcrumb(context)),
-            ],
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          parent.name,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        summary,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 12),
-                FilledButton.tonalIcon(
-                  onPressed: () => _openShelfBooks(parent),
-                  icon: const Icon(Icons.menu_book, size: 18),
-                  label: Text(
-                    TranslationService.translate(context, 'view_shelf_books'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Build breadcrumb navigation bar
-  Widget _buildBreadcrumb(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          // Home button
-          InkWell(
-            onTap: _goToRoot,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    Icons.home,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(width: 4),
-                  Text(
-                    TranslationService.translate(context, 'all_shelves'),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Path segments
-          ..._path.map(
-            (tag) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ExcludeSemantics(
-                  child: Icon(
-                    Icons.chevron_right,
-                    size: 20,
-                    color: Colors.grey[400],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    final index = _path.indexOf(tag);
-                    setState(() {
-                      _currentParent = tag;
-                      _path = _path.sublist(0, index);
-                    });
-                  },
-                  child: Text(
-                    tag.name,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Current level
-          if (_currentParent != null) ...[
-            ExcludeSemantics(
-              child: Icon(
-                Icons.chevron_right,
-                size: 20,
-                color: Colors.grey[400],
-              ),
-            ),
-            Text(
-              _currentParent!.name,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
-        ],
-      ),
     );
   }
 
   /// The books on no shelf, gathered in one card: a tap lists them in this
   /// tab with selection armed, ready for the bulk shelving sheet. Coming back
-  /// to the grid remounts this screen, which reloads the count.
+  /// to the tree remounts this screen, which reloads the count.
   Widget _buildToShelveCard(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final radius = BorderRadius.circular(AppDesign.radiusMedium);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
       // One button, read as its title then its count.
       child: MergeSemantics(
         key: const Key('toShelveCard'),
@@ -643,54 +378,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
               ),
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShelvesCountBadge(BuildContext context, int count) {
-    final theme = Theme.of(context);
-    return Semantics(
-      label: _plural(context, 'displayed_shelves_count', count),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.shelves, size: 16, color: theme.primaryColor),
-                  const SizedBox(width: 6),
-                  Text(
-                    count == 1
-                        ? (TranslationService.translate(
-                                    context,
-                                    'displayed_shelves_count',
-                                  ) ??
-                                  '%d shelf')
-                              .replaceAll('%d', '$count')
-                        : (TranslationService.translate(
-                                    context,
-                                    'displayed_shelves_count_plural',
-                                  ) ??
-                                  '%d shelves')
-                              .replaceAll('%d', '$count'),
-                    style: TextStyle(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -954,283 +641,68 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     }
   }
 
-  Widget _buildShelfCard(BuildContext context, Tag tag, int index) {
-    final themeStyle = Provider.of<ThemeProvider>(
-      context,
-      listen: false,
-    ).themeStyle;
-    final isDark = themeStyle == 'dark';
+  /// A drop in the tree: the same write and message as "Move to…", then
+  /// the tree reloaded so the shelf shows at its new place.
+  Future<bool> _dropShelf(Tag shelf, Tag? parent) async {
+    final moved = await moveShelf(context, shelf: shelf, parent: parent);
+    if (moved && mounted) await _loadTags();
+    return moved;
+  }
 
-    // Cyan palette for dark theme, colorful for others
-    final colors = isDark
-        ? [
-            const Color(0xFF06B6D4), // Cyan
-            const Color(0xFF0891B2), // Cyan dark
-            const Color(0xFF22D3EE), // Cyan light
-            const Color(0xFF0E7490), // Cyan 700
-            const Color(0xFF155E75), // Cyan 800
-            const Color(0xFF67E8F9), // Cyan 300
-            const Color(0xFF0284C7), // Sky 600
-            const Color(0xFF0369A1), // Sky 700
-          ]
-        : [
-            const Color(0xFF667eea), // Indigo
-            const Color(0xFF764ba2), // Purple
-            const Color(0xFFf093fb), // Pink
-            const Color(0xFF4facfe), // Blue
-            const Color(0xFF43e97b), // Green
-            const Color(0xFFfa709a), // Rose
-            const Color(0xFFfee140), // Yellow
-            const Color(0xFFf5576c), // Red
-          ];
-    final subShelves = _childrenOf(tag).length;
-    final hasChildren = subShelves > 0;
-    // The badge counts the whole subtree: that is what the book list shows.
-    final aggregatedCount = _aggregatedCount(tag);
-    final booksLabel = _plural(
-      context,
-      'displayed_books_count',
-      aggregatedCount,
-    );
-    final subShelvesLabel = _plural(context, 'sub_shelves_count', subShelves);
+  void _scanInto(Tag tag) {
+    context
+        .push(
+          '/scan',
+          extra: {
+            'shelfId': tag.name,
+            'shelfName': tag.fullPath,
+            'batch': true,
+          },
+        )
+        .then((_) => _loadTags());
+  }
 
-    final color = colors[index % colors.length];
-    final gradient = LinearGradient(
-      colors: [color, color.withValues(alpha: 0.7)],
-      begin: Alignment.topLeft,
-      end: Alignment.bottomRight,
-    );
-
-    // The label sits inside the Card, around the InkWell, so label, role and
-    // tap share the Card's own node. Wrapped around the Card, they did not:
-    // a Card opens its own node, which left a "button" with nothing to press
-    // above a pressable tile with no role re-reading the painted texts. The
-    // texts are excluded; the label already says all they say.
-    return Card(
-      elevation: 8,
-      shadowColor: color.withValues(alpha: 0.4),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      child: Semantics(
-        button: true,
-        label: hasChildren
-            ? '${tag.name}, $subShelvesLabel, $booksLabel'
-            : '${tag.name}, $booksLabel',
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: () => _openShelf(tag),
-          child: Container(
-            decoration: BoxDecoration(
-              gradient: gradient,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Stack(
-              children: [
-                // Decorative pattern
-                Positioned(
-                  right: -20,
-                  top: -20,
-                  child: ExcludeSemantics(
-                    child: Icon(
-                      Icons.shelves,
-                      size: 100,
-                      color: Colors.white.withValues(alpha: 0.1),
-                    ),
-                  ),
-                ),
-
-                // Edit/delete menu
-                Positioned(
-                  top: 8,
-                  right: 8,
-                  child: PopupMenuButton<String>(
-                    tooltip: TranslationService.translate(
-                      context,
-                      'more_actions',
-                    ),
-                    onSelected: (value) {
-                      if (value == 'view_books') {
-                        _openShelfBooks(tag);
-                      } else if (value == 'scan') {
-                        context
-                            .push(
-                              '/scan',
-                              extra: {
-                                'shelfId': tag.name,
-                                'shelfName': tag.fullPath,
-                                'batch': true,
-                              },
-                            )
-                            .then((_) => _loadTags());
-                      } else if (value == 'edit') {
-                        _showEditShelfDialog(tag);
-                      } else if (value == 'move') {
-                        _moveShelf(tag);
-                      } else if (value == 'delete') {
-                        _showDeleteConfirmDialog(tag);
-                      }
-                    },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<String>>[
-                          // A parent's tap opens its sub-shelves; its own
-                          // book list is reachable from here and from the
-                          // level header.
-                          if (hasChildren)
-                            PopupMenuItem<String>(
-                              value: 'view_books',
-                              child: ListTile(
-                                leading: const Icon(Icons.menu_book),
-                                title: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'view_shelf_books',
-                                  ),
-                                ),
-                              ),
-                            ),
-                          PopupMenuItem<String>(
-                            value: 'scan',
-                            child: ListTile(
-                              leading: const Icon(
-                                Icons.qr_code_scanner,
-                                color: Colors.orange,
-                              ),
-                              title: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'scan_into_shelf',
-                                ),
-                              ),
-                            ),
-                          ),
-                          const PopupMenuDivider(),
-                          PopupMenuItem<String>(
-                            value: 'edit',
-                            child: ListTile(
-                              leading: const Icon(Icons.edit),
-                              title: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'edit_shelf',
-                                ),
-                              ),
-                            ),
-                          ),
-                          if (AppConstants.enableHierarchicalTags)
-                            PopupMenuItem<String>(
-                              value: 'move',
-                              child: ListTile(
-                                leading: const Icon(Icons.drive_file_move),
-                                title: Text(
-                                  TranslationService.translate(
-                                    context,
-                                    'move_shelf_to',
-                                  ),
-                                ),
-                              ),
-                            ),
-                          PopupMenuItem<String>(
-                            value: 'delete',
-                            child: ListTile(
-                              leading: const Icon(Icons.delete),
-                              title: Text(
-                                TranslationService.translate(
-                                  context,
-                                  'delete_shelf',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                    icon: const Icon(Icons.more_vert, color: Colors.white),
-                    color: Theme.of(context).colorScheme.surface,
-                  ),
-                ),
-
-                // Content
-                ExcludeSemantics(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        // Shelf icon with count badge
-                        Padding(
-                          padding: const EdgeInsets.only(right: 32),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  hasChildren ? Icons.folder : Icons.label,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 6,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  '$aggregatedCount',
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Tag name, then what the tap opens: the sub-shelves,
-                        // spelled out, or the books.
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              tag.name,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18,
-                                letterSpacing: 0.5,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            if (hasChildren)
-                              _SubShelvesChip(label: subShelvesLabel)
-                            else
-                              Text(
-                                booksLabel,
-                                style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  fontSize: 13,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
+  /// The "…" of a tree row. Opening the shelf's books is the row's own tap.
+  Widget _buildRowMenu(BuildContext context, Tag tag) {
+    PopupMenuItem<String> item(String value, IconData icon, String key) =>
+        PopupMenuItem<String>(
+          value: value,
+          child: ListTile(
+            leading: Icon(icon),
+            title: Text(TranslationService.translate(context, key)),
           ),
-        ),
-      ),
+        );
+
+    return PopupMenuButton<String>(
+      tooltip: TranslationService.translate(
+        context,
+        'shelf_actions_named',
+      ).replaceAll('{name}', tag.name),
+      onSelected: (value) {
+        switch (value) {
+          case 'scan':
+            _scanInto(tag);
+          case 'add_sub':
+            _showCreateShelfDialog(parent: tag);
+          case 'edit':
+            _showEditShelfDialog(tag);
+          case 'move':
+            _moveShelf(tag);
+          case 'delete':
+            _showDeleteConfirmDialog(tag);
+        }
+      },
+      itemBuilder: (context) => [
+        item('scan', Icons.qr_code_scanner, 'scan_into_shelf'),
+        if (AppConstants.enableHierarchicalTags)
+          item('add_sub', Icons.create_new_folder_outlined, 'add_sub_shelf'),
+        const PopupMenuDivider(),
+        item('edit', Icons.edit, 'edit_shelf'),
+        if (AppConstants.enableHierarchicalTags)
+          item('move', Icons.drive_file_move, 'move_shelf_to'),
+        item('delete', Icons.delete, 'delete_shelf'),
+      ],
+      icon: const Icon(Icons.more_vert),
     );
   }
 
@@ -1260,11 +732,12 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     }
   }
 
-  void _showCreateShelfDialog() {
+  /// Creates a shelf at the first level, or inside [parent] when a row's
+  /// menu asks for a sub-shelf.
+  void _showCreateShelfDialog({Tag? parent}) {
     final controller = TextEditingController();
     final formKey = GlobalKey<FormState>();
-    // Pre-select current parent if navigating within a sub-shelf
-    Tag? selectedParent = _currentParent;
+    Tag? selectedParent = parent;
 
     showDialog(
       context: context,
@@ -1384,46 +857,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           },
         );
       },
-    );
-  }
-}
-
-/// The explicit way into a shelf's sub-shelves: a labelled pill, where a
-/// bare chevron next to the count used to be the only hint.
-class _SubShelvesChip extends StatelessWidget {
-  final String label;
-
-  const _SubShelvesChip({required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.folder_open, color: Colors.white, size: 16),
-          const SizedBox(width: 6),
-          Flexible(
-            child: Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
-          ),
-          const Icon(Icons.chevron_right, color: Colors.white, size: 16),
-        ],
-      ),
     );
   }
 }

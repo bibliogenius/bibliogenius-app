@@ -68,13 +68,14 @@ const _catalogue = {
     'all_shelves': 'All shelves',
     'book': 'book',
     'books': 'books',
-    'view_shelf_books': 'View books',
+    'shelf_actions_named': 'Actions for {name}',
+    'move_shelf_named': 'Move {name}',
+    'shelf_collapse_named': 'Collapse {name}',
+    'shelf_expand_named': 'Expand {name}',
     'sub_shelves_count': '%d sub-shelf',
     'sub_shelves_count_plural': '%d sub-shelves',
     'displayed_books_count': '%d book',
     'displayed_books_count_plural': '%d books',
-    'displayed_shelves_count': '%d shelf',
-    'displayed_shelves_count_plural': '%d shelves',
     'edit_shelf': 'Edit',
     'shelf_name': 'Shelf name',
     'parent_shelf': 'Parent shelf (optional)',
@@ -170,13 +171,7 @@ void main() {
       Tag(id: 'r', name: 'Roman', parentId: 'g', count: 3),
     ]);
 
-    final card = find.ancestor(
-      of: find.text('Genre'),
-      matching: find.byType(Card),
-    );
-    await tester.tap(
-      find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
-    );
+    await tester.tap(find.byTooltip('Actions for Genre'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Move to…'));
     await tester.pumpAndSettle();

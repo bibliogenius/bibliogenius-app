@@ -28,9 +28,6 @@ Future<bool> showMoveShelfSheet(
   required Tag shelf,
   required List<Tag> allTags,
 }) async {
-  final repo = Provider.of<TagRepository>(context, listen: false);
-  final messenger = ScaffoldMessenger.of(context);
-
   final destination = await showModalBottomSheet<_Destination>(
     context: context,
     isScrollControlled: true,
@@ -69,8 +66,22 @@ Future<bool> showMoveShelfSheet(
     ),
   );
   if (destination == null || !context.mounted) return false;
+  return moveShelf(context, shelf: shelf, parent: destination.parent);
+}
 
-  final parent = destination.parent;
+/// Files [shelf] under [parent] (the first level when null), then says
+/// where it went. Resolves to true once the shelf has moved.
+///
+/// The one write behind every way of moving a shelf, the tree sheet and a
+/// drop in the shelves tab alike, so both send the same update and show the
+/// same message.
+Future<bool> moveShelf(
+  BuildContext context, {
+  required Tag shelf,
+  required Tag? parent,
+}) async {
+  final repo = Provider.of<TagRepository>(context, listen: false);
+  final messenger = ScaffoldMessenger.of(context);
   try {
     final parentId = (await shelfWithRow(repo, parent))?.id;
     if (shelf.isPersisted) {
@@ -81,8 +92,8 @@ Future<bool> showMoveShelfSheet(
       await repo.createTag(shelf.name, parentId: parentId);
     }
   } catch (e) {
-    // The core refuses a move under the shelf's own branch; the tree never
-    // offers one, but a sync can change the tree while the sheet is open.
+    // The core refuses a move under the shelf's own branch; neither the
+    // sheet nor a drop offers one, but a sync can change the tree meanwhile.
     debugPrint('Move shelf: update failed: $e');
     messenger.showSnackBar(SnackBar(content: Text(e.toString())));
     return false;

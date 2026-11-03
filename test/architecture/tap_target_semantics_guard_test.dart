@@ -44,6 +44,7 @@ import 'dart:io';
 import 'dart:ui' show CheckedState, SemanticsAction, SemanticsRole, Tristate;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/rendering.dart';
@@ -94,6 +95,7 @@ import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
 import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
 import 'package:bibliogenius/screens/shelf_management_screen.dart';
+import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
@@ -107,6 +109,7 @@ import 'package:bibliogenius/widgets/collection_selector.dart';
 import 'package:bibliogenius/widgets/collection_stack_widget.dart';
 import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
 import 'package:bibliogenius/widgets/selectable_book_tile.dart';
+import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
 
 import '../helpers/mock_classes.dart';
 import '../helpers/mock_repositories.dart';
@@ -765,6 +768,9 @@ class _Probe {
   final bool collections;
   final bool bottomNav;
 
+  /// The shelves the route lists, when not the shared fixture.
+  final List<Tag>? tags;
+
   /// Taps that lead from the route to the state under audit.
   final Future<void> Function(WidgetTester tester)? reach;
 
@@ -774,6 +780,7 @@ class _Probe {
     this.size = _phone,
     this.collections = false,
     this.bottomNav = true,
+    this.tags,
     this.reach,
   });
 }
@@ -831,29 +838,100 @@ Future<void> _openShelfPicker(WidgetTester tester) async {
   await _tap(tester, add);
 }
 
-/// Opens the menu of the shelves tab card named [name].
-Future<void> _openShelfCardMenu(WidgetTester tester, String name) async {
-  final card = find
-      .ancestor(of: find.text(name), matching: find.byType(Card))
-      .first;
-  await _tap(
-    tester,
-    find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
-  );
-}
+/// The row of the shelves tab tree for the shelf named [name].
+Finder _treeRow(String name) => find.byKey(ValueKey('shelfTreeRow:$name'));
 
-/// "Move to…" from the card of the shelf named [name].
-Future<void> _openMoveFromCard(WidgetTester tester, String name) async {
-  await _openShelfCardMenu(tester, name);
+/// The drag handle of that row, also its "Move <name>" button.
+Finder _treeHandle(String name) =>
+    find.byKey(ValueKey('shelfTreeHandle:$name'));
+
+/// The drop zone a drag shows at the head of the tree.
+final _firstLevelZone = find.byKey(const Key('shelfTreeFirstLevelZone'));
+
+final _treeSearch = find.byKey(const Key('shelfTreeSearch'));
+
+/// Opens the "…" menu of the shelves tab row named [name].
+Future<void> _openShelfRowMenu(WidgetTester tester, String name) =>
+    _tap(tester, find.byTooltip('Actions for $name'));
+
+/// "Move to…" from the menu of the row of the shelf named [name].
+Future<void> _openMoveFromRow(WidgetTester tester, String name) async {
+  await _openShelfRowMenu(tester, name);
   await _tap(tester, find.text('Move to…'));
 }
 
-/// From the shelves grid down to Genre's level, where Science fiction has
-/// its card: a parent's tap opens its sub-shelves.
-Future<void> _openGenreLevel(WidgetTester tester) => _tap(
-  tester,
-  find.ancestor(of: find.text('Genre'), matching: find.byType(Card)).first,
-);
+/// Drags the shelf named [name] onto [target] and lets go: by its handle,
+/// or by a long press on the row as a phone does. A [fast] drop lets go in
+/// the frame the pointer arrives, as a quick mouse flick does.
+Future<void> _dragShelf(
+  WidgetTester tester,
+  String name,
+  Finder target, {
+  bool longPress = false,
+  bool fast = false,
+  PointerDeviceKind kind = PointerDeviceKind.touch,
+}) async {
+  final gesture = await _startShelfDrag(
+    tester,
+    name,
+    longPress: longPress,
+    kind: kind,
+  );
+  // Read after the drag started: the first-level zone only shows then.
+  await gesture.moveTo(tester.getCenter(target));
+  if (!fast) await tester.pump();
+  await gesture.up();
+  await _settle(tester);
+}
+
+/// Picks up the shelf named [name] and holds it just off its place.
+Future<TestGesture> _startShelfDrag(
+  WidgetTester tester,
+  String name, {
+  bool longPress = false,
+  PointerDeviceKind kind = PointerDeviceKind.touch,
+}) async {
+  final from = longPress ? _treeRow(name) : _treeHandle(name);
+  await tester.ensureVisible(from);
+  await _settle(tester);
+  final gesture = await tester.startGesture(
+    tester.getCenter(from),
+    kind: kind,
+  );
+  if (longPress) {
+    await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+  }
+  await gesture.moveBy(const Offset(0, 24));
+  await tester.pump();
+  await tester.pump();
+  return gesture;
+}
+
+/// Where a drag can let go over no drop target: the bottom navigation bar.
+Offset _offTheTree(WidgetTester tester) =>
+    Offset(tester.getCenter(find.byType(ShelvesScreen)).dx, _phone.height - 8);
+
+/// The drag is over: no first-level zone, no branch greyed out.
+void _expectDragOver(WidgetTester tester, List<String> rows) {
+  expect(_firstLevelZone, findsNothing);
+  for (final name in rows) {
+    expect(
+      tester.getSemantics(_treeRow(name)),
+      containsSemantics(hasEnabledState: true, isEnabled: true),
+      reason: name,
+    );
+  }
+}
+
+/// Living room › Novels › Crime › Nordic crime, and Study: four levels,
+/// the deepest past the indentation cap.
+final _treeTags = [
+  Tag(id: 's1', name: 'Living room', count: 2),
+  Tag(id: 's2', name: 'Novels', parentId: 's1', count: 3),
+  Tag(id: 's3', name: 'Crime', parentId: 's2', count: 4),
+  Tag(id: 's4', name: 'Nordic crime', parentId: 's3', count: 1),
+  Tag(id: 's5', name: 'Study', count: 5),
+];
 
 final _moveSheet = find.byKey(const Key('moveShelfSheet'));
 
@@ -905,15 +983,24 @@ final _probes = <_Probe>[
   ),
   const _Probe('library, shelves tab', '/shelves'),
   const _Probe('library, sub-shelves', '/shelves?tag=Genre'),
-  // "Move to…" from a card: the placement tree, a branch greyed out and the
+  // The tree of the tab: chevrons, handles and menus on every row, four
+  // levels deep.
+  _Probe('library, shelves tab, tree', '/shelves', tags: _treeTags),
+  // A shelf picked up: its branch greyed, the first-level zone shown.
+  _Probe(
+    'library, shelves tab, during a drag',
+    '/shelves',
+    tags: _treeTags,
+    reach: (t) async {
+      await _startShelfDrag(t, 'Novels');
+    },
+  ),
+  // "Move to…" from a row: the placement tree, a branch greyed out and the
   // current place marked, both read as disabled.
   _Probe(
     'library, shelves tab, move tree',
     '/shelves',
-    reach: (t) async {
-      await _openGenreLevel(t);
-      await _openMoveFromCard(t, 'Science fiction');
-    },
+    reach: (t) => _openMoveFromRow(t, 'Science fiction'),
   ),
   // The "to shelve" card's list: selection armed from the start, a header of
   // its own in a tab that has no app bar.
@@ -1008,6 +1095,7 @@ Future<_Harness> _render(
   WidgetTester tester,
   _Probe probe, {
   List<Book>? books,
+  List<Tag>? tags,
 }) async {
   tester.view.physicalSize = probe.size;
   tester.view.devicePixelRatio = 1.0;
@@ -1023,6 +1111,8 @@ Future<_Harness> _render(
   addTearDown(() => FlutterError.onError = reportError);
   final harness = _Harness(await SharedPreferences.getInstance());
   if (books != null) harness.books.mockBooks = books;
+  final shelves = tags ?? probe.tags;
+  if (shelves != null) harness.tags.mockTags = shelves;
   // Both setters also push the module list to a server that is not there
   // under test; the flag itself is set before that call and is all the
   // screens read.
@@ -1918,11 +2008,8 @@ void main() {
   // from the management screen alike. A tap is the choice: there is no
   // confirm button that could send a shelf to the first level unasked.
   group('moving a shelf on the real routes', () {
-    final subShelves = _Probe(
-      'sub-shelves',
-      '/shelves',
-      reach: _openGenreLevel,
-    );
+    // Every level is on the tab at once: no descent to reach a sub-shelf.
+    const subShelves = _Probe('sub-shelves', '/shelves');
     final firstLevel = find.descendant(
       of: _moveSheet,
       matching: find.byKey(const ValueKey('placementFirstLevel')),
@@ -1932,7 +2019,7 @@ void main() {
         'marked, a tap moves', (tester) async {
       final handle = tester.ensureSemantics();
       final harness = await _render(tester, subShelves);
-      await _openMoveFromCard(tester, 'Science fiction');
+      await _openMoveFromRow(tester, 'Science fiction');
 
       expect(
         find.descendant(
@@ -1965,7 +2052,7 @@ void main() {
 
     testWidgets('"At the first level" moves with no parent', (tester) async {
       final harness = await _render(tester, subShelves);
-      await _openMoveFromCard(tester, 'Science fiction');
+      await _openMoveFromRow(tester, 'Science fiction');
 
       await _tap(tester, firstLevel);
       expect(harness.tags.updated, ['t3: Science fiction']);
@@ -1982,7 +2069,7 @@ void main() {
         tester,
         const _Probe('shelves', '/shelves'),
       );
-      await _openMoveFromCard(tester, 'Novel');
+      await _openMoveFromRow(tester, 'Novel');
 
       expect(
         tester.getSemantics(firstLevel),
@@ -1999,7 +2086,7 @@ void main() {
     testWidgets('the management screen moves through the same tree, with the '
         'same call', (tester) async {
       final fromTab = await _render(tester, subShelves);
-      await _openMoveFromCard(tester, 'Science fiction');
+      await _openMoveFromRow(tester, 'Science fiction');
       await _tap(tester, _moveRow('Novel'));
 
       final fromManagement = await _render(
@@ -2034,7 +2121,7 @@ void main() {
     testWidgets('the edit dialog only renames, and leaves the shelf where it '
         'is', (tester) async {
       final harness = await _render(tester, subShelves);
-      await _openShelfCardMenu(tester, 'Science fiction');
+      await _openShelfRowMenu(tester, 'Science fiction');
       await _tap(tester, find.text('Edit Shelf'));
 
       final dialog = find.byType(AlertDialog);
@@ -2057,6 +2144,651 @@ void main() {
       );
       await _tap(tester, find.text('Update'));
       expect(harness.tags.updated, ['t3: Sci-fi < t2']);
+    });
+  });
+
+  // The shelves tab is one tree: every level at once, folded by a chevron,
+  // rearranged by dragging a shelf onto another or onto the first level.
+  group('the shelf tree on the real route', () {
+    final tree = _Probe('shelf tree', '/shelves', tags: _treeTags);
+
+    testWidgets('lists every level at once, under the "to shelve" card', (
+      tester,
+    ) async {
+      await _render(tester, tree);
+
+      expect(find.byType(GridView), findsNothing);
+      expect(find.byKey(const Key('toShelveCard')), findsOneWidget);
+      for (final tag in _treeTags) {
+        expect(_treeRow(tag.name), findsOneWidget, reason: tag.name);
+      }
+      // Parents before their children, each level in alphabetical order.
+      final top = [
+        for (final name in ['Living room', 'Novels', 'Crime', 'Study'])
+          tester.getTopLeft(_treeRow(name)).dy,
+      ];
+      expect(top, orderedEquals([...top]..sort()));
+    });
+
+    testWidgets('a tap on a row opens the books of its shelf', (
+      tester,
+    ) async {
+      await _render(tester, const _Probe('shelves', '/shelves'));
+
+      await _tap(tester, _treeRow('Genre'));
+
+      expect(
+        tester.widget<Text>(find.byKey(const Key('shelfHeaderTitle'))).data,
+        'Genre',
+      );
+      // Its sub-shelf's books are its books too.
+      expect(find.text('Dune'), findsWidgets);
+    });
+
+    testWidgets('a row says how many books and sub-shelves it holds', (
+      tester,
+    ) async {
+      await _render(tester, tree);
+
+      expect(
+        find.descendant(
+          of: _treeRow('Living room'),
+          matching: find.text('10 books · 1 sub-shelf'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: _treeRow('Study'), matching: find.text('5 books')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('from the fourth level a row stops moving right and names '
+        'its parent', (tester) async {
+      await _render(tester, tree);
+      double left(String name) => tester
+          .getTopLeft(
+            find.descendant(of: _treeRow(name), matching: find.text(name)),
+          )
+          .dx;
+
+      expect(left('Novels'), greaterThan(left('Living room')));
+      expect(left('Crime'), greaterThan(left('Novels')));
+      expect(left('Nordic crime'), left('Crime'));
+      expect(
+        find.descendant(
+          of: _treeRow('Nordic crime'),
+          matching: find.textContaining('in Living room › Novels › Crime'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: _treeRow('Crime'),
+          matching: find.textContaining('in '),
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('a folded shelf stays folded after leaving the tab', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, tree);
+      final collapse = find.byTooltip('Collapse Living room');
+      expect(
+        tester.getSemantics(collapse),
+        containsSemantics(
+          isButton: true,
+          hasExpandedState: true,
+          isExpanded: true,
+        ),
+      );
+      // A shelf with no sub-shelf has nothing to fold.
+      expect(find.byTooltip('Collapse Study'), findsNothing);
+      expect(find.byTooltip('Expand Study'), findsNothing);
+
+      await _tap(tester, collapse);
+      expect(_treeRow('Novels'), findsNothing);
+      expect(_treeRow('Crime'), findsNothing);
+      final expand = find.byTooltip('Expand Living room');
+      expect(
+        tester.getSemantics(expand),
+        containsSemantics(
+          isButton: true,
+          hasExpandedState: true,
+          isExpanded: false,
+        ),
+      );
+
+      // The tab rebuilt from scratch, as when the reader comes back to it.
+      await _render(tester, tree);
+      expect(_treeRow('Living room'), findsOneWidget);
+      expect(_treeRow('Novels'), findsNothing);
+
+      await _tap(tester, find.byTooltip('Expand Living room'));
+      expect(_treeRow('Novels'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('the handle is a "Move <name>" button that opens the move '
+        'tree', (tester) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(tester, tree);
+      expect(
+        tester.getSemantics(_treeHandle('Crime')),
+        containsSemantics(isButton: true, tooltip: 'Move Crime'),
+      );
+
+      await _tap(tester, _treeHandle('Crime'));
+      expect(
+        find.descendant(
+          of: _moveSheet,
+          matching: find.text('Move “Crime” to…'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        tester.getSemantics(_moveRow('Nordic crime')),
+        containsSemantics(isButton: true, hasEnabledState: true,
+            isEnabled: false),
+      );
+      await _tap(tester, _moveRow('Study'));
+      expect(harness.tags.updated, ['s3: Crime < s5']);
+      handle.dispose();
+    });
+
+    testWidgets('a drop on the shelf itself or one of its sub-shelves is '
+        'refused and writes nothing', (tester) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(tester, tree);
+
+      final gesture = await _startShelfDrag(tester, 'Novels');
+      // The branch in hand reads as disabled, the rest stays a target.
+      for (final name in ['Novels', 'Crime', 'Nordic crime']) {
+        expect(
+          tester.getSemantics(_treeRow(name)),
+          containsSemantics(hasEnabledState: true, isEnabled: false),
+          reason: name,
+        );
+      }
+      expect(
+        tester.getSemantics(_treeRow('Study')),
+        containsSemantics(hasEnabledState: true, isEnabled: true),
+      );
+      await gesture.moveTo(tester.getCenter(_treeRow('Crime')));
+      await tester.pump();
+      await gesture.up();
+      await _settle(tester);
+
+      await _dragShelf(tester, 'Living room', _treeRow('Nordic crime'));
+      await _dragShelf(tester, 'Study', _treeRow('Study'));
+
+      expect(harness.tags.updated, isEmpty);
+      expect(harness.tags.created, isEmpty);
+      expect(find.textContaining('moved'), findsNothing);
+      _expectDragOver(tester, ['Novels', 'Crime', 'Nordic crime']);
+      handle.dispose();
+    });
+
+    testWidgets('a drag ends even when its row has scrolled out of the lazy '
+        'list', (tester) async {
+      final handle = tester.ensureSemantics();
+      final many = [
+        for (var i = 1; i <= 60; i++)
+          Tag(id: 'm$i', name: 'Shelf ${'$i'.padLeft(2, '0')}', count: 1),
+      ];
+      await _render(tester, tree, tags: many);
+
+      final gesture = await _startShelfDrag(tester, 'Shelf 01');
+      // Held at the bottom edge: the list scrolls the picked row out of
+      // its cache, which unmounts it.
+      final mounted = find.byKey(
+        const ValueKey('shelfTreeHandle:Shelf 01'),
+        skipOffstage: false,
+      );
+      final list = tester.getRect(find.byKey(const Key('shelfTreeList')));
+      await gesture.moveTo(list.center);
+      await tester.pump();
+      await gesture.moveTo(Offset(list.center.dx, list.bottom - 8));
+      for (var i = 0; i < 60 && mounted.evaluate().isNotEmpty; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(mounted, findsNothing);
+      await gesture.moveTo(_offTheTree(tester));
+      await tester.pump();
+      await gesture.up();
+      await _settle(tester);
+
+      expect(_firstLevelZone, findsNothing);
+      await tester.scrollUntilVisible(
+        _treeRow('Shelf 01'),
+        -400,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('shelfTreeList')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      _expectDragOver(tester, ['Shelf 01']);
+      handle.dispose();
+    });
+
+    testWidgets('a drag ends even when the tree reloads under it', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final harness = await _render(tester, tree);
+
+      final gesture = await _startShelfDrag(tester, 'Novels');
+      // A sync brings a shelf above the one in hand, then renames it.
+      harness.tags.mockTags = [
+        Tag(id: 's0', name: 'Attic', count: 0),
+        for (final t in _treeTags)
+          t.id == 's2'
+              ? Tag(id: 's2', name: 'Novels 2', parentId: 's1', count: 3)
+              : t,
+      ];
+      harness.refresh.refresh();
+      await _settle(tester);
+      await gesture.moveTo(_offTheTree(tester));
+      await tester.pump();
+      await gesture.up();
+      await _settle(tester);
+
+      expect(harness.tags.updated, isEmpty);
+      _expectDragOver(tester, ['Novels 2', 'Crime', 'Nordic crime']);
+      handle.dispose();
+    });
+
+    testWidgets('a target that became a sub-shelf of the one in hand while '
+        'hovered refuses the drop', (tester) async {
+      final harness = await _render(tester, tree);
+
+      final gesture = await _startShelfDrag(tester, 'Study');
+      await gesture.moveTo(tester.getCenter(_treeRow('Living room')));
+      await tester.pump();
+      // A sync files Living room under Study meanwhile.
+      harness.tags.mockTags = [
+        for (final t in _treeTags)
+          t.id == 's1'
+              ? Tag(id: 's1', name: 'Living room', parentId: 's5', count: 2)
+              : t,
+      ];
+      harness.refresh.refresh();
+      await _settle(tester);
+      await gesture.up();
+      await _settle(tester);
+
+      expect(harness.tags.updated, isEmpty);
+      expect(harness.tags.created, isEmpty);
+    });
+
+    testWidgets('a shelf renamed by a sync while in hand moves under its '
+        'new name', (tester) async {
+      final harness = await _render(tester, tree);
+
+      final gesture = await _startShelfDrag(tester, 'Novels');
+      harness.tags.mockTags = [
+        for (final t in _treeTags)
+          t.id == 's2'
+              ? Tag(id: 's2', name: 'Fiction', parentId: 's1', count: 3)
+              : t,
+      ];
+      harness.refresh.refresh();
+      await _settle(tester);
+      await gesture.moveTo(tester.getCenter(_treeRow('Study')));
+      await tester.pump();
+      await gesture.up();
+      await _settle(tester);
+
+      // The rename made on the other device stays.
+      expect(harness.tags.updated, ['s2: Fiction < s5']);
+    });
+
+    testWidgets('a second finger lifting leaves the drag in progress alone', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+
+      final gesture = await _startShelfDrag(tester, 'Crime');
+      final other = await tester.startGesture(
+        tester.getCenter(_firstLevelZone),
+      );
+      await tester.pump();
+      await other.up();
+      await _settle(tester);
+      expect(_firstLevelZone, findsOneWidget);
+
+      await gesture.moveTo(tester.getCenter(_firstLevelZone));
+      await tester.pump();
+      await gesture.up();
+      await _settle(tester);
+      expect(harness.tags.updated, ['s3: Crime']);
+    });
+
+    testWidgets('picking up a row inside the top scroll band moves nothing '
+        'until the pointer comes back to it', (tester) async {
+      final harness = await _render(tester, tree);
+      harness.tags.mockUnshelvedCount = 0;
+      harness.refresh.refresh();
+      await _settle(tester);
+      await tester.ensureVisible(_treeHandle('Novels'));
+      await _settle(tester);
+      final before = tester.getRect(_treeRow('Novels'));
+
+      final gesture = await _startShelfDrag(tester, 'Novels');
+      final zone = tester.getRect(_firstLevelZone);
+      final pointer = tester.getCenter(_treeHandle('Novels')).dy + 24;
+      // The pick itself lands in the band under the zone.
+      expect(pointer, inInclusiveRange(zone.bottom, zone.bottom + 56));
+      // A finger never holds perfectly still.
+      await gesture.moveBy(const Offset(0, 2));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(tester.getRect(_treeRow('Novels')).top, before.top);
+      await gesture.up();
+      await _settle(tester);
+    });
+
+    testWidgets('a reload that adds a shelf above keeps the drag of the row '
+        'in hand alive', (tester) async {
+      final harness = await _render(tester, tree);
+      State<StatefulWidget> held() => tester.state(
+        find.ancestor(
+          of: _treeHandle('Study'),
+          matching: find.byType(Draggable<Tag>),
+        ),
+      );
+
+      final gesture = await _startShelfDrag(tester, 'Study');
+      final before = held();
+      harness.tags.mockTags = [
+        Tag(id: 's0', name: 'Attic', count: 0),
+        ..._treeTags,
+      ];
+      harness.refresh.refresh();
+      await _settle(tester);
+
+      // The same Draggable: one rebuilt from scratch stops reporting the
+      // drag, and the edge scroll with it.
+      expect(identical(held(), before), isTrue);
+      await gesture.up();
+      await _settle(tester);
+    });
+
+    testWidgets('a drop on a folded shelf unfolds it and shows the shelf at '
+        'its new place', (tester) async {
+      final harness = await _render(tester, tree);
+      await _tap(tester, find.byTooltip('Collapse Living room'));
+
+      final gesture = await _startShelfDrag(tester, 'Study');
+      await gesture.moveTo(tester.getCenter(_treeRow('Living room')));
+      await tester.pump();
+      // What the reload after the write returns: Study inside Living room.
+      harness.tags.mockTags = [
+        for (final t in _treeTags)
+          t.id == 's5'
+              ? Tag(id: 's5', name: 'Study', parentId: 's1', count: 5)
+              : t,
+      ];
+      await gesture.up();
+      await _settle(tester);
+
+      expect(harness.tags.updated, ['s5: Study < s1']);
+      expect(find.byTooltip('Collapse Living room'), findsOneWidget);
+      // Unfolded for good, not only on screen.
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        prefs.getStringList('shelf_tree_collapsed'),
+        isNot(contains('s1')),
+      );
+      expect(_treeRow('Novels'), findsOneWidget);
+      expect(_treeRow('Study'), findsOneWidget);
+      expect(
+        tester.getTopLeft(_treeRow('Study')).dy,
+        greaterThan(tester.getTopLeft(_treeRow('Living room')).dy),
+      );
+    });
+
+    testWidgets('the first row stays a target with the list at its top', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      // No "to shelve" card: the first shelf heads the list, where the
+      // zone shows.
+      harness.tags.mockUnshelvedCount = 0;
+      harness.refresh.refresh();
+      await _settle(tester);
+      expect(find.byKey(const Key('toShelveCard')), findsNothing);
+
+      final gesture = await _startShelfDrag(tester, 'Study');
+      final zone = tester.getRect(_firstLevelZone);
+      // Held just under the zone: the list makes room above its first row.
+      await gesture.moveTo(Offset(zone.center.dx, zone.bottom + 8));
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      final row = tester.getRect(_treeRow('Living room'));
+      expect(row.top, greaterThanOrEqualTo(zone.bottom));
+      await gesture.moveTo(row.center);
+      await tester.pump();
+      await gesture.up();
+      await _settle(tester);
+
+      expect(harness.tags.updated, ['s5: Study < s1']);
+    });
+
+    testWidgets('a folded shelf that loses its sub-shelves and gets new ones '
+        'shows them', (tester) async {
+      final harness = await _render(tester, tree);
+      await _tap(tester, find.byTooltip('Collapse Living room'));
+      Future<void> reload(List<Tag> tags) async {
+        harness.tags.mockTags = tags;
+        harness.refresh.refresh();
+        await _settle(tester);
+      }
+
+      // Novels moved away from another device: Living room has no child.
+      await reload([
+        for (final t in _treeTags)
+          t.id == 's2' ? Tag(id: 's2', name: 'Novels', count: 3) : t,
+      ]);
+      // Then a new sub-shelf is filed under it.
+      await reload([
+        ...harness.tags.mockTags,
+        Tag(id: 's6', name: 'Poetry', parentId: 's1', count: 0),
+      ]);
+
+      expect(_treeRow('Poetry'), findsOneWidget);
+    });
+
+    testWidgets('a drop on the first-level zone moves with no parent', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      expect(_firstLevelZone, findsNothing);
+
+      await _dragShelf(tester, 'Crime', _firstLevelZone);
+
+      expect(harness.tags.updated, ['s3: Crime']);
+      expect(find.text('Crime moved to the first level'), findsOneWidget);
+      expect(_firstLevelZone, findsNothing);
+    });
+
+    testWidgets('picking a shelf up moves no row under the finger, and the '
+        'zone shows in sight, one node', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, tree);
+      // Scrolled first, as a reader does: the library header has gone and
+      // its pinned tabs cover the top of the tab.
+      await tester.ensureVisible(_treeHandle('Study'));
+      await _settle(tester);
+      final before = tester.getRect(_treeRow('Study'));
+
+      final gesture = await _startShelfDrag(tester, 'Study', longPress: true);
+
+      expect(tester.getRect(_treeRow('Study')), before);
+      final zone = tester.getRect(_firstLevelZone);
+      final hit = HitTestResult();
+      tester.binding.hitTestInView(hit, zone.center, tester.view.viewId);
+      expect(
+        hit.path.map((e) => e.target),
+        contains(tester.renderObject(_firstLevelZone)),
+        reason: 'the zone is under something else',
+      );
+      expect(
+        tester.getSemantics(_firstLevelZone),
+        containsSemantics(label: 'First level'),
+      );
+      await gesture.up();
+      await _settle(tester);
+      handle.dispose();
+    });
+
+    testWidgets('a drop on a row files the shelf inside it', (tester) async {
+      final harness = await _render(tester, tree);
+
+      await _dragShelf(tester, 'Crime', _treeRow('Study'));
+
+      expect(harness.tags.updated, ['s3: Crime < s5']);
+      expect(find.text('Crime moved under Study'), findsOneWidget);
+    });
+
+    testWidgets('a long press on a row picks the shelf up', (tester) async {
+      final harness = await _render(tester, tree);
+
+      await _dragShelf(tester, 'Study', _treeRow('Novels'), longPress: true);
+
+      expect(harness.tags.updated, ['s5: Study < s2']);
+    });
+
+    // A mouse drags by the handle. The macOS mouse tracker crash on a quick
+    // drop does not reproduce under test: the deferred state change that
+    // avoids it is checked by hand on a Mac.
+    testWidgets('a quick mouse drop on the desktop layout moves the shelf', (
+      tester,
+    ) async {
+      final harness = await _render(
+        tester,
+        _Probe('desktop tree', '/shelves', size: _desktop, tags: _treeTags),
+      );
+
+      await _dragShelf(
+        tester,
+        'Crime',
+        _treeRow('Study'),
+        fast: true,
+        kind: PointerDeviceKind.mouse,
+      );
+
+      expect(tester.takeException(), isNull);
+      expect(harness.tags.updated, ['s3: Crime < s5']);
+    });
+
+    testWidgets('a shelf known only from the books gets its row before it '
+        'takes a sub-shelf', (tester) async {
+      final harness = await _render(
+        tester,
+        tree,
+        tags: [
+          ..._treeTags,
+          Tag(id: '${Tag.syntheticIdPrefix}-1', name: 'Loose', count: 1),
+        ],
+      );
+
+      await _dragShelf(tester, 'Study', _treeRow('Loose'));
+
+      // The mock gives every created row the id '1'.
+      expect(harness.tags.created, ['Loose']);
+      expect(harness.tags.updated, ['s5: Study < 1']);
+    });
+
+    testWidgets('a search field shows past fifteen shelves and keeps the '
+        'parents of what it finds', (tester) async {
+      final filler = [
+        for (var i = 1; i <= 11; i++)
+          Tag(id: 'f$i', name: 'Shelf $i', count: 0),
+      ];
+      await _render(tester, tree, tags: [..._treeTags, ...filler.take(10)]);
+      expect(_treeSearch, findsNothing);
+
+      await _render(tester, tree, tags: [..._treeTags, ...filler]);
+      expect(_treeSearch, findsOneWidget);
+      await tester.enterText(_treeSearch, 'nordic');
+      await _settle(tester);
+
+      for (final name in ['Living room', 'Novels', 'Crime', 'Nordic crime']) {
+        expect(_treeRow(name), findsOneWidget, reason: name);
+      }
+      expect(_treeRow('Study'), findsNothing);
+      expect(_treeRow('Shelf 1'), findsNothing);
+    });
+
+    testWidgets('two hundred shelves build lazily, the last one in reach', (
+      tester,
+    ) async {
+      final many = [
+        for (var i = 0; i < 200; i++)
+          Tag(
+            id: 'p$i',
+            name: 'Shelf $i',
+            parentId: i % 4 == 0 ? null : 'p${i - i % 4}',
+            count: 1,
+          ),
+      ];
+      await _render(tester, tree, tags: many);
+
+      // Built rows, the off-screen cache included: a list built in one go
+      // would hold all two hundred.
+      expect(
+        find.byType(ShelfTreeRow, skipOffstage: false).evaluate().length,
+        lessThan(40),
+      );
+      await tester.scrollUntilVisible(
+        _treeRow('Shelf 199'),
+        400,
+        scrollable: find
+            .descendant(
+              of: find.byKey(const Key('shelfTreeList')),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      expect(_treeRow('Shelf 199'), findsOneWidget);
+    });
+
+    testWidgets('the + creates at the first level, a row\'s menu inside it', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tree);
+      Future<void> create(String name) async {
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.byType(TextFormField),
+          ),
+          name,
+        );
+        await _tap(tester, find.text('Create'));
+      }
+
+      await _tap(
+        tester,
+        find.descendant(
+          of: find.byType(ShelvesScreen),
+          matching: find.byType(FloatingActionButton),
+        ),
+      );
+      await create('Poetry');
+      await _openShelfRowMenu(tester, 'Study');
+      await _tap(tester, find.text('Add Sub-Shelf'));
+      await create('Essays');
+
+      expect(harness.tags.created, ['Poetry', 'Essays < s5']);
     });
   });
 

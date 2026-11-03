@@ -1677,14 +1677,6 @@ msgstr "%d colección mostrada"
 msgid "displayed_collections_count_plural"
 msgstr "%d colecciones mostradas"
 
-#. %d shelf
-msgid "displayed_shelves_count"
-msgstr "%d estantería mostrada"
-
-#. %d shelves
-msgid "displayed_shelves_count_plural"
-msgstr "%d estanterías mostradas"
-
 #. Keep exploring new genres!
 msgid "diversity_encouragement"
 msgstr "¡Explora nuevos géneros para diversificar tus lecturas!"
@@ -11765,10 +11757,6 @@ msgstr "Mostrar los libros que no tengo"
 msgid "settings_show_not_owned_books_desc"
 msgstr "Los deseos y los libros leídos sin tenerlos aparecen en la biblioteca junto a los demás."
 
-#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
-msgid "view_shelf_books"
-msgstr "Ver los libros"
-
 #. Shelf card: how many sub-shelves the tap opens, singular
 msgid "sub_shelves_count"
 msgstr "%d subestantería"
@@ -12411,3 +12399,27 @@ msgstr "{name} movida a {parent}"
 #. {name} moved to the first level
 msgid "shelf_moved_to_first_level"
 msgstr "{name} movida al primer nivel"
+
+#. Shelves tab tree: tooltip of the chevron that unfolds a shelf, {name} is the shelf
+msgid "shelf_expand_named"
+msgstr "Desplegar {name}"
+
+#. Shelves tab tree: tooltip of the chevron that folds a shelf, {name} is the shelf
+msgid "shelf_collapse_named"
+msgstr "Plegar {name}"
+
+#. Shelves tab tree: the drag handle of a row, also a button that opens Move to..., {name} is the shelf
+msgid "move_shelf_named"
+msgstr "Mover {name}"
+
+#. Shelves tab tree: tooltip of the menu of a row, {name} is the shelf
+msgid "shelf_actions_named"
+msgstr "Acciones para {name}"
+
+#. Shelves tab tree: second line of the row a dragged shelf hovers, {name} is that row's shelf
+msgid "shelf_drop_into"
+msgstr "Suelta para guardar en {name}"
+
+#. Shelves tab tree: second line of the row of the shelf being dragged
+msgid "shelf_being_moved"
+msgstr "moviéndose"

@@ -1543,14 +1543,6 @@ msgstr "%d 个合集"
 msgid "displayed_collections_count_plural"
 msgstr "%d 个合集"
 
-#. %d shelf
-msgid "displayed_shelves_count"
-msgstr "%d 个书架"
-
-#. %d shelves
-msgid "displayed_shelves_count_plural"
-msgstr "%d 个书架"
-
 #. Keep exploring new genres!
 msgid "diversity_encouragement"
 msgstr "继续探索新的类型吧！"
@@ -12258,10 +12250,6 @@ msgstr "显示我未拥有的图书"
 msgid "settings_show_not_owned_books_desc"
 msgstr "心愿单中的书以及读过但未拥有的书，将与其他图书一起显示在图书馆中。"
 
-#. Shelves grid: button opening the book list of a parent shelf (sub-shelves included)
-msgid "view_shelf_books"
-msgstr "查看图书"
-
 #. Shelf card: how many sub-shelves the tap opens, singular
 msgid "sub_shelves_count"
 msgstr "%d 个子书架"
@@ -12552,3 +12540,27 @@ msgstr "已将{name}移到{parent}下"
 #. {name} moved to the first level
 msgid "shelf_moved_to_first_level"
 msgstr "已将{name}移到第一层"
+
+#. Shelves tab tree: tooltip of the chevron that unfolds a shelf, {name} is the shelf
+msgid "shelf_expand_named"
+msgstr "展开{name}"
+
+#. Shelves tab tree: tooltip of the chevron that folds a shelf, {name} is the shelf
+msgid "shelf_collapse_named"
+msgstr "折叠{name}"
+
+#. Shelves tab tree: the drag handle of a row, also a button that opens Move to..., {name} is the shelf
+msgid "move_shelf_named"
+msgstr "移动{name}"
+
+#. Shelves tab tree: tooltip of the menu of a row, {name} is the shelf
+msgid "shelf_actions_named"
+msgstr "{name}的操作"
+
+#. Shelves tab tree: second line of the row a dragged shelf hovers, {name} is that row's shelf
+msgid "shelf_drop_into"
+msgstr "松开以放入{name}"
+
+#. Shelves tab tree: second line of the row of the shelf being dragged
+msgid "shelf_being_moved"
+msgstr "正在移动"

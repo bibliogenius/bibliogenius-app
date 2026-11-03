@@ -12,10 +12,10 @@ import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 
-/// The shelves grid: what a shelf card tells the reader, what its tap does,
-/// and when the grid reloads.
+/// The shelves tab tree: what a shelf row tells the reader, what its tap
+/// does, and when the tree reloads.
 ///
-/// The grid used to load its tags once and never again while its tab stayed
+/// The tab used to load its tags once and never again while its tab stayed
 /// mounted, so a shelf created from a book form showed up only after leaving
 /// the tab. And a delete "succeeded" while the shelf stayed on screen: the
 /// name lived on in the books' subjects and came back as a synthetic orphan
@@ -62,13 +62,14 @@ const _catalogue = {
     'all_shelves': 'All shelves',
     'book': 'book',
     'books': 'books',
-    'view_shelf_books': 'View books',
+    'shelf_actions_named': 'Actions for {name}',
+    'move_shelf_named': 'Move {name}',
+    'shelf_collapse_named': 'Collapse {name}',
+    'shelf_expand_named': 'Expand {name}',
     'sub_shelves_count': '%d sub-shelf',
     'sub_shelves_count_plural': '%d sub-shelves',
     'displayed_books_count': '%d book',
     'displayed_books_count_plural': '%d books',
-    'displayed_shelves_count': '%d shelf',
-    'displayed_shelves_count_plural': '%d shelves',
     'shelf_deleted': 'Shelf "%s" deleted.',
     'delete_shelf': 'Delete shelf',
     'delete_shelf_confirm': 'Delete "%s"?',
@@ -154,28 +155,27 @@ void main() {
   ) async {
     await pump(tester);
 
-    // The explicit affordance, not a bare chevron: the reader is told what
-    // the tap opens. The book number is the whole subtree.
-    expect(find.text('2 sub-shelves'), findsOneWidget);
-    expect(find.text('5'), findsOneWidget);
+    // Spelled out under the name, not left to a bare chevron. The book
+    // number is the whole subtree.
+    expect(find.text('5 books · 2 sub-shelves'), findsOneWidget);
     // Leaves keep the plain book count.
+    expect(find.text('3 books'), findsOneWidget);
     expect(find.text('1 book'), findsOneWidget);
   });
 
-  testWidgets('tapping a parent shelf opens its sub-shelves, never an empty '
-      'book list', (tester) async {
+  testWidgets('a parent shelf shows its sub-shelves under it, and its tap '
+      'opens the books of the whole shelf', (tester) async {
     await pump(tester);
 
-    await tester.tap(find.text('Genre'));
-    await tester.pumpAndSettle();
-
-    expect(navigated, isEmpty);
+    // No descent: the sub-shelves are already in sight.
     expect(find.text('Roman'), findsOneWidget);
     expect(find.text('Polar'), findsOneWidget);
-    // The level header names where the reader is and offers the books of the
-    // whole shelf, which is the only way to reach them from here.
-    expect(find.text('View books'), findsOneWidget);
-    await tester.tap(find.text('View books'));
+    expect(
+      tester.getTopLeft(find.text('Roman')).dy,
+      greaterThan(tester.getTopLeft(find.text('Genre')).dy),
+    );
+
+    await tester.tap(find.text('Genre'));
     await tester.pumpAndSettle();
     expect(navigated, ['/shelves?tag=Genre']);
   });
@@ -189,19 +189,13 @@ void main() {
     expect(navigated, ['/shelves?tag=Thriller']);
   });
 
-  testWidgets('deleting a shelf goes through deleteShelf and the grid '
+  testWidgets('deleting a shelf goes through deleteShelf and the tree '
       'reloads at once', (tester) async {
     await pump(tester);
 
     // The orphan has no `tags` row: the old uuid-only path silently skipped it
-    // and reported success while the card stayed on screen.
-    final card = find.ancestor(
-      of: find.text('Thriller'),
-      matching: find.byType(Card),
-    );
-    await tester.tap(
-      find.descendant(of: card, matching: find.byIcon(Icons.more_vert)),
-    );
+    // and reported success while the row stayed on screen.
+    await tester.tap(find.byTooltip('Actions for Thriller'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
     await tester.pumpAndSettle();
@@ -212,12 +206,12 @@ void main() {
     expect(find.text('Thriller'), findsNothing);
   });
 
-  testWidgets('a book change elsewhere reloads the grid and keeps the level', (
-    tester,
-  ) async {
+  testWidgets('a book change elsewhere reloads the tree and keeps what the '
+      'reader folded', (tester) async {
     await pump(tester);
-    await tester.tap(find.text('Genre'));
+    await tester.tap(find.byTooltip('Collapse Genre'));
     await tester.pumpAndSettle();
+    expect(find.text('Roman'), findsNothing);
     final readsBefore = repo.reads;
 
     // A book form filed a book under a new sub-genre while this tab stayed
@@ -225,15 +219,20 @@ void main() {
     repo.tags = [
       ...repo.tags,
       Tag(id: 'sf', name: 'Science-fiction', parentId: 'g', count: 1),
+      Tag(id: 'c', name: 'Comics', count: 1),
     ];
     bookRefresh.refresh();
     await tester.pumpAndSettle();
 
     expect(repo.reads, greaterThan(readsBefore));
+    expect(find.text('Comics'), findsOneWidget);
+    // Genre stays folded: a data refresh must not undo what the reader
+    // chose to hide.
+    expect(find.text('Science-fiction'), findsNothing);
+    expect(find.byTooltip('Expand Genre'), findsOneWidget);
+    await tester.tap(find.byTooltip('Expand Genre'));
+    await tester.pumpAndSettle();
     expect(find.text('Science-fiction'), findsOneWidget);
-    // Still inside "Genre": a data refresh must not throw the reader back to
-    // the root.
-    expect(find.text('View books'), findsOneWidget);
   });
 
   // The "to shelve" card: the books on no shelf, gathered at the head of the
@@ -288,14 +287,14 @@ void main() {
       expect(navigated, ['/shelves?unshelved=1&select=1&owned=library']);
     });
 
-    testWidgets('stays at the first level only', (tester) async {
+    testWidgets('heads the tree, above the first shelf', (tester) async {
       repo.unshelved = 3;
       await pump(tester);
 
-      await tester.tap(find.text('Genre'));
-      await tester.pumpAndSettle();
-
-      expect(card, findsNothing);
+      expect(
+        tester.getBottomLeft(card).dy,
+        lessThanOrEqualTo(tester.getTopLeft(find.text('Genre')).dy),
+      );
     });
 
     testWidgets('is shown above the empty state too', (tester) async {
@@ -324,7 +323,7 @@ void main() {
     });
   });
 
-  testWidgets('the tab refresh notifier reloads the grid too', (tester) async {
+  testWidgets('the tab refresh notifier reloads the tree too', (tester) async {
     await pump(tester);
     final readsBefore = repo.reads;
 
