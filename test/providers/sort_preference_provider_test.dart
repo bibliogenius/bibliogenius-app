@@ -41,56 +41,91 @@ void main() {
     expect(provider.sortDir, SortDir.asc);
   });
 
-  test('the shelf order sits beside the sort, leaving it untouched', () async {
-    // A reader in "Title Z-A" saves a shelf order: inside a shelf the list
-    // decides to honour it, and outside the shelf "Title Z-A" is still there.
+  test('the shelf order sits beside the sort, shelf by shelf, leaving the '
+      'sort untouched', () async {
+    // A reader in "Title Z-A" saves the order of one shelf: that shelf
+    // honours it, the others and the rest of the library keep "Title Z-A".
     SharedPreferences.setMockInitialValues({
       'library_sort_by': 'title',
       'library_sort_dir': 'desc',
     });
     final provider = SortPreferenceProvider();
     await provider.load();
-    expect(provider.shelfOrder, isFalse);
+    expect(provider.shelfOrderFor('salon'), isFalse);
 
-    await provider.setShelfOrder(true);
-    expect(provider.shelfOrder, isTrue);
+    await provider.setShelfOrder('salon', true);
+    expect(provider.shelfOrderFor('salon'), isTrue);
+    expect(provider.shelfOrderFor('bureau'), isFalse);
+    expect(provider.shelfOrderFor(null), isFalse);
     expect(provider.sortBy, SortBy.title);
     expect(provider.sortDir, SortDir.desc);
 
     final prefs = await SharedPreferences.getInstance();
-    expect(prefs.getBool('library_shelf_order'), isTrue);
+    expect(prefs.getStringList('shelf_order_ids'), ['salon']);
     expect(prefs.getString('library_sort_by'), 'title');
     expect(prefs.getString('library_sort_dir'), 'desc');
 
     // And it survives a relaunch.
     final reloaded = SortPreferenceProvider();
     await reloaded.load();
-    expect(reloaded.shelfOrder, isTrue);
+    expect(reloaded.shelfOrderFor('salon'), isTrue);
+    expect(reloaded.shelfOrderFor('bureau'), isFalse);
     expect(reloaded.sortBy, SortBy.title);
     expect(reloaded.sortDir, SortDir.desc);
   });
 
-  test('picking a field sort notifies once and drops the shelf order',
-      () async {
-    SharedPreferences.setMockInitialValues({'library_shelf_order': true});
+  test('picking a field sort in a shelf notifies once and drops that '
+      "shelf's order only", () async {
+    SharedPreferences.setMockInitialValues({
+      'shelf_order_ids': ['salon', 'bureau'],
+    });
     final provider = SortPreferenceProvider();
     await provider.load();
     var notifyCount = 0;
     provider.addListener(() => notifyCount++);
 
-    await provider.setFieldSort(SortBy.title, SortDir.desc);
+    await provider.setFieldSort(SortBy.title, SortDir.desc, shelfId: 'bureau');
     expect(notifyCount, 1, reason: 'field, direction and flag change as one');
     expect(provider.sortBy, SortBy.title);
     expect(provider.sortDir, SortDir.desc);
-    expect(provider.shelfOrder, isFalse);
+    expect(provider.shelfOrderFor('bureau'), isFalse);
+    expect(provider.shelfOrderFor('salon'), isTrue);
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString('library_sort_by'), 'title');
     expect(prefs.getString('library_sort_dir'), 'desc');
-    expect(prefs.getBool('library_shelf_order'), isFalse);
+    expect(prefs.getStringList('shelf_order_ids'), ['salon']);
 
-    await provider.setFieldSort(SortBy.title, SortDir.desc);
+    await provider.setFieldSort(SortBy.title, SortDir.desc, shelfId: 'bureau');
     expect(notifyCount, 1, reason: 'same choice must not notify');
+  });
+
+  test('picking a field sort outside a shelf leaves every shelf order',
+      () async {
+    SharedPreferences.setMockInitialValues({
+      'shelf_order_ids': ['salon'],
+    });
+    final provider = SortPreferenceProvider();
+    await provider.load();
+
+    await provider.setFieldSort(SortBy.title, SortDir.asc);
+
+    expect(provider.shelfOrderFor('salon'), isTrue);
+  });
+
+  test('shelves that no longer exist are forgotten', () async {
+    SharedPreferences.setMockInitialValues({
+      'shelf_order_ids': ['salon', 'gone'],
+    });
+    final provider = SortPreferenceProvider();
+    await provider.load();
+
+    await provider.retainShelfOrders({'salon', 'bureau'});
+
+    expect(provider.shelfOrderFor('gone'), isFalse);
+    expect(provider.shelfOrderFor('salon'), isTrue);
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getStringList('shelf_order_ids'), ['salon']);
   });
 
   test('a persisted shelf value for the field is read as author', () async {

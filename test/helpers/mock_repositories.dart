@@ -90,8 +90,12 @@ class MockTagRepository implements TagRepository {
   /// created shelf is not added to [mockTags], which tests often share.
   final List<String> created = [];
 
+  /// Thrown by [createTag] when set, as the core does for a name taken.
+  Object? mockCreateError;
+
   @override
   Future<Tag> createTag(String name, {String? parentId}) async {
+    if (mockCreateError != null) throw mockCreateError!;
     created.add(parentId == null ? name : '$name < $parentId');
     return Tag(id: '1', name: name, parentId: parentId, count: 0);
   }

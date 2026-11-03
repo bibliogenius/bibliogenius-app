@@ -1603,7 +1603,8 @@ void main() {
         findsOneWidget,
       );
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('library_shelf_order'), isTrue);
+      // Novel, and Novel alone, follows its order now.
+      expect(prefs.getStringList('shelf_order_ids'), ['t1']);
       expect(prefs.getString('library_sort_by'), isNull);
       expect(find.text('Shelf order'), findsOneWidget);
     });
@@ -1670,7 +1671,7 @@ void main() {
       // Anomaly first.
       SharedPreferences.setMockInitialValues({
         'languageCode': 'en',
-        'library_shelf_order': true,
+        'shelf_order_ids': ['t1'],
         'library_sort_by': 'title',
         'library_sort_dir': 'desc',
       });
@@ -1712,7 +1713,7 @@ void main() {
     ) async {
       SharedPreferences.setMockInitialValues({
         'languageCode': 'en',
-        'library_shelf_order': true,
+        'shelf_order_ids': ['t1'],
       });
       await _render(
         tester,
@@ -1757,6 +1758,292 @@ void main() {
       await openSortMenu(tester, 'Author');
       expect(find.text('Shelf order'), findsOneWidget);
       expect(checkedMenuItem('Author (A-Z)'), findsOneWidget);
+    });
+
+    // Each shelf remembers whether it follows its own order: what is chosen
+    // in one shelf never reorders another.
+    Future<void> openShelf(WidgetTester tester, String name) async {
+      await _tap(tester, find.byKey(const Key('shelfBackButton')));
+      await _tap(tester, _treeRow(name));
+    }
+
+    Future<void> pickSort(WidgetTester tester, String pill, String item) async {
+      await openSortMenu(tester, pill);
+      await tester.tap(find.text(item).last);
+      await _settle(tester);
+    }
+
+    // Two books on Science fiction whose positions contradict the author
+    // order (Herbert before Simmons).
+    final twoShelves = [
+      for (final b in novels)
+        if (b.id != 'b2') b,
+      Book(
+        id: 'b2',
+        title: 'Dune',
+        author: 'Frank Herbert',
+        readingStatus: 'reading',
+        subjects: ['Science fiction'],
+        shelfPosition: 1,
+      ),
+      Book(
+        id: 'b6',
+        title: 'Hyperion',
+        author: 'Dan Simmons',
+        readingStatus: 'read',
+        subjects: ['Science fiction'],
+        shelfPosition: 0,
+      ),
+    ];
+
+    testWidgets('an order saved on one shelf leaves another on the library '
+        'sort', (tester) async {
+      await _render(tester, shelf, books: twoShelves);
+      await _tap(tester, reorder);
+      await _tap(tester, find.byTooltip('Save order'));
+      expect(find.text('Shelf order'), findsOneWidget);
+
+      await openShelf(tester, 'Science fiction');
+      await toListView(tester);
+
+      expect(find.text('Author'), findsOneWidget);
+      expect(find.text('Shelf order'), findsNothing);
+      expect(before(at(tester, 'Dune'), at(tester, 'Hyperion')), isTrue);
+    });
+
+    testWidgets('a field sort picked in one shelf leaves the order of '
+        'another', (tester) async {
+      await _render(tester, shelf, books: twoShelves);
+      await pickSort(tester, 'Author', 'Shelf order');
+      await openShelf(tester, 'Science fiction');
+      await pickSort(tester, 'Author', 'Shelf order');
+      await pickSort(tester, 'Shelf order', 'Author (A-Z)');
+      expect(find.text('Author'), findsOneWidget);
+
+      await openShelf(tester, 'Novel');
+      expect(find.text('Shelf order'), findsOneWidget);
+    });
+
+    testWidgets('deleting a shelf forgets its order', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'shelf_order_ids': ['t1', 't3'],
+      });
+      await _render(tester, const _Probe('shelves', '/shelves'));
+
+      await _openShelfRowMenu(tester, 'Novel');
+      await _tap(tester, find.text('Delete Shelf'));
+      await _tap(tester, find.widgetWithText(ElevatedButton, 'Delete'));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('shelf_order_ids'), ['t3']);
+    });
+
+    testWidgets('the order of a shelf gone meanwhile is forgotten', (
+      tester,
+    ) async {
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'shelf_order_ids': ['t1', 'gone'],
+      });
+      await _render(tester, const _Probe('shelves', '/shelves'));
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('shelf_order_ids'), ['t1']);
+    });
+
+    // A shelf known only from the books, with two books on it.
+    final looseBooks = [
+      for (final b in _books) b,
+      Book(id: 'b7', title: 'Loose leaves', author: 'Ann Able',
+          readingStatus: 'read', subjects: ['Loose']),
+      Book(id: 'b8', title: 'Loose ends', author: 'Bob Baker',
+          readingStatus: 'read', subjects: ['Loose']),
+    ];
+    final looseTags = [
+      ..._tags,
+      Tag(id: '${Tag.syntheticIdPrefix}-1', name: 'Loose', count: 2),
+    ];
+    const looseShelf = _Probe('loose shelf', '/shelves?tag=Loose');
+
+    testWidgets('a shelf known only from the books follows its order once it '
+        'has its row, created once', (tester) async {
+      final harness = await _render(
+        tester,
+        looseShelf,
+        books: looseBooks,
+        tags: looseTags,
+      );
+
+      await pickSort(tester, 'Author', 'Shelf order');
+      expect(find.text('Shelf order'), findsOneWidget);
+      await pickSort(tester, 'Shelf order', 'Shelf order');
+
+      expect(harness.tags.created, ['Loose']);
+    });
+
+    testWidgets('a shelf given its row meanwhile is found by name', (
+      tester,
+    ) async {
+      final harness = await _render(
+        tester,
+        looseShelf,
+        books: looseBooks,
+        tags: looseTags,
+      );
+      // A sync created the row since the list loaded: creating it again
+      // fails on the unique name.
+      harness.tags
+        ..mockTags = [..._tags, Tag(id: 'u9', name: 'Loose', count: 2)]
+        ..mockCreateError = Exception('UNIQUE constraint failed: tags.name');
+
+      await pickSort(tester, 'Author', 'Shelf order');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('shelf_order_ids'), ['u9']);
+      expect(find.text('Shelf order'), findsOneWidget);
+    });
+
+    testWidgets('saving an order the shelf cannot follow says so', (
+      tester,
+    ) async {
+      final harness = await _render(
+        tester,
+        looseShelf,
+        books: looseBooks,
+        tags: looseTags,
+      );
+      harness.tags.mockCreateError = Exception('storage failure');
+
+      await _tap(tester, reorder);
+      await _tap(tester, find.byTooltip('Save order'));
+
+      expect(find.textContaining('Order saved'), findsNothing);
+      expect(find.textContaining('Error saving order'), findsOneWidget);
+    });
+
+    testWidgets('a shelf whose name differs from another only by case keeps '
+        'its own order', (tester) async {
+      // Shelf names are unique byte for byte: "Novel" and "novel" are two
+      // shelves.
+      await _render(
+        tester,
+        const _Probe('lower-case shelf', '/shelves?tag=novel'),
+        books: [
+          for (final b in _books) b,
+          Book(id: 'b9', title: 'Lower', readingStatus: 'read',
+              subjects: ['novel']),
+        ],
+        tags: [..._tags, Tag(id: 't9', name: 'novel', count: 1)],
+      );
+
+      await pickSort(tester, 'Author', 'Shelf order');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('shelf_order_ids'), ['t9']);
+    });
+
+    testWidgets('"Shelf order" a shelf cannot follow says so', (tester) async {
+      final harness = await _render(
+        tester,
+        looseShelf,
+        books: looseBooks,
+        tags: looseTags,
+      );
+      harness.tags.mockCreateError = Exception('storage failure');
+
+      await pickSort(tester, 'Author', 'Shelf order');
+
+      expect(find.textContaining('Error saving order'), findsOneWidget);
+    });
+
+    testWidgets('a failed save leaves the books in the order the sort '
+        'announces', (tester) async {
+      final harness = await _render(
+        tester,
+        looseShelf,
+        books: looseBooks,
+        tags: looseTags,
+      );
+      harness.tags.mockCreateError = Exception('storage failure');
+      await toListView(tester);
+      await _tap(tester, reorder);
+
+      // Ends (Baker, b8) dragged above Leaves (Able, b7) by its handle. The
+      // cards are keyed `ValueKey(book.id ?? index)`, an Object key.
+      final ends = find.byKey(const ValueKey<Object>('b8'));
+      final leaves = find.byKey(const ValueKey<Object>('b7'));
+      final gesture = await tester.startGesture(
+        tester.getCenter(
+          find.descendant(of: ends, matching: find.byIcon(Icons.drag_handle)),
+        ),
+      );
+      await tester.pump();
+      final lift = tester.getTopLeft(leaves).dy - tester.getTopLeft(ends).dy;
+      for (var i = 1; i <= 4; i++) {
+        await gesture.moveBy(Offset(0, (lift - 20) / 4));
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await gesture.up();
+      await _settle(tester);
+      expect(
+        before(tester.getTopLeft(ends), tester.getTopLeft(leaves)),
+        isTrue,
+        reason: 'the drag did not move the book',
+      );
+
+      await _tap(tester, find.byTooltip('Save order'));
+      expect(find.textContaining('Error saving order'), findsOneWidget);
+
+      // Back to author A-Z, as the pill says: Able before Baker.
+      expect(find.text('Author'), findsOneWidget);
+      expect(
+        before(at(tester, 'Loose leaves'), at(tester, 'Loose ends')),
+        isTrue,
+      );
+    });
+
+    testWidgets('a library that lists no shelf keeps every saved order', (
+      tester,
+    ) async {
+      // The FFI listing answers an empty list on any core error: nothing
+      // there says the shelves are gone.
+      SharedPreferences.setMockInitialValues({
+        'languageCode': 'en',
+        'shelf_order_ids': ['t1'],
+      });
+      await _render(
+        tester,
+        const _Probe('shelves', '/shelves'),
+        tags: const [],
+      );
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('shelf_order_ids'), ['t1']);
+    });
+
+    testWidgets('a shelf known only from the books gets its row before it '
+        'follows its order', (tester) async {
+      final harness = await _render(
+        tester,
+        const _Probe('loose shelf', '/shelves?tag=Loose'),
+        books: [
+          for (final b in _books) b,
+          Book(id: 'b7', title: 'Loose', readingStatus: 'read',
+              subjects: ['Loose']),
+        ],
+        tags: [
+          ..._tags,
+          Tag(id: '${Tag.syntheticIdPrefix}-1', name: 'Loose', count: 1),
+        ],
+      );
+
+      await pickSort(tester, 'Author', 'Shelf order');
+
+      // The mock gives every created row the id '1'.
+      expect(harness.tags.created, ['Loose']);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('shelf_order_ids'), ['1']);
     });
   });
 

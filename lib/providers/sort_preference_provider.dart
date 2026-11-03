@@ -1,23 +1,25 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/shelf_id_set_store.dart';
 import '../utils/book_sort.dart';
 
 /// Persists the user's library sort preference (field + direction).
 ///
-/// The preference is global to the app: it drives the default ordering of
-/// every library view. Saving a drag-and-drop order on a shelf raises
-/// [shelfOrder] beside it, without touching field or direction: inside a
-/// shelf the saved order wins, everywhere else the list follows the last
-/// author or title sort the reader chose (see `book_list_screen.dart`).
+/// Field and direction are global to the app: they drive the default
+/// ordering of every library view. Beside them, each shelf remembers on
+/// this device whether it reads in the order saved by hand
+/// ([shelfOrderFor]): saving an order or picking "Shelf order" in a shelf
+/// turns it on for that shelf alone, and picking a field there turns it off
+/// for that shelf alone. Outside a shelf the list follows the last author or
+/// title sort the reader chose (see `book_list_screen.dart`).
 class SortPreferenceProvider extends ChangeNotifier {
   static const _keySortBy = 'library_sort_by';
   static const _keySortDir = 'library_sort_dir';
-  static const _keyShelfOrder = 'library_shelf_order';
 
   SortBy _sortBy = SortBy.author;
   SortDir _sortDir = SortDir.asc;
-  bool _shelfOrder = false;
+  Set<String> _shelfOrderIds = {};
   bool _loaded = false;
 
   /// The field of the global sort: never [SortBy.shelf], which is not a
@@ -25,8 +27,10 @@ class SortPreferenceProvider extends ChangeNotifier {
   SortBy get sortBy => _sortBy;
   SortDir get sortDir => _sortDir;
 
-  /// Whether the books of an open shelf read in the order saved by hand.
-  bool get shelfOrder => _shelfOrder;
+  /// Whether the books of the shelf [shelfId] read in the order saved by
+  /// hand.
+  bool shelfOrderFor(String? shelfId) =>
+      shelfId != null && _shelfOrderIds.contains(shelfId);
   bool get isLoaded => _loaded;
 
   Future<void> load() async {
@@ -35,7 +39,7 @@ class SortPreferenceProvider extends ChangeNotifier {
     final rawDir = prefs.getString(_keySortDir);
     _sortBy = _parseSortBy(rawBy);
     _sortDir = _parseSortDir(rawDir);
-    _shelfOrder = prefs.getBool(_keyShelfOrder) ?? false;
+    _shelfOrderIds = await ShelfIdSetStore.shelfOrder.load();
     _loaded = true;
     notifyListeners();
   }
@@ -57,28 +61,42 @@ class SortPreferenceProvider extends ChangeNotifier {
     await prefs.setString(_keySortDir, value.name);
   }
 
-  Future<void> setShelfOrder(bool value) async {
-    if (_shelfOrder == value) return;
-    _shelfOrder = value;
+  /// Turns the saved order of the shelf [shelfId] (its uuid) on or off.
+  Future<void> setShelfOrder(String shelfId, bool value) async {
+    final changed = value
+        ? _shelfOrderIds.add(shelfId)
+        : _shelfOrderIds.remove(shelfId);
+    if (!changed) return;
     notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(_keyShelfOrder, value);
+    await ShelfIdSetStore.shelfOrder.save(_shelfOrderIds);
   }
 
-  /// Picks a field and a direction for the library, leaving any saved shelf
-  /// order behind, in one notification: listeners re-sort once, not three
-  /// times.
-  Future<void> setFieldSort(SortBy by, SortDir dir) async {
+  /// Picks a field and a direction for the library, in one notification:
+  /// listeners re-sort once, not three times. Picked inside the shelf
+  /// [shelfId], it also leaves that shelf's saved order behind, and only
+  /// that shelf's.
+  Future<void> setFieldSort(SortBy by, SortDir dir, {String? shelfId}) async {
     assert(by != SortBy.shelf, 'the shelf order is a flag: setShelfOrder');
-    if (_sortBy == by && _sortDir == dir && !_shelfOrder) return;
+    final dropsOrder = shelfOrderFor(shelfId);
+    if (_sortBy == by && _sortDir == dir && !dropsOrder) return;
     _sortBy = by;
     _sortDir = dir;
-    _shelfOrder = false;
+    if (dropsOrder) _shelfOrderIds.remove(shelfId);
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keySortBy, by.name);
     await prefs.setString(_keySortDir, dir.name);
-    await prefs.setBool(_keyShelfOrder, false);
+    if (dropsOrder) await ShelfIdSetStore.shelfOrder.save(_shelfOrderIds);
+  }
+
+  /// Forgets the shelves outside [known], the uuids of the shelves that
+  /// exist now: a shelf deleted from another screen or another device.
+  Future<void> retainShelfOrders(Set<String> known) async {
+    final before = _shelfOrderIds.length;
+    _shelfOrderIds.removeWhere((id) => !known.contains(id));
+    if (_shelfOrderIds.length == before) return;
+    notifyListeners();
+    await ShelfIdSetStore.shelfOrder.save(_shelfOrderIds);
   }
 
   Future<void> toggleDirection() async {

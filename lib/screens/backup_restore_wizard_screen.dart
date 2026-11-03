@@ -385,28 +385,8 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
 
   Future<void> _applyPrefs(String prefsJson) async {
     try {
-      final raw = jsonDecode(prefsJson);
-      if (raw is! Map) return;
       final prefs = await SharedPreferences.getInstance();
-      for (final key in kBackupPrefsWhitelist) {
-        final v = raw[key];
-        if (v is String) {
-          await prefs.setString(key, v);
-        } else if (v is int) {
-          // The whitelist is not all strings: the picked city is stored as a
-          // GeoNames integer id. Without this branch it would be exported into
-          // the archive and then silently dropped on restore.
-          await prefs.setInt(key, v);
-        } else if (v != null) {
-          // A whitelisted key whose type this loop does not handle: it is in
-          // the archive and is about to be discarded. The fix is a branch for
-          // that type, not a widening of the branches above. The drift test
-          // guards the same invariant at build time.
-          debugPrint(
-            'applyPrefs: dropped "$key", unhandled type ${v.runtimeType}',
-          );
-        }
-      }
+      await applyWhitelistedPrefs(prefsJson, prefs);
     } catch (e) {
       debugPrint('applyPrefs: $e');
     }

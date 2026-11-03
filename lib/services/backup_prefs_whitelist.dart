@@ -36,6 +36,9 @@ library;
 
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 /// Keys exported by the writer and re-applied on restore. Stay
 /// conservative when adding -- a wrong addition silently overwrites the
 /// user's local preference on restore.
@@ -61,6 +64,11 @@ const Set<String> kBackupPrefsWhitelist = <String>{
   'hub_contact_audience', // HubDirectoryProvider._kContactAudienceKey
   'hub_local_location_city_id',
   'hub_local_location_city_country',
+  // The shelves that read in the order saved by hand: a choice the reader
+  // made, shelf by shelf, unlike the folds of the tree (blacklisted). A
+  // list of uuids, written through a const identifier the drift test
+  // cannot see.
+  'shelf_order_ids', // ShelfIdSetStore.shelfOrder
 };
 
 /// Keys the writer deliberately drops. Inclusion here is documentation:
@@ -93,7 +101,7 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'recent_shelf_names',
   // Shelves folded in the shelves tab tree: how this device shows the tree,
   // not library data. Behind a const identifier, unseen by the drift test.
-  'shelf_tree_collapsed', // ShelfTreeCollapseStore.prefKey
+  'shelf_tree_collapsed', // ShelfIdSetStore.collapsed
 
   // Onboarding / install state (mirrored in DB or device-specific).
   'isSetupComplete',
@@ -238,4 +246,37 @@ String exportWhitelistedPrefs(Object? Function(String key) lookup) {
     }
   }
   return jsonEncode(out);
+}
+
+/// Re-applies onto [prefs] the whitelisted keys of an archive's
+/// `prefs.json`: the reader half of [exportWhitelistedPrefs]. Keys outside
+/// the whitelist are ignored, whatever the archive holds.
+Future<void> applyWhitelistedPrefs(
+  String prefsJson,
+  SharedPreferences prefs,
+) async {
+  final raw = jsonDecode(prefsJson);
+  if (raw is! Map) return;
+  for (final key in kBackupPrefsWhitelist) {
+    final v = raw[key];
+    if (v is String) {
+      await prefs.setString(key, v);
+    } else if (v is int) {
+      // The whitelist is not all strings: the picked city is stored as a
+      // GeoNames integer id. Without this branch it would be exported into
+      // the archive and then silently dropped on restore.
+      await prefs.setInt(key, v);
+    } else if (v is List && v.every((e) => e is String)) {
+      // A set of shelf uuids, exported as a JSON array of strings.
+      await prefs.setStringList(key, v.cast<String>());
+    } else if (v != null) {
+      // A whitelisted key whose type this loop does not handle: it is in
+      // the archive and is about to be discarded. The fix is a branch for
+      // that type, not a widening of the branches above. The drift test
+      // guards the same invariant at build time.
+      debugPrint(
+        'applyPrefs: dropped "$key", unhandled type ${v.runtimeType}',
+      );
+    }
+  }
 }

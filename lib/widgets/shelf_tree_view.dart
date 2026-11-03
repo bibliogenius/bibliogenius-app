@@ -6,7 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../models/tag.dart';
-import '../services/shelf_tree_collapse_store.dart';
+import '../services/shelf_id_set_store.dart';
 import '../services/translation_service.dart';
 import 'shelf_tree_rows.dart';
 
@@ -123,7 +123,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
   @override
   void initState() {
     super.initState();
-    ShelfTreeCollapseStore.load().then((ids) {
+    ShelfIdSetStore.collapsed.load().then((ids) {
       if (!mounted) return;
       setState(() {
         _collapsed = ids;
@@ -144,7 +144,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     final children = Tag.childrenIndex(widget.allTags);
     final before = _collapsed.length;
     _collapsed.removeWhere((id) => children[id]?.isEmpty ?? true);
-    if (_collapsed.length != before) ShelfTreeCollapseStore.save(_collapsed);
+    if (_collapsed.length != before) ShelfIdSetStore.collapsed.save(_collapsed);
   }
 
   @override
@@ -170,7 +170,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     setState(() {
       if (!_collapsed.remove(tag.id)) _collapsed.add(tag.id);
     });
-    ShelfTreeCollapseStore.save(_collapsed);
+    ShelfIdSetStore.collapsed.save(_collapsed);
   }
 
   /// The rows to draw: the folded branches left out, or, while searching,
@@ -343,7 +343,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     for (var p = parents[id]; p != null; p = parents[p]) {
       unfolded = _collapsed.remove(p) || unfolded;
     }
-    if (unfolded) ShelfTreeCollapseStore.save(_collapsed);
+    if (unfolded) ShelfIdSetStore.collapsed.save(_collapsed);
     setState(() {
       _flashId = id;
       _flashFading = false;

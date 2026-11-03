@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bibliogenius/services/backup_prefs_whitelist.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   test('exportWhitelistedPrefs round-trips the three v1 keys', () {
@@ -60,6 +61,24 @@ void main() {
     expect(kBackupPrefsWhitelist, contains('hub_contact_audience'));
   });
 
+  test('the shelves that follow their own order survive a restore', () async {
+    // A list of strings: exported as a JSON array, it must come back as one.
+    expect(kBackupPrefsWhitelist, contains('shelf_order_ids'));
+    SharedPreferences.setMockInitialValues({
+      'shelf_order_ids': ['u1', 'u2'],
+      'themeStyle': 'dark',
+    });
+    final source = await SharedPreferences.getInstance();
+    final json = exportWhitelistedPrefs(source.get);
+
+    SharedPreferences.setMockInitialValues({});
+    final target = await SharedPreferences.getInstance();
+    await applyWhitelistedPrefs(json, target);
+
+    expect(target.getStringList('shelf_order_ids'), ['u1', 'u2']);
+    expect(target.getString('themeStyle'), 'dark');
+  });
+
   test('whitelist and blacklist do not overlap', () {
     final overlap = kBackupPrefsWhitelist.intersection(kBackupPrefsBlacklist);
     expect(
@@ -112,11 +131,11 @@ void main() {
       reason: 'cannot find lib/ from ${Directory.current.path}',
     );
 
-    // `_applyPrefs` in backup_restore_wizard_screen.dart re-applies String and
-    // int only. `exportWhitelistedPrefs` writes any non-null value, so a
+    // `applyWhitelistedPrefs` re-applies String, int and lists of strings
+    // only. `exportWhitelistedPrefs` writes any non-null value, so a
     // whitelisted key of any other type lands in the archive and is discarded
     // on restore. Adding the key is not enough: the branch must exist too.
-    const restorable = <String>{'setString', 'setInt'};
+    const restorable = <String>{'setString', 'setInt', 'setStringList'};
 
     final uses = _scanPrefsSetters(libDir);
     final offenders = <String, _KeyUse>{};
@@ -134,8 +153,8 @@ void main() {
       final lines = <String>[
         'Whitelisted keys written with a setter the restore path ignores.',
         'Each would be exported into the .bgbackup archive and then dropped',
-        'on restore. Add the matching branch to _applyPrefs in',
-        'lib/screens/backup_restore_wizard_screen.dart, or move the key to',
+        'on restore. Add the matching branch to applyWhitelistedPrefs in',
+        'lib/services/backup_prefs_whitelist.dart, or move the key to',
         'kBackupPrefsBlacklist:',
         '',
       ];

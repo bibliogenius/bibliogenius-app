@@ -17,6 +17,7 @@ import '../theme/app_design.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/theme_provider.dart';
 import '../providers/ownership_preference_provider.dart';
+import '../providers/sort_preference_provider.dart';
 import '../utils/book_filters.dart';
 import '../utils/app_constants.dart';
 
@@ -90,6 +91,16 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       final tags = await repo.getTags();
       final unshelved = await unshelvedLoad;
       if (!mounted) return;
+      // A shelf deleted elsewhere (the management screen, another device)
+      // leaves no order behind. An empty listing proves nothing: the FFI
+      // answers one on any core error, and a library with no shelf has no
+      // order to forget anyway.
+      if (tags.isNotEmpty) {
+        _sortPreference?.retainShelfOrders({
+          for (final t in tags)
+            if (t.isPersisted) t.id,
+        });
+      }
       setState(() {
         _allTags = tags;
         _unshelvedCount = unshelved;
@@ -115,6 +126,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       return 0;
     }
   }
+
+  /// Absent from screens tested without it.
+  SortPreferenceProvider? get _sortPreference =>
+      Provider.of<SortPreferenceProvider?>(context, listen: false);
 
   List<Tag> _childrenOf(Tag tag) => Tag.getDirectChildren(tag.id, _allTags);
 
@@ -615,9 +630,11 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   Future<void> _deleteShelf(Tag tag) async {
     try {
       final api = Provider.of<TagRepository>(context, listen: false);
+      final sortPreference = _sortPreference;
       // Row or not, the name has to leave the books: a shelf that only
       // exists in their subjects is deleted the same way (see deleteShelf).
       await api.deleteShelf(tag);
+      await sortPreference?.setShelfOrder(tag.id, false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

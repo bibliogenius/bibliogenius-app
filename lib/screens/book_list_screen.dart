@@ -15,6 +15,7 @@ import 'package:go_router/go_router.dart';
 import '../data/repositories/book_repository.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/tag_repository.dart';
+import '../services/shelf_rows.dart';
 import '../models/collection.dart';
 import '../services/api_service.dart';
 import '../services/ffi_service.dart';
@@ -1091,8 +1092,65 @@ class _BookListScreenState extends State<BookListScreen>
   (SortBy, SortDir) _effectiveSort(SortPreferenceProvider? pref) {
     if (pref == null) return (SortBy.author, SortDir.asc);
     final inShelf = _tagFilter != null && _searchQuery.isEmpty;
-    if (pref.shelfOrder && inShelf) return (SortBy.shelf, SortDir.asc);
+    if (inShelf && pref.shelfOrderFor(_openShelf?.id)) {
+      return (SortBy.shelf, SortDir.asc);
+    }
     return (pref.sortBy, pref.sortDir);
+  }
+
+  /// The shelf this list shows, reached by tag or by name. Shelf names are
+  /// unique byte for byte, so "Novel" and "novel" are two shelves: the
+  /// exact name wins, the case-insensitive match is only a fallback.
+  Tag? get _openShelf {
+    final current = _currentShelf;
+    if (current != null) return current;
+    final name = _tagFilter;
+    if (name == null) return null;
+    return _allTags.where((t) => t.name == name).firstOrNull ??
+        Tag.byName(_allTags, name);
+  }
+
+  /// Makes the open shelf read in its saved order, and resolves to whether
+  /// it does. The choice is kept per shelf uuid, so a shelf known only from
+  /// the books' subjects gets its row first, and from then on the list
+  /// addresses the shelf by that row; [reload] fetches the list again to
+  /// see it, unless the caller is about to.
+  Future<bool> _followShelfOrder({bool reload = true}) async {
+    final shelf = _openShelf;
+    if (shelf == null) return false;
+    final sortPref = context.read<SortPreferenceProvider>();
+    final tagRepo = context.read<TagRepository>();
+    Tag? withRow;
+    try {
+      withRow = await shelfWithRow(tagRepo, shelf);
+    } catch (e) {
+      // A sync or another screen may have given it its row meanwhile, and
+      // a second one is refused: find the one that exists by name.
+      // The type only: a core error message can carry the shelf name.
+      debugPrint(
+        'BookList: could not give the shelf its row (${e.runtimeType})',
+      );
+      withRow = await _rowNamed(tagRepo, shelf.name);
+    }
+    if (withRow == null || !mounted) return false;
+    if (!shelf.isPersisted) {
+      final row = withRow;
+      setState(() => _currentShelf = row);
+      if (reload) await _fetchBooks(silent: true);
+    }
+    await sortPref.setShelfOrder(withRow.id, true);
+    return true;
+  }
+
+  /// The `tags` row named exactly [name], or null.
+  Future<Tag?> _rowNamed(TagRepository tagRepo, String name) async {
+    try {
+      final tags = await tagRepo.getTags();
+      return tags.where((t) => t.isPersisted && t.name == name).firstOrNull;
+    } catch (e) {
+      debugPrint('BookList: could not reload the shelves (${e.runtimeType})');
+      return null;
+    }
   }
 
   String _sortFieldKey(SortBy sortBy) => switch (sortBy) {
@@ -1187,7 +1245,7 @@ class _BookListScreenState extends State<BookListScreen>
       // `/shelves?tag=Genre`) has to filter like one picked from the sheet:
       // with its sub-shelves. On the bare name a parent whose books all sit
       // in its sub-shelves opened as an empty list.
-      final shelf = _currentShelf ?? Tag.byName(_allTags, _tagFilter);
+      final shelf = _openShelf;
       if (shelf != null && _allTags.isNotEmpty) {
         // Get all matching tag names (this tag + descendants)
         final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);
@@ -2185,7 +2243,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   /// The shelf being browsed, as the place a selection can be moved out of.
   BulkShelvingSource? get _selectionSource {
-    final shelf = _currentShelf ?? Tag.byName(_allTags, _tagFilter);
+    final shelf = _openShelf;
     if (shelf != null) {
       return BulkShelvingSource.shelf(
         label: shelf.name,
@@ -2763,22 +2821,33 @@ class _BookListScreenState extends State<BookListScreen>
 
   void _onSortActionSelected(_SortAction action) {
     final sortPref = context.read<SortPreferenceProvider>();
-    // Picking a field inside a shelf also leaves its saved order behind.
+    // Picking a field inside a shelf also leaves that shelf's saved order
+    // behind, and no other shelf's.
+    final shelfId = _tagFilter == null ? null : _openShelf?.id;
     switch (action) {
       case _SortAction.authorAsc:
-        sortPref.setFieldSort(SortBy.author, SortDir.asc);
+        sortPref.setFieldSort(SortBy.author, SortDir.asc, shelfId: shelfId);
         break;
       case _SortAction.authorDesc:
-        sortPref.setFieldSort(SortBy.author, SortDir.desc);
+        sortPref.setFieldSort(SortBy.author, SortDir.desc, shelfId: shelfId);
         break;
       case _SortAction.titleAsc:
-        sortPref.setFieldSort(SortBy.title, SortDir.asc);
+        sortPref.setFieldSort(SortBy.title, SortDir.asc, shelfId: shelfId);
         break;
       case _SortAction.titleDesc:
-        sortPref.setFieldSort(SortBy.title, SortDir.desc);
+        sortPref.setFieldSort(SortBy.title, SortDir.desc, shelfId: shelfId);
         break;
       case _SortAction.shelfOrder:
-        sortPref.setShelfOrder(true);
+        _followShelfOrder().then((follows) {
+          if (follows || !mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                TranslationService.translate(context, 'error_saving_order'),
+              ),
+            ),
+          );
+        });
         break;
       case _SortAction.manualReorder:
         _startReordering();
@@ -3312,12 +3381,32 @@ class _BookListScreenState extends State<BookListScreen>
       await bookRepo.reorderBooks(ids);
       if (!mounted) return;
 
-      // From now on this shelf reads in the order just saved. The books are
-      // fetched again so they carry their new positions, and the sort
-      // honours them: what comes back is the order the reader made. The
-      // global field and direction stay as the reader set them.
-      await context.read<SortPreferenceProvider>().setShelfOrder(true);
+      // From now on this shelf, and this shelf alone, reads in the order
+      // just saved. The books are fetched again so they carry their new
+      // positions, and the sort honours them: what comes back is the order
+      // the reader made. The global field and direction stay as they were.
+      final follows = await _followShelfOrder(reload: false);
       if (!mounted) return;
+      if (!follows) {
+        // The positions are written, but the shelf could not be told to
+        // follow them: saying "saved" would promise an order not shown.
+        setState(() {
+          _stopReordering();
+          _isLoading = false;
+        });
+        // The list still shows the order dragged by hand: read it again,
+        // in the order the sort pill now announces.
+        await _fetchBooks(silent: true);
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              TranslationService.translate(context, 'error_saving_order'),
+            ),
+          ),
+        );
+        return;
+      }
       setState(_stopReordering);
       await _fetchBooks();
       if (!mounted) return;
