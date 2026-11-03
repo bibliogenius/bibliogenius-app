@@ -1,6 +1,8 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bibliogenius/services/backup_prefs_whitelist.dart';
+import 'package:bibliogenius/services/shelf_id_set_store.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -79,6 +81,61 @@ void main() {
     expect(target.getString('themeStyle'), 'dark');
   });
 
+  /// Restores [archive] (key to value, as `prefs.json` holds them) onto an
+  /// empty store and returns it.
+  Future<SharedPreferences> restore(Map<String, Object> archive) async {
+    SharedPreferences.setMockInitialValues({});
+    final target = await SharedPreferences.getInstance();
+    await applyWhitelistedPrefs(jsonEncode(archive), target);
+    return target;
+  }
+
+  test('a list under a string key is ignored on restore', () async {
+    // Restored as a list, the theme would make its reader throw at every
+    // launch.
+    final target = await restore({'themeStyle': ['dark'], 'country': 'FR'});
+    expect(target.get('themeStyle'), isNull);
+    expect(target.getString('country'), 'FR');
+  });
+
+  test('an integer under a string key is ignored on restore', () async {
+    final target = await restore({'themeStyle': 3});
+    expect(target.get('themeStyle'), isNull);
+  });
+
+  test('a string under the list key is ignored on restore', () async {
+    final target = await restore({'shelf_order_ids': 'u1'});
+    expect(target.get('shelf_order_ids'), isNull);
+  });
+
+  test('the city id restores as an integer', () async {
+    final target = await restore({'hub_local_location_city_id': 2988507});
+    expect(target.getInt('hub_local_location_city_id'), 2988507);
+  });
+
+  test('the shelf order store writes the key declared as a list', () {
+    // Written through a field of the store, invisible to the scan below.
+    const key = ShelfIdSetStore.shelfOrder;
+    expect(kBackupPrefsWhitelist, contains(key.prefKey));
+    expect(backupPrefType(key.prefKey), BackupPrefType.stringList);
+  });
+
+  test('the shelf orders the store keeps survive a restore', () async {
+    // Through the store itself, so that a store writing another type than
+    // the declared one fails here.
+    SharedPreferences.setMockInitialValues({});
+    ShelfIdSetStore.prefs = SharedPreferences.getInstance;
+    await ShelfIdSetStore.shelfOrder.save({'u2', 'u1'});
+    final json = exportWhitelistedPrefs(
+      (await SharedPreferences.getInstance()).get,
+    );
+
+    SharedPreferences.setMockInitialValues({});
+    await applyWhitelistedPrefs(json, await SharedPreferences.getInstance());
+
+    expect(await ShelfIdSetStore.shelfOrder.load(), {'u1', 'u2'});
+  });
+
   test('whitelist and blacklist do not overlap', () {
     final overlap = kBackupPrefsWhitelist.intersection(kBackupPrefsBlacklist);
     expect(
@@ -123,7 +180,7 @@ void main() {
     }
   });
 
-  test('every whitelisted key has a type the restore path re-applies', () {
+  test('every whitelisted key is written with the type it declares', () {
     final libDir = _libDirFromCwd();
     expect(
       libDir.existsSync(),
@@ -131,30 +188,37 @@ void main() {
       reason: 'cannot find lib/ from ${Directory.current.path}',
     );
 
-    // `applyWhitelistedPrefs` re-applies String, int and lists of strings
-    // only. `exportWhitelistedPrefs` writes any non-null value, so a
-    // whitelisted key of any other type lands in the archive and is discarded
-    // on restore. Adding the key is not enough: the branch must exist too.
-    const restorable = <String>{'setString', 'setInt', 'setStringList'};
+    // `applyWhitelistedPrefs` applies a value only when its type is the
+    // one `kBackupPrefsTypes` declares for its key (a string by default).
+    // A declaration that disagrees with the setter the code uses would drop
+    // the key on every restore; a setter with no restorable type at all
+    // (bool, double) has no declaration to give.
+    const declared = <String, BackupPrefType>{
+      'setString': BackupPrefType.string,
+      'setInt': BackupPrefType.integer,
+      'setStringList': BackupPrefType.stringList,
+    };
 
-    final uses = _scanPrefsSetters(libDir);
+    final literal = _scanPrefsSetters(libDir);
+    final viaConst = _scanConstKeySetters(libDir);
     final offenders = <String, _KeyUse>{};
     for (final key in kBackupPrefsWhitelist) {
-      // Keys written behind a const identifier rather than a literal are
-      // invisible to this scan, exactly as they are to the drift test.
-      final use = uses[key];
-      if (use == null) continue;
-      if (use.setters.any((s) => !restorable.contains(s))) {
-        offenders[key] = use;
+      // A key written through a field rather than a literal or a const of
+      // its own file stays invisible here: see the shelf order test above.
+      for (final use in [literal[key], viaConst[key]]) {
+        if (use == null) continue;
+        if (use.setters.any((s) => declared[s] != backupPrefType(key))) {
+          offenders[key] = use;
+        }
       }
     }
 
     if (offenders.isNotEmpty) {
       final lines = <String>[
-        'Whitelisted keys written with a setter the restore path ignores.',
+        'Whitelisted keys written with a type other than the declared one.',
         'Each would be exported into the .bgbackup archive and then dropped',
-        'on restore. Add the matching branch to applyWhitelistedPrefs in',
-        'lib/services/backup_prefs_whitelist.dart, or move the key to',
+        'on restore. Declare its type in kBackupPrefsTypes',
+        '(lib/services/backup_prefs_whitelist.dart), or move the key to',
         'kBackupPrefsBlacklist:',
         '',
       ];
@@ -176,6 +240,38 @@ void main() {
 class _KeyUse {
   final Set<String> setters = <String>{};
   final List<String> paths = <String>[];
+}
+
+/// Every `prefs.setX(ident, …)` whose `ident` is a string const of the same
+/// file (`const String _kKey = 'key';`), by key. Used by the type test only:
+/// the classification test keeps to literals. Identifiers are matched by
+/// name within the file: a parameter named like one of its string consts
+/// would be taken for it.
+Map<String, _KeyUse> _scanConstKeySetters(Directory libDir) {
+  final constDecl = RegExp(
+    r'''const\s+(?:String\s+)?(\w+)\s*=\s*['"]([a-zA-Z0-9_]+)['"]''',
+  );
+  final setter = RegExp(
+    r'''(setBool|setInt|setString|setDouble|setStringList)'''
+    r'''\(\s*([A-Za-z_]\w*)\s*,''',
+  );
+  final found = <String, _KeyUse>{};
+  for (final entity in libDir.listSync(recursive: true)) {
+    if (entity is! File || !entity.path.endsWith('.dart')) continue;
+    if (entity.path.contains('/lib/src/rust/')) continue;
+    final src = entity.readAsStringSync();
+    final consts = {
+      for (final m in constDecl.allMatches(src)) m.group(1)!: m.group(2)!,
+    };
+    for (final match in setter.allMatches(src)) {
+      final key = consts[match.group(2)];
+      if (key == null) continue;
+      final use = found.putIfAbsent(key, () => _KeyUse());
+      use.setters.add(match.group(1)!);
+      use.paths.add(entity.path);
+    }
+  }
+  return found;
 }
 
 /// Memoised result of the last scan, so the two tests above read 328 Dart

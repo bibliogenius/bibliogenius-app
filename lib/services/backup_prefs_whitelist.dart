@@ -71,6 +71,24 @@ const Set<String> kBackupPrefsWhitelist = <String>{
   'shelf_order_ids', // ShelfIdSetStore.shelfOrder
 };
 
+/// The type a whitelisted key holds on the device.
+enum BackupPrefType { string, integer, stringList }
+
+/// The whitelisted keys that do not hold a string. The restore applies a
+/// value only when its type is the declared one: a wrong one, from a
+/// damaged or hand-made archive, would make the reader of that key throw
+/// at every launch. The drift test checks each declaration against the
+/// setter the code uses.
+const Map<String, BackupPrefType> kBackupPrefsTypes = {
+  'hub_local_location_city_id': BackupPrefType.integer,
+  'shelf_order_ids': BackupPrefType.stringList,
+};
+
+/// The declared type of the whitelisted [key]: a string unless listed in
+/// [kBackupPrefsTypes].
+BackupPrefType backupPrefType(String key) =>
+    kBackupPrefsTypes[key] ?? BackupPrefType.string;
+
 /// Keys the writer deliberately drops. Inclusion here is documentation:
 /// "this key was reviewed, it is install-specific or mirrored elsewhere".
 const Set<String> kBackupPrefsBlacklist = <String>{
@@ -259,24 +277,24 @@ Future<void> applyWhitelistedPrefs(
   if (raw is! Map) return;
   for (final key in kBackupPrefsWhitelist) {
     final v = raw[key];
-    if (v is String) {
-      await prefs.setString(key, v);
-    } else if (v is int) {
-      // The whitelist is not all strings: the picked city is stored as a
-      // GeoNames integer id. Without this branch it would be exported into
-      // the archive and then silently dropped on restore.
-      await prefs.setInt(key, v);
-    } else if (v is List && v.every((e) => e is String)) {
-      // A set of shelf uuids, exported as a JSON array of strings.
-      await prefs.setStringList(key, v.cast<String>());
-    } else if (v != null) {
-      // A whitelisted key whose type this loop does not handle: it is in
-      // the archive and is about to be discarded. The fix is a branch for
-      // that type, not a widening of the branches above. The drift test
-      // guards the same invariant at build time.
-      debugPrint(
-        'applyPrefs: dropped "$key", unhandled type ${v.runtimeType}',
-      );
+    if (v == null) continue;
+    final type = backupPrefType(key);
+    switch (type) {
+      case BackupPrefType.string when v is String:
+        await prefs.setString(key, v);
+      case BackupPrefType.integer when v is int:
+        await prefs.setInt(key, v);
+      case BackupPrefType.stringList
+          when v is List && v.every((e) => e is String):
+        await prefs.setStringList(key, v.cast<String>());
+      default:
+        // Not the type the key holds: from a damaged or hand-made archive,
+        // and restored as is, it would make the key's reader throw at every
+        // launch. The value is left out of the log.
+        debugPrint(
+          'applyPrefs: dropped "$key", expected ${type.name}, '
+          'got ${v.runtimeType}',
+        );
     }
   }
 }
