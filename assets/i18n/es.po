@@ -12431,3 +12431,7 @@ msgstr "Estantería «%s» eliminada."
 #. Shelves tab: Undo of a rename could not give the old name back, %s is that name
 msgid "shelf_undo_name_taken"
 msgstr "El nombre «%s» ya lo usa otra estantería."
+
+#. Shelves tab: label of the cross that hides the line of books on no shelf, until more of them come: Hide "To shelve" until more books need shelving
+msgid "to_shelve_hide"
+msgstr "Ocultar «Por colocar» hasta los próximos libros por colocar"

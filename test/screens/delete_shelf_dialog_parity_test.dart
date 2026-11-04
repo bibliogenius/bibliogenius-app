@@ -162,7 +162,11 @@ void main() {
   ) async {
     await pumpScreen(
       tester,
-      ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0)),
+      ShelvesScreen(
+        isTabView: true,
+        refreshNotifier: ValueNotifier<int>(0),
+        organizing: true,
+      ),
       repo,
     );
     await tester.tap(find.byTooltip('Actions for Genre'));
@@ -215,7 +219,11 @@ void main() {
     final repo = _RecordingTagRepository(_tree());
     await pumpScreen(
       tester,
-      ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0)),
+      ShelvesScreen(
+        isTabView: true,
+        refreshNotifier: ValueNotifier<int>(0),
+        organizing: true,
+      ),
       repo,
     );
     await tester.tap(find.byTooltip('Actions for Polar'));
@@ -257,7 +265,11 @@ void main() {
     final repo = _RecordingTagRepository(_tree());
     await pumpScreen(
       tester,
-      ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0)),
+      ShelvesScreen(
+        isTabView: true,
+        refreshNotifier: ValueNotifier<int>(0),
+        organizing: true,
+      ),
       repo,
     );
     // Every level shows at once: Polar's row is in reach.

@@ -12566,3 +12566,7 @@ msgstr "Prateleira “%s” excluída."
 #. Shelves tab: Undo of a rename could not give the old name back, %s is that name
 msgid "shelf_undo_name_taken"
 msgstr "O nome “%s” já está sendo usado por outra prateleira."
+
+#. Shelves tab: label of the cross that hides the line of books on no shelf, until more of them come: Hide "To shelve" until more books need shelving
+msgid "to_shelve_hide"
+msgstr "Ocultar \"Para organizar\" até os próximos livros a organizar"

@@ -10,7 +10,9 @@ import '../widgets/app_snack_bar.dart';
 import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/move_shelf_sheet.dart';
+import '../services/to_shelve_dismissal_store.dart';
 import '../widgets/scaffold_with_nav.dart';
+import '../widgets/shelf_card.dart';
 import '../widgets/shelf_or_collection_note.dart';
 import '../widgets/shelf_tree_view.dart';
 import '../widgets/configurable_action_card.dart';
@@ -29,10 +31,14 @@ class ShelvesScreen extends StatefulWidget {
   final bool isTabView;
   final ValueNotifier<int>? refreshNotifier;
 
+  /// The tree to rearrange the shelves, instead of the cards to walk into.
+  final bool organizing;
+
   const ShelvesScreen({
     super.key,
     this.isTabView = false,
     this.refreshNotifier,
+    this.organizing = false,
   });
 
   @override
@@ -41,6 +47,12 @@ class ShelvesScreen extends StatefulWidget {
 
 class _ShelvesScreenState extends State<ShelvesScreen>
     with WidgetsBindingObserver {
+  /// The side margin of the grid and of what heads it.
+  static const double _gridMargin = 16;
+
+  /// Three columns start here, and the add button leaves its floating spot.
+  static const double _wideRowWidth = 600;
+
   /// The badge must announce what the tap will open, and what it opens is the
   /// reader's remembered ownership axis (ADR-063). Watched rather than read
   /// once: changing the axis from the library screen has to repaint these.
@@ -86,6 +98,10 @@ class _ShelvesScreenState extends State<ShelvesScreen>
 
   /// Books in the default view on no shelf: drives the "to shelve" card.
   int _unshelvedCount = 0;
+
+  /// The count at which the reader hid the "to shelve" line: it stays hidden
+  /// up to that number.
+  int _toShelveDismissedAt = 0;
   bool _isLoading = true;
   String? _error;
   BookRefreshNotifier? _bookRefreshNotifier;
@@ -174,8 +190,14 @@ class _ShelvesScreenState extends State<ShelvesScreen>
       // Both in flight at once; the count never throws, so a failed tag
       // load still reaches the error state with its own message.
       final unshelvedLoad = _loadUnshelvedCount(repo);
+      final dismissedLoad = ToShelveDismissalStore.load();
       final tags = await repo.getTags();
       final unshelved = await unshelvedLoad;
+      var dismissedAt = await dismissedLoad;
+      if (unshelved == 0 && dismissedAt > 0) {
+        dismissedAt = 0;
+        unawaited(ToShelveDismissalStore.clear());
+      }
       if (!mounted || generation != _loadGeneration) return;
       // A shelf deleted elsewhere (the management screen, another device)
       // leaves no order behind. An empty listing proves nothing: the FFI
@@ -196,6 +218,7 @@ class _ShelvesScreenState extends State<ShelvesScreen>
         });
         _shownCache = null;
         _unshelvedCount = unshelved;
+        _toShelveDismissedAt = dismissedAt;
         _error = null;
         _isLoading = false;
       });
@@ -254,24 +277,30 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     final themeStyle = Provider.of<ThemeProvider>(context).themeStyle;
 
     if (widget.isTabView) {
-      return Scaffold(
-        backgroundColor: Colors.transparent,
-        floatingActionButton: FloatingActionButton(
-          heroTag: 'shelf_add_fab_tab',
-          onPressed: _showCreateShelfDialog,
-          child: Icon(
-            Icons.add,
-            semanticLabel: TranslationService.translate(
-              context,
-              'create_shelf',
+      return LayoutBuilder(
+        builder: (context, constraints) => Scaffold(
+          backgroundColor: Colors.transparent,
+          // From this width the button sits in the row above the grid.
+          floatingActionButton:
+              constraints.maxWidth < _wideRowWidth || widget.organizing
+              ? FloatingActionButton(
+                  heroTag: 'shelf_add_fab_tab',
+                  onPressed: _showCreateShelfDialog,
+                  child: Icon(
+                    Icons.add,
+                    semanticLabel: TranslationService.translate(
+                      context,
+                      'create_shelf',
+                    ),
+                  ),
+                )
+              : null,
+          body: Container(
+            decoration: BoxDecoration(
+              gradient: AppDesign.pageGradientForTheme(themeStyle),
             ),
+            child: SafeArea(top: false, child: _buildBody(context)),
           ),
-        ),
-        body: Container(
-          decoration: BoxDecoration(
-            gradient: AppDesign.pageGradientForTheme(themeStyle),
-          ),
-          child: SafeArea(top: false, child: _buildBody(context)),
         ),
       );
     }
@@ -286,9 +315,12 @@ class _ShelvesScreenState extends State<ShelvesScreen>
         ),
       ),
       appBar: GenieAppBar(
-        title: TranslationService.translate(context, 'shelves'),
-        leading: buildDrawerLeading(context),
-        automaticallyImplyLeading: false,
+        title: TranslationService.translate(
+          context,
+          widget.organizing ? 'organize' : 'shelves',
+        ),
+        leading: widget.organizing ? null : buildDrawerLeading(context),
+        automaticallyImplyLeading: widget.organizing,
         showQuickActions: true,
         actions: [
           ContextualHelpIconButton(
@@ -385,25 +417,30 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     if (_error != null) {
       return _buildErrorState(_error!);
     }
-    final showToShelve = _unshelvedCount > 0;
+    final showToShelve =
+        !widget.organizing && _unshelvedCount > _toShelveDismissedAt;
 
     if (_shownTags.isEmpty) {
       // Books scanned before any shelf exists: the card is where to start.
       if (!showToShelve) return _buildEmptyState(context);
       return Column(
         children: [
-          _buildToShelveCard(context),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: _gridMargin),
+            child: _buildToShelveLine(context),
+          ),
           Expanded(child: _buildEmptyState(context)),
         ],
       );
     }
+
+    if (!widget.organizing) return _buildCards(context, showToShelve);
 
     // Every level at once: a tap opens a shelf's books, its sub-shelves
     // are already in sight below it.
     return ShelfTreeView(
       allTags: _shownTags,
       bookCount: _aggregatedCount,
-      header: showToShelve ? _buildToShelveCard(context) : null,
       onOpen: _openShelfBooks,
       onMoveRequested: _moveShelf,
       onDrop: _dropShelf,
@@ -412,84 +449,209 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     );
   }
 
-  /// The books on no shelf, gathered in one card: a tap lists them in this
-  /// tab with selection armed, ready for the bulk shelving sheet. Coming back
-  /// to the tree remounts this screen, which reloads the count.
-  Widget _buildToShelveCard(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final textTheme = Theme.of(context).textTheme;
-    final radius = BorderRadius.circular(AppDesign.radiusMedium);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 16, 8, 8),
-      // One button, read as its title then its count.
-      child: MergeSemantics(
-        key: const Key('toShelveCard'),
-        child: Semantics(
-          button: true,
-          child: Material(
-            color: scheme.primaryContainer,
-            borderRadius: radius,
-            child: InkWell(
-              borderRadius: radius,
-              onTap: () => context.go(toShelveLocation),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 14,
+  /// The first-level shelves as cards to walk into, under the "to shelve"
+  /// line and the row that leads to organizing them.
+  Widget _buildCards(BuildContext context, bool showToShelve) {
+    final roots = Tag.getRootTags(_shownTags);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final columns = shelfGridColumns(
+          width: width,
+          textScale: MediaQuery.textScalerOf(context).scale(1),
+        );
+        final horizontal = columns == 1;
+        final spacing = width >= _wideRowWidth ? 16.0 : 12.0;
+        return RefreshIndicator(
+          onRefresh: _loadTags,
+          child: CustomScrollView(
+            key: const Key('shelfCardsScroll'),
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: _gridMargin),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      if (showToShelve) _buildToShelveLine(context),
+                      _buildGridHead(context, wide: width >= _wideRowWidth),
+                    ],
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: scheme.primary,
-                        borderRadius: BorderRadius.circular(
-                          AppDesign.radiusSmall,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.move_to_inbox_outlined,
-                        color: scheme.onPrimary,
-                      ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(
+                  _gridMargin,
+                  0,
+                  _gridMargin,
+                  96,
+                ),
+                sliver: SliverGrid(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: columns,
+                    mainAxisSpacing: spacing,
+                    crossAxisSpacing: spacing,
+                    mainAxisExtent: ShelfCard.extentFor(
+                      context,
+                      horizontal: horizontal,
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            TranslationService.translate(
-                              context,
-                              'to_shelve_title',
-                            ),
-                            style: textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: scheme.onPrimaryContainer,
-                            ),
-                          ),
-                          Text(
-                            _plural(
-                              context,
-                              'to_shelve_count',
-                              _unshelvedCount,
-                            ),
-                            style: textTheme.bodyMedium?.copyWith(
-                              color: scheme.onPrimaryContainer,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Icon(Icons.chevron_right, color: scheme.onPrimaryContainer),
-                  ],
+                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final tag = roots[index];
+                    return ShelfCard(
+                      key: ValueKey('shelfCard:${tag.name}'),
+                      name: tag.name,
+                      books: _aggregatedCount(tag),
+                      subShelves: _childrenOf(tag).length,
+                      coverPaths: tag.coverPaths,
+                      horizontal: horizontal,
+                      onTap: () => _openShelfBooks(tag),
+                    );
+                  }, childCount: roots.length),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  /// "Organize" at the right; from [_wideRowWidth] the add button, otherwise
+  /// floating, at its left.
+  Widget _buildGridHead(BuildContext context, {required bool wide}) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 4, bottom: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (wide) ...[
+            Flexible(
+              child: OutlinedButton.icon(
+                onPressed: _showCreateShelfDialog,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 44),
+                ),
+                icon: const Icon(Icons.add),
+                label: Text(
+                  TranslationService.translate(context, 'create_shelf'),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: TextButton.icon(
+              onPressed: _openOrganize,
+              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+              icon: const Icon(Icons.tune),
+              label: Text(
+                TranslationService.translate(context, 'organize'),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _openOrganize() async {
+    await context.push('/shelves-management');
+    if (mounted) await _loadTags();
+  }
+
+  /// The books on no shelf, in one sober line: a tap lists them in this tab
+  /// with selection armed, ready for the bulk shelving sheet; the cross hides
+  /// the line until there are more of them. Coming back to the grid remounts
+  /// this screen, which reloads the count.
+  Widget _buildToShelveLine(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final title = TranslationService.translate(context, 'to_shelve_title');
+    final radius = BorderRadius.circular(12);
+    return Padding(
+      key: const Key('toShelveCard'),
+      padding: const EdgeInsets.only(top: 12, bottom: 4),
+      child: Material(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: radius,
+          side: BorderSide(color: scheme.outlineVariant),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Row(
+          children: [
+            Expanded(
+              // One button, read as the whole sentence.
+              child: MergeSemantics(
+                child: Semantics(
+                  button: true,
+                  label:
+                      '$title, ${_plural(context, 'to_shelve_count', _unshelvedCount)}',
+                  child: InkWell(
+                    onTap: () => context.go(toShelveLocation),
+                    child: ExcludeSemantics(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: 44),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.move_to_inbox_outlined,
+                                color: scheme.primary,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: title,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      TextSpan(
+                                        text:
+                                            ' · ${_plural(context, 'displayed_books_count', _unshelvedCount)}',
+                                      ),
+                                    ],
+                                  ),
+                                  style: textTheme.bodyMedium,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            IconButton(
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              icon: const Icon(Icons.close),
+              tooltip: TranslationService.translate(context, 'to_shelve_hide'),
+              onPressed: _hideToShelveLine,
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _hideToShelveLine() {
+    final count = _unshelvedCount;
+    setState(() => _toShelveDismissedAt = count);
+    unawaited(ToShelveDismissalStore.dismissAt(count));
   }
 
   Widget _buildEmptyState(BuildContext context) {

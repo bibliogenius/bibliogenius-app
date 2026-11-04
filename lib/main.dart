@@ -54,6 +54,7 @@ import 'data/repositories_impl/copy_repository_impl.dart';
 import 'data/repositories_impl/loan_repository_impl.dart';
 import 'data/repositories_impl/recommendation_repository_impl.dart';
 
+import 'screens/shelves_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
 import 'screens/author_screen.dart';
@@ -78,7 +79,6 @@ import 'screens/profile_screen.dart';
 import 'screens/peer_book_list_screen.dart';
 import 'screens/peer_detail_screen.dart';
 import 'models/library_relation.dart';
-import 'screens/shelf_management_screen.dart';
 import 'screens/search_peer_screen.dart';
 import 'screens/memory_game_screen.dart';
 import 'screens/duplicate_books_screen.dart';
@@ -1059,7 +1059,7 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         ),
         GoRoute(
           path: '/shelves-management',
-          builder: (context, state) => const ShelfManagementScreen(),
+          builder: (context, state) => const ShelvesScreen(organizing: true),
         ),
         GoRoute(
           path: '/invite',

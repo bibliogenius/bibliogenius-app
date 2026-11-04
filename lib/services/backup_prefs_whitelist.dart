@@ -82,6 +82,7 @@ enum BackupPrefType { string, integer, stringList }
 const Map<String, BackupPrefType> kBackupPrefsTypes = {
   'hub_local_location_city_id': BackupPrefType.integer,
   'shelf_order_ids': BackupPrefType.stringList,
+  'to_shelve_dismissed_count': BackupPrefType.integer,
 };
 
 /// The declared type of the whitelisted [key]: a string unless listed in
@@ -238,6 +239,7 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // flags are bools, which the restorer does not re-apply anyway.
   'bookshop_finder_dismissed', // ThemeProvider.setShowBookshopFinder
   'library_intro_dismissed', // ThemeProvider.setShowLibraryLinks
+  'to_shelve_dismissed_count', // ToShelveDismissalStore, shelves tab
   'my_bookshop_ids', // ThemeProvider my registry portal selection
   'my_custom_bookshops', // ThemeProvider hand-added bookshops
   'my_library_portals', // ThemeProvider connected library catalogues

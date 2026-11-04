@@ -623,6 +623,10 @@ class _Harness {
         // Outside the shell, as in main.dart.
         GoRoute(
           path: '/shelves-management',
+          builder: (_, _) => const ShelvesScreen(organizing: true),
+        ),
+        GoRoute(
+          path: '/legacy-shelves-management',
           builder: (_, _) => const ShelfManagementScreen(),
         ),
       ],
@@ -978,6 +982,16 @@ Future<TestGesture> _startShelfDrag(
   return gesture;
 }
 
+/// Holds [gesture] just under the first-level zone until the list has made
+/// room above its first row, which otherwise lies under the zone.
+Future<void> _revealFirstRow(WidgetTester tester, TestGesture gesture) async {
+  final zone = tester.getRect(_firstLevelZone);
+  await gesture.moveTo(Offset(zone.center.dx, zone.bottom + 8));
+  for (var i = 0; i < 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+}
+
 /// Where a drag can let go over no drop target: the bottom navigation bar.
 Offset _offTheTree(WidgetTester tester) =>
     Offset(tester.getCenter(find.byType(ShelvesScreen)).dx, _phone.height - 8);
@@ -1056,11 +1070,11 @@ final _probes = <_Probe>[
   const _Probe('library, sub-shelves', '/shelves?tag=Genre'),
   // The tree of the tab: chevrons, handles and menus on every row, four
   // levels deep.
-  _Probe('library, shelves tab, tree', '/shelves', tags: _treeTags),
+  _Probe('library, shelves tab, tree', '/shelves-management', tags: _treeTags),
   // A shelf picked up: its branch greyed, the first-level zone shown.
   _Probe(
     'library, shelves tab, during a drag',
-    '/shelves',
+    '/shelves-management',
     tags: _treeTags,
     reach: (t) async {
       await _startShelfDrag(t, 'Novels');
@@ -1070,7 +1084,7 @@ final _probes = <_Probe>[
   // message is a live region, Undo a named button.
   _Probe(
     'library, shelves tab, a deletion to undo',
-    '/shelves',
+    '/shelves-management',
     size: _tallPhone,
     tags: _treeTags,
     reach: (t) async {
@@ -1082,7 +1096,7 @@ final _probes = <_Probe>[
   // current place marked, both read as disabled.
   _Probe(
     'library, shelves tab, move tree',
-    '/shelves',
+    '/shelves-management',
     reach: (t) => _openMoveFromRow(t, 'Science fiction'),
   ),
   // The "to shelve" card's list: selection armed from the start, a header of
@@ -1847,7 +1861,10 @@ void main() {
     // in one shelf never reorders another.
     Future<void> openShelf(WidgetTester tester, String name) async {
       await _tap(tester, find.byKey(const Key('shelfBackButton')));
-      await _tap(tester, _treeRow(name));
+      GoRouter.of(
+        tester.element(find.byType(ShelvesScreen)),
+      ).go('/shelves?tag=${Uri.encodeQueryComponent(name)}');
+      await _settle(tester);
     }
 
     Future<void> pickSort(WidgetTester tester, String pill, String item) async {
@@ -1912,7 +1929,7 @@ void main() {
         'languageCode': 'en',
         'shelf_order_ids': ['t1', 't3'],
       });
-      await _render(tester, const _Probe('shelves', '/shelves'));
+      await _render(tester, const _Probe('shelves', '/shelves-management'));
 
       await _openShelfRowMenu(tester, 'Novel');
       await _tap(tester, find.text('Delete Shelf'));
@@ -2098,7 +2115,7 @@ void main() {
       });
       await _render(
         tester,
-        const _Probe('shelves', '/shelves'),
+        const _Probe('shelves', '/shelves-management'),
         tags: const [],
       );
 
@@ -2395,7 +2412,7 @@ void main() {
   // confirm button that could send a shelf to the first level unasked.
   group('moving a shelf on the real routes', () {
     // Every level is on the tab at once: no descent to reach a sub-shelf.
-    const subShelves = _Probe('sub-shelves', '/shelves');
+    const subShelves = _Probe('sub-shelves', '/shelves-management');
     final firstLevel = find.descendant(
       of: _moveSheet,
       matching: find.byKey(const ValueKey('placementFirstLevel')),
@@ -2453,7 +2470,7 @@ void main() {
       final handle = tester.ensureSemantics();
       final harness = await _render(
         tester,
-        const _Probe('shelves', '/shelves'),
+        const _Probe('shelves', '/shelves-management'),
       );
       await _openMoveFromRow(tester, 'Novel');
 
@@ -2477,7 +2494,7 @@ void main() {
 
       final fromManagement = await _render(
         tester,
-        const _Probe('management', '/shelves-management'),
+        const _Probe('management', '/legacy-shelves-management'),
       );
       await tester.longPress(
         find
@@ -2538,18 +2555,15 @@ void main() {
   group('the shelf tree on the real route', () {
     final tree = _Probe(
       'shelf tree',
-      '/shelves',
+      '/shelves-management',
       size: _tallPhone,
       tags: _treeTags,
     );
 
-    testWidgets('lists every level at once, under the "to shelve" card', (
-      tester,
-    ) async {
+    testWidgets('lists every level at once', (tester) async {
       await _render(tester, tree);
 
       expect(find.byType(GridView), findsNothing);
-      expect(find.byKey(const Key('toShelveCard')), findsOneWidget);
       for (final tag in _treeTags) {
         expect(_treeRow(tag.name), findsOneWidget, reason: tag.name);
       }
@@ -2564,7 +2578,7 @@ void main() {
     testWidgets('a tap on a row opens the books of its shelf', (
       tester,
     ) async {
-      await _render(tester, const _Probe('shelves', '/shelves'));
+      await _render(tester, const _Probe('shelves', '/shelves-management'));
 
       await _tap(
         tester,
@@ -2634,7 +2648,7 @@ void main() {
         tester,
         _Probe(
           'shelf tree, covers',
-          '/shelves',
+          '/shelves-management',
           size: _tallPhone,
           tags: [
             // No book of its own: its books sit on a sub-shelf.
@@ -2744,6 +2758,7 @@ void main() {
       final before = tester.getSize(_treeRow('Living room')).height;
 
       final gesture = await _startShelfDrag(tester, 'Study');
+      await _revealFirstRow(tester, gesture);
       await gesture.moveTo(tester.getCenter(_treeRow('Living room')));
       await tester.pump();
       await tester.pump();
@@ -2837,7 +2852,7 @@ void main() {
       );
       expect(
         GoRouterState.of(tester.element(_treeRow('Living room'))).uri.path,
-        '/shelves',
+        '/shelves-management',
       );
       handle.dispose();
     });
@@ -3086,13 +3101,13 @@ void main() {
       harness.tags.mockUnshelvedCount = 0;
       harness.refresh.refresh();
       await _settle(tester);
-      await tester.ensureVisible(_treeHandle('Novels'));
+      await tester.ensureVisible(_treeHandle('Living room'));
       await _settle(tester);
-      final before = tester.getRect(_treeRow('Novels'));
+      final before = tester.getRect(_treeRow('Living room'));
 
-      final gesture = await _startShelfDrag(tester, 'Novels');
+      final gesture = await _startShelfDrag(tester, 'Living room');
       final zone = tester.getRect(_firstLevelZone);
-      final pointer = tester.getCenter(_treeHandle('Novels')).dy + 24;
+      final pointer = tester.getCenter(_treeHandle('Living room')).dy + 24;
       // The pick itself lands in the band under the zone.
       expect(pointer, inInclusiveRange(zone.bottom, zone.bottom + 56));
       // A finger never holds perfectly still.
@@ -3100,7 +3115,7 @@ void main() {
       for (var i = 0; i < 10; i++) {
         await tester.pump(const Duration(milliseconds: 100));
       }
-      expect(tester.getRect(_treeRow('Novels')).top, before.top);
+      expect(tester.getRect(_treeRow('Living room')).top, before.top);
       await gesture.up();
       await _settle(tester);
     });
@@ -3137,6 +3152,7 @@ void main() {
       await _tap(tester, find.byTooltip('Collapse Living room'));
 
       final gesture = await _startShelfDrag(tester, 'Study');
+      await _revealFirstRow(tester, gesture);
       await gesture.moveTo(tester.getCenter(_treeRow('Living room')));
       await tester.pump();
       // What the reload after the write returns: Study inside Living room.
@@ -3285,7 +3301,7 @@ void main() {
     ) async {
       final harness = await _render(
         tester,
-        _Probe('desktop tree', '/shelves', size: _desktop, tags: _treeTags),
+        _Probe('desktop tree', '/shelves-management', size: _desktop, tags: _treeTags),
       );
 
       await _dragShelf(
@@ -3406,7 +3422,7 @@ void main() {
   group('undo on the shelves tab on the real route', () {
     final tree = _Probe(
       'shelf tree',
-      '/shelves',
+      '/shelves-management',
       size: _tallPhone,
       tags: _treeTags,
     );
@@ -3474,7 +3490,11 @@ void main() {
       final harness = await _render(tester, tree);
       await _deleteFromRow(tester, 'Living room');
 
-      await _tapNow(tester, find.widgetWithText(Tab, 'Books'));
+      GoRouter.of(tester.element(find.byType(ShelvesScreen))).go('/books');
+      // Through the page transition, then the message's own way out.
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(harness.tags.deleted, ['Living room']);
       expect(_undo, findsNothing);
@@ -3721,7 +3741,11 @@ void main() {
       await _renameFromRow(tester, 'Living room', 'Lounge');
       expect(_undo, findsOneWidget);
 
-      await _tapNow(tester, find.widgetWithText(Tab, 'Books'));
+      GoRouter.of(tester.element(find.byType(ShelvesScreen))).go('/books');
+      // Through the page transition, then the message's own way out.
+      for (var i = 0; i < 12; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
 
       expect(_undo, findsNothing);
       expect(harness.tags.updated, ['s1: Lounge']);

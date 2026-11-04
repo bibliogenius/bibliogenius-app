@@ -12572,3 +12572,7 @@ msgstr "本棚「%s」を削除しました。"
 #. Shelves tab: Undo of a rename could not give the old name back, %s is that name
 msgid "shelf_undo_name_taken"
 msgstr "「%s」という名前はすでに別の本棚で使われています。"
+
+#. Shelves tab: label of the cross that hides the line of books on no shelf, until more of them come: Hide "To shelve" until more books need shelving
+msgid "to_shelve_hide"
+msgstr "次に未整理の本が増えるまで「未整理」を隠す"

@@ -136,8 +136,11 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Widget shelvesTab() =>
-      ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0));
+  Widget shelvesTab() => ShelvesScreen(
+    isTabView: true,
+    refreshNotifier: ValueNotifier<int>(0),
+    organizing: true,
+  );
 
   testWidgets('the empty shelves tab tells a shelf from a collection', (
     tester,

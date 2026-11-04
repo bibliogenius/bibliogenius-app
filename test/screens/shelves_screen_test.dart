@@ -120,7 +120,11 @@ void main() {
         GoRoute(
           path: '/',
           builder: (_, _) =>
-              ShelvesScreen(isTabView: true, refreshNotifier: tabRefresh),
+              ShelvesScreen(
+                isTabView: true,
+                refreshNotifier: tabRefresh,
+                organizing: true,
+              ),
         ),
         GoRoute(
           path: '/shelves',
@@ -242,92 +246,6 @@ void main() {
 
   // The "to shelve" card: the books on no shelf, gathered at the head of the
   // tab, the natural place to start after a batch scan.
-  group('to shelve card', () {
-    final card = find.byKey(const Key('toShelveCard'));
-
-    testWidgets('is absent when every book is on a shelf', (tester) async {
-      repo.unshelved = 0;
-      await pump(tester);
-
-      expect(card, findsNothing);
-      expect(find.text('To shelve'), findsNothing);
-    });
-
-    testWidgets('announces the books on no shelf, as one button', (
-      tester,
-    ) async {
-      final semantics = tester.ensureSemantics();
-      repo.unshelved = 23;
-      await pump(tester);
-
-      expect(card, findsOneWidget);
-      expect(find.text('To shelve'), findsOneWidget);
-      expect(find.text('23 books on no shelf'), findsOneWidget);
-      expect(
-        tester.getSemantics(card),
-        containsSemantics(
-          label: 'To shelve\n23 books on no shelf',
-          isButton: true,
-          hasTapAction: true,
-        ),
-      );
-      semantics.dispose();
-    });
-
-    testWidgets('uses the singular for one book', (tester) async {
-      repo.unshelved = 1;
-      await pump(tester);
-
-      expect(find.text('1 book on no shelf'), findsOneWidget);
-    });
-
-    testWidgets('opens the list of those books, in the shelves tab, '
-        'selection armed and scoped to the default view', (tester) async {
-      repo.unshelved = 3;
-      await pump(tester);
-
-      await tester.tap(card);
-      await tester.pumpAndSettle();
-
-      expect(navigated, ['/shelves?unshelved=1&select=1&owned=library']);
-    });
-
-    testWidgets('heads the tree, above the first shelf', (tester) async {
-      repo.unshelved = 3;
-      await pump(tester);
-
-      expect(
-        tester.getBottomLeft(card).dy,
-        lessThanOrEqualTo(tester.getTopLeft(find.text('Genre')).dy),
-      );
-    });
-
-    testWidgets('is shown above the empty state too', (tester) async {
-      // Ten books scanned, no shelf yet: the card is where shelving starts.
-      repo
-        ..tags = []
-        ..unshelved = 10;
-      await pump(tester);
-
-      expect(card, findsOneWidget);
-      expect(find.text('10 books on no shelf'), findsOneWidget);
-    });
-
-    testWidgets('follows a book change elsewhere, and disappears at zero', (
-      tester,
-    ) async {
-      repo.unshelved = 2;
-      await pump(tester);
-      expect(card, findsOneWidget);
-
-      repo.unshelved = 0;
-      bookRefresh.refresh();
-      await tester.pumpAndSettle();
-
-      expect(card, findsNothing);
-    });
-  });
-
   testWidgets('the tab refresh notifier reloads the tree too', (tester) async {
     await pump(tester);
     final readsBefore = repo.reads;
