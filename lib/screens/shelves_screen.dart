@@ -10,6 +10,7 @@ import '../widgets/app_snack_bar.dart';
 import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/move_shelf_sheet.dart';
+import '../widgets/shelf_actions.dart';
 import '../services/to_shelve_dismissal_store.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/shelf_card.dart';
@@ -34,63 +35,48 @@ class ShelvesScreen extends StatefulWidget {
   /// The tree to rearrange the shelves, instead of the cards to walk into.
   final bool organizing;
 
+  /// The waiting deletion and the Undos, when they outlive this screen.
+  /// Without it the screen keeps its own, and leaving it sends the deletion.
+  final ShelfActionsController? actions;
+
+  /// Told each listing, for the page of a shelf opened next to start from.
+  final ValueChanged<List<Tag>>? onTagsLoaded;
+
   const ShelvesScreen({
     super.key,
     this.isTabView = false,
     this.refreshNotifier,
     this.organizing = false,
+    this.actions,
+    this.onTagsLoaded,
   });
 
   @override
   State<ShelvesScreen> createState() => _ShelvesScreenState();
 }
 
-class _ShelvesScreenState extends State<ShelvesScreen>
-    with WidgetsBindingObserver {
+class _ShelvesScreenState extends State<ShelvesScreen> {
   /// The side margin of the grid and of what heads it.
   static const double _gridMargin = 16;
 
   /// Three columns start here, and the add button leaves its floating spot.
   static const double _wideRowWidth = 600;
 
-  /// The badge must announce what the tap will open, and what it opens is the
-  /// reader's remembered ownership axis (ADR-063). Watched rather than read
-  /// once: changing the axis from the library screen has to repaint these.
-  int _shelfCount(Tag tag) => countForOwnershipScope(
-    tag,
-    resolveOwnershipScope(
-      explicit: context.watch<OwnershipPreferenceProvider>().scope,
-      status: null,
-    ),
-  );
+  /// A card must announce what the tap will open, and what it opens is the
+  /// reader's remembered ownership axis (ADR-063): watched in [_aggregatedCount]
+  /// because changing the axis from the library screen has to repaint these.
   List<Tag> _allTags = [];
 
-  /// Shelves deleted in the tree whose write has not landed yet: the one
-  /// waiting on its Undo, and any whose write is still on its way. Keyed
-  /// by [_hideKey].
-  final Set<String> _hiddenShelves = {};
+  late final ShelfActionsController _actions =
+      widget.actions ?? ShelfActionsController(() => mounted ? context : null);
 
-  /// A shelf with a row by its id. One known only from the books' subjects
-  /// by its name: the core numbers those `legacy:` ids afresh, in no stable
-  /// order, on every listing.
-  static String _hideKey(Tag tag) =>
-      tag.isPersisted ? tag.id : 'name:${tag.name}';
+  bool get _ownsActions => widget.actions == null;
 
-  /// The latest Undo of a move or a rename. It goes when the reader leaves
-  /// the tab: under a screen reader it would otherwise follow them
-  /// everywhere.
-  UndoableMessage? _undoMessage;
-
-  /// The deletion waiting on its Undo. One at a time.
-  _PendingShelfDeletion? _pendingDeletion;
-
-  /// What the tree shows: [_allTags] without [_hiddenShelves]. Kept as one
-  /// list instance between changes, the tree index is cached per instance.
+  /// What the tree shows: [_allTags] without the shelves waiting on a
+  /// deletion. Kept as one list instance between changes, the tree index is
+  /// cached per instance.
   List<Tag>? _shownCache;
-  List<Tag> get _shownTags => _shownCache ??= Tag.withoutShelves(_allTags, {
-    for (final t in _allTags)
-      if (_hiddenShelves.contains(_hideKey(t))) t.id,
-  });
+  List<Tag> get _shownTags => _shownCache ??= _actions.shown(_allTags);
 
   /// Off while a page opened over the tab hides it. Another library tab is
   /// another route: going there disposes this screen.
@@ -112,7 +98,7 @@ class _ShelvesScreenState extends State<ShelvesScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
+    _actions.addListener(_onActionsChanged);
     widget.refreshNotifier?.addListener(_loadTags);
     // The tab stays mounted behind whatever the reader pushes on top of it
     // (a book form, a scan), so a shelf created or filled there has to reach
@@ -120,8 +106,10 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     // the tab and coming back.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      _bookRefreshNotifier = context.read<BookRefreshNotifier>();
-      _bookRefreshNotifier?.addListener(_loadTags);
+      final refresh = context.read<BookRefreshNotifier>();
+      _bookRefreshNotifier = refresh;
+      refresh.addListener(_loadTags);
+      if (_ownsActions) _actions.onWritten = refresh.refresh;
     });
     _loadTags();
   }
@@ -138,34 +126,21 @@ class _ShelvesScreenState extends State<ShelvesScreen>
 
   /// Out of sight is leaving the tab.
   void _onTickerModeChanged() {
-    if (_tickerMode?.value == false) _leaveTab();
+    if (_tickerMode?.value == false && _ownsActions) _actions.leave();
   }
 
-  /// A waiting deletion goes, and no Undo of the tab stays up behind.
-  void _leaveTab() {
-    _sendPendingDeletion();
-    _undoMessage?.dismiss();
-    _undoMessage = null;
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Leaving the app sends a waiting deletion. Inactive is not leaving: a
-    // glance at the control centre or a system dialog passes through it.
-    // The Undo of a move or a rename stays: nothing waits behind it.
-    if (state == AppLifecycleState.hidden ||
-        state == AppLifecycleState.paused ||
-        state == AppLifecycleState.detached) {
-      _sendPendingDeletion();
-    }
+  void _onActionsChanged() {
+    if (!mounted) return;
+    setState(() => _shownCache = null);
   }
 
   @override
   void dispose() {
-    // Leaving the tab sends a waiting deletion. Its write runs on the
-    // repository captured when it started and touches no state from here.
-    _leaveTab();
-    WidgetsBinding.instance.removeObserver(this);
+    _actions.removeListener(_onActionsChanged);
+    // Leaving the tab sends a waiting deletion, unless it outlives this
+    // screen. Its write runs on the repository captured when it started and
+    // touches no state from here.
+    if (_ownsActions) _actions.dispose();
     _tickerMode?.removeListener(_onTickerModeChanged);
     widget.refreshNotifier?.removeListener(_loadTags);
     _bookRefreshNotifier?.removeListener(_loadTags);
@@ -173,22 +148,13 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     super.dispose();
   }
 
-  /// Bumped by each load: a listing that lands after a later one is stale
-  /// (it may still hold a shelf deleted since) and is dropped.
-  int _loadGeneration = 0;
-
-  /// Deletions the core has taken, by [_hideKey], with the load generation
-  /// current when the write landed. Their rows stay hidden until a listing
-  /// started after that lands: any earlier one may still hold the shelf.
-  final Map<String, int> _writtenDeletions = {};
-
   /// Reload the tags and keep the reader where they are.
   ///
   /// The tree keeps painting the previous list while the new one loads: a
   /// spinner on every delete or rename reads as "something is off", while a
   /// row that simply disappears reads as done.
   Future<void> _loadTags() async {
-    final generation = ++_loadGeneration;
+    final generation = _actions.beginListing();
     try {
       final repo = Provider.of<TagRepository>(context, listen: false);
       // Both in flight at once; the count never throws, so a failed tag
@@ -197,12 +163,8 @@ class _ShelvesScreenState extends State<ShelvesScreen>
       final dismissedLoad = ToShelveDismissalStore.load();
       final tags = await repo.getTags();
       final unshelved = await unshelvedLoad;
-      var dismissedAt = await dismissedLoad;
-      if (unshelved == 0 && dismissedAt > 0) {
-        dismissedAt = 0;
-        unawaited(ToShelveDismissalStore.clear());
-      }
-      if (!mounted || generation != _loadGeneration) return;
+      final dismissedAt = await dismissedLoad;
+      if (!mounted || generation != _actions.generation) return;
       // A shelf deleted elsewhere (the management screen, another device)
       // leaves no order behind. An empty listing proves nothing: the FFI
       // answers one on any core error, and a library with no shelf has no
@@ -213,13 +175,10 @@ class _ShelvesScreenState extends State<ShelvesScreen>
             if (t.isPersisted) t.id,
         });
       }
+      widget.onTagsLoaded?.call(tags);
       setState(() {
         _allTags = tags;
-        _writtenDeletions.removeWhere((key, writtenAt) {
-          if (generation <= writtenAt) return false;
-          _hiddenShelves.remove(key);
-          return true;
-        });
+        _actions.listingLanded(generation);
         _shownCache = null;
         _unshelvedCount = unshelved;
         _toShelveDismissedAt = dismissedAt;
@@ -227,7 +186,7 @@ class _ShelvesScreenState extends State<ShelvesScreen>
         _isLoading = false;
       });
     } catch (e) {
-      if (!mounted || generation != _loadGeneration) return;
+      if (!mounted || generation != _actions.generation) return;
       setState(() {
         _error = e.toString();
         _isLoading = false;
@@ -255,15 +214,14 @@ class _ShelvesScreenState extends State<ShelvesScreen>
 
   /// Own books plus every descendant's: the number the shelf's book list
   /// will show, since filtering on a parent includes its whole subtree.
-  int _aggregatedCount(Tag tag) {
-    final shown = _shownTags;
-    final descendants = Tag.getDescendantIds(tag.id, shown);
-    var total = _shelfCount(tag);
-    for (final t in shown) {
-      if (descendants.contains(t.id)) total += _shelfCount(t);
-    }
-    return total;
-  }
+  int _aggregatedCount(Tag tag) => aggregatedCountForScope(
+    tag,
+    _shownTags,
+    resolveOwnershipScope(
+      explicit: context.watch<OwnershipPreferenceProvider>().scope,
+      status: null,
+    ),
+  );
 
   /// The book list of a shelf, sub-shelves included.
   void _openShelfBooks(Tag tag) {
@@ -757,168 +715,20 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     );
   }
 
-  // Methods for editing and deleting shelves
-
-  void _showEditShelfDialog(Tag tag) {
-    final controller = TextEditingController(text: tag.name);
-    final formKey = GlobalKey<FormState>();
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(
-                TranslationService.translate(context, 'edit_shelf') ??
-                    'Edit Shelf',
-              ),
-              content: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: controller,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        labelText:
-                            TranslationService.translate(
-                              context,
-                              'shelf_name',
-                            ) ??
-                            'Shelf Name',
-                        border: const OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return TranslationService.translate(
-                                context,
-                                'field_required',
-                              ) ??
-                              'This field is required';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    TranslationService.translate(context, 'cancel') ?? 'Cancel',
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      Navigator.pop(context);
-                      // Renaming only: the shelf stays where the tree shows
-                      // it. Moving goes through "Move to…".
-                      await _updateShelf(
-                        tag.id,
-                        controller.text.trim(),
-                        // From the stored tree: the one shown moves the
-                        // sub-shelves of a deletion waiting on its Undo.
-                        parentId: Tag.effectiveParentIds(_allTags)[tag.id],
-                      );
-                    }
-                  },
-                  child: Text(
-                    TranslationService.translate(context, 'update') ?? 'Update',
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Future<void> _updateShelf(String id, String name, {String? parentId}) async {
-    try {
-      final api = Provider.of<TagRepository>(context, listen: false);
-      // The tag is addressed by its uuid, resolved from the loaded list by its
-      // local id. Synthetic (subject-derived) shelves have no row to update.
-      final shelf = _allTags.firstWhere(
-        (t) => t.id == id,
-        orElse: () => Tag(id: id, name: name, count: 0),
-      );
-      final uuid = shelf.uuid;
-      if (uuid == null) return;
-      // What Undo gives back.
-      final previousName = shelf.name;
-      await api.updateTag(uuid, name, parentId: parentId);
-      if (mounted) {
-        final messenger = ScaffoldMessenger.of(context);
-        final taken = TranslationService.translate(
-          context,
-          'shelf_undo_name_taken',
-        ).replaceAll('%s', previousName);
-        _undoMessage = AppSnackBar.undoable(
-          context,
-          TranslationService.translate(context, 'shelf_updated'),
-          onUndo: () =>
-              _undoRename(api, messenger, id, previousName, taken),
-        );
-        _loadTags();
-      }
-    } catch (e) {
-      if (mounted) AppSnackBar.error(context, e.toString());
-    }
-  }
-
-  /// Gives [previousName] back to the shelf [id], as Undo of a rename.
-  ///
-  /// Read afresh: names are unique byte for byte, and one taken by another
-  /// shelf since stays with it; the rename then holds, and the reader is
-  /// told why. A move made meanwhile is kept.
-  Future<void> _undoRename(
-    TagRepository repo,
-    ScaffoldMessengerState messenger,
-    String id,
-    String previousName,
-    String takenMessage,
-  ) async {
-    try {
-      final tags = await repo.getTags();
-      final shelf = tags.where((t) => t.id == id).firstOrNull;
-      if (shelf == null) {
-        debugPrint('ShelvesScreen: undo found no shelf to rename');
-        return;
-      }
-      if (tags.any((t) => t.id != id && t.name == previousName)) {
-        messenger
-          ..hideCurrentSnackBar()
-          ..showSnackBar(SnackBar(content: Text(takenMessage)));
-        return;
-      }
-      await repo.updateTag(
-        shelf.uuid,
-        previousName,
-        parentId: Tag.effectiveParentId(shelf, tags),
-      );
-    } catch (e) {
-      debugPrint('ShelvesScreen: undo of a rename failed: ${e.runtimeType}');
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-        );
-      return;
-    }
-    if (mounted) _loadTags();
-  }
+  void _showEditShelfDialog(Tag tag) => showRenameShelfDialog(
+    context,
+    tag: tag,
+    allTags: _allTags,
+    onRenamed: (_) => _loadTags(),
+    onUndone: _reloadIfMounted,
+    onUndoShown: _keepUndo,
+  );
 
   void _reloadIfMounted() {
     if (mounted) _loadTags();
   }
 
-  void _keepUndo(UndoableMessage message) => _undoMessage = message;
+  void _keepUndo(UndoableMessage message) => _actions.keepUndo(message);
 
   Future<void> _moveShelf(Tag tag) async {
     final moved = await showMoveShelfSheet(
@@ -931,90 +741,11 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     if (moved && mounted) _loadTags();
   }
 
-  /// Deletes [tag] in the tree at once and offers Undo; the write waits.
-  ///
-  /// It goes when the message closes (expired, dismissed, or replaced by
-  /// another), when the reader leaves the tab or the app, or when a second
-  /// deletion starts. Undo writes nothing, so nothing reaches a sync.
-  void _deleteShelf(Tag tag) {
-    _sendPendingDeletion();
-    final pending = _PendingShelfDeletion(
-      tag,
-      Provider.of<TagRepository>(context, listen: false),
-      _sortPreference,
-    );
-    final subShelfCount = _childrenOf(tag).length;
-    setState(() {
-      _pendingDeletion = pending;
-      _hiddenShelves.add(_hideKey(tag));
-      _shownCache = null;
-    });
-    final message = AppSnackBar.undoable(
-      context,
-      deletedShelfMessage(context, tag, subShelfCount: subShelfCount),
-      onUndo: () => _undoDeletion(pending),
-    );
-    pending.message = message;
-    message.closed.then((reason) {
-      if (reason != SnackBarClosedReason.action) _sendDeletion(pending);
-    });
-  }
-
-  void _undoDeletion(_PendingShelfDeletion pending) {
-    if (!pending.settle()) return;
-    if (identical(_pendingDeletion, pending)) _pendingDeletion = null;
-    if (!mounted) return;
-    setState(() {
-      _hiddenShelves.remove(_hideKey(pending.shelf));
-      _shownCache = null;
-    });
-  }
-
-  /// Sends the deletion waiting on its Undo, if any, and takes the Undo
-  /// off the screen: past this point it would undo nothing.
-  void _sendPendingDeletion() {
-    final pending = _pendingDeletion;
-    if (pending == null) return;
-    _sendDeletion(pending);
-    pending.message?.dismiss();
-  }
-
-  void _sendDeletion(_PendingShelfDeletion pending) {
-    if (!pending.settle()) return;
-    if (identical(_pendingDeletion, pending)) _pendingDeletion = null;
-    unawaited(_writeDeletion(pending));
-  }
-
-  /// The write itself. Started from `dispose` as well: nothing before its
-  /// first await touches this state, nothing after it once unmounted.
-  Future<void> _writeDeletion(_PendingShelfDeletion pending) async {
-    final shelf = pending.shelf;
-    try {
-      // Row or not, the name has to leave the books: a shelf that only
-      // exists in their subjects is deleted the same way (see deleteShelf).
-      await pending.repo.deleteShelf(shelf);
-      // The shelf's own order goes with it, only now that it is gone.
-      await pending.sortPreference?.setShelfOrder(shelf.id, false);
-    } catch (e) {
-      debugPrint('ShelvesScreen: deleting a shelf failed: ${e.runtimeType}');
-      if (!mounted) return;
-      setState(() {
-        _hiddenShelves.remove(_hideKey(shelf));
-        _shownCache = null;
-      });
-      // Replacing the message of a deletion still waiting on its Undo
-      // would send that one too: the error waits its turn.
-      AppSnackBar.error(
-        context,
-        e.toString(),
-        queue: _pendingDeletion != null,
-      );
-      return;
-    }
-    if (!mounted) return;
-    _writtenDeletions[_hideKey(shelf)] = _loadGeneration;
-    await _loadTags();
-  }
+  void _deleteShelf(Tag tag) => _actions.delete(
+    context,
+    tag,
+    subShelfCount: _childrenOf(tag).length,
+  );
 
   /// A drop in the tree: the same write and message as "Move to…", then
   /// the tree reloaded so the shelf shows at its new place.
@@ -1090,169 +821,12 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     );
   }
 
-  // Methods for direct shelf creation (copied/adapted from ShelfManagementScreen)
-  Future<void> _createShelf(String name, {String? parentId}) async {
-    try {
-      final api = Provider.of<TagRepository>(context, listen: false);
-      await api.createTag(name, parentId: parentId);
-      if (mounted) {
-        // Replaces an Undo still up rather than queueing behind it.
-        AppSnackBar.success(
-          context,
-          TranslationService.translate(context, 'shelf_created'),
-        );
-        _loadTags();
-      }
-    } catch (e) {
-      if (mounted) AppSnackBar.error(context, e.toString());
-    }
-  }
-
   /// Creates a shelf at the first level, or inside [parent] when a row's
   /// menu asks for a sub-shelf.
-  void _showCreateShelfDialog({Tag? parent}) {
-    final controller = TextEditingController();
-    final formKey = GlobalKey<FormState>();
-    Tag? selectedParent = parent;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(
-                TranslationService.translate(context, 'create_shelf') ??
-                    'Create Shelf',
-              ),
-              content: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: controller,
-                      autofocus: true,
-                      decoration: InputDecoration(
-                        labelText:
-                            TranslationService.translate(
-                              context,
-                              'shelf_name',
-                            ) ??
-                            'Shelf Name',
-                        hintText:
-                            TranslationService.translate(
-                              context,
-                              'shelf_name_hint',
-                            ) ??
-                            'e.g. Science Fiction',
-                        border: const OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return TranslationService.translate(
-                                context,
-                                'field_required',
-                              ) ??
-                              'This field is required';
-                        }
-                        return null;
-                      },
-                    ),
-                    // Parent shelf selector (only if hierarchical tags enabled and shelves exist)
-                    if (AppConstants.enableHierarchicalTags &&
-                        _shownTags.isNotEmpty) ...[
-                      const SizedBox(height: 16),
-                      DropdownButtonFormField<Tag?>(
-                        value: selectedParent,
-                        decoration: InputDecoration(
-                          labelText:
-                              TranslationService.translate(
-                                context,
-                                'parent_shelf',
-                              ) ??
-                              'Parent Shelf (optional)',
-                          border: const OutlineInputBorder(),
-                        ),
-                        isExpanded: true,
-                        items: [
-                          DropdownMenuItem<Tag?>(
-                            value: null,
-                            child: Text(
-                              TranslationService.translate(
-                                context,
-                                'first_level',
-                              ),
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                          ..._shownTags.map(
-                            (tag) => DropdownMenuItem<Tag?>(
-                              value: tag,
-                              child: Text(tag.name),
-                            ),
-                          ),
-                        ],
-                        onChanged: (Tag? value) {
-                          setDialogState(() {
-                            selectedParent = value;
-                          });
-                        },
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    TranslationService.translate(context, 'cancel') ?? 'Cancel',
-                  ),
-                ),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (formKey.currentState!.validate()) {
-                      Navigator.pop(context);
-                      await _createShelf(
-                        controller.text.trim(),
-                        parentId: selectedParent?.id,
-                      );
-                    }
-                  },
-                  child: Text(
-                    TranslationService.translate(context, 'create') ?? 'Create',
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-/// A deletion the tree already shows but has not written: it waits on its
-/// Undo. Holds what the write needs, so that it can still go once the tab
-/// is gone.
-class _PendingShelfDeletion {
-  _PendingShelfDeletion(this.shelf, this.repo, this.sortPreference);
-
-  final Tag shelf;
-  final TagRepository repo;
-  final SortPreferenceProvider? sortPreference;
-  UndoableMessage? message;
-  bool _settled = false;
-
-  /// True the first time only: a deletion is sent, or undone, once.
-  bool settle() {
-    if (_settled) return false;
-    _settled = true;
-    return true;
-  }
+  void _showCreateShelfDialog({Tag? parent}) => showNewShelfDialog(
+    context,
+    parent: parent,
+    shownTags: _shownTags,
+    onCreated: _loadTags,
+  );
 }

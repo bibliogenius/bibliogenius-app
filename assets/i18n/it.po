@@ -12560,3 +12560,19 @@ msgstr "Il nome «%s» è già usato da un altro scaffale."
 #. Shelves tab: label of the cross that hides the line of books on no shelf, until more of them come: Hide "To shelve" until more books need shelving
 msgid "to_shelve_hide"
 msgstr "Nascondi «Da sistemare» fino ai prossimi libri da sistemare"
+
+#. Shelf page: title of the section of books filed directly on this shelf: Shelved here
+msgid "shelved_here"
+msgstr "Sistemati qui"
+
+#. Shelf page: the book last added to this shelf, {title} is its title: Last arrived here: {title}
+msgid "last_added_here"
+msgstr "Ultimo arrivato qui: {title}"
+
+#. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
+msgid "shelf_empty_hint"
+msgstr "Ancora niente qui. Aggiungi un libro o crea un sottoscaffale."
+
+#. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
+msgid "organize_shelves"
+msgstr "Organizza gli scaffali"

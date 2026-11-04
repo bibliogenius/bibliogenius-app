@@ -3,8 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// The count of books on no shelf at the moment the reader hid the "to
 /// shelve" line of the shelves tab, on this device only.
 ///
-/// The line comes back as soon as the count passes that number; the memory
-/// goes when the count reaches zero, so the next book to shelve shows it.
+/// The line comes back only once the count passes that number. Nothing here
+/// reacts to a lower count: the core answers zero on any error, and one failed
+/// read must not bring back a line the reader hid.
 class ToShelveDismissalStore {
   ToShelveDismissalStore._();
 
@@ -25,15 +26,6 @@ class ToShelveDismissalStore {
       await prefs.setInt('to_shelve_dismissed_count', count);
     } catch (_) {
       // Not kept: the line comes back at the next launch, nothing is lost.
-    }
-  }
-
-  static Future<void> clear() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove('to_shelve_dismissed_count');
-    } catch (_) {
-      // Kept: the line stays hidden until the count passes the old number.
     }
   }
 }

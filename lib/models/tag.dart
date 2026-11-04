@@ -119,6 +119,23 @@ class Tag {
   static Map<String, String?> effectiveParentIds(List<Tag> allTags) =>
       _treeIndexOf(allTags).parents;
 
+  /// The shelves above [tag] in [allTags], from the first level down to its
+  /// parent. A cycle merged from sync ends the climb where it comes back.
+  static List<Tag> ancestorsOf(Tag tag, List<Tag> allTags) {
+    final parents = effectiveParentIds(allTags);
+    final byId = {for (final t in allTags) t.id: t};
+    final seen = <String>{tag.id};
+    final ancestors = <Tag>[];
+    var id = parents[tag.id];
+    while (id != null && seen.add(id)) {
+      final parent = byId[id];
+      if (parent == null) break;
+      ancestors.insert(0, parent);
+      id = parents[id];
+    }
+    return ancestors;
+  }
+
   /// [allTags] without the shelves of [ids], each of their sub-shelves shown
   /// where deleting them puts it: under the removed shelf's own parent, or
   /// that one's when it is removed too. Tags left in place are the same
@@ -457,4 +474,15 @@ int countForOwnershipScope(Tag tag, String scope) {
     default:
       return tag.count;
   }
+}
+
+/// The books of [tag] and of its sub-shelves under the ownership [scope]: what
+/// a card announces.
+int aggregatedCountForScope(Tag tag, List<Tag> shown, String scope) {
+  final descendants = Tag.getDescendantIds(tag.id, shown);
+  var total = countForOwnershipScope(tag, scope);
+  for (final t in shown) {
+    if (descendants.contains(t.id)) total += countForOwnershipScope(t, scope);
+  }
+  return total;
 }

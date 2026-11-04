@@ -1655,11 +1655,11 @@ msgstr "Descubrir colecciones"
 
 #. %d book
 msgid "displayed_books_count"
-msgstr "%d libro mostrado"
+msgstr "%d libro"
 
 #. %d books
 msgid "displayed_books_count_plural"
-msgstr "%d libros mostrados"
+msgstr "%d libros"
 
 #. Dashboard section header, screen reader: %d book
 msgid "dashboard_books_count"
@@ -12435,3 +12435,19 @@ msgstr "El nombre «%s» ya lo usa otra estantería."
 #. Shelves tab: label of the cross that hides the line of books on no shelf, until more of them come: Hide "To shelve" until more books need shelving
 msgid "to_shelve_hide"
 msgstr "Ocultar «Por colocar» hasta los próximos libros por colocar"
+
+#. Shelf page: title of the section of books filed directly on this shelf: Shelved here
+msgid "shelved_here"
+msgstr "Colocados aquí"
+
+#. Shelf page: the book last added to this shelf, {title} is its title: Last arrived here: {title}
+msgid "last_added_here"
+msgstr "Último en llegar aquí: {title}"
+
+#. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
+msgid "shelf_empty_hint"
+msgstr "Aún no hay nada aquí. Añada un libro o cree una subestantería."
+
+#. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
+msgid "organize_shelves"
+msgstr "Organizar las estanterías"

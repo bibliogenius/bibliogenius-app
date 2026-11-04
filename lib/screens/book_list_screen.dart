@@ -4,6 +4,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../widgets/wisher_filter_chips.dart';
+import '../widgets/move_shelf_sheet.dart';
+import '../widgets/shelf_actions.dart';
+import '../widgets/shelf_place_header.dart';
+import '../widgets/shelf_thumbnail.dart';
 import '../widgets/books_top_slot.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/suggestions_app_bar_action.dart';
@@ -65,6 +69,20 @@ class BookListScreen extends StatefulWidget {
   final String? initialTagFilter;
   final bool showBackToShelves;
 
+  /// Where the page of a shelf publishes its head, drawn by the library screen
+  /// so that it scrolls with the books whichever way they are laid out.
+  final ValueNotifier<ShelfPlace?>? placeNotifier;
+
+  /// The waiting deletion and the Undos of the shelf pages, which outlive
+  /// each of them.
+  final ShelfActionsController? shelfActions;
+
+  /// The shelves as last listed, to draw the head before the books arrive.
+  final List<Tag>? initialTags;
+
+  /// Told each listing of the shelves, for the next page to start from.
+  final ValueChanged<List<Tag>>? onTagsLoaded;
+
   /// Lists only the books on no shelf, under a "to shelve" header: where the
   /// shelves tab's card leads. Once shelving empties it, the list hands the
   /// grid back.
@@ -85,6 +103,10 @@ class BookListScreen extends StatefulWidget {
     this.refreshNotifier,
     this.initialTagFilter,
     this.showBackToShelves = false,
+    this.placeNotifier,
+    this.shelfActions,
+    this.initialTags,
+    this.onTagsLoaded,
     this.unshelvedOnly = false,
     this.startInSelection = false,
     this.externalSearchQuery,
@@ -178,6 +200,10 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     // Initialize tag filter from widget parameter if provided
+    final knownTags = widget.initialTags;
+    if (knownTags != null) _allTags = knownTags;
+    _schedulePlacePublish();
+    widget.shelfActions?.addListener(_handleShelfActionsChanged);
     if (widget.initialTagFilter != null) {
       _tagFilter = widget.initialTagFilter;
     }
@@ -365,6 +391,7 @@ class _BookListScreenState extends State<BookListScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    widget.shelfActions?.removeListener(_handleShelfActionsChanged);
     widget.refreshNotifier?.removeListener(_handleRefreshTrigger);
     widget.externalSearchQuery?.removeListener(_handleExternalSearchChange);
     _globalRefreshNotifier?.removeListener(_handleRefreshTrigger);
@@ -558,11 +585,10 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               if (widget.unshelvedOnly) _buildToShelveHeader(),
-              if (widget.showBackToShelves &&
-                  !widget.unshelvedOnly &&
-                  !_isReordering)
-                _buildShelfHeader(),
-              _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
+              if (_isPlacePage && !_isReordering && !_placeIsEmpty)
+                _buildShelvedHereHeading(),
+              if (!_placeIsEmpty)
+                _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
                   names: wishersIn(_books.where((b) => b.isWished)),
@@ -572,7 +598,7 @@ class _BookListScreenState extends State<BookListScreen>
                     _filterBooks();
                   }),
                 ),
-              if (!_isLoading) BooksTopSlot(books: _books),
+              if (!_isLoading && !_isPlacePage) BooksTopSlot(books: _books),
               Expanded(
                 child: NotificationListener<ScrollNotification>(
                   onNotification: _handleBodyScroll,
@@ -896,7 +922,10 @@ class _BookListScreenState extends State<BookListScreen>
     final router = GoRouter.of(context);
     final result = await router.push(
       '/books/add',
-      extra: {'shelfId': _currentShelf?.name ?? _tagFilter},
+      extra: {
+        'shelfId': _currentShelf?.name ?? _tagFilter,
+        if (_isPlacePage) 'shelfName': _openShelf?.name ?? _tagFilter,
+      },
     );
     if (result != null) {
       _handleRefreshTrigger(); // Use central refresh trigger
@@ -931,11 +960,15 @@ class _BookListScreenState extends State<BookListScreen>
       if (mounted) {
         // Also load tags for hierarchy navigation
         final tagRepo = Provider.of<TagRepository>(context, listen: false);
+        final listing = widget.shelfActions?.beginListing();
         final tags = await tagRepo.getTags();
+        if (!mounted) return;
+        widget.onTagsLoaded?.call(tags);
 
         setState(() {
           _books = books; // Store ALL books, filtering happens in _filterBooks
           _allTags = tags; // Store tags for hierarchy traversal
+          if (listing != null) widget.shelfActions?.listingLanded(listing);
           _libraryName = libraryName;
           // Availability may have changed (new wish, fresh peer sync):
           // re-query it the next time the wanting filter renders.
@@ -1037,33 +1070,273 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  /// Header of a shelf opened from the shelves tab: its name, and the
-  /// reorder action the stand-alone list keeps in its app bar. A long name
-  /// is cut short rather than pushing the action off a phone screen.
-  Widget _buildShelfHeader() {
-    return _tabListHeader(
-      backKey: const Key('shelfBackButton'),
-      title: Text(
-        _currentShelf?.name ?? _tagFilter ?? '',
-        key: const Key('shelfHeaderTitle'),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: _tabHeaderTitleStyle,
+  /// The page of a shelf reached from the shelves tab: its head is drawn by
+  /// the library screen, its grid holds only what is filed right here.
+  bool get _isPlacePage =>
+      widget.showBackToShelves && !widget.unshelvedOnly && _tagFilter != null;
+
+  List<Tag> get _shownTags =>
+      widget.shelfActions?.shown(_allTags) ?? _allTags;
+
+  List<Tag> _subShelvesOf(Tag tag) =>
+      Tag.getDirectChildren(tag.id, _shownTags);
+
+  /// Neither sub-shelf nor book, not even hidden by the possession view: the
+  /// page offers to fill the shelf, and nothing to sort or filter.
+  bool get _placeIsEmpty {
+    if (!_isPlacePage || _isLoading) return false;
+    if (_books.isEmpty && _allTags.isEmpty) return false;
+    final shelf = _openShelf;
+    return shelf != null &&
+        _filteredBooks.isEmpty &&
+        _searchQuery.isEmpty &&
+        _selectedStatus == null &&
+        _shelfHiddenByOwnership == 0 &&
+        _subShelvesOf(shelf).isEmpty;
+  }
+
+  void _handleShelfActionsChanged() {
+    if (!mounted) return;
+    setState(() {});
+    _schedulePlacePublish();
+  }
+
+  bool _placePublishScheduled = false;
+
+  /// Publishes after the frame: the head is drawn higher in the tree, and a
+  /// filter can run while this one builds.
+  void _schedulePlacePublish() {
+    if (widget.placeNotifier == null || _placePublishScheduled) return;
+    _placePublishScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _placePublishScheduled = false;
+      if (mounted) _publishPlace();
+    });
+  }
+
+  String? _lastAddedTitle;
+
+  void _publishPlace() {
+    final notifier = widget.placeNotifier;
+    final requested = _tagFilter;
+    if (notifier == null || requested == null || !_isPlacePage) return;
+    // Not listed yet, or gone since the link was made: the page still says
+    // where the reader is and has a way back.
+    final shelf =
+        _openShelf ?? Tag(id: 'legacy:route', name: requested, count: 0);
+    final shown = _shownTags;
+    final inView = shown.where((t) => t.id == shelf.id).firstOrNull ?? shelf;
+    final scope = resolveOwnershipScope(
+      explicit: context.read<OwnershipPreferenceProvider>().scope,
+      status: null,
+    );
+    // Among the books of the page, as they stand without a passing filter.
+    if (!_isLoading && _searchQuery.isEmpty && _selectedStatus == null) {
+      DateTime? newest;
+      String? title;
+      for (final book in _filteredBooks) {
+        final added = book.addedAt;
+        if (added != null && (newest == null || added.isAfter(newest))) {
+          newest = added;
+          title = book.title;
+        }
+      }
+      _lastAddedTitle = title;
+    }
+    notifier.value = ShelfPlace(
+      requestedName: requested,
+      shelf: inView,
+      ancestors: Tag.ancestorsOf(inView, shown),
+      subShelves: _subShelvesOf(inView),
+      books: aggregatedCountForScope(inView, shown, scope),
+      lastAddedTitle: _lastAddedTitle,
+      booksOf: (tag) => aggregatedCountForScope(tag, shown, scope),
+      subShelvesOf: (tag) => Tag.getDirectChildren(tag.id, shown).length,
+      hidden: _isReordering,
+      actions: ShelfPlaceActions(
+        onBack: () => _openPlace(_parentOf(inView)),
+        onOpen: _openPlace,
+        onRename: () => _renamePlace(inView),
+        onAddSubShelf: () => _addSubShelfToPlace(inView),
+        onMove: () => _movePlace(inView),
+        onDelete: () => _deletePlace(inView),
+        onOrganize: _organizeFromPlace,
       ),
-      actions: [
-        // Not during a search (it scans the whole library) nor a selection
-        // (entering the mode would drop it without a word).
-        if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
-          IconButton(
-            icon: const Icon(Icons.swap_vert),
-            tooltip: TranslationService.translate(context, 'reorder_shelf'),
-            onPressed: _startReordering,
-          ),
-      ],
     );
   }
 
-  /// Enters the drag-and-drop mode, from the header or the sort menu.
+  Tag? _parentOf(Tag tag) {
+    final ancestors = Tag.ancestorsOf(tag, _shownTags);
+    return ancestors.isEmpty ? null : ancestors.last;
+  }
+
+  /// The page of [shelf], or the grid of first-level shelves when null.
+  void _openPlace(Tag? shelf) => context.go(_placeLocation(shelf?.name));
+
+  static String _placeLocation(String? name) => name == null
+      ? '/shelves'
+      : '/shelves?tag=${Uri.encodeQueryComponent(name)}';
+
+  void _renamePlace(Tag shelf) {
+    final actions = widget.shelfActions;
+    final router = GoRouter.of(context);
+    final refresh = context.read<BookRefreshNotifier>();
+    showRenameShelfDialog(
+      context,
+      tag: shelf,
+      allTags: _allTags,
+      onRenamed: (name) {
+        if (name == shelf.name) return;
+        actions?.willLand();
+        router.go(_placeLocation(name));
+      },
+      // This page is gone by then, one under the new name stands in its place.
+      onUndone: () {
+        final open = router.routeInformationProvider.value.uri;
+        final tag = open.queryParameters['tag'];
+        if (open.path == '/shelves' && tag != null && tag != shelf.name) {
+          actions?.willLand();
+          router.go(_placeLocation(shelf.name));
+        }
+        refresh.refresh();
+      },
+      onUndoShown: (message) => actions?.keepUndo(message),
+    );
+  }
+
+  void _addSubShelfToPlace(Tag shelf) => showNewShelfDialog(
+    context,
+    parent: shelf,
+    shownTags: _shownTags,
+    onCreated: () => _fetchBooks(silent: true),
+  );
+
+  Future<void> _movePlace(Tag shelf) async {
+    final actions = widget.shelfActions;
+    final moved = await showMoveShelfSheet(
+      context,
+      shelf: shelf,
+      allTags: _shownTags,
+      onUndone: () {
+        if (mounted) _fetchBooks(silent: true);
+      },
+      onUndoShown: (message) => actions?.keepUndo(message),
+    );
+    if (moved && mounted) await _fetchBooks(silent: true);
+  }
+
+  /// Goes up at once: no page stays on screen for a shelf that is gone. The
+  /// message with its Undo shows where the reader lands.
+  void _deletePlace(Tag shelf) {
+    final actions = widget.shelfActions;
+    if (actions == null) return;
+    final parent = _parentOf(shelf);
+    final router = GoRouter.of(context);
+    actions.delete(
+      context,
+      shelf,
+      subShelfCount: _subShelvesOf(shelf).length,
+    );
+    actions.willLand();
+    router.go(_placeLocation(parent?.name));
+  }
+
+  Future<void> _organizeFromPlace() async {
+    await context.push('/shelves-management');
+    if (mounted) _handleRefreshTrigger();
+  }
+
+  /// "Shelved here · 3 books": what the grid below holds, not what the head
+  /// counts with the sub-shelves. Its reorder action applies to these books.
+  Widget _buildShelvedHereHeading() {
+    final theme = Theme.of(context);
+    final count = _filteredBooks.length;
+    final books = TranslationService.translate(
+      context,
+      count == 1 ? 'displayed_books_count' : 'displayed_books_count_plural',
+    ).replaceAll('%d', '$count');
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+      child: Row(
+        children: [
+          Expanded(
+            child: Semantics(
+              key: const Key('shelvedHereHeading'),
+              header: true,
+              child: Text(
+                '${TranslationService.translate(context, 'shelved_here')} · $books',
+                style: theme.textTheme.titleSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+          // Not during a search (it scans the whole library) nor a selection
+          // (entering the mode would drop it without a word).
+          if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
+            IconButton(
+              icon: const Icon(Icons.swap_vert),
+              tooltip: TranslationService.translate(context, 'reorder_shelf'),
+              onPressed: _startReordering,
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// Neither sub-shelf nor book: the shelf, empty, and the two ways to fill it.
+  Widget _buildPlaceEmpty() {
+    final shelf = _openShelf!;
+    return RefreshIndicator(
+      onRefresh: _fetchBooks,
+      child: SingleChildScrollView(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          key: const Key('shelfPlaceEmpty'),
+          children: [
+            const ShelfThumbnail(
+              size: ShelfThumbnailSize.l,
+              hasBooks: false,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              TranslationService.translate(context, 'shelf_empty_hint'),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton(
+                  key: const Key('shelfEmptyAddBook'),
+                  style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                  onPressed: _addBook,
+                  child: Text(
+                    TranslationService.translate(context, 'add_book_button'),
+                  ),
+                ),
+                OutlinedButton(
+                  key: const Key('shelfEmptyAddSubShelf'),
+                  style: OutlinedButton.styleFrom(
+                    minimumSize: const Size(0, 44),
+                  ),
+                  onPressed: () => _addSubShelfToPlace(shelf),
+                  child: Text(
+                    TranslationService.translate(context, 'add_sub_shelf'),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _startReordering() {
     setState(() {
       _isReordering = true;
@@ -1074,12 +1347,14 @@ class _BookListScreenState extends State<BookListScreen>
       _viewModeBeforeSelection = null;
       _viewMode = ViewMode.list; // Drag and drop needs the list layout.
     });
+    _schedulePlacePublish();
   }
 
   /// Leaves the drag-and-drop mode and gives the previous layout back.
   /// Called inside setState by the save and cancel paths.
   void _stopReordering() {
     _isReordering = false;
+    _schedulePlacePublish();
     final restored = _viewModeBeforeReordering;
     if (restored != null) _viewMode = restored;
     _viewModeBeforeReordering = null;
@@ -1246,7 +1521,12 @@ class _BookListScreenState extends State<BookListScreen>
       // with its sub-shelves. On the bare name a parent whose books all sit
       // in its sub-shelves opened as an empty list.
       final shelf = _openShelf;
-      if (shelf != null && _allTags.isNotEmpty) {
+      if (shelf != null && _isPlacePage) {
+        // The page of a shelf: its sub-shelves are cards above, the grid holds
+        // what is filed right here. The tree of a shelf stays the filter of
+        // the books tab.
+        shelfPredicate = (book) => book.subjects?.contains(shelf.name) ?? false;
+      } else if (shelf != null && _allTags.isNotEmpty) {
         // Get all matching tag names (this tag + descendants)
         final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);
         shelfPredicate = (book) {
@@ -1289,6 +1569,7 @@ class _BookListScreenState extends State<BookListScreen>
     tempBooks.sortWith(sortBy, sortDir);
 
     _filteredBooks = tempBooks;
+    _schedulePlacePublish();
 
     // Rebuild collection groups whenever filters change and grouped mode is active.
     if (_viewMode == ViewMode.groupedCollections) {
@@ -3081,6 +3362,21 @@ class _BookListScreenState extends State<BookListScreen>
     }
 
     // 2. No Results: Books exist but filters/search removed them
+    if (_placeIsEmpty) return _buildPlaceEmpty();
+    // A parent with nothing of its own: its heading says so, its sub-shelves
+    // above are what the page offers. Still a scroll view, to carry them.
+    if (_isPlacePage &&
+        _filteredBooks.isEmpty &&
+        !_isLoading &&
+        _searchQuery.isEmpty &&
+        _selectedStatus == null &&
+        _shelfHiddenByOwnership == 0) {
+      return RefreshIndicator(
+        onRefresh: _fetchBooks,
+        child: ListView(physics: const AlwaysScrollableScrollPhysics()),
+      );
+    }
+
     if (_filteredBooks.isEmpty && !_isLoading) {
       return RefreshIndicator(
         onRefresh: _fetchBooks,

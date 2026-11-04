@@ -30,8 +30,8 @@ List<String> shelfCountLabels(
   ];
 }
 
-/// A first-level shelf in the shelves tab: its fan of covers, its name, its
-/// counts. One button, named by the shelf and its counts.
+/// A shelf to walk into: its fan of covers, its name, its counts. One button,
+/// named by the shelf and its counts.
 class ShelfCard extends StatelessWidget {
   static const double _padding = 12;
   static const double _gap = 8;
@@ -45,6 +45,9 @@ class ShelfCard extends StatelessWidget {
 
   /// The fan beside the text, for a single column.
   final bool horizontal;
+
+  /// The small form, for a sub-shelf on a shelf's page.
+  final bool compact;
   final VoidCallback onTap;
 
   const ShelfCard({
@@ -55,7 +58,25 @@ class ShelfCard extends StatelessWidget {
     required this.onTap,
     this.coverPaths = const [],
     this.horizontal = false,
-  });
+  }) : compact = false;
+
+  const ShelfCard.compact({
+    super.key,
+    required this.name,
+    required this.books,
+    required this.subShelves,
+    required this.onTap,
+    this.coverPaths = const [],
+  }) : horizontal = true,
+       compact = true;
+
+  /// The height of a row of [ShelfCard.compact]: a line of name, two of counts.
+  static double compactExtentFor(BuildContext context) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final text = scaler.scale(14) * 1.4 + scaler.scale(12) * 1.4 * _maxLines;
+    const tile = 34.0;
+    return (text > tile ? text : tile) + 8 * 2 + 2;
+  }
 
   /// The height of a grid row: room for two lines of name and of counts at
   /// the text scale in use, so that no card overflows and rows stay aligned.
@@ -85,10 +106,10 @@ class ShelfCard extends StatelessWidget {
       books: books,
       subShelves: subShelves,
     );
-    final radius = BorderRadius.circular(18);
+    final radius = BorderRadius.circular(compact ? 14 : 18);
 
     final fan = ShelfThumbnail(
-      size: ShelfThumbnailSize.l,
+      size: compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l,
       hasBooks: books > 0,
       coverPaths: coverPaths,
     );
@@ -98,11 +119,16 @@ class ShelfCard extends StatelessWidget {
       children: [
         Text(
           name,
-          maxLines: _maxLines,
+          maxLines: compact ? 1 : _maxLines,
           overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-          ),
+          style: compact
+              ? theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                )
+              : theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
         ),
         const SizedBox(height: _nameGap),
         Text(
@@ -131,12 +157,14 @@ class ShelfCard extends StatelessWidget {
             onTap: onTap,
             child: ExcludeSemantics(
               child: Padding(
-                padding: const EdgeInsets.all(_padding),
+                padding: compact
+                    ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+                    : const EdgeInsets.all(_padding),
                 child: horizontal
                     ? Row(
                         children: [
                           fan,
-                          const SizedBox(width: _padding),
+                          SizedBox(width: compact ? 10 : _padding),
                           Expanded(child: text),
                         ],
                       )

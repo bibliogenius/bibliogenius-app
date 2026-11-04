@@ -83,6 +83,7 @@ import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/providers/sort_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/add_book_screen.dart';
+import 'package:bibliogenius/screens/book_list_screen.dart';
 import 'package:bibliogenius/screens/book_details_screen.dart';
 import 'package:bibliogenius/screens/borrow_requests_screen.dart';
 import 'package:bibliogenius/screens/collection/collection_detail_screen.dart';
@@ -106,6 +107,7 @@ import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/widgets/hierarchical_tag_selector.dart';
 import 'package:bibliogenius/widgets/book_cover_grid.dart';
 import 'package:bibliogenius/widgets/collection_selector.dart';
+import 'package:bibliogenius/widgets/bookshelf_view.dart';
 import 'package:bibliogenius/widgets/collection_stack_widget.dart';
 import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
 import 'package:bibliogenius/widgets/selectable_book_tile.dart';
@@ -1068,6 +1070,12 @@ final _probes = <_Probe>[
   ),
   const _Probe('library, shelves tab', '/shelves'),
   const _Probe('library, sub-shelves', '/shelves?tag=Genre'),
+  _Probe('library, place page', '/shelves?tag=Living+room', tags: _treeTags),
+  _Probe('library, place page, deep', '/shelves?tag=Crime', tags: _treeTags),
+  _Probe('library, place page, empty', '/shelves?tag=Kitchen', tags: [
+    ..._treeTags,
+    Tag(id: 's6', name: 'Kitchen', count: 0),
+  ]),
   // The tree of the tab: chevrons, handles and menus on every row, four
   // levels deep.
   _Probe('library, shelves tab, tree', '/shelves-management', tags: _treeTags),
@@ -1646,7 +1654,7 @@ void main() {
       expect(reorder, findsNothing);
     });
 
-    testWidgets('a long shelf name is cut short, the actions stay put', (
+    testWidgets('a long shelf name wraps beside the fan, the actions stay put', (
       tester,
     ) async {
       const longName =
@@ -1665,14 +1673,11 @@ void main() {
         ],
       );
       final icon = tester.getRect(reorder);
-      final titleFinder = find.byKey(const Key('shelfHeaderTitle'));
-      final title = tester.getRect(titleFinder);
+      final title = tester.getRect(find.byKey(const Key('shelfHeaderTitle')));
+      final fan = tester.getRect(find.byKey(const Key('shelfPlaceFan')));
       expect(icon.right, lessThanOrEqualTo(_phone.width));
-      expect(title.right, lessThanOrEqualTo(icon.left));
-      // Cut, not wrapped: the paragraph had more than its one line to say.
-      final paragraph = tester.renderObject<RenderParagraph>(titleFinder);
-      expect(paragraph.didExceedMaxLines, isTrue);
-      expect(paragraph.maxLines, 1);
+      expect(fan.right, lessThanOrEqualTo(_phone.width));
+      expect(title.right, lessThanOrEqualTo(fan.left));
     });
 
     testWidgets('saving an order raises the shelf order and gives the grid '
@@ -1860,9 +1865,8 @@ void main() {
     // Each shelf remembers whether it follows its own order: what is chosen
     // in one shelf never reorders another.
     Future<void> openShelf(WidgetTester tester, String name) async {
-      await _tap(tester, find.byKey(const Key('shelfBackButton')));
       GoRouter.of(
-        tester.element(find.byType(ShelvesScreen)),
+        tester.element(find.byType(LibraryScreen)),
       ).go('/shelves?tag=${Uri.encodeQueryComponent(name)}');
       await _settle(tester);
     }
@@ -2589,8 +2593,11 @@ void main() {
         tester.widget<Text>(find.byKey(const Key('shelfHeaderTitle'))).data,
         'Genre',
       );
-      // Its sub-shelf's books are its books too.
-      expect(find.text('Dune'), findsWidgets);
+      // Its sub-shelf is a card there, with the books of that one behind it.
+      expect(
+        find.byKey(const ValueKey('subShelfCard:Science fiction')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('a row says how many books and sub-shelves it holds', (
@@ -3416,6 +3423,659 @@ void main() {
       await create('Essays');
 
       expect(harness.tags.created, ['Poetry', 'Essays < s5']);
+    });
+  });
+
+  // A shelf is a place: its page on the real route, with the sub-shelves
+  // before the books and only the books filed directly there in the grid.
+  group('the page of a shelf on the real route', () {
+    Book filed(String id, String title, String shelf, {DateTime? added}) =>
+        Book(
+          id: id,
+          title: title,
+          author: 'Ann Able',
+          subjects: [shelf],
+          addedAt: added,
+        );
+    final tags = [
+      ..._treeTags,
+      Tag(id: 's6', name: 'Kitchen', count: 0),
+    ];
+    final books = [
+      filed('p1', 'Old lamp', 'Living room', added: DateTime(2026, 1, 1)),
+      filed('p2', 'New lamp', 'Living room', added: DateTime(2026, 3, 1)),
+      filed('p3', 'Sofa novel', 'Novels', added: DateTime(2026, 6, 1)),
+      filed('p4', 'Thin crime', 'Crime'),
+      filed('p5', 'Fjord', 'Nordic crime', added: DateTime(2026, 7, 1)),
+    ];
+    _Probe page(String shelf, {Size size = _tallPhone}) => _Probe(
+      'place',
+      '/shelves?tag=${Uri.encodeQueryComponent(shelf)}',
+      size: size,
+      tags: tags,
+    );
+    final name = find.byKey(const Key('shelfHeaderTitle'));
+    final back = find.byKey(const Key('shelfBackButton'));
+    final chip = find.byKey(const Key('shelfPlaceChip'));
+    final heading = find.byKey(const Key('shelvedHereHeading'));
+    final lastAdded = find.byKey(const Key('shelfPlaceLastAdded'));
+    final menu = find.byKey(const Key('shelfPlaceMenu'));
+    final bigEmpty = find.byKey(const Key('shelfPlaceEmpty'));
+    Finder subCard(String shelf) => find.byKey(ValueKey('subShelfCard:$shelf'));
+    Finder card(String shelf) => find.byKey(ValueKey('shelfCard:$shelf'));
+    String location(WidgetTester tester) =>
+        GoRouterState.of(tester.element(find.byType(LibraryScreen))).uri
+            .toString();
+    Future<void> pick(WidgetTester tester, String item) async {
+      await _tap(tester, menu);
+      await _tap(tester, find.text(item).last);
+    }
+
+    testWidgets('a first-level shelf: its name and counts, back to the shelves, '
+        'no path', (tester) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(tester.widget<Text>(name).data, 'Living room');
+      expect(find.text('10 books · 1 sub-shelf'), findsOneWidget);
+      expect(
+        find.descendant(of: back, matching: find.text('Shelves')),
+        findsOneWidget,
+      );
+      expect(chip, findsNothing);
+    });
+
+    testWidgets('one level down the path names the parent, and back too', (
+      tester,
+    ) async {
+      await _render(tester, page('Novels'), books: books);
+
+      expect(
+        find.descendant(of: chip, matching: find.text('in Living room')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: back, matching: find.text('Living room')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('two levels down the path names both', (tester) async {
+      await _render(tester, page('Crime'), books: books);
+
+      expect(
+        find.descendant(
+          of: chip,
+          matching: find.text('in Living room › Novels'),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: back, matching: find.text('Novels')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('three levels down the path cuts the top short', (
+      tester,
+    ) async {
+      await _render(tester, page('Nordic crime'), books: books);
+
+      expect(
+        find.descendant(of: chip, matching: find.text('… › Novels › Crime')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the path leads up to the parent', (tester) async {
+      await _render(tester, page('Crime'), books: books);
+
+      await _tap(tester, chip);
+
+      expect(location(tester), '/shelves?tag=Novels');
+    });
+
+    testWidgets('back leads to the parent, then to the shelves', (
+      tester,
+    ) async {
+      await _render(tester, page('Novels'), books: books);
+
+      await _tap(tester, back);
+      expect(location(tester), '/shelves?tag=Living+room');
+
+      await _tap(tester, back);
+      expect(location(tester), '/shelves');
+    });
+
+    testWidgets('the Shelves tab leads back to the grid of first-level shelves', (
+      tester,
+    ) async {
+      await _render(tester, page('Crime'), books: books);
+
+      await _tap(tester, find.widgetWithText(Tab, 'Shelves'));
+
+      expect(location(tester), '/shelves');
+      expect(card('Living room'), findsOneWidget);
+      expect(name, findsNothing);
+    });
+
+    testWidgets('the sub-shelves come before the books, as cards that open', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(
+        tester.getTopLeft(subCard('Novels')).dy,
+        lessThan(tester.getTopLeft(heading).dy),
+      );
+      expect(
+        tester.getSize(
+          find.descendant(
+            of: subCard('Novels'),
+            matching: find.byType(ShelfThumbnail),
+          ),
+        ),
+        const Size(48, 34),
+      );
+
+      await _tap(tester, subCard('Novels'));
+      expect(location(tester), '/shelves?tag=Novels');
+    });
+
+    testWidgets('the head wears the extra large fan, the path the smallest', (
+      tester,
+    ) async {
+      await _render(tester, page('Novels'), books: books);
+
+      expect(
+        tester.getSize(find.byKey(const Key('shelfPlaceFan'))),
+        const Size(112, 80),
+      );
+      expect(
+        tester.getSize(
+          find.descendant(of: chip, matching: find.byType(ShelfThumbnail)),
+        ),
+        const Size(34, 24),
+      );
+    });
+
+    testWidgets('the grid shows only the books filed directly here', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(
+        find.descendant(of: heading, matching: find.textContaining('2 books')),
+        findsOneWidget,
+      );
+      expect(find.text('New lamp'), findsWidgets);
+      expect(find.text('Sofa novel'), findsNothing);
+      expect(find.text('Fjord'), findsNothing);
+    });
+
+    testWidgets('the Books tab filter still takes the whole subtree', (
+      tester,
+    ) async {
+      await _render(
+        tester,
+        _Probe('books filter', '/books?tag=Living+room', tags: tags),
+        books: books,
+      );
+
+      expect(find.text('Sofa novel'), findsWidgets);
+      expect(heading, findsNothing);
+    });
+
+    testWidgets('the last arrived is the newest added among the books here, '
+        'not those of its sub-shelves', (tester) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(
+        tester.widget<Text>(lastAdded).textSpan!.toPlainText(),
+        contains('New lamp'),
+      );
+    });
+
+    testWidgets('no book here, or no date: no last arrived', (tester) async {
+      await _render(tester, page('Crime'), books: books);
+      expect(lastAdded, findsNothing);
+
+      await _render(tester, page('Kitchen'), books: books);
+      expect(lastAdded, findsNothing);
+    });
+
+    testWidgets('a parent with no book of its own shows its sub-shelves and a '
+        'quiet section, not the big empty state', (tester) async {
+      await _render(
+        tester,
+        page('Living room'),
+        books: [filed('p3', 'Sofa novel', 'Novels')],
+      );
+
+      expect(subCard('Novels'), findsOneWidget);
+      expect(bigEmpty, findsNothing);
+      expect(find.text('No books found'), findsNothing);
+      expect(
+        find.descendant(of: heading, matching: find.textContaining('0 books')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('neither sub-shelf nor book: the ghost, the sentence and its '
+        'two buttons', (tester) async {
+      await _render(tester, page('Kitchen'), books: books);
+
+      expect(bigEmpty, findsOneWidget);
+      expect(
+        find.descendant(of: bigEmpty, matching: find.byKey(const Key('shelfThumbnailGhost'))),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('shelfEmptyAddBook')), findsOneWidget);
+      expect(find.byKey(const Key('shelfEmptyAddSubShelf')), findsOneWidget);
+    });
+
+    testWidgets('the empty page creates a sub-shelf inside the shelf, and its '
+        'card shows without leaving', (tester) async {
+      final harness = await _render(tester, page('Kitchen'), books: books);
+
+      await _tap(tester, find.byKey(const Key('shelfEmptyAddSubShelf')));
+      await tester.enterText(find.byType(TextFormField).first, 'Cookbooks');
+      harness.tags.mockTags = [
+        ...tags,
+        Tag(id: 's7', name: 'Cookbooks', parentId: 's6', count: 0),
+      ];
+      await _tap(tester, find.text('Create'));
+
+      expect(harness.tags.created, ['Cookbooks < s6']);
+      expect(subCard('Cookbooks'), findsOneWidget);
+    });
+
+    testWidgets('sorting and reordering are still there, on this shelf', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(find.byTooltip('Reorder shelf'), findsOneWidget);
+      expect(find.text('Author'), findsOneWidget);
+    });
+
+    testWidgets('"+" adds a book with this shelf filled in, by its name', (
+      tester,
+    ) async {
+      await _render(tester, page('Crime'), books: books);
+
+      await _tap(tester, find.byKey(const Key('addBookButton')));
+
+      final extra =
+          GoRouterState.of(tester.element(find.byType(AddBookScreen))).extra
+              as Map<String, dynamic>;
+      expect(extra['shelfId'], 'Crime');
+      expect(extra['shelfName'], 'Crime');
+    });
+
+    testWidgets('the name and the two sections are titles', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, page('Living room'), books: books);
+
+      expect(
+        tester.getSemantics(name),
+        containsSemantics(label: 'Living room', isHeader: true),
+      );
+      expect(
+        tester.getSemantics(heading),
+        containsSemantics(isHeader: true),
+      );
+      expect(
+        find.bySemanticsLabel('Sub-shelves'),
+        findsOneWidget,
+      );
+      handle.dispose();
+    });
+
+    testWidgets('a sub-shelf card is one button with its counts', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, page('Living room'), books: books);
+
+      expect(
+        tester.getSemantics(subCard('Novels')),
+        containsSemantics(
+          label: 'Novels, 8 books, 1 sub-shelf',
+          isButton: true,
+          hasTapAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    group('in one scroll with the books', () {
+      final many = [
+        for (var i = 0; i < 40; i++)
+          filed('m$i', 'Book $i', 'Living room', added: DateTime(2026, 1, i + 1)),
+      ];
+      /// A drag on the books carries the head away with them, and back.
+      Future<void> scrollsAway(WidgetTester tester) async {
+        await tester.drag(find.byType(BookListScreen), const Offset(0, 2000));
+        await _settle(tester);
+        final before = tester.getTopLeft(name).dy;
+        await tester.drag(
+          find.byType(BookListScreen),
+          const Offset(0, -400),
+        );
+        await _settle(tester);
+        if (name.evaluate().isNotEmpty) {
+          expect(tester.getTopLeft(name).dy, lessThan(before));
+        }
+        await tester.drag(find.byType(BookListScreen), const Offset(0, 2000));
+        await _settle(tester);
+        expect(tester.getTopLeft(name).dy, before);
+      }
+
+      Future<void> showAs(WidgetTester tester, String mode) async {
+        await _tap(tester, find.byTooltip('Change View'));
+        await tester.tap(find.text(mode).last);
+        await _settle(tester);
+      }
+
+      testWidgets('the head leaves with the books: covers', (tester) async {
+        await _render(tester, page('Living room', size: _phone), books: many);
+        expect(find.byType(BookCoverGrid), findsOneWidget);
+
+        await scrollsAway(tester);
+      });
+
+      testWidgets('the head leaves with the books: list', (tester) async {
+        await _render(tester, page('Living room', size: _phone), books: many);
+        await showAs(tester, 'List view');
+        expect(find.byType(BookCoverGrid), findsNothing);
+
+        await scrollsAway(tester);
+      });
+
+      testWidgets('the head leaves with the books: spines', (tester) async {
+        await _render(tester, page('Living room', size: _phone), books: many);
+        await showAs(tester, 'Shelf view');
+        expect(find.byType(BookshelfView), findsOneWidget);
+
+        await scrollsAway(tester);
+      });
+
+      testWidgets('the head leaves with the books: by collection', (
+        tester,
+      ) async {
+        await _render(
+          tester,
+          _Probe(
+            'grouped',
+            '/shelves?tag=Living+room',
+            collections: true,
+            tags: tags,
+          ),
+          books: many,
+        );
+        expect(find.byType(CollectionGroupGrid), findsOneWidget);
+
+        await scrollsAway(tester);
+      });
+
+      testWidgets('a shelf with few books and many sub-shelves: every card is '
+          'in reach', (tester) async {
+        final crowded = [
+          Tag(id: 'p', name: 'Crowded', count: 1),
+          for (var i = 0; i < 30; i++)
+            Tag(id: 'c$i', name: 'Sub $i', parentId: 'p', count: 0),
+        ];
+        await _render(
+          tester,
+          _Probe('crowded', '/shelves?tag=Crowded', tags: crowded),
+          books: [filed('o', 'Only one', 'Crowded')],
+        );
+        expect(subCard('Sub 29'), findsNothing);
+
+        await tester.scrollUntilVisible(
+          subCard('Sub 29'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await _settle(tester);
+
+        expect(subCard('Sub 29'), findsOneWidget);
+      });
+
+      testWidgets('a parent with no book and many sub-shelves: every card is '
+          'in reach too', (tester) async {
+        final crowded = [
+          Tag(id: 'p', name: 'Crowded', count: 0),
+          for (var i = 0; i < 30; i++)
+            Tag(id: 'c$i', name: 'Sub $i', parentId: 'p', count: 0),
+        ];
+        await _render(
+          tester,
+          _Probe('crowded', '/shelves?tag=Crowded', tags: crowded),
+          books: const [],
+        );
+
+        await tester.scrollUntilVisible(
+          subCard('Sub 29'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await _settle(tester);
+
+        expect(subCard('Sub 29'), findsOneWidget);
+      });
+    });
+
+    group('its menu', () {
+      testWidgets('offers the five actions, in order', (tester) async {
+        await _render(tester, page('Novels'), books: books);
+
+        await _tap(tester, menu);
+
+        final tops = [
+          for (final label in [
+            'Rename',
+            'Add Sub-Shelf',
+            'Move to…',
+            'Delete',
+            'Organize shelves',
+          ])
+            tester.getTopLeft(find.text(label).last).dy,
+        ];
+        expect(tops, [...tops]..sort());
+      });
+
+      testWidgets('renaming reopens the page under the new name', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Rename');
+        await tester.enterText(find.byType(TextFormField).first, 'Thrillers');
+        await _tap(tester, find.text('Update'));
+
+        expect(harness.tags.updated, ['s3: Thrillers < s2']);
+        expect(location(tester), '/shelves?tag=Thrillers');
+      });
+
+      testWidgets('Undo of a rename goes back to the old name', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Rename');
+        await tester.enterText(find.byType(TextFormField).first, 'Thrillers');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            t.id == 's3'
+                ? Tag(id: 's3', name: 'Thrillers', parentId: 's2', count: 4)
+                : t,
+        ];
+        await _tap(tester, find.text('Update'));
+        await _tap(tester, _undo);
+
+        expect(harness.tags.updated.last, 's3: Crime < s2');
+        expect(location(tester), '/shelves?tag=Crime');
+      });
+
+      testWidgets('moving opens the tree, and the page follows', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Move to…');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            t.id == 's3'
+                ? Tag(id: 's3', name: 'Crime', parentId: 's5', count: 4)
+                : t,
+        ];
+        await _tap(tester, _moveRow('Study'));
+
+        expect(harness.tags.updated, ['s3: Crime < s5']);
+        expect(
+          find.descendant(of: back, matching: find.text('Study')),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('"Organize shelves" opens the organizing route', (
+        tester,
+      ) async {
+        await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Organize shelves');
+
+        expect(find.byKey(const ValueKey('shelfTreeRow:Crime')), findsOneWidget);
+      });
+
+      testWidgets('deleting goes up to the parent at once, without the shelf '
+          'and with Undo; nothing is written', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+
+        expect(location(tester), '/shelves?tag=Novels');
+        expect(subCard('Crime'), findsNothing);
+        // Its own sub-shelf comes up a level.
+        expect(subCard('Nordic crime'), findsOneWidget);
+        expect(_undo, findsOneWidget);
+        expect(harness.tags.deleted, isEmpty);
+      });
+
+      testWidgets('Undo brings the card back and writes nothing', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        await _tap(tester, _undo);
+
+        expect(subCard('Crime'), findsOneWidget);
+        expect(subCard('Nordic crime'), findsNothing);
+        expect(harness.tags.deleted, isEmpty);
+      });
+
+      testWidgets('a first-level shelf goes up to the grid, Undo brings the '
+          'card back', (tester) async {
+        final harness = await _render(tester, page('Study'), books: books);
+
+        await pick(tester, 'Delete');
+        expect(location(tester), '/shelves');
+        expect(card('Study'), findsNothing);
+        expect(harness.tags.deleted, isEmpty);
+
+        await _tap(tester, _undo);
+        expect(card('Study'), findsOneWidget);
+        expect(harness.tags.deleted, isEmpty);
+      });
+
+      testWidgets('the deletion goes once the message expires', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        await _letMessagesGo(tester);
+
+        expect(harness.tags.deleted, ['Crime']);
+      });
+
+      testWidgets('going elsewhere sends the deletion and takes its Undo away', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        await _tapNow(tester, subCard('Nordic crime'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(harness.tags.deleted, ['Crime']);
+        await _settle(tester);
+        expect(_undo, findsNothing);
+      });
+
+      testWidgets('leaving for another library tab sends it too', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        await _tapNow(tester, find.widgetWithText(Tab, 'Books'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(harness.tags.deleted, ['Crime']);
+      });
+
+      testWidgets('a page opened over the library sends it too', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        Navigator.of(
+          tester.element(find.byType(LibraryScreen)),
+          rootNavigator: true,
+        ).push(MaterialPageRoute<void>(builder: (_) => const Scaffold()));
+        await _settle(tester);
+
+        expect(harness.tags.deleted, ['Crime']);
+      });
+
+      testWidgets('the app going to the background sends it too', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        addTearDown(() {
+          tester.binding.handleAppLifecycleStateChanged(
+            AppLifecycleState.resumed,
+          );
+        });
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+        tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+        await tester.pump();
+
+        expect(harness.tags.deleted, ['Crime']);
+        await _letMessagesGo(tester);
+      });
+
+      testWidgets('once written, the parent reads the new tree', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+
+        await pick(tester, 'Delete');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            if (t.id != 's3')
+              t.id == 's4'
+                  ? Tag(id: 's4', name: 'Nordic crime', parentId: 's2', count: 1)
+                  : t,
+          // Only a new listing can bring this one.
+          Tag(id: 's8', name: 'Arrived since', parentId: 's2', count: 0),
+        ];
+        await _letMessagesGo(tester);
+
+        expect(subCard('Arrived since'), findsOneWidget);
+        expect(subCard('Nordic crime'), findsOneWidget);
+        expect(subCard('Crime'), findsNothing);
+      });
     });
   });
 

@@ -445,8 +445,8 @@ void main() {
       expect(_line, findsOneWidget);
     });
 
-    testWidgets('stays hidden when the count goes down, and the memory goes '
-        'once it reaches zero', (tester) async {
+    testWidgets('a count that falls, even to the zero of a failed read, keeps '
+        'it hidden up to the number it was hidden at', (tester) async {
       SharedPreferences.setMockInitialValues({
         'languageCode': 'en',
         _dismissedKey: 5,
@@ -454,15 +454,19 @@ void main() {
       repo.unshelved = 3;
       await pump(tester);
       expect(_line, findsNothing);
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getInt(_dismissedKey), 5);
 
       repo.unshelved = 0;
       refresh.refresh();
       await tester.pumpAndSettle();
-      expect(prefs.getInt(_dismissedKey), isNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt(_dismissedKey), 5);
 
-      repo.unshelved = 1;
+      repo.unshelved = 5;
+      refresh.refresh();
+      await tester.pumpAndSettle();
+      expect(_line, findsNothing);
+
+      repo.unshelved = 6;
       refresh.refresh();
       await tester.pumpAndSettle();
       expect(_line, findsOneWidget);

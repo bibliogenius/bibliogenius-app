@@ -1,12 +1,17 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 
 import '../services/translation_service.dart';
+import '../models/tag.dart';
+import '../providers/book_refresh_notifier.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/shelf_actions.dart';
+import '../widgets/shelf_place_header.dart';
 import '../widgets/suggestions_app_bar_action.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/configurable_action_card.dart';
@@ -66,6 +71,24 @@ class _LibraryScreenState extends State<LibraryScreen>
   final ValueNotifier<int> _shelvesRefreshNotifier = ValueNotifier<int>(0);
   int _collectionsRefreshKey = 0;
 
+  /// The head of the shelf page on show, published by its list of books.
+  final ValueNotifier<ShelfPlace?> _place = ValueNotifier<ShelfPlace?>(null);
+
+  /// Shelves as last listed: the next shelf page draws its head from them
+  /// while its books load.
+  List<Tag>? _knownTags;
+
+  /// The waiting deletion and the Undos of the shelves tab and the shelf
+  /// pages. Here because a deletion from a page shows its Undo on the parent
+  /// page, which replaces it.
+  late final ShelfActionsController _shelfActions = ShelfActionsController(
+    () => mounted ? context : null,
+  );
+
+  /// Off while a page opened over the library hides it. Another library tab
+  /// is another route: going there disposes this screen.
+  ValueListenable<bool>? _tickerMode;
+
   // The contextual-help button is onboarding aid: show it only while the
   // library is still small (a new user). Once the shelf fills up the user
   // knows the ropes, and help stays reachable from the main menu. Null while
@@ -119,6 +142,12 @@ class _LibraryScreenState extends State<LibraryScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _shelfActions.onWritten ??= context.read<BookRefreshNotifier>().refresh;
+    final tickerMode = TickerMode.getNotifier(context);
+    if (!identical(tickerMode, _tickerMode)) {
+      _tickerMode?.removeListener(_onTickerModeChanged);
+      _tickerMode = tickerMode..addListener(_onTickerModeChanged);
+    }
     final newEnabled = Provider.of<ThemeProvider>(context).collectionsEnabled;
     if (newEnabled != _collectionsEnabled) {
       _collectionsEnabled = newEnabled;
@@ -139,8 +168,15 @@ class _LibraryScreenState extends State<LibraryScreen>
     if (widget.shelfTagFilter != oldWidget.shelfTagFilter ||
         widget.shelfUnshelvedFilter != oldWidget.shelfUnshelvedFilter ||
         widget.shelfSelectOnOpen != oldWidget.shelfSelectOnOpen) {
+      // Walking to another page is leaving, unless the page itself sent the
+      // reader there with an Undo to show.
+      if (!_shelfActions.consumeLanding()) _shelfActions.leave();
       setState(() {});
     }
+  }
+
+  void _onTickerModeChanged() {
+    if (_tickerMode?.value == false) _shelfActions.leave();
   }
 
   void _handleTabSelection() {
@@ -149,6 +185,9 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   @override
   void dispose() {
+    _tickerMode?.removeListener(_onTickerModeChanged);
+    _shelfActions.dispose();
+    _place.dispose();
     _tabController.removeListener(_handleTabSelection);
     _tabController.dispose();
     _refreshNotifier.removeListener(_loadBookCount);
@@ -310,6 +349,21 @@ class _LibraryScreenState extends State<LibraryScreen>
                 showSearchButton: false,
               ),
             ),
+            if (_tabController.index == 1 &&
+                widget.shelfTagFilter != null &&
+                !widget.shelfUnshelvedFilter)
+              ValueListenableBuilder<ShelfPlace?>(
+                valueListenable: _place,
+                builder: (context, place, _) {
+                  // Nothing for another shelf's page still in the notifier.
+                  if (place == null ||
+                      place.hidden ||
+                      place.requestedName != widget.shelfTagFilter) {
+                    return const SliverToBoxAdapter();
+                  }
+                  return ShelfPlaceSlivers(place: place);
+                },
+              ),
           ],
           // The IndexedStack keeps every tab mounted, so all of their scroll
           // views stay attached to the single PrimaryScrollController that
@@ -349,10 +403,16 @@ class _LibraryScreenState extends State<LibraryScreen>
                         startInSelection: widget.shelfSelectOnOpen,
                         showBackToShelves: true,
                         externalSearchQuery: _searchQuery,
+                        placeNotifier: _place,
+                        shelfActions: _shelfActions,
+                        initialTags: _knownTags,
+                        onTagsLoaded: (tags) => _knownTags = tags,
                       )
                     : ShelvesScreen(
                         isTabView: true,
                         refreshNotifier: _shelvesRefreshNotifier,
+                        actions: _shelfActions,
+                        onTagsLoaded: (tags) => _knownTags = tags,
                       ),
                 if (themeProvider.collectionsEnabled)
                   CollectionListScreen(
