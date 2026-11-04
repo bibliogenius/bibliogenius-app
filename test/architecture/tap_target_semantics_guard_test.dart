@@ -2619,7 +2619,7 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a shelf fans out its covers; a shelf with books and none, '
+    testWidgets('a shelf piles up its covers; a shelf with books and none, '
         'and an empty one, say which they are', (tester) async {
       await _render(
         tester,

@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/themes/base/theme_registry.dart';
 import 'package:bibliogenius/utils/accessible_color.dart';
@@ -22,23 +20,9 @@ Future<void> _pump(
   );
 }
 
-/// The covers the fan draws, in paint order.
+/// The covers the pile draws, in paint order.
 List<CachedBookCover> _covers(WidgetTester tester) =>
     tester.widgetList<CachedBookCover>(find.byType(CachedBookCover)).toList();
-
-/// The rotation, in degrees, of every cover of the fan, in paint order.
-List<int> _angles(WidgetTester tester) => [
-  for (final t in tester.widgetList<Transform>(
-    find.descendant(
-      of: find.byType(ShelfThumbnail),
-      matching: find.byType(Transform),
-    ),
-  ))
-    (math.atan2(t.transform.entry(1, 0), t.transform.entry(0, 0)) *
-            180 /
-            math.pi)
-        .round(),
-];
 
 /// The fill of the pictogram badge.
 Color? _badgeColor(WidgetTester tester) {
@@ -55,13 +39,11 @@ void main() {
     ThemeRegistry.initialize();
   });
 
-  group('the cover fan', () {
-    for (final (n, angles) in [
-      (1, [0]),
-      (2, [-6, 6]),
-      (3, [-6, 0, 6]),
-    ]) {
-      testWidgets('$n cover(s): $n slot(s), angles $angles', (tester) async {
+  group('the cover pile', () {
+    for (final n in [1, 2, 3]) {
+      testWidgets('$n cover(s): a straight pile, centred in the frame', (
+        tester,
+      ) async {
         await _pump(
           tester,
           ShelfThumbnail(
@@ -72,8 +54,24 @@ void main() {
         );
 
         expect(_covers(tester), hasLength(n));
-        expect(_angles(tester), angles);
         expect(find.byKey(const Key('shelfThumbnailBadge')), findsNothing);
+        expect(
+          find.descendant(
+            of: find.byType(ShelfThumbnail),
+            matching: find.byType(Transform),
+          ),
+          findsNothing,
+        );
+        final frame = tester.getRect(find.byType(ShelfThumbnail));
+        final lefts = [
+          for (final e in find.byType(CachedBookCover).evaluate())
+            tester.getTopLeft(find.byWidget(e.widget)).dx - frame.left,
+        ];
+        final spread = 38 + 14.0 * (n - 1);
+        // Paint order: the oldest at the right, the newest at the left.
+        expect(lefts, [
+          for (var i = n - 1; i >= 0; i--) (72 - spread) / 2 + 14 * i,
+        ]);
       });
     }
 
@@ -99,7 +97,7 @@ void main() {
       expect(covers.last.imageUrl, 'https://c/new.jpg');
     });
 
-    testWidgets('the fan fits the 72 x 56 frame and each cover is decoded '
+    testWidgets('the pile fits the 72 x 56 frame and each cover is decoded '
         'at its own size', (tester) async {
       await _pump(
         tester,

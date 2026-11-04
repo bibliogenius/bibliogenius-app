@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 import '../utils/book_genres.dart';
@@ -54,7 +52,7 @@ class ShelfTint {
 /// The 72 x 56 picture at the head of a shelf row, the same in every shelf
 /// tree.
 ///
-/// Up to three covers fanned out when the shelf has some; otherwise a
+/// Up to three covers in a pile when the shelf has some; otherwise a
 /// pictogram badge: the genre's icon or the shelf icon on a tint of the
 /// name when the shelf holds books, the shelf icon on a neutral ground when
 /// it holds none. Decorative: the row already says the name and the count,
@@ -88,7 +86,7 @@ class ShelfThumbnail extends StatelessWidget {
         // The covers come from the core's subtree, the count from the tree
         // shown: a shelf counted empty here shows no book either.
         child: hasBooks && coverPaths.isNotEmpty
-            ? _CoverFan(coverPaths.take(_maxCovers).toList())
+            ? _CoverPile(coverPaths.take(_maxCovers).toList())
             : _buildBadge(Theme.of(context)),
       ),
     );
@@ -115,40 +113,31 @@ class ShelfThumbnail extends StatelessWidget {
 
 const _maxCovers = 3;
 
-/// Covers in a fan: 14 pt apart, turned -6, 0 and +6 degrees, centred in
-/// the frame. The newest is drawn last, on top, at the right.
-class _CoverFan extends StatelessWidget {
+/// Covers in a pile, centred in the frame: the newest in front at the left,
+/// the older ones showing 14 pt further right behind it.
+class _CoverPile extends StatelessWidget {
   final List<String> covers;
 
-  const _CoverFan(this.covers);
+  const _CoverPile(this.covers);
 
   static const double _coverWidth = 38;
   static const double _coverHeight = 54;
   static const double _step = 14;
 
-  static List<double> _anglesFor(int n) => switch (n) {
-    1 => const [0],
-    2 => const [-6, 6],
-    _ => const [-6, 0, 6],
-  };
-
   @override
   Widget build(BuildContext context) {
     final n = covers.length;
-    final angles = _anglesFor(n);
     final spread = _coverWidth + _step * (n - 1);
     final left = (ShelfThumbnail.width - spread) / 2;
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        for (var slot = 0; slot < n; slot++)
+        // Back to front: each one is painted over the older ones.
+        for (var i = n - 1; i >= 0; i--)
           Positioned(
-            left: left + _step * slot,
+            left: left + _step * i,
             top: (ShelfThumbnail.height - _coverHeight) / 2,
-            child: Transform.rotate(
-              angle: angles[slot] * math.pi / 180,
-              child: _cover(covers[n - 1 - slot]),
-            ),
+            child: _cover(covers[i]),
           ),
       ],
     );
@@ -156,7 +145,7 @@ class _CoverFan extends StatelessWidget {
 
   Widget _cover(String path) {
     // Nothing in the slot while it loads or when it fails: a gap reads as
-    // a shorter fan, a grey book would read as a broken one.
+    // a shorter pile, a grey book would read as a broken one.
     const empty = SizedBox(width: _coverWidth, height: _coverHeight);
     return CachedBookCover(
       imageUrl: path,
