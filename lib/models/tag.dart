@@ -98,6 +98,7 @@ class Tag {
       parentId: parentId,
       path: path,
       count: count,
+      totalCount: totalCount,
       children: newChildren,
       coverPaths: coverPaths,
     );

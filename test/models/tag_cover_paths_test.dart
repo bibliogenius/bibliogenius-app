@@ -44,7 +44,14 @@ void main() {
   });
 
   test('a copy with new children keeps its covers', () {
-    final tag = Tag(id: 's1', name: 'Novels', count: 1, coverPaths: covers);
+    final tag = Tag(
+      id: 's1',
+      name: 'Novels',
+      count: 1,
+      totalCount: 4,
+      coverPaths: covers,
+    );
     expect(tag.copyWithChildren(const []).coverPaths, covers);
+    expect(tag.copyWithChildren(const []).totalCount, 4);
   });
 }

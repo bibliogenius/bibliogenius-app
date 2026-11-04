@@ -17,6 +17,25 @@ import '../models/tag.dart';
 import '../src/rust/api/frb.dart' as frb;
 import 'dart:convert';
 
+/// Converts FrbTag to the Tag model.
+/// Note: FrbTag includes parentId directly from Rust.
+List<Tag> tagsFromFrb(List<frb.FrbTag> frbTags) {
+  return frbTags
+      .map(
+        (t) => Tag(
+          id: t.id,
+          name: t.name,
+          parentId: t.parentId,
+          count: t.count.toInt(),
+          totalCount: t.totalCount.toInt(),
+          coverPaths: t.coverPaths,
+          // A flat list: the shelf tree widgets build the hierarchy
+          // themselves (see flattenShelfTree).
+        ),
+      )
+      .toList();
+}
+
 /// Service that wraps the FFI calls to the Rust backend
 /// This is used on native platforms instead of HTTP
 class FfiService {
@@ -118,22 +137,7 @@ class FfiService {
     try {
       final frbTags = await frb.getAllTags();
 
-      // Convert FrbTag to Tag model
-      // Note: FrbTag now includes parentId directly from Rust
-      return frbTags
-          .map(
-            (t) => Tag(
-              id: t.id,
-              name: t.name,
-              parentId: t.parentId,
-              count: t.count.toInt(),
-              totalCount: t.totalCount.toInt(),
-              coverPaths: t.coverPaths,
-              // A flat list: the shelf tree widgets build the hierarchy
-              // themselves (see flattenShelfTree).
-            ),
-          )
-          .toList();
+      return tagsFromFrb(frbTags);
     } catch (e) {
       debugPrint('FFI getTags error: $e');
       return [];
