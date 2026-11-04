@@ -51,7 +51,7 @@ class ShelfTint {
   int get hashCode => Object.hash(background, foreground);
 }
 
-/// The 56 x 40 picture at the head of a shelf row, the same in every shelf
+/// The 72 x 56 picture at the head of a shelf row, the same in every shelf
 /// tree.
 ///
 /// Up to three covers fanned out when the shelf has some; otherwise a
@@ -60,8 +60,8 @@ class ShelfTint {
 /// it holds none. Decorative: the row already says the name and the count,
 /// so nothing here reaches assistive technology.
 class ShelfThumbnail extends StatelessWidget {
-  static const double width = 56;
-  static const double height = 40;
+  static const double width = 72;
+  static const double height = 56;
 
   final String name;
 
@@ -108,23 +108,23 @@ class ShelfThumbnail extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       alignment: Alignment.center,
-      child: Icon(icon, size: 22, color: tint.foreground),
+      child: Icon(icon, size: 28, color: tint.foreground),
     );
   }
 }
 
 const _maxCovers = 3;
 
-/// Covers in a fan: 10 pt apart, turned -6, 0 and +6 degrees, centred in
+/// Covers in a fan: 14 pt apart, turned -6, 0 and +6 degrees, centred in
 /// the frame. The newest is drawn last, on top, at the right.
 class _CoverFan extends StatelessWidget {
   final List<String> covers;
 
   const _CoverFan(this.covers);
 
-  static const double _coverWidth = 26;
-  static const double _coverHeight = 36;
-  static const double _step = 10;
+  static const double _coverWidth = 38;
+  static const double _coverHeight = 54;
+  static const double _step = 14;
 
   static List<double> _anglesFor(int n) => switch (n) {
     1 => const [0],

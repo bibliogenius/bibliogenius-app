@@ -177,7 +177,11 @@ class ShelfTreeRow extends StatelessWidget {
           excludeFromSemantics: true,
           borderRadius: BorderRadius.circular(12),
           child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: depth == 0 ? 52 : 48),
+            constraints: BoxConstraints(
+              minHeight: thumbnail != null
+                  ? _thumbnailRowHeight
+                  : (depth == 0 ? 52 : 48),
+            ),
             // Sized to its content, so the guide lines span the whole row
             // even when large text makes it taller.
             child: IntrinsicHeight(
@@ -322,6 +326,7 @@ const double _rowPadding = 8;
 const double _iconSize = 22;
 const double _iconGap = 12;
 const double _thumbnailGap = 10;
+const double _thumbnailRowHeight = 68;
 const double _childTextGap = 20;
 
 /// Centre of the guide line of level [k] (1 for a first-level parent),

@@ -780,7 +780,7 @@ const double _autoScrollEdge = 56;
 const double _autoScrollSpeed = 12;
 
 /// Rough height of a row, to jump near one the lazy list has not built.
-const double _estimatedRowHeight = 56;
+const double _estimatedRowHeight = 68;
 
 /// A tint over [child] while [tinted], held until [fading], then faded out.
 class _FadingTint extends StatelessWidget {

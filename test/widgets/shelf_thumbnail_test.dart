@@ -5,6 +5,7 @@ import 'package:bibliogenius/themes/base/theme_registry.dart';
 import 'package:bibliogenius/utils/accessible_color.dart';
 import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
+import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -98,7 +99,7 @@ void main() {
       expect(covers.last.imageUrl, 'https://c/new.jpg');
     });
 
-    testWidgets('the fan fits the 56 x 40 frame and each cover is decoded '
+    testWidgets('the fan fits the 72 x 56 frame and each cover is decoded '
         'at its own size', (tester) async {
       await _pump(
         tester,
@@ -111,11 +112,11 @@ void main() {
 
       expect(
         tester.getSize(find.byType(ShelfThumbnail)),
-        const Size(ShelfThumbnail.width, ShelfThumbnail.height),
+        const Size(72, 56),
       );
       for (final cover in _covers(tester)) {
-        expect(cover.width, lessThan(ShelfThumbnail.width / 2));
-        expect(cover.height, lessThanOrEqualTo(ShelfThumbnail.height));
+        expect(cover.width, 38);
+        expect(cover.height, 54);
       }
     });
 
@@ -263,6 +264,29 @@ void main() {
       expect(find.byType(CachedBookCover), findsOneWidget);
       expect(find.byKey(const Key('shelfThumbnailBadge')), findsNothing);
     });
+  });
+
+  testWidgets('a row leaves room around its thumbnail at every level', (
+    tester,
+  ) async {
+    for (final depth in [0, 1, 3]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.topCenter,
+              child: ShelfTreeRow(
+                key: const Key('row'),
+                name: 'A',
+                depth: depth,
+                thumbnail: const ShelfThumbnail(name: 'A', hasBooks: true),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.byKey(const Key('row'))).height, 68);
+    }
   });
 
   testWidgets('the thumbnail adds no semantics node', (tester) async {

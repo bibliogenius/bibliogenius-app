@@ -795,10 +795,10 @@ const _toShelveLocation = '/shelves?unshelved=1&select=1&owned=library';
 const _phone = Size(390, 844);
 
 /// A phone as wide as [_phone], taller: the shelves tree fixture in full.
-/// Each row carries a 56 pt thumbnail, and the test font draws every glyph
+/// Each row carries a 72 pt thumbnail, and the test font draws every glyph
 /// a full em wide, so the fixture's names wrap and push its last rows below
 /// a phone's fold, where their finders find nothing.
-const _tallPhone = Size(390, 1100);
+const _tallPhone = Size(390, 1500);
 const _desktop = Size(1280, 900);
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -1061,6 +1061,7 @@ final _probes = <_Probe>[
   _Probe(
     'library, shelves tab, during a drag',
     '/shelves',
+    size: _tallPhone,
     tags: _treeTags,
     reach: (t) async {
       await _startShelfDrag(t, 'Novels');
