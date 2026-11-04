@@ -9823,14 +9823,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbTag dco_decode_frb_tag(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return FrbTag(
       id: dco_decode_String(arr[0]),
       name: dco_decode_String(arr[1]),
       parentId: dco_decode_opt_String(arr[2]),
       count: dco_decode_i_64(arr[3]),
       totalCount: dco_decode_i_64(arr[4]),
+      coverPaths: dco_decode_list_String(arr[5]),
     );
   }
 
@@ -12086,12 +12087,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_parentId = sse_decode_opt_String(deserializer);
     var var_count = sse_decode_i_64(deserializer);
     var var_totalCount = sse_decode_i_64(deserializer);
+    var var_coverPaths = sse_decode_list_String(deserializer);
     return FrbTag(
       id: var_id,
       name: var_name,
       parentId: var_parentId,
       count: var_count,
       totalCount: var_totalCount,
+      coverPaths: var_coverPaths,
     );
   }
 
@@ -14326,6 +14329,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.parentId, serializer);
     sse_encode_i_64(self.count, serializer);
     sse_encode_i_64(self.totalCount, serializer);
+    sse_encode_list_String(self.coverPaths, serializer);
   }
 
   @protected

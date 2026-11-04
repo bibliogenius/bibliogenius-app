@@ -358,8 +358,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
       );
     } else {
       // Local file: evict from Flutter's image cache
-      final fileImage = FileImage(File(coverUrl));
-      imageCache.evict(fileImage);
+      CachedBookCover.evictLocalCover(coverUrl);
     }
   }
 

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/tag.dart';
 import '../services/translation_service.dart';
+import 'shelf_thumbnail.dart';
 import 'shelf_tree_rows.dart';
 
 /// The shelf tree in placement mode: a tap on a row picks that shelf as a
@@ -185,6 +186,12 @@ class _ShelfPlacementTreeState extends State<ShelfPlacementTree> {
                     ? [currentPlace, ?path].join(' · ')
                     : path,
                 legibleSubtitle: current,
+                thumbnail: ShelfThumbnail(
+                  name: entry.tag.name,
+                  coverPaths: entry.tag.coverPaths,
+                  hasBooks:
+                      Tag.getAggregatedCount(entry.tag, widget.allTags) > 0,
+                ),
                 trailing: Icon(
                   Icons.chevron_right,
                   color: theme.colorScheme.onSurfaceVariant,

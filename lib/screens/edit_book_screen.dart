@@ -1489,8 +1489,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
   void _evictCoverFromCache(String? coverUrl) {
     if (coverUrl == null || coverUrl.isEmpty) return;
     if (!coverUrl.startsWith('http')) {
-      final fileImage = FileImage(File(coverUrl));
-      imageCache.evict(fileImage);
+      CachedBookCover.evictLocalCover(coverUrl);
     }
   }
 

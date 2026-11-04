@@ -23,6 +23,11 @@ class Tag {
   final int totalCount;
   final List<Tag> children;
 
+  /// Up to three covers for the shelf's thumbnail, newest first, sub-shelves
+  /// included, from the default library view. Already resolved by the core:
+  /// a file of this device or a URL, ready for `CachedBookCover`.
+  final List<String> coverPaths;
+
   Tag({
     required this.id,
     required this.name,
@@ -31,6 +36,7 @@ class Tag {
     required this.count,
     int? totalCount,
     this.children = const [],
+    this.coverPaths = const [],
   }) : totalCount = totalCount ?? count;
 
   factory Tag.fromJson(Map<String, dynamic> json) {
@@ -41,6 +47,11 @@ class Tag {
       path: json['path'] as String? ?? '',
       count: json['count'] as int? ?? 0,
       totalCount: json['total_count'] as int?,
+      // `GET /api/books/tags` names them by what they are over HTTP: URLs.
+      coverPaths: [
+        for (final cover in json['cover_urls'] as List? ?? [])
+          cover.toString(),
+      ],
       children:
           (json['children'] as List<dynamic>?)
               ?.map((e) => Tag.fromJson(e as Map<String, dynamic>))
@@ -88,6 +99,7 @@ class Tag {
       path: path,
       count: count,
       children: newChildren,
+      coverPaths: coverPaths,
     );
   }
 
@@ -142,6 +154,7 @@ class Tag {
       count: tag.count,
       totalCount: tag.totalCount,
       children: tag.children,
+      coverPaths: tag.coverPaths,
     );
   }
 

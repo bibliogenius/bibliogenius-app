@@ -128,6 +128,7 @@ class FfiService {
               parentId: t.parentId,
               count: t.count.toInt(),
               totalCount: t.totalCount.toInt(),
+              coverPaths: t.coverPaths,
               // A flat list: the shelf tree widgets build the hierarchy
               // themselves (see flattenShelfTree).
             ),

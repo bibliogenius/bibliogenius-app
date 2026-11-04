@@ -109,7 +109,9 @@ import 'package:bibliogenius/widgets/collection_selector.dart';
 import 'package:bibliogenius/widgets/collection_stack_widget.dart';
 import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
 import 'package:bibliogenius/widgets/selectable_book_tile.dart';
+import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
+import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
 import '../helpers/mock_classes.dart';
 import '../helpers/mock_repositories.dart';
@@ -791,6 +793,12 @@ const _toShelveLocation = '/shelves?unshelved=1&select=1&owned=library';
 // Phone width puts the bottom-bar / drawer shell in play; the wide layout is
 // the navigation rail. Both are the first thing a reader navigates.
 const _phone = Size(390, 844);
+
+/// A phone as wide as [_phone], taller: the shelves tree fixture in full.
+/// Each row carries a 56 pt thumbnail, and the test font draws every glyph
+/// a full em wide, so the fixture's names wrap and push its last rows below
+/// a phone's fold, where their finders find nothing.
+const _tallPhone = Size(390, 1100);
 const _desktop = Size(1280, 900);
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -1063,6 +1071,7 @@ final _probes = <_Probe>[
   _Probe(
     'library, shelves tab, a deletion to undo',
     '/shelves',
+    size: _tallPhone,
     tags: _treeTags,
     reach: (t) async {
       _holdMessages(t);
@@ -2231,6 +2240,21 @@ void main() {
       expect(row('Science fiction'), findsOneWidget);
     });
 
+    testWidgets('its rows wear the same thumbnail as the shelves tab', (
+      tester,
+    ) async {
+      await _render(tester, addForm);
+      await _openShelfPicker(tester);
+
+      for (final name in ['Novel', 'Science fiction']) {
+        expect(
+          find.descendant(of: row(name), matching: find.byType(ShelfThumbnail)),
+          findsOneWidget,
+          reason: name,
+        );
+      }
+    });
+
     testWidgets('each row is a toggle that says whether it is checked', (
       tester,
     ) async {
@@ -2512,7 +2536,12 @@ void main() {
   // The shelves tab is one tree: every level at once, folded by a chevron,
   // rearranged by dragging a shelf onto another or onto the first level.
   group('the shelf tree on the real route', () {
-    final tree = _Probe('shelf tree', '/shelves', tags: _treeTags);
+    final tree = _Probe(
+      'shelf tree',
+      '/shelves',
+      size: _tallPhone,
+      tags: _treeTags,
+    );
 
     testWidgets('lists every level at once, under the "to shelve" card', (
       tester,
@@ -2561,6 +2590,92 @@ void main() {
       );
       expect(
         find.descendant(of: _treeRow('Study'), matching: find.text('5 books')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('every row, at every level, wears a thumbnail that adds no '
+        'semantics node', (tester) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, tree);
+
+      for (final tag in _treeTags) {
+        final thumbnail = find.descendant(
+          of: _treeRow(tag.name),
+          matching: find.byType(ShelfThumbnail),
+        );
+        expect(thumbnail, findsOneWidget, reason: tag.name);
+        // The nearest node is the row's own, and nothing merges into it:
+        // the row reads its name alone, as before.
+        final rowNode = tester.getSemantics(_treeRow(tag.name));
+        expect(
+          tester.getSemantics(thumbnail).id,
+          rowNode.id,
+          reason: tag.name,
+        );
+        expect(rowNode.label, tag.name, reason: tag.name);
+      }
+      handle.dispose();
+    });
+
+    testWidgets('a shelf fans out its covers; a shelf with books and none, '
+        'and an empty one, say which they are', (tester) async {
+      await _render(
+        tester,
+        _Probe(
+          'shelf tree, covers',
+          '/shelves',
+          size: _tallPhone,
+          tags: [
+            // No book of its own: its books sit on a sub-shelf.
+            Tag(
+              id: 's1',
+              name: 'Living room',
+              count: 0,
+              coverPaths: const [
+                'https://c/a.jpg',
+                'https://c/b.jpg',
+                'https://c/c.jpg',
+              ],
+            ),
+            Tag(id: 's2', name: 'Novels', parentId: 's1', count: 2),
+            Tag(id: 's3', name: 'Kitchen', count: 0),
+            Tag(id: 's5', name: 'Study', count: 5),
+          ],
+        ),
+      );
+      ShelfThumbnail thumbnailOf(String name) => tester.widget(
+        find.descendant(
+          of: _treeRow(name),
+          matching: find.byType(ShelfThumbnail),
+        ),
+      );
+
+      expect(
+        find.descendant(
+          of: _treeRow('Living room'),
+          matching: find.byType(CachedBookCover),
+        ),
+        findsNWidgets(3),
+      );
+      expect(thumbnailOf('Study').hasBooks, isTrue);
+      expect(thumbnailOf('Study').coverPaths, isEmpty);
+      expect(thumbnailOf('Kitchen').hasBooks, isFalse);
+      // A parent counts the books of its sub-shelves.
+      expect(thumbnailOf('Living room').hasBooks, isTrue);
+    });
+
+    testWidgets('"Move to…" shows the same thumbnail on its rows', (
+      tester,
+    ) async {
+      await _render(tester, tree);
+      await _openMoveFromRow(tester, 'Study');
+
+      expect(
+        find.descendant(
+          of: _moveRow('Living room'),
+          matching: find.byType(ShelfThumbnail),
+        ),
         findsOneWidget,
       );
     });
@@ -3155,7 +3270,12 @@ void main() {
   });
 
   group('undo on the shelves tab on the real route', () {
-    final tree = _Probe('shelf tree', '/shelves', tags: _treeTags);
+    final tree = _Probe(
+      'shelf tree',
+      '/shelves',
+      size: _tallPhone,
+      tags: _treeTags,
+    );
     const livingRoomGone =
         'Shelf “Living room” deleted. The books stay in your library; '
         'they just leave this shelf. Its sub-shelf moves up one level.';

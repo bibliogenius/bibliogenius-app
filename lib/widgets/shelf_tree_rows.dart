@@ -111,6 +111,10 @@ class ShelfTreeRow extends StatelessWidget {
   /// Drawn after [trailing], at the end of the row.
   final List<Widget> actions;
 
+  /// The shelf's picture, drawn before the name at every level, in place
+  /// of the plain icon a first-level row shows without one. Decorative.
+  final Widget? thumbnail;
+
   /// Draws [subtitle] at full legibility even when the row is not
   /// tappable: for a note that tells a disabled row apart, such as the
   /// current place of a shelf being moved.
@@ -128,6 +132,7 @@ class ShelfTreeRow extends StatelessWidget {
     this.legibleSubtitle = false,
     this.leading,
     this.actions = const [],
+    this.thumbnail,
   });
 
   bool get _hasControls => leading != null || actions.isNotEmpty;
@@ -206,7 +211,18 @@ class ShelfTreeRow extends StatelessWidget {
                               width: shelfTreeLeadingWidth,
                               child: leading,
                             ),
-                          if (level == 0) ...[
+                          if (level > 0)
+                            SizedBox(
+                              width: leading == null ? _childTextGap : 4,
+                            ),
+                          if (thumbnail != null) ...[
+                            // Greyed with the row it belongs to.
+                            Opacity(
+                              opacity: enabled ? 1 : 0.38,
+                              child: thumbnail,
+                            ),
+                            const SizedBox(width: _thumbnailGap),
+                          ] else if (level == 0) ...[
                             ExcludeSemantics(
                               child: Icon(
                                 Icons.shelves,
@@ -215,10 +231,7 @@ class ShelfTreeRow extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(width: _iconGap),
-                          ] else
-                            SizedBox(
-                              width: leading == null ? _childTextGap : 4,
-                            ),
+                          ],
                           Expanded(
                             child: ExcludeSemantics(
                               child: _buildLabels(theme, foreground),
@@ -308,6 +321,7 @@ class ShelfCheckMarker extends StatelessWidget {
 const double _rowPadding = 8;
 const double _iconSize = 22;
 const double _iconGap = 12;
+const double _thumbnailGap = 10;
 const double _childTextGap = 20;
 
 /// Centre of the guide line of level [k] (1 for a first-level parent),

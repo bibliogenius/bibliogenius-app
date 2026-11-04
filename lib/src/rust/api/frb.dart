@@ -3778,6 +3778,7 @@ sealed class FrbTag with _$FrbTag {
     String? parentId,
     required PlatformInt64 count,
     required PlatformInt64 totalCount,
+    required List<String> coverPaths,
   }) = _FrbTag;
 }
 

@@ -9,6 +9,7 @@ import '../services/shelf_rows.dart';
 import '../services/translation_service.dart';
 import '../utils/book_genres.dart';
 import 'shelf_placement_tree.dart';
+import 'shelf_thumbnail.dart';
 import 'shelf_tree_rows.dart';
 
 class HierarchicalTagSelector extends StatefulWidget {
@@ -710,6 +711,11 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
       checked: checked,
       trailing: ShelfCheckMarker(checked: checked),
       onTap: () => _toggleTag(tag),
+      thumbnail: ShelfThumbnail(
+        name: tag.name,
+        coverPaths: tag.coverPaths,
+        hasBooks: Tag.getAggregatedCount(tag, _tags) > 0,
+      ),
     );
   }
 

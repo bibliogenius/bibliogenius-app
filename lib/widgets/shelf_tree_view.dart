@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../models/tag.dart';
 import '../services/shelf_id_set_store.dart';
 import '../services/translation_service.dart';
+import 'shelf_thumbnail.dart';
 import 'shelf_tree_rows.dart';
 
 /// Above this many shelves the tree gets a search field.
@@ -638,6 +639,11 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
           legibleSubtitle: tag.id == _dragged?.id,
           onTap: forbidden ? null : () => widget.onOpen(tag),
           leading: foldable ? _buildChevron(tag) : const SizedBox.shrink(),
+          thumbnail: ShelfThumbnail(
+            name: tag.name,
+            coverPaths: tag.coverPaths,
+            hasBooks: widget.bookCount(tag) > 0,
+          ),
           actions: [
             _buildHandle(tag, counts),
             widget.menuBuilder(context, tag),

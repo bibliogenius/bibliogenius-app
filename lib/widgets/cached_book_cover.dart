@@ -335,6 +335,21 @@ class CachedBookCover extends StatelessWidget {
     this.isPeerCover = false,
   });
 
+  /// Every width a local cover was decoded at. The image cache keys a resized
+  /// decode by its width, so eviction has to know them. Layouts use a handful
+  /// of sizes, so this stays small whatever the library holds.
+  static final Set<int> _localDecodeWidths = {};
+
+  /// Drops every decoded copy of the local cover at [path], rewritten in
+  /// place, and leaves the other covers in the cache.
+  static void evictLocalCover(String path) {
+    final file = FileImage(File(path));
+    unawaited(file.evict());
+    for (final width in _localDecodeWidths) {
+      unawaited(ResizeImage.resizeIfNeeded(width, null, file).evict());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null || imageUrl!.isEmpty) {
@@ -351,11 +366,20 @@ class CachedBookCover extends StatelessWidget {
       // imageUrl is already re-based onto the current covers directory by the
       // model getter (Book.coverUrl / Loan.resolvedCoverUrl via
       // LocalCoverResolver) when it came from a stored book row.
+      // Decoded at the drawn size in physical pixels, like the network
+      // branch: a full-resolution photo per thumbnail is what a long list
+      // cannot afford. Without a width the caller fills its parent, and the
+      // decode stays full size as before.
+      final localDecodeWidth = width == null
+          ? null
+          : (width! * MediaQuery.devicePixelRatioOf(context)).round();
+      if (localDecodeWidth != null) _localDecodeWidths.add(localDecodeWidth);
       Widget localImage = Image.file(
         File(imageUrl!),
         width: width,
         height: height,
         fit: fit,
+        cacheWidth: localDecodeWidth,
         errorBuilder: (_, _, _) => errorWidget ?? _buildTappableFallback(),
       );
       if (borderRadius != null) {
