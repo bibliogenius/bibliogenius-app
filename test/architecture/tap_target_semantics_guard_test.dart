@@ -2690,8 +2690,9 @@ void main() {
           )
           .dx;
 
-      expect(left('Novels'), greaterThan(left('Living room')));
-      expect(left('Crime'), greaterThan(left('Novels')));
+      // The indentation alone tells the levels apart.
+      expect(left('Novels') - left('Living room'), shelfTreeIndent);
+      expect(left('Crime') - left('Novels'), shelfTreeIndent);
       expect(left('Nordic crime'), left('Crime'));
       expect(
         find.descendant(

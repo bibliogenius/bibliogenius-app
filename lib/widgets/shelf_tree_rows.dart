@@ -86,8 +86,7 @@ class ShelfSectionLabel extends StatelessWidget {
 }
 
 /// A full-width shelf row: tappable over its whole width, indented by
-/// [depth] with a guide line per level, a name, an optional second line and
-/// a trailing marker.
+/// [depth], with a name, an optional second line and a trailing marker.
 ///
 /// For assistive technology the row is one button named after the shelf;
 /// [checked] adds a checked state, and a null [onTap] reads as disabled.
@@ -103,9 +102,7 @@ class ShelfTreeRow extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
-  /// Drawn before the name, in a slot [shelfTreeLeadingWidth] wide. The
-  /// guide lines of the levels below move with it, so a child still hangs
-  /// under its parent's icon.
+  /// Drawn before the name, in a slot [shelfTreeLeadingWidth] wide.
   final Widget? leading;
 
   /// Drawn after [trailing], at the end of the row.
@@ -150,11 +147,6 @@ class ShelfTreeRow extends StatelessWidget {
         ? scheme.onPrimaryContainer
         : scheme.onSurface;
 
-    // A sub-shelf is tinted from just after its own guide line, so the
-    // lines of its parents stay outside the tint; a first-level shelf from
-    // the edge.
-    final shift = leading == null ? 0.0 : shelfTreeLeadingWidth;
-    final tintStart = level == 0 ? 0.0 : _guideX(level, shift) + 1;
     final radius = level == 0
         ? BorderRadius.circular(12)
         : const BorderRadius.horizontal(right: Radius.circular(12));
@@ -182,23 +174,13 @@ class ShelfTreeRow extends StatelessWidget {
                   ? _thumbnailRowHeight
                   : (depth == 0 ? 52 : 48),
             ),
-            // Sized to its content, so the guide lines span the whole row
-            // even when large text makes it taller.
+            // Sized to its content, so a tint fills the whole row even when
+            // large text makes it taller.
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (level > 0)
-                    SizedBox(
-                      width: tintStart,
-                      child: CustomPaint(
-                        painter: _GuideLinesPainter(
-                          levels: level,
-                          shift: shift,
-                          color: scheme.outlineVariant,
-                        ),
-                      ),
-                    ),
+                  if (level > 0) SizedBox(width: level * shelfTreeIndent),
                   Expanded(
                     child: Ink(
                       decoration: tinted
@@ -209,15 +191,11 @@ class ShelfTreeRow extends StatelessWidget {
                           : null,
                       child: Row(
                         children: [
-                          if (level == 0) const SizedBox(width: _rowPadding),
+                          const SizedBox(width: _rowPadding),
                           if (leading != null)
                             SizedBox(
                               width: shelfTreeLeadingWidth,
                               child: leading,
-                            ),
-                          if (level > 0)
-                            SizedBox(
-                              width: leading == null ? _childTextGap : 4,
                             ),
                           if (thumbnail != null) ...[
                             // Greyed with the row it belongs to.
@@ -318,46 +296,9 @@ class ShelfCheckMarker extends StatelessWidget {
   }
 }
 
-// Row geometry. A first-level row shows the shelf icon; a sub-shelf hangs
-// its guide line under the right edge of that icon and starts its name just
-// past it, so a child always reads right of its parent, then each deeper
-// level moves [shelfTreeIndent] further.
+// Row geometry: every level moves [shelfTreeIndent] further right.
 const double _rowPadding = 8;
 const double _iconSize = 22;
 const double _iconGap = 12;
 const double _thumbnailGap = 10;
 const double _thumbnailRowHeight = 68;
-const double _childTextGap = 20;
-
-/// Centre of the guide line of level [k] (1 for a first-level parent),
-/// [shift] further right when the rows carry a leading slot.
-double _guideX(int k, [double shift = 0]) =>
-    _rowPadding + shift + _iconSize - 3 + (k - 1) * shelfTreeIndent;
-
-/// One vertical line per level above the row, over its whole height.
-class _GuideLinesPainter extends CustomPainter {
-  final int levels;
-  final double shift;
-  final Color color;
-
-  const _GuideLinesPainter({
-    required this.levels,
-    this.shift = 0,
-    required this.color,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 2;
-    for (var k = 1; k <= levels; k++) {
-      final x = _guideX(k, shift);
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_GuideLinesPainter old) =>
-      old.levels != levels || old.shift != shift || old.color != color;
-}
