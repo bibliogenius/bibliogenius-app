@@ -10,18 +10,11 @@ import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/notification_provider.dart';
 import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
-import 'package:bibliogenius/screens/shelf_management_screen.dart';
-import 'package:bibliogenius/screens/shelves_screen.dart';
+import 'package:bibliogenius/screens/organize_shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 
-/// Deleting a shelf has one rule, whichever screen it starts from: the books
-/// stay, the sub-shelves move up one level. The management screen used to
-/// delete the whole subtree from Dart while the shelves tab let the core move
-/// the children to the root: same word, two results, two different warnings.
-///
-/// The management screen still asks first; the shelves tab deletes at once
-/// and offers Undo. Both state the rule, word for word: in the dialog there,
-/// in the message here.
+/// Deleting a shelf has one rule: the books stay, the sub-shelves move up one
+/// level. It deletes at once and offers Undo, and the message states the rule.
 
 class _RecordingTagRepository implements TagRepository {
   List<Tag> tags;
@@ -104,17 +97,6 @@ Future<void> _letMessageGo(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
-/// Every text of the open dialog, in reading order.
-List<String> _dialogTexts(WidgetTester tester) => tester
-    .widgetList<Text>(
-      find.descendant(
-        of: find.byType(AlertDialog),
-        matching: find.byType(Text),
-      ),
-    )
-    .map((t) => t.data ?? '')
-    .toList();
-
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({'languageCode': 'en'});
@@ -160,15 +142,7 @@ void main() {
     WidgetTester tester,
     _RecordingTagRepository repo,
   ) async {
-    await pumpScreen(
-      tester,
-      ShelvesScreen(
-        isTabView: true,
-        refreshNotifier: ValueNotifier<int>(0),
-        organizing: true,
-      ),
-      repo,
-    );
+    await pumpScreen(tester, const OrganizeShelvesScreen(), repo);
     await tester.tap(find.byTooltip('Actions for Genre'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
@@ -176,21 +150,6 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
     expect(find.byType(AlertDialog), findsNothing);
     return _messageTexts(tester);
-  }
-
-  Future<List<String>> openDeleteFromManagement(
-    WidgetTester tester,
-    _RecordingTagRepository repo,
-  ) async {
-    await pumpScreen(tester, const ShelfManagementScreen(), repo);
-    final row = find
-        .ancestor(of: find.text('Genre'), matching: find.byType(InkWell))
-        .first;
-    await tester.longPress(row);
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Delete shelf').last);
-    await tester.pumpAndSettle();
-    return _dialogTexts(tester);
   }
 
   const rule = [
@@ -217,15 +176,7 @@ void main() {
       },
     });
     final repo = _RecordingTagRepository(_tree());
-    await pumpScreen(
-      tester,
-      ShelvesScreen(
-        isTabView: true,
-        refreshNotifier: ValueNotifier<int>(0),
-        organizing: true,
-      ),
-      repo,
-    );
+    await pumpScreen(tester, const OrganizeShelvesScreen(), repo);
     await tester.tap(find.byTooltip('Actions for Polar'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Delete shelf'));
@@ -239,39 +190,11 @@ void main() {
     await _letMessageGo(tester);
   });
 
-  testWidgets('the management screen states the same rule, word for word', (
-    tester,
-  ) async {
-    final repo = _RecordingTagRepository(_tree());
-    final texts = await openDeleteFromManagement(tester, repo);
-
-    expect(texts, contains('Delete "Genre"?\n\n${rule.join('\n\n')}'));
-  });
-
-  testWidgets('the management screen deletes the shelf alone, not its '
-      'sub-shelves', (tester) async {
-    final repo = _RecordingTagRepository(_tree());
-    await openDeleteFromManagement(tester, repo);
-
-    await tester.tap(find.widgetWithText(ElevatedButton, 'Delete'));
-    await tester.pumpAndSettle();
-
-    expect(repo.deleted, ['Genre']);
-  });
-
   testWidgets('a shelf without sub-shelves says nothing about them', (
     tester,
   ) async {
     final repo = _RecordingTagRepository(_tree());
-    await pumpScreen(
-      tester,
-      ShelvesScreen(
-        isTabView: true,
-        refreshNotifier: ValueNotifier<int>(0),
-        organizing: true,
-      ),
-      repo,
-    );
+    await pumpScreen(tester, const OrganizeShelvesScreen(), repo);
     // Every level shows at once: Polar's row is in reach.
     await tester.tap(find.byTooltip('Actions for Polar'));
     await tester.pumpAndSettle();

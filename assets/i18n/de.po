@@ -12452,3 +12452,7 @@ msgstr "Hier ist noch nichts. Fügen Sie ein Buch hinzu oder erstellen Sie ein U
 #. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
 msgid "organize_shelves"
 msgstr "Regale organisieren"
+
+#. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
+msgid "organize_hint"
+msgstr "Ziehen Sie ein Regal auf ein anderes, um es dort einzuräumen (auf dem Telefon: lange drücken). Das Menü „…“ macht dasselbe per Tastatur und Screenreader."

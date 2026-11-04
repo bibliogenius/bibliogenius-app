@@ -12583,3 +12583,7 @@ msgstr "Burada henüz bir şey yok. Bir kitap ekleyin veya bir alt raf oluşturu
 #. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
 msgid "organize_shelves"
 msgstr "Rafları düzenle"
+
+#. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
+msgid "organize_hint"
+msgstr "Bir rafı başka bir rafın içine koymak için üzerine sürükleyin (telefonda basılı tutun). \"…\" menüsü aynısını klavye ve ekran okuyucuyla yapar."

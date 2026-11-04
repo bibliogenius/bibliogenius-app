@@ -9,7 +9,7 @@ import 'package:bibliogenius/data/repositories/tag_repository.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
-import 'package:bibliogenius/screens/shelves_screen.dart';
+import 'package:bibliogenius/screens/organize_shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 
 /// The shelves tab tree: what a shelf row tells the reader, what its tap
@@ -94,7 +94,6 @@ final _orphan = Tag(id: 'legacy:-1', name: 'Thriller', count: 1);
 void main() {
   late _RecordingTagRepository repo;
   late BookRefreshNotifier bookRefresh;
-  late ValueNotifier<int> tabRefresh;
   final navigated = <String>[];
 
   setUp(() {
@@ -102,7 +101,6 @@ void main() {
     TranslationService.setPoTranslationsForTest(_catalogue);
     repo = _RecordingTagRepository([_genre, _roman, _polar, _orphan]);
     bookRefresh = BookRefreshNotifier();
-    tabRefresh = ValueNotifier<int>(0);
     navigated.clear();
   });
 
@@ -120,11 +118,7 @@ void main() {
         GoRoute(
           path: '/',
           builder: (_, _) =>
-              ShelvesScreen(
-                isTabView: true,
-                refreshNotifier: tabRefresh,
-                organizing: true,
-              ),
+              const OrganizeShelvesScreen(),
         ),
         GoRoute(
           path: '/shelves',
@@ -242,15 +236,5 @@ void main() {
     await tester.tap(find.byTooltip('Expand Genre'));
     await tester.pumpAndSettle();
     expect(find.text('Science-fiction'), findsOneWidget);
-  });
-
-  testWidgets('the tab refresh notifier reloads the tree too', (tester) async {
-    await pump(tester);
-    final readsBefore = repo.reads;
-
-    tabRefresh.value++;
-    await tester.pumpAndSettle();
-
-    expect(repo.reads, greaterThan(readsBefore));
   });
 }

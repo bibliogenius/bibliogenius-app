@@ -46,6 +46,7 @@ import 'dart:ui' show CheckedState, SemanticsAction, SemanticsRole, Tristate;
 import 'package:dio/dio.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -95,8 +96,7 @@ import 'package:bibliogenius/screens/settings/settings_scope.dart';
 import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
 import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
-import 'package:bibliogenius/screens/shelf_management_screen.dart';
-import 'package:bibliogenius/screens/shelves_screen.dart';
+import 'package:bibliogenius/screens/organize_shelves_screen.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
@@ -625,11 +625,11 @@ class _Harness {
         // Outside the shell, as in main.dart.
         GoRoute(
           path: '/shelves-management',
-          builder: (_, _) => const ShelvesScreen(organizing: true),
-        ),
-        GoRoute(
-          path: '/legacy-shelves-management',
-          builder: (_, _) => const ShelfManagementScreen(),
+          pageBuilder: (_, state) => MaterialPage<void>(
+            key: state.pageKey,
+            fullscreenDialog: true,
+            child: const OrganizeShelvesScreen(),
+          ),
         ),
       ],
     );
@@ -996,7 +996,7 @@ Future<void> _revealFirstRow(WidgetTester tester, TestGesture gesture) async {
 
 /// Where a drag can let go over no drop target: the bottom navigation bar.
 Offset _offTheTree(WidgetTester tester) =>
-    Offset(tester.getCenter(find.byType(ShelvesScreen)).dx, _phone.height - 8);
+    Offset(tester.getCenter(find.byType(OrganizeShelvesScreen)).dx, _phone.height - 8);
 
 /// The drag is over: no first-level zone, no branch greyed out.
 void _expectDragOver(WidgetTester tester, List<String> rows) {
@@ -1078,10 +1078,10 @@ final _probes = <_Probe>[
   ]),
   // The tree of the tab: chevrons, handles and menus on every row, four
   // levels deep.
-  _Probe('library, shelves tab, tree', '/shelves-management', tags: _treeTags),
+  _Probe('organize shelves, tree', '/shelves-management', tags: _treeTags),
   // A shelf picked up: its branch greyed, the first-level zone shown.
   _Probe(
-    'library, shelves tab, during a drag',
+    'organize shelves, during a drag',
     '/shelves-management',
     tags: _treeTags,
     reach: (t) async {
@@ -1091,7 +1091,7 @@ final _probes = <_Probe>[
   // A deletion waiting on its Undo, held as a screen reader holds it: the
   // message is a live region, Undo a named button.
   _Probe(
-    'library, shelves tab, a deletion to undo',
+    'organize shelves, a deletion to undo',
     '/shelves-management',
     size: _tallPhone,
     tags: _treeTags,
@@ -1103,7 +1103,7 @@ final _probes = <_Probe>[
   // "Move to…" from a row: the placement tree, a branch greyed out and the
   // current place marked, both read as disabled.
   _Probe(
-    'library, shelves tab, move tree',
+    'organize shelves, move tree',
     '/shelves-management',
     reach: (t) => _openMoveFromRow(t, 'Science fiction'),
   ),
@@ -2490,41 +2490,6 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('the management screen moves through the same tree, with the '
-        'same call', (tester) async {
-      final fromTab = await _render(tester, subShelves);
-      await _openMoveFromRow(tester, 'Science fiction');
-      await _tap(tester, _moveRow('Novel'));
-
-      final fromManagement = await _render(
-        tester,
-        const _Probe('management', '/legacy-shelves-management'),
-      );
-      await tester.longPress(
-        find
-            .ancestor(
-              of: find.text('Science fiction'),
-              matching: find.byType(InkWell),
-            )
-            .first,
-      );
-      await _settle(tester);
-      await _tap(tester, find.text('Move Shelf'));
-      expect(
-        find.descendant(
-          of: _moveSheet,
-          matching: find.text('Move “Science fiction” to…'),
-        ),
-        findsOneWidget,
-      );
-      expect(find.byType(RadioListTile<Tag?>), findsNothing);
-      await _tap(tester, _moveRow('Novel'));
-
-      expect(fromTab.tags.updated, ['t3: Science fiction < t1']);
-      expect(fromManagement.tags.updated, fromTab.tags.updated);
-      expect(find.text('Science fiction moved under Novel'), findsOneWidget);
-    });
-
     testWidgets('the edit dialog only renames, and leaves the shelf where it '
         'is', (tester) async {
       final harness = await _render(tester, subShelves);
@@ -3413,7 +3378,7 @@ void main() {
       await _tap(
         tester,
         find.descendant(
-          of: find.byType(ShelvesScreen),
+          of: find.byType(OrganizeShelvesScreen),
           matching: find.byType(FloatingActionButton),
         ),
       );
@@ -4079,6 +4044,171 @@ void main() {
     });
   });
 
+  // Organizing is another place, with a title and a way out, not a mode of the
+  // grid: the tree, its drag and its Undo live there and end with it.
+  group('organizing the shelves on the real route', () {
+    final done = find.widgetWithText(TextButton, 'Done');
+    final organize = find.text('Organize');
+    Finder card(String shelf) => find.byKey(ValueKey('shelfCard:$shelf'));
+    final tab = _Probe('tab', '/shelves', size: _tallPhone, tags: _treeTags);
+    Future<void> openFromTab(WidgetTester tester) => _tap(tester, organize);
+    String location(WidgetTester tester, Type on) =>
+        GoRouterState.of(tester.element(find.byType(on))).uri.toString();
+
+    testWidgets('its route shows the tree under a title, a sentence and Done, '
+        'as a full-screen dialog', (tester) async {
+      await _render(
+        tester,
+        _Probe('organize', '/shelves-management', tags: _treeTags),
+      );
+
+      expect(find.text('Organize shelves'), findsOneWidget);
+      expect(done, findsOneWidget);
+      expect(find.byKey(const Key('organizeHint')), findsOneWidget);
+      expect(_treeRow('Living room'), findsOneWidget);
+      expect(find.byKey(const Key('toShelveCard')), findsNothing);
+      final route = ModalRoute.of(tester.element(_treeRow('Living room')))!;
+      expect((route as PageRoute).fullscreenDialog, isTrue);
+    });
+
+    testWidgets('Done goes back to the tab', (tester) async {
+      await _render(tester, tab);
+      await openFromTab(tester);
+
+      await _tap(tester, done);
+
+      expect(card('Living room'), findsOneWidget);
+      expect(_treeRow('Living room'), findsNothing);
+    });
+
+    testWidgets('Escape goes back too', (tester) async {
+      await _render(tester, tab);
+      await openFromTab(tester);
+
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await _settle(tester);
+
+      expect(card('Living room'), findsOneWidget);
+    });
+
+    testWidgets('the system back goes back too', (tester) async {
+      await _render(tester, tab);
+      await openFromTab(tester);
+
+      await tester.binding.handlePopRoute();
+      await _settle(tester);
+
+      expect(card('Living room'), findsOneWidget);
+    });
+
+    testWidgets('reached by a link, Done leads to the tab all the same', (
+      tester,
+    ) async {
+      await _render(
+        tester,
+        _Probe('organize', '/shelves-management', tags: _treeTags),
+      );
+
+      await _tap(tester, done);
+
+      expect(card('Living room'), findsOneWidget);
+    });
+
+    testWidgets('a tap on a name opens that shelf and closes this', (
+      tester,
+    ) async {
+      await _render(tester, tab);
+      await openFromTab(tester);
+
+      await _tap(
+        tester,
+        find.descendant(of: _treeRow('Crime'), matching: find.text('Crime')),
+      );
+
+      expect(_treeRow('Crime'), findsNothing);
+      expect(location(tester, LibraryScreen), '/shelves?tag=Crime');
+    });
+
+    testWidgets('closing sends the waiting deletion and the tab catches up', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tab);
+      await openFromTab(tester);
+      await _deleteFromRow(tester, 'Study');
+      expect(harness.tags.deleted, isEmpty);
+
+      harness.tags.mockTags = [
+        for (final t in _treeTags)
+          if (t.id != 's5') t,
+      ];
+      await _tap(tester, done);
+
+      expect(harness.tags.deleted, ['Study']);
+      expect(card('Study'), findsNothing);
+      expect(_undo, findsNothing);
+    });
+
+    testWidgets('Undo before closing writes nothing, closing neither', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tab);
+      await openFromTab(tester);
+      await _deleteFromRow(tester, 'Study');
+      await _tap(tester, _undo);
+
+      await _tap(tester, done);
+
+      expect(harness.tags.deleted, isEmpty);
+      expect(card('Study'), findsOneWidget);
+    });
+
+    testWidgets('what changed here shows on the tab on closing', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tab);
+      await openFromTab(tester);
+      await _renameFromRow(tester, 'Study', 'Library');
+      harness.tags.mockTags = [
+        for (final t in _treeTags)
+          t.id == 's5' ? Tag(id: 's5', name: 'Library', count: 5) : t,
+      ];
+
+      await _tap(tester, done);
+
+      expect(card('Library'), findsOneWidget);
+      expect(card('Study'), findsNothing);
+    });
+
+    testWidgets('closing with nothing changed reads nothing more', (
+      tester,
+    ) async {
+      final harness = await _render(tester, tab);
+      await openFromTab(tester);
+      var refreshes = 0;
+      harness.refresh.addListener(() => refreshes++);
+
+      await _tap(tester, done);
+
+      expect(refreshes, 0);
+    });
+
+    testWidgets('the Organize entry of a shelf page comes back to that page', (
+      tester,
+    ) async {
+      await _render(
+        tester,
+        _Probe('page', '/shelves?tag=Crime', size: _tallPhone, tags: _treeTags),
+      );
+      await _tap(tester, find.byKey(const Key('shelfPlaceMenu')));
+      await _tap(tester, find.text('Organize shelves').last);
+      expect(_treeRow('Crime'), findsOneWidget);
+
+      await _tap(tester, done);
+
+      expect(location(tester, LibraryScreen), '/shelves?tag=Crime');
+    });
+  });
+
   group('undo on the shelves tab on the real route', () {
     final tree = _Probe(
       'shelf tree',
@@ -4150,7 +4280,7 @@ void main() {
       final harness = await _render(tester, tree);
       await _deleteFromRow(tester, 'Living room');
 
-      GoRouter.of(tester.element(find.byType(ShelvesScreen))).go('/books');
+      GoRouter.of(tester.element(find.byType(OrganizeShelvesScreen))).go('/books');
       // Through the page transition, then the message's own way out.
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 100));
@@ -4169,7 +4299,7 @@ void main() {
       await _deleteFromRow(tester, 'Study');
 
       // An opaque page on top: the tab stays mounted, out of sight.
-      Navigator.of(tester.element(find.byType(ShelvesScreen))).push(
+      Navigator.of(tester.element(find.byType(OrganizeShelvesScreen))).push(
         MaterialPageRoute<void>(builder: (_) => const Scaffold()),
       );
       await _settle(tester);
@@ -4224,8 +4354,10 @@ void main() {
         'goes', (tester) async {
       await _render(tester, tree);
       final order = tester
-          .element(find.byType(ShelvesScreen))
+          .element(find.byType(OrganizeShelvesScreen))
           .read<SortPreferenceProvider>();
+      // Created by this read: its own load must not land after the choice.
+      await tester.runAsync(order.load);
       await tester.runAsync(() => order.setShelfOrder('s5', true));
 
       await _deleteFromRow(tester, 'Study');
@@ -4401,7 +4533,7 @@ void main() {
       await _renameFromRow(tester, 'Living room', 'Lounge');
       expect(_undo, findsOneWidget);
 
-      GoRouter.of(tester.element(find.byType(ShelvesScreen))).go('/books');
+      GoRouter.of(tester.element(find.byType(OrganizeShelvesScreen))).go('/books');
       // Through the page transition, then the message's own way out.
       for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 100));

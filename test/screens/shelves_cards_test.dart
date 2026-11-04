@@ -278,6 +278,38 @@ void main() {
     });
   });
 
+  testWidgets('the tab refresh notifier reloads the grid', (tester) async {
+    final tabRefresh = ValueNotifier<int>(0);
+    addTearDown(tabRefresh.dispose);
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<ThemeProvider>.value(
+            value: ThemeProvider()..setLocaleSync(const Locale('en')),
+          ),
+          ChangeNotifierProvider<BookRefreshNotifier>.value(value: refresh),
+          ChangeNotifierProvider<OwnershipPreferenceProvider>(
+            create: (_) => OwnershipPreferenceProvider(),
+          ),
+          Provider<TagRepository>.value(value: repo),
+        ],
+        child: MaterialApp(
+          home: ShelvesScreen(isTabView: true, refreshNotifier: tabRefresh),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    repo.tags = [Tag(id: 'n', name: 'New one', count: 0)];
+    tabRefresh.value++;
+    await tester.pumpAndSettle();
+
+    expect(_card('New one'), findsOneWidget);
+  });
+
   group('the row above the grid', () {
     testWidgets('on a phone: "Organize" and the add button floating', (
       tester,

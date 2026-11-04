@@ -32,9 +32,6 @@ class ShelfTreeView extends StatefulWidget {
   /// The books a shelf's list shows, its sub-shelves' included.
   final int Function(Tag tag) bookCount;
 
-  /// Scrolls with the tree, above its first row.
-  final Widget? header;
-
   /// A tap on a row: the shelf's books.
   final ValueChanged<Tag> onOpen;
 
@@ -54,7 +51,6 @@ class ShelfTreeView extends StatefulWidget {
     super.key,
     required this.allTags,
     required this.bookCount,
-    this.header,
     required this.onOpen,
     required this.onMoveRequested,
     required this.onDrop,
@@ -456,13 +452,11 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     final children = Tag.childrenIndex(widget.allTags);
     final entries = _visibleEntries(children);
     final forbidden = _forbiddenIds;
-    final headerCount = widget.header == null ? 0 : 1;
     // Each item keyed by its shelf, so that a reload during a drag keeps
     // the element of the row in hand instead of handing it another shelf.
     final indexOfKey = <String, int>{
-      if (headerCount > 0) _itemKey(null): 0,
       for (var i = 0; i < entries.length; i++)
-        _itemKey(entries[i].tag.id): i + headerCount,
+        _itemKey(entries[i].tag.id): i,
     };
 
     // The zone lies over the tree rather than in it: a list that made room
@@ -485,19 +479,13 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
                     child: ListView.builder(
                       key: const Key('shelfTreeList'),
                       padding: EdgeInsets.fromLTRB(8, _topGap, 8, 96),
-                      itemCount: entries.length + headerCount,
+                      itemCount: entries.length,
                       findChildIndexCallback: (key) => key is ValueKey<String>
                           ? indexOfKey[key.value]
                           : null,
                       itemBuilder: (context, index) {
                         _position = Scrollable.maybeOf(context)?.position;
-                        if (index < headerCount) {
-                          return KeyedSubtree(
-                            key: ValueKey(_itemKey(null)),
-                            child: widget.header!,
-                          );
-                        }
-                        final entry = entries[index - headerCount];
+                        final entry = entries[index];
                         return KeyedSubtree(
                           key: ValueKey(_itemKey(entry.tag.id)),
                           child: _buildRow(

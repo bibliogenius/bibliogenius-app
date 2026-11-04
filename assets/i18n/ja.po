@@ -12592,3 +12592,7 @@ msgstr "まだ何もありません。本を追加するか、下位の本棚を
 #. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
 msgid "organize_shelves"
 msgstr "本棚を整理"
+
+#. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
+msgid "organize_hint"
+msgstr "本棚を別の本棚にドラッグすると、その中に入れられます（スマートフォンでは長押し）。「…」メニューでは、キーボードやスクリーンリーダーで同じ操作ができます。"

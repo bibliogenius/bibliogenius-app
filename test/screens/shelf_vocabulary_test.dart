@@ -10,7 +10,7 @@ import 'package:bibliogenius/providers/book_refresh_notifier.dart';
 import 'package:bibliogenius/providers/notification_provider.dart';
 import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
-import 'package:bibliogenius/screens/shelf_management_screen.dart';
+import 'package:bibliogenius/screens/organize_shelves_screen.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 
@@ -136,11 +136,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  Widget shelvesTab() => ShelvesScreen(
-    isTabView: true,
-    refreshNotifier: ValueNotifier<int>(0),
-    organizing: true,
-  );
+  Widget shelvesTab() =>
+      ShelvesScreen(isTabView: true, refreshNotifier: ValueNotifier<int>(0));
 
   testWidgets('the empty shelves tab tells a shelf from a collection', (
     tester,
@@ -169,7 +166,7 @@ void main() {
   testWidgets('"Move to…" from the tab names the top "At the first level"', (
     tester,
   ) async {
-    await pumpScreen(tester, shelvesTab(), [
+    await pumpScreen(tester, const OrganizeShelvesScreen(), [
       Tag(id: 'g', name: 'Genre', count: 0),
       Tag(id: 'r', name: 'Roman', parentId: 'g', count: 3),
     ]);
@@ -180,27 +177,6 @@ void main() {
     await tester.pumpAndSettle();
 
     // Genre sits at the top: the first level is its current place.
-    expect(find.text('At the first level'), findsOneWidget);
-    expect(find.textContaining(RegExp('root', caseSensitive: false)),
-        findsNothing);
-  });
-
-  testWidgets('the move tree of the management screen names the top '
-      '"At the first level"', (tester) async {
-    await pumpScreen(tester, const ShelfManagementScreen(), [
-      Tag(id: 'g', name: 'Genre', count: 0),
-      Tag(id: 'r', name: 'Roman', parentId: 'g', count: 3),
-    ]);
-
-    final row = find
-        .ancestor(of: find.text('Roman'), matching: find.byType(InkWell))
-        .first;
-    await tester.longPress(row);
-    await tester.pumpAndSettle();
-    expect(find.text('Change parent shelf'), findsOneWidget);
-    await tester.tap(find.text('Move shelf'));
-    await tester.pumpAndSettle();
-
     expect(find.text('At the first level'), findsOneWidget);
     expect(find.textContaining(RegExp('root', caseSensitive: false)),
         findsNothing);

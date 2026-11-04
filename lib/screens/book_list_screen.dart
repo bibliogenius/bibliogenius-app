@@ -1241,10 +1241,8 @@ class _BookListScreenState extends State<BookListScreen>
     router.go(_placeLocation(parent?.name));
   }
 
-  Future<void> _organizeFromPlace() async {
-    await context.push('/shelves-management');
-    if (mounted) _handleRefreshTrigger();
-  }
+  /// What changes there reaches this page through the global notifier.
+  void _organizeFromPlace() => context.push('/shelves-management');
 
   /// "Shelved here · 3 books": what the grid below holds, not what the head
   /// counts with the sub-shelves. Its reorder action applies to these books.

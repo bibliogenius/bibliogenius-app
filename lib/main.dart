@@ -54,7 +54,7 @@ import 'data/repositories_impl/copy_repository_impl.dart';
 import 'data/repositories_impl/loan_repository_impl.dart';
 import 'data/repositories_impl/recommendation_repository_impl.dart';
 
-import 'screens/shelves_screen.dart';
+import 'screens/organize_shelves_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
 import 'screens/author_screen.dart';
@@ -1059,7 +1059,11 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
         ),
         GoRoute(
           path: '/shelves-management',
-          builder: (context, state) => const ShelvesScreen(organizing: true),
+          pageBuilder: (context, state) => MaterialPage<void>(
+            key: state.pageKey,
+            fullscreenDialog: true,
+            child: const OrganizeShelvesScreen(),
+          ),
         ),
         GoRoute(
           path: '/invite',

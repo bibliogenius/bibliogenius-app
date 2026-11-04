@@ -12576,3 +12576,7 @@ msgstr "Ancora niente qui. Aggiungi un libro o crea un sottoscaffale."
 #. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
 msgid "organize_shelves"
 msgstr "Organizza gli scaffali"
+
+#. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
+msgid "organize_hint"
+msgstr "Trascina uno scaffale su un altro per sistemarlo dentro (sul telefono, tieni premuto). Il menu «…» fa lo stesso con tastiera e lettore di schermo."

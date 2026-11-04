@@ -6,16 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
-import '../widgets/app_snack_bar.dart';
-import '../widgets/delete_shelf_dialog.dart';
 import '../widgets/genie_app_bar.dart';
-import '../widgets/move_shelf_sheet.dart';
 import '../widgets/shelf_actions.dart';
 import '../services/to_shelve_dismissal_store.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/shelf_card.dart';
 import '../widgets/shelf_or_collection_note.dart';
-import '../widgets/shelf_tree_view.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
 import '../widgets/quick_actions_sheet.dart';
@@ -26,16 +22,12 @@ import '../providers/theme_provider.dart';
 import '../providers/ownership_preference_provider.dart';
 import '../providers/sort_preference_provider.dart';
 import '../utils/book_filters.dart';
-import '../utils/app_constants.dart';
 
 class ShelvesScreen extends StatefulWidget {
   final bool isTabView;
   final ValueNotifier<int>? refreshNotifier;
 
-  /// The tree to rearrange the shelves, instead of the cards to walk into.
-  final bool organizing;
-
-  /// The waiting deletion and the Undos, when they outlive this screen.
+  /// The waiting deletion of a shelf page, when it lands here.
   /// Without it the screen keeps its own, and leaving it sends the deletion.
   final ShelfActionsController? actions;
 
@@ -46,7 +38,6 @@ class ShelvesScreen extends StatefulWidget {
     super.key,
     this.isTabView = false,
     this.refreshNotifier,
-    this.organizing = false,
     this.actions,
     this.onTagsLoaded,
   });
@@ -244,7 +235,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           backgroundColor: Colors.transparent,
           // From this width the button sits in the row above the grid.
           floatingActionButton:
-              constraints.maxWidth < _wideRowWidth || widget.organizing
+              constraints.maxWidth < _wideRowWidth
               ? FloatingActionButton(
                   heroTag: 'shelf_add_fab_tab',
                   onPressed: _showCreateShelfDialog,
@@ -277,12 +268,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         ),
       ),
       appBar: GenieAppBar(
-        title: TranslationService.translate(
-          context,
-          widget.organizing ? 'organize' : 'shelves',
-        ),
-        leading: widget.organizing ? null : buildDrawerLeading(context),
-        automaticallyImplyLeading: widget.organizing,
+        title: TranslationService.translate(context, 'shelves'),
+        leading: buildDrawerLeading(context),
+        automaticallyImplyLeading: false,
         showQuickActions: true,
         actions: [
           ContextualHelpIconButton(
@@ -379,8 +367,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     if (_error != null) {
       return _buildErrorState(_error!);
     }
-    final showToShelve =
-        !widget.organizing && _unshelvedCount > _toShelveDismissedAt;
+    final showToShelve = _unshelvedCount > _toShelveDismissedAt;
 
     if (_shownTags.isEmpty) {
       // Books scanned before any shelf exists: the card is where to start.
@@ -396,19 +383,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
       );
     }
 
-    if (!widget.organizing) return _buildCards(context, showToShelve);
-
-    // Every level at once: a tap opens a shelf's books, its sub-shelves
-    // are already in sight below it.
-    return ShelfTreeView(
-      allTags: _shownTags,
-      bookCount: _aggregatedCount,
-      onOpen: _openShelfBooks,
-      onMoveRequested: _moveShelf,
-      onDrop: _dropShelf,
-      menuBuilder: _buildRowMenu,
-      onRefresh: _loadTags,
-    );
+    return _buildCards(context, showToShelve);
   }
 
   /// The first-level shelves as cards to walk into, under the "to shelve"
@@ -521,10 +496,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     );
   }
 
-  Future<void> _openOrganize() async {
-    await context.push('/shelves-management');
-    if (mounted) await _loadTags();
-  }
+  /// What changes there reaches this grid through the global notifier.
+  void _openOrganize() => context.push('/shelves-management');
 
   /// The books on no shelf, in one sober line: a tap lists them in this tab
   /// with selection armed, ready for the bulk shelving sheet; the cross hides
@@ -715,117 +688,9 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     );
   }
 
-  void _showEditShelfDialog(Tag tag) => showRenameShelfDialog(
+  /// Creates a shelf at the first level.
+  void _showCreateShelfDialog() => showNewShelfDialog(
     context,
-    tag: tag,
-    allTags: _allTags,
-    onRenamed: (_) => _loadTags(),
-    onUndone: _reloadIfMounted,
-    onUndoShown: _keepUndo,
-  );
-
-  void _reloadIfMounted() {
-    if (mounted) _loadTags();
-  }
-
-  void _keepUndo(UndoableMessage message) => _actions.keepUndo(message);
-
-  Future<void> _moveShelf(Tag tag) async {
-    final moved = await showMoveShelfSheet(
-      context,
-      shelf: tag,
-      allTags: _shownTags,
-      onUndone: _reloadIfMounted,
-      onUndoShown: _keepUndo,
-    );
-    if (moved && mounted) _loadTags();
-  }
-
-  void _deleteShelf(Tag tag) => _actions.delete(
-    context,
-    tag,
-    subShelfCount: _childrenOf(tag).length,
-  );
-
-  /// A drop in the tree: the same write and message as "Move to…", then
-  /// the tree reloaded so the shelf shows at its new place.
-  Future<bool> _dropShelf(Tag shelf, Tag? parent) async {
-    final moved = await moveShelf(
-      context,
-      shelf: shelf,
-      parent: parent,
-      undo: ShelfMoveUndo(
-        previousParentId: Tag.effectiveParentId(shelf, _shownTags),
-        onUndone: _reloadIfMounted,
-        onShown: _keepUndo,
-      ),
-    );
-    if (moved && mounted) await _loadTags();
-    return moved;
-  }
-
-  void _scanInto(Tag tag) {
-    context
-        .push(
-          '/scan',
-          extra: {
-            'shelfId': tag.name,
-            'shelfName': tag.fullPath,
-            'batch': true,
-          },
-        )
-        .then((_) => _loadTags());
-  }
-
-  /// The "…" of a tree row. Opening the shelf's books is the row's own tap.
-  Widget _buildRowMenu(BuildContext context, Tag tag) {
-    PopupMenuItem<String> item(String value, IconData icon, String key) =>
-        PopupMenuItem<String>(
-          value: value,
-          child: ListTile(
-            leading: Icon(icon),
-            title: Text(TranslationService.translate(context, key)),
-          ),
-        );
-
-    return PopupMenuButton<String>(
-      tooltip: TranslationService.translate(
-        context,
-        'shelf_actions_named',
-      ).replaceAll('{name}', tag.name),
-      onSelected: (value) {
-        switch (value) {
-          case 'scan':
-            _scanInto(tag);
-          case 'add_sub':
-            _showCreateShelfDialog(parent: tag);
-          case 'edit':
-            _showEditShelfDialog(tag);
-          case 'move':
-            _moveShelf(tag);
-          case 'delete':
-            _deleteShelf(tag);
-        }
-      },
-      itemBuilder: (context) => [
-        item('scan', Icons.qr_code_scanner, 'scan_into_shelf'),
-        if (AppConstants.enableHierarchicalTags)
-          item('add_sub', Icons.create_new_folder_outlined, 'add_sub_shelf'),
-        const PopupMenuDivider(),
-        item('edit', Icons.edit, 'edit_shelf'),
-        if (AppConstants.enableHierarchicalTags)
-          item('move', Icons.drive_file_move, 'move_shelf_to'),
-        item('delete', Icons.delete, 'delete_shelf'),
-      ],
-      icon: const Icon(Icons.more_vert),
-    );
-  }
-
-  /// Creates a shelf at the first level, or inside [parent] when a row's
-  /// menu asks for a sub-shelf.
-  void _showCreateShelfDialog({Tag? parent}) => showNewShelfDialog(
-    context,
-    parent: parent,
     shownTags: _shownTags,
     onCreated: _loadTags,
   );

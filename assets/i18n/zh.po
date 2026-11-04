@@ -12592,3 +12592,7 @@ msgstr "这里还没有内容。添加一本图书，或创建一个子书架。
 #. Title of the screen that rearranges the shelf tree, and the entry leading to it: Organize shelves
 msgid "organize_shelves"
 msgstr "整理书架"
+
+#. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
+msgid "organize_hint"
+msgstr "将书架拖到另一个书架上即可放入其中（手机上请长按）。“…”菜单可通过键盘和屏幕阅读器完成同样的操作。"
