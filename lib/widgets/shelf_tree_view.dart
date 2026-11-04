@@ -17,8 +17,9 @@ const int shelfTreeSearchThreshold = 15;
 /// How long the tint of a shelf that just moved takes to fade out.
 const Duration shelfTreeFlashDuration = Duration(milliseconds: 200);
 
-/// The shelves tab as one tree: every level in one lazy list, folded by a
-/// chevron, rearranged by dragging a shelf onto another one (it goes inside)
+/// The shelves tab as one tree: every level in one lazy list, folded from a
+/// row's sub-shelf count, rearranged by dragging a shelf onto another one
+/// (it goes inside)
 /// or onto the first-level zone a drag shows at the head of the tree.
 ///
 /// A shelf can never be dropped on itself or on one of its sub-shelves:
@@ -595,8 +596,8 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
 
   /// "12 books · 2 sub-shelves": computed once per row, for its second
   /// line and for the card a drag carries.
-  String _counts(Tag tag, int subShelves) => [
-    _plural('displayed_books_count', widget.bookCount(tag)),
+  String _counts(int books, int subShelves) => [
+    _plural('displayed_books_count', books),
     if (subShelves > 0) _plural('sub_shelves_count', subShelves),
   ].join(' · ');
 
@@ -626,34 +627,38 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
   }) {
     final tag = entry.tag;
     final foldable = hasChildren && !_filtering;
-    final counts = _counts(tag, subShelves);
+    final books = widget.bookCount(tag);
+    final counts = _counts(books, subShelves);
     return DragTarget<Tag>(
       onWillAcceptWithDetails: (details) => _accepts(details.data, tag),
       onAcceptWithDetails: (details) => _drop(details.data, tag),
       builder: (context, candidates, _) {
         final hovered = candidates.isNotEmpty;
-        // A drag says something else on that line: no fold button then.
-        final foldButton = foldable && !hovered && tag.id != _dragged?.id;
+        // A drag says something else on that line, for that moment.
+        final saysDrag = hovered || tag.id == _dragged?.id;
         final fullSubtitle = _subtitle(entry, counts, hovered: hovered);
         Widget row = ShelfTreeRow(
           key: ValueKey('shelfTreeRow:${tag.name}'),
           name: tag.name,
           depth: entry.depth,
-          subtitle: foldButton
+          subtitle: foldable
               ? [
                   ?_deepPath(entry),
-                  _plural('displayed_books_count', widget.bookCount(tag)),
+                  _plural('displayed_books_count', books),
                 ].join(' · ')
               : fullSubtitle,
           semanticSubtitle: fullSubtitle,
-          subtitleAction: foldButton ? _buildFoldButton(tag, subShelves) : null,
+          subtitleAction: foldable
+              ? _buildFoldButton(tag, subShelves, forbidden: forbidden)
+              : null,
+          subtitleNotice: foldable && saysDrag ? fullSubtitle : null,
           highlighted: hovered,
           legibleSubtitle: tag.id == _dragged?.id,
           onTap: forbidden ? null : () => widget.onOpen(tag),
           thumbnail: ShelfThumbnail(
             name: tag.name,
             coverPaths: tag.coverPaths,
-            hasBooks: widget.bookCount(tag) > 0,
+            hasBooks: books > 0,
           ),
           actions: [
             _buildHandle(tag, counts),
@@ -695,47 +700,64 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
   /// "2 sub-shelves" and an arrow that turns: folds the branch, while the
   /// rest of the row opens the shelf. The row's own value already reads the
   /// count, so this node says only what it does.
-  Widget _buildFoldButton(Tag tag, int subShelves) {
+  Widget _buildFoldButton(
+    Tag tag,
+    int subShelves, {
+    required bool forbidden,
+  }) {
     final collapsed = _collapsed.contains(tag.id);
     final key = collapsed ? 'shelf_expand_named' : 'shelf_collapse_named';
     final label = _t(key).replaceAll('{name}', tag.name);
     final theme = Theme.of(context);
-    final color = theme.colorScheme.onSurfaceVariant;
-    return Semantics(
-      container: true,
-      button: true,
-      expanded: !collapsed,
-      label: label,
-      onTap: () => _toggle(tag),
-      excludeSemantics: true,
-      child: Tooltip(
-        message: label,
-        excludeFromSemantics: true,
-        child: InkWell(
-          onTap: () => _toggle(tag),
-          borderRadius: BorderRadius.circular(8),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Flexible(
-                    child: Text(
-                      _plural('sub_shelves_count', subShelves),
-                      style: theme.textTheme.bodySmall?.copyWith(color: color),
-                    ),
+    // Greyed with the row when a drag forbids it.
+    final color = forbidden
+        ? theme.colorScheme.onSurface.withValues(alpha: 0.38)
+        : theme.colorScheme.onSurfaceVariant;
+    // One node: the button, what it does and whether the branch is open.
+    return MergeSemantics(
+      child: Semantics(
+        button: true,
+        expanded: !collapsed,
+        label: label,
+        child: Tooltip(
+          message: label,
+          excludeFromSemantics: true,
+          // A long press on the row picks the shelf up, here as elsewhere.
+          triggerMode: TooltipTriggerMode.manual,
+          child: InkWell(
+            onTap: () => _toggle(tag),
+            borderRadius: BorderRadius.circular(8),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(0, 14, 4, 14),
+                child: ExcludeSemantics(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          _plural('sub_shelves_count', subShelves),
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: color,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      AnimatedRotation(
+                        turns: collapsed ? 0 : 0.25,
+                        duration: MediaQuery.disableAnimationsOf(context)
+                            ? Duration.zero
+                            : const Duration(milliseconds: 200),
+                        child: Icon(
+                          Icons.chevron_right,
+                          size: 16,
+                          color: color,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 2),
-                  AnimatedRotation(
-                    turns: collapsed ? 0 : 0.25,
-                    duration: MediaQuery.disableAnimationsOf(context)
-                        ? Duration.zero
-                        : const Duration(milliseconds: 200),
-                    child: Icon(Icons.chevron_right, size: 16, color: color),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

@@ -102,6 +102,10 @@ class ShelfTreeRow extends StatelessWidget {
   /// moves down to meet it, so the two lines still read as one block.
   final Widget? subtitleAction;
 
+  /// Replaces [subtitle] and [subtitleAction] on screen for a moment, in the
+  /// room they keep: the row does not change height.
+  final String? subtitleNotice;
+
   /// What assistive technology reads as the second line, when the painted
   /// [subtitle] leaves part of it to [subtitleAction].
   final String? semanticSubtitle;
@@ -129,6 +133,7 @@ class ShelfTreeRow extends StatelessWidget {
     this.onTap,
     this.legibleSubtitle = false,
     this.subtitleAction,
+    this.subtitleNotice,
     this.semanticSubtitle,
     this.actions = const [],
     this.thumbnail,
@@ -148,10 +153,6 @@ class ShelfTreeRow extends StatelessWidget {
         : tinted
         ? scheme.onPrimaryContainer
         : scheme.onSurface;
-
-    final radius = level == 0
-        ? BorderRadius.circular(12)
-        : const BorderRadius.horizontal(right: Radius.circular(12));
 
     return Semantics(
       container: true,
@@ -176,55 +177,43 @@ class ShelfTreeRow extends StatelessWidget {
                   ? _thumbnailRowHeight
                   : (depth == 0 ? 52 : 48),
             ),
-            // Sized to its content, so a tint fills the whole row even when
-            // large text makes it taller.
-            child: IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  if (level > 0) SizedBox(width: level * shelfTreeIndent),
-                  Expanded(
-                    child: Ink(
-                      decoration: tinted
-                          ? BoxDecoration(
-                              color: scheme.primaryContainer,
-                              borderRadius: radius,
-                            )
-                          : null,
-                      child: Row(
-                        children: [
-                          const SizedBox(width: _rowPadding),
-                          if (thumbnail != null) ...[
-                            // Greyed with the row it belongs to.
-                            Opacity(
-                              opacity: enabled ? 1 : 0.38,
-                              child: thumbnail,
-                            ),
-                            const SizedBox(width: _thumbnailGap),
-                          ] else if (level == 0) ...[
-                            ExcludeSemantics(
-                              child: Icon(
-                                Icons.shelves,
-                                size: _iconSize,
-                                color: foreground,
-                              ),
-                            ),
-                            const SizedBox(width: _iconGap),
-                          ],
-                          Expanded(
-                            child: _buildLabels(theme, foreground),
-                          ),
-                          if (trailing != null) ...[
-                            const SizedBox(width: 8),
-                            trailing!,
-                          ],
-                          ...actions,
-                          SizedBox(width: actions.isEmpty ? 8 : 4),
-                        ],
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(
+                start: level * shelfTreeIndent,
+              ),
+              child: Ink(
+                decoration: tinted
+                    ? BoxDecoration(
+                        color: scheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      )
+                    : null,
+                child: Row(
+                  children: [
+                    const SizedBox(width: _rowPadding),
+                    if (thumbnail != null) ...[
+                      // Greyed with the row it belongs to.
+                      Opacity(opacity: enabled ? 1 : 0.38, child: thumbnail),
+                      const SizedBox(width: _thumbnailGap),
+                    ] else if (level == 0) ...[
+                      ExcludeSemantics(
+                        child: Icon(
+                          Icons.shelves,
+                          size: _iconSize,
+                          color: foreground,
+                        ),
                       ),
-                    ),
-                  ),
-                ],
+                      const SizedBox(width: _iconGap),
+                    ],
+                    Expanded(child: _buildLabels(theme, foreground)),
+                    if (trailing != null) ...[
+                      const SizedBox(width: 8),
+                      trailing!,
+                    ],
+                    ...actions,
+                    SizedBox(width: actions.isEmpty ? 8 : 4),
+                  ],
+                ),
               ),
             ),
           ),
@@ -267,27 +256,67 @@ class ShelfTreeRow extends StatelessWidget {
         ),
       );
     }
-    // The action's padding reaches 44 pt around a line of small text. Its
-    // upper half lies beside the name, so the two lines keep their usual gap
-    // without a taller row. Listed bottom-up so that the name is hit first:
-    // a tap on the name always opens the shelf.
+    // Each piece of the second line is 44 pt tall, the text in its middle,
+    // so that they line up beside the action. The name moves down over that
+    // margin and a wrapped run up over it, which keeps the lines at their
+    // usual gap wherever the wrap falls. Listed bottom-up so that the name is
+    // hit first: a tap on it always opens the shelf.
+    final lines = Wrap(
+      spacing: 8,
+      runSpacing: -_actionInset,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        if (subtitle != null)
+          ExcludeSemantics(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: _actionInset),
+              child: Text(subtitle!, style: subtitleStyle),
+            ),
+          ),
+        action,
+      ],
+    );
+    final notice = subtitleNotice;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
       verticalDirection: VerticalDirection.up,
       children: [
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            if (subtitle != null)
-              ExcludeSemantics(
-                child: Text('$subtitle · ', style: subtitleStyle),
-              ),
-            action,
-          ],
+        if (notice == null)
+          lines
+        else
+          // Over the same room: the row keeps its height under a dragged
+          // shelf, so the drop target does not move under the pointer.
+          SizedBox(
+            width: double.infinity,
+            child: Stack(
+              children: [
+                Visibility(
+                  visible: false,
+                  maintainSize: true,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  child: lines,
+                ),
+                Positioned.fill(
+                  top: _actionInset,
+                  child: ExcludeSemantics(
+                    child: Text(
+                      notice,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: subtitleStyle,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        Transform.translate(
+          offset: const Offset(0, _actionInset),
+          child: title,
         ),
-        Transform.translate(offset: const Offset(0, 14), child: title),
       ],
     );
   }
@@ -324,3 +353,6 @@ const double _iconSize = 22;
 const double _iconGap = 12;
 const double _thumbnailGap = 10;
 const double _thumbnailRowHeight = 68;
+
+/// What takes a line of small text to the 44 pt of a subtitle action.
+const double _actionInset = 14;

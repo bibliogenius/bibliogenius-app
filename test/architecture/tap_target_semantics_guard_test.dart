@@ -798,7 +798,7 @@ const _phone = Size(390, 844);
 /// Each row carries a 72 pt thumbnail, and the test font draws every glyph
 /// a full em wide, so the fixture's names wrap and push its last rows below
 /// a phone's fold, where their finders find nothing.
-const _tallPhone = Size(390, 1500);
+const _tallPhone = Size(390, 1100);
 const _desktop = Size(1280, 900);
 
 Future<void> _tap(WidgetTester tester, Finder finder) async {
@@ -1061,7 +1061,6 @@ final _probes = <_Probe>[
   _Probe(
     'library, shelves tab, during a drag',
     '/shelves',
-    size: _tallPhone,
     tags: _treeTags,
     reach: (t) async {
       await _startShelfDrag(t, 'Novels');
@@ -2588,7 +2587,7 @@ void main() {
       expect(
         find.descendant(
           of: _treeRow('Living room'),
-          matching: find.text('10 books · '),
+          matching: find.text('10 books'),
         ),
         findsOneWidget,
       );
@@ -2720,6 +2719,61 @@ void main() {
       );
     });
 
+    testWidgets('a long press on the fold button picks the shelf up', (
+      tester,
+    ) async {
+      await _render(tester, tree);
+
+      final gesture = await tester.startGesture(
+        tester.getCenter(find.byTooltip('Collapse Living room')),
+      );
+      await tester.pump(kLongPressTimeout + const Duration(milliseconds: 100));
+      await gesture.moveBy(const Offset(0, 24));
+      await tester.pump();
+      await tester.pump();
+
+      expect(_firstLevelZone, findsOneWidget);
+      await gesture.up();
+      await _settle(tester);
+    });
+
+    testWidgets('the row keeps its height under a dragged shelf', (
+      tester,
+    ) async {
+      await _render(tester, tree);
+      final before = tester.getSize(_treeRow('Living room')).height;
+
+      final gesture = await _startShelfDrag(tester, 'Study');
+      await gesture.moveTo(tester.getCenter(_treeRow('Living room')));
+      await tester.pump();
+      await tester.pump();
+
+      // The drag is really over that row.
+      expect(
+        tester.widget<ShelfTreeRow>(_treeRow('Living room')).subtitleNotice,
+        isNotNull,
+      );
+      expect(tester.getSize(_treeRow('Living room')).height, before);
+      await gesture.up();
+      await _settle(tester);
+    });
+
+    testWidgets('a tap on the thumbnail, or anywhere on a row with nothing '
+        'to fold, opens the shelf', (tester) async {
+      await _render(tester, tree);
+      String title() =>
+          tester.widget<Text>(find.byKey(const Key('shelfHeaderTitle'))).data!;
+
+      await _tap(
+        tester,
+        find.descendant(
+          of: _treeRow('Living room'),
+          matching: find.byType(ShelfThumbnail),
+        ),
+      );
+      expect(title(), 'Living room');
+    });
+
     testWidgets('"2 sub-shelves" folds the branch and leaves the shelf closed', (
       tester,
     ) async {
@@ -2746,14 +2800,41 @@ void main() {
       // Announced as its action, and the row still reads the whole count.
       expect(
         tester.getSemantics(fold),
-        containsSemantics(label: 'Collapse Living room', isButton: true),
+        containsSemantics(
+          label: 'Collapse Living room',
+          isButton: true,
+          hasExpandedState: true,
+          isExpanded: true,
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
       );
       final rowNode = tester.getSemantics(_treeRow('Living room'));
       expect(rowNode.value, contains('sub-shelf'));
 
       await _tap(tester, fold);
       expect(_treeRow('Novels'), findsNothing);
-      expect(find.byTooltip('Expand Living room'), findsOneWidget);
+      final expand = find.byTooltip('Expand Living room');
+      expect(
+        tester.getSemantics(expand),
+        containsSemantics(
+          label: 'Expand Living room',
+          isButton: true,
+          hasExpandedState: true,
+          isExpanded: false,
+        ),
+      );
+      expect(
+        tester
+            .widget<AnimatedRotation>(
+              find.descendant(
+                of: expand,
+                matching: find.byType(AnimatedRotation),
+              ),
+            )
+            .turns,
+        0,
+      );
       expect(
         GoRouterState.of(tester.element(_treeRow('Living room'))).uri.path,
         '/shelves',
