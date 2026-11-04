@@ -146,6 +146,12 @@ void main() {
     );
   });
 
+  test('the hidden "to shelve" count travels as an integer', () async {
+    expect(kBackupPrefsWhitelist, contains('to_shelve_dismissed_count'));
+    expect(kBackupPrefsBlacklist, isNot(contains('to_shelve_dismissed_count')));
+    expect(backupPrefType('to_shelve_dismissed_count'), BackupPrefType.integer);
+  });
+
   test('drift: every literal prefs.setX(...) key in lib/ is classified', () {
     final libDir = _libDirFromCwd();
     expect(

@@ -394,6 +394,19 @@ void main() {
       expect(prefs.getInt(_dismissedKey), 5);
     });
 
+    testWidgets('its cross hands the focus on to the row below', (tester) async {
+      repo.unshelved = 5;
+      await pump(tester);
+
+      await tester.tap(_hide);
+      await tester.pumpAndSettle();
+
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        'organizeShelves',
+      );
+    });
+
     testWidgets('its cross is a 44 pt named button', (tester) async {
       repo.unshelved = 5;
       await pump(tester);

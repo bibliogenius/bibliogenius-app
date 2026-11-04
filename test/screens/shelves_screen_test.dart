@@ -244,8 +244,6 @@ void main() {
     expect(find.text('Science-fiction'), findsOneWidget);
   });
 
-  // The "to shelve" card: the books on no shelf, gathered at the head of the
-  // tab, the natural place to start after a batch scan.
   testWidgets('the tab refresh notifier reloads the tree too', (tester) async {
     await pump(tester);
     final readsBefore = repo.reads;

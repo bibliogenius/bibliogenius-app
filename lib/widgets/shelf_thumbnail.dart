@@ -120,9 +120,13 @@ class ShelfThumbnail extends StatelessWidget {
             : CustomPaint(
                 key: const Key('shelfThumbnailGhost'),
                 size: fan.frame,
+                // Not the scheme's outline: the themes set it to their hairline
+                // border colour, which the empty fan would vanish in.
                 painter: _GhostFanPainter(
                   fan,
-                  Theme.of(context).colorScheme.outline,
+                  Theme.of(context).colorScheme.onSurface.withValues(
+                    alpha: 0.38,
+                  ),
                 ),
               ),
       ),
@@ -213,27 +217,28 @@ class _FanCoverState extends State<_FanCover> {
       errorWidget: empty,
       semanticLabel: null,
     );
-    if (!_settled || _emptySlots > 0) return cover;
-
+    final lifted = _settled && _emptySlots == 0;
     final dark = Theme.of(context).brightness == Brightness.dark;
+    // The same two boxes whether lifted or not: taking them away would mount
+    // the cover anew, and load it again, at the moment it appears.
     return DecoratedBox(
-      key: const Key('shelfCoverShadow'),
       decoration: BoxDecoration(
         borderRadius: _coverRadius,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: dark ? 0.6 : 0.28),
-            offset: const Offset(0, 2),
-            blurRadius: dark ? 5 : 4,
-          ),
-        ],
+        boxShadow: lifted
+            ? [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: dark ? 0.6 : 0.28),
+                  offset: const Offset(0, 2),
+                  blurRadius: dark ? 5 : 4,
+                ),
+              ]
+            : null,
       ),
-      position: DecorationPosition.background,
       child: DecoratedBox(
         position: DecorationPosition.foreground,
         decoration: BoxDecoration(
           borderRadius: _coverRadius,
-          gradient: _spineHighlight(fan),
+          gradient: lifted ? _spineHighlight(fan) : null,
         ),
         child: cover,
       ),

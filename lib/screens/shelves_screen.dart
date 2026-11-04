@@ -106,6 +106,9 @@ class _ShelvesScreenState extends State<ShelvesScreen>
   String? _error;
   BookRefreshNotifier? _bookRefreshNotifier;
 
+  /// Where the focus goes when the cross takes itself off the screen.
+  final FocusNode _organizeFocus = FocusNode(debugLabel: 'organizeShelves');
+
   @override
   void initState() {
     super.initState();
@@ -166,6 +169,7 @@ class _ShelvesScreenState extends State<ShelvesScreen>
     _tickerMode?.removeListener(_onTickerModeChanged);
     widget.refreshNotifier?.removeListener(_loadTags);
     _bookRefreshNotifier?.removeListener(_loadTags);
+    _organizeFocus.dispose();
     super.dispose();
   }
 
@@ -544,6 +548,7 @@ class _ShelvesScreenState extends State<ShelvesScreen>
           ],
           Flexible(
             child: TextButton.icon(
+              focusNode: _organizeFocus,
               onPressed: _openOrganize,
               style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
               icon: const Icon(Icons.tune),
@@ -651,6 +656,7 @@ class _ShelvesScreenState extends State<ShelvesScreen>
   void _hideToShelveLine() {
     final count = _unshelvedCount;
     setState(() => _toShelveDismissedAt = count);
+    _organizeFocus.requestFocus();
     unawaited(ToShelveDismissalStore.dismissAt(count));
   }
 

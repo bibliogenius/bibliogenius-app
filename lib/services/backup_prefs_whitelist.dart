@@ -69,6 +69,9 @@ const Set<String> kBackupPrefsWhitelist = <String>{
   // list of uuids, written through a const identifier the drift test
   // cannot see.
   'shelf_order_ids', // ShelfIdSetStore.shelfOrder
+  // How far the "to shelve" line of the shelves tab was hidden: the reader's
+  // choice, and comparing a restored library's count with it stays valid.
+  'to_shelve_dismissed_count', // ToShelveDismissalStore
 };
 
 /// The type a whitelisted key holds on the device.
@@ -239,7 +242,6 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // flags are bools, which the restorer does not re-apply anyway.
   'bookshop_finder_dismissed', // ThemeProvider.setShowBookshopFinder
   'library_intro_dismissed', // ThemeProvider.setShowLibraryLinks
-  'to_shelve_dismissed_count', // ToShelveDismissalStore, shelves tab
   'my_bookshop_ids', // ThemeProvider my registry portal selection
   'my_custom_bookshops', // ThemeProvider hand-added bookshops
   'my_library_portals', // ThemeProvider connected library catalogues

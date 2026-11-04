@@ -55,7 +55,13 @@ Offset _slotOf(WidgetTester tester, CachedBookCover cover) {
   return Offset(positioned.left!, positioned.top!);
 }
 
-const _shadow = Key('shelfCoverShadow');
+/// A cover lifted by its shadow.
+final _shadow = find.byWidgetPredicate(
+  (w) =>
+      w is DecoratedBox &&
+      w.decoration is BoxDecoration &&
+      ((w.decoration as BoxDecoration).boxShadow?.isNotEmpty ?? false),
+);
 const _ghost = Key('shelfThumbnailGhost');
 
 const _three = ['https://c/new.jpg', 'https://c/b.jpg', 'https://c/c.jpg'];
@@ -230,7 +236,7 @@ void main() {
       expect(find.byIcon(Icons.book), findsNothing);
       final cover = _covers(tester).single;
       expect(cover.errorWidget, isNotNull);
-      expect(find.byKey(_shadow), findsNothing);
+      expect(_shadow, findsNothing);
     });
 
     testWidgets('a cover that loads casts its shadow', (tester) async {
@@ -249,25 +255,28 @@ void main() {
           coverPaths: [file.path],
         ),
       );
+      final mounted = tester.element(find.byType(CachedBookCover));
       // Not before the image is there, frames going by or not.
       await tester.pump();
       await tester.pump();
-      expect(find.byKey(_shadow), findsNothing);
+      expect(_shadow, findsNothing);
 
-      for (var i = 0; i < 50 && find.byKey(_shadow).evaluate().isEmpty; i++) {
+      for (var i = 0; i < 50 && _shadow.evaluate().isEmpty; i++) {
         await tester.runAsync(
           () => Future<void>.delayed(const Duration(milliseconds: 20)),
         );
         await tester.pump();
       }
 
-      expect(find.byKey(_shadow), findsOneWidget);
+      expect(_shadow, findsOneWidget);
+      // Lifting it did not mount the cover anew: it would load again.
+      expect(tester.element(find.byType(CachedBookCover)), same(mounted));
     });
   });
 
   group('nothing to show', () {
     final theme = ThemeData(
-      colorScheme: const ColorScheme.light(outline: Color(0xFF123456)),
+      colorScheme: const ColorScheme.light(onSurface: Color(0xFF123456)),
     );
 
     for (final (label, thumbnail) in [
@@ -303,7 +312,7 @@ void main() {
       });
     }
 
-    testWidgets('the ghost is three outlines in the outline colour, 1.5 pt, '
+    testWidgets('the ghost is three visible outlines, 1.5 pt, '
         'with no fill', (tester) async {
       await _pump(
         tester,
@@ -318,17 +327,17 @@ void main() {
           ..path(
             style: PaintingStyle.stroke,
             strokeWidth: 1.5,
-            color: const Color(0xFF123456),
+            color: const Color(0xFF123456).withValues(alpha: 0.38),
           )
           ..path(
             style: PaintingStyle.stroke,
             strokeWidth: 1.5,
-            color: const Color(0xFF123456),
+            color: const Color(0xFF123456).withValues(alpha: 0.38),
           )
           ..path(
             style: PaintingStyle.stroke,
             strokeWidth: 1.5,
-            color: const Color(0xFF123456),
+            color: const Color(0xFF123456).withValues(alpha: 0.38),
           ),
       );
       expect(paint.size, const Size(92, 66));
