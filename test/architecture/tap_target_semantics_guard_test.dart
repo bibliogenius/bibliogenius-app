@@ -2567,7 +2567,10 @@ void main() {
     ) async {
       await _render(tester, const _Probe('shelves', '/shelves'));
 
-      await _tap(tester, _treeRow('Genre'));
+      await _tap(
+        tester,
+        find.descendant(of: _treeRow('Genre'), matching: find.text('Genre')),
+      );
 
       expect(
         tester.widget<Text>(find.byKey(const Key('shelfHeaderTitle'))).data,
@@ -2585,7 +2588,14 @@ void main() {
       expect(
         find.descendant(
           of: _treeRow('Living room'),
-          matching: find.text('10 books · 1 sub-shelf'),
+          matching: find.text('10 books · '),
+        ),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(
+          of: find.byTooltip('Collapse Living room'),
+          matching: find.text('1 sub-shelf'),
         ),
         findsOneWidget,
       );
@@ -2708,6 +2718,47 @@ void main() {
         ),
         findsNothing,
       );
+    });
+
+    testWidgets('"2 sub-shelves" folds the branch and leaves the shelf closed', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await _render(tester, tree);
+      final fold = find.byTooltip('Collapse Living room');
+
+      // A 44 pt target around 16 pt of text, with a 16 pt arrow that turns.
+      final size = tester.getSize(fold);
+      expect(size.height, greaterThanOrEqualTo(44));
+      expect(size.width, greaterThanOrEqualTo(44));
+      final arrow = find.descendant(
+        of: fold,
+        matching: find.byIcon(Icons.chevron_right),
+      );
+      expect(tester.widget<Icon>(arrow).size, 16);
+      AnimatedRotation turn() => tester.widget(
+        find.descendant(
+          of: find.ancestor(of: arrow, matching: find.byType(Tooltip)),
+          matching: find.byType(AnimatedRotation),
+        ),
+      );
+      expect(turn().turns, 0.25);
+      // Announced as its action, and the row still reads the whole count.
+      expect(
+        tester.getSemantics(fold),
+        containsSemantics(label: 'Collapse Living room', isButton: true),
+      );
+      final rowNode = tester.getSemantics(_treeRow('Living room'));
+      expect(rowNode.value, contains('sub-shelf'));
+
+      await _tap(tester, fold);
+      expect(_treeRow('Novels'), findsNothing);
+      expect(find.byTooltip('Expand Living room'), findsOneWidget);
+      expect(
+        GoRouterState.of(tester.element(_treeRow('Living room'))).uri.path,
+        '/shelves',
+      );
+      handle.dispose();
     });
 
     testWidgets('a folded shelf stays folded after leaving the tab', (

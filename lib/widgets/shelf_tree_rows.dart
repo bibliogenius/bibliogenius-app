@@ -6,10 +6,6 @@ import '../services/translation_service.dart';
 /// Indentation per level of the shelf tree.
 const double shelfTreeIndent = 24;
 
-/// Width of the [ShelfTreeRow.leading] slot: a 44 pt target, or the same
-/// space left empty so that names line up.
-const double shelfTreeLeadingWidth = 44;
-
 /// Deepest level that still gets its own indentation. Rows below it stay at
 /// this depth and name their parent path instead, so a deep tree does not
 /// push names off a phone screen.
@@ -90,8 +86,8 @@ class ShelfSectionLabel extends StatelessWidget {
 ///
 /// For assistive technology the row is one button named after the shelf;
 /// [checked] adds a checked state, and a null [onTap] reads as disabled.
-/// [leading] and [actions] are controls of their own (a fold chevron, a drag
-/// handle, a menu): they stay separate nodes inside the row's button, each
+/// [subtitleAction] and [actions] are controls of their own (a fold button, a
+/// drag handle, a menu): they stay separate nodes inside the row's button, each
 /// with its own name, where the painted texts are left out.
 class ShelfTreeRow extends StatelessWidget {
   final String name;
@@ -102,8 +98,13 @@ class ShelfTreeRow extends StatelessWidget {
   final Widget? trailing;
   final VoidCallback? onTap;
 
-  /// Drawn before the name, in a slot [shelfTreeLeadingWidth] wide.
-  final Widget? leading;
+  /// A control at the end of the second line, at least 44 pt tall. The name
+  /// moves down to meet it, so the two lines still read as one block.
+  final Widget? subtitleAction;
+
+  /// What assistive technology reads as the second line, when the painted
+  /// [subtitle] leaves part of it to [subtitleAction].
+  final String? semanticSubtitle;
 
   /// Drawn after [trailing], at the end of the row.
   final List<Widget> actions;
@@ -127,12 +128,13 @@ class ShelfTreeRow extends StatelessWidget {
     this.trailing,
     this.onTap,
     this.legibleSubtitle = false,
-    this.leading,
+    this.subtitleAction,
+    this.semanticSubtitle,
     this.actions = const [],
     this.thumbnail,
   });
 
-  bool get _hasControls => leading != null || actions.isNotEmpty;
+  bool get _hasControls => subtitleAction != null || actions.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +159,7 @@ class ShelfTreeRow extends StatelessWidget {
       enabled: enabled,
       checked: checked,
       label: name,
-      value: subtitle,
+      value: semanticSubtitle ?? subtitle,
       onTap: onTap,
       excludeSemantics: !_hasControls,
       child: Material(
@@ -192,11 +194,6 @@ class ShelfTreeRow extends StatelessWidget {
                       child: Row(
                         children: [
                           const SizedBox(width: _rowPadding),
-                          if (leading != null)
-                            SizedBox(
-                              width: shelfTreeLeadingWidth,
-                              child: leading,
-                            ),
                           if (thumbnail != null) ...[
                             // Greyed with the row it belongs to.
                             Opacity(
@@ -215,9 +212,7 @@ class ShelfTreeRow extends StatelessWidget {
                             const SizedBox(width: _iconGap),
                           ],
                           Expanded(
-                            child: ExcludeSemantics(
-                              child: _buildLabels(theme, foreground),
-                            ),
+                            child: _buildLabels(theme, foreground),
                           ),
                           if (trailing != null) ...[
                             const SizedBox(width: 8),
@@ -240,33 +235,60 @@ class ShelfTreeRow extends StatelessWidget {
 
   Widget _buildLabels(ThemeData theme, Color foreground) {
     final scheme = theme.colorScheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            name,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              color: foreground,
-              fontWeight: depth == 0 || checked == true
-                  ? FontWeight.w700
-                  : FontWeight.w400,
-            ),
-          ),
-          if (subtitle != null)
-            Text(
-              subtitle!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: onTap != null || legibleSubtitle
-                    ? scheme.onSurfaceVariant
-                    : foreground,
-              ),
-            ),
-        ],
+    final action = subtitleAction;
+    final title = ExcludeSemantics(
+      child: Text(
+        name,
+        style: theme.textTheme.bodyLarge?.copyWith(
+          color: foreground,
+          fontWeight: depth == 0 || checked == true
+              ? FontWeight.w700
+              : FontWeight.w400,
+        ),
       ),
+    );
+    final subtitleStyle = theme.textTheme.bodySmall?.copyWith(
+      color: onTap != null || legibleSubtitle
+          ? scheme.onSurfaceVariant
+          : foreground,
+    );
+    if (action == null) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            title,
+            if (subtitle != null)
+              ExcludeSemantics(child: Text(subtitle!, style: subtitleStyle)),
+          ],
+        ),
+      );
+    }
+    // The action's padding reaches 44 pt around a line of small text. Its
+    // upper half lies beside the name, so the two lines keep their usual gap
+    // without a taller row. Listed bottom-up so that the name is hit first:
+    // a tap on the name always opens the shelf.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      verticalDirection: VerticalDirection.up,
+      children: [
+        Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            if (subtitle != null)
+              ExcludeSemantics(
+                child: Text('$subtitle · ', style: subtitleStyle),
+              ),
+            action,
+          ],
+        ),
+        Transform.translate(offset: const Offset(0, 14), child: title),
+      ],
     );
   }
 }

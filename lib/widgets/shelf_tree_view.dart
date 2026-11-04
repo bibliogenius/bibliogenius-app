@@ -610,11 +610,13 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     if (hovered) return _t('shelf_drop_into').replaceAll('{name}', tag.name);
     // Past the indentation cap the row no longer shows its level: it names
     // its parents instead.
-    final path = entry.depth > shelfTreeMaxIndentDepth
-        ? shelfParentPath(context, entry.ancestors)
-        : null;
-    return [?path, counts].join(' · ');
+    return [?_deepPath(entry), counts].join(' · ');
   }
+
+  String? _deepPath(ShelfTreeEntry entry) =>
+      entry.depth > shelfTreeMaxIndentDepth
+      ? shelfParentPath(context, entry.ancestors)
+      : null;
 
   Widget _buildRow(
     ShelfTreeEntry entry, {
@@ -630,15 +632,24 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
       onAcceptWithDetails: (details) => _drop(details.data, tag),
       builder: (context, candidates, _) {
         final hovered = candidates.isNotEmpty;
+        // A drag says something else on that line: no fold button then.
+        final foldButton = foldable && !hovered && tag.id != _dragged?.id;
+        final fullSubtitle = _subtitle(entry, counts, hovered: hovered);
         Widget row = ShelfTreeRow(
           key: ValueKey('shelfTreeRow:${tag.name}'),
           name: tag.name,
           depth: entry.depth,
-          subtitle: _subtitle(entry, counts, hovered: hovered),
+          subtitle: foldButton
+              ? [
+                  ?_deepPath(entry),
+                  _plural('displayed_books_count', widget.bookCount(tag)),
+                ].join(' · ')
+              : fullSubtitle,
+          semanticSubtitle: fullSubtitle,
+          subtitleAction: foldButton ? _buildFoldButton(tag, subShelves) : null,
           highlighted: hovered,
           legibleSubtitle: tag.id == _dragged?.id,
           onTap: forbidden ? null : () => widget.onOpen(tag),
-          leading: foldable ? _buildChevron(tag) : const SizedBox.shrink(),
           thumbnail: ShelfThumbnail(
             name: tag.name,
             coverPaths: tag.coverPaths,
@@ -681,22 +692,53 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     );
   }
 
-  Widget _buildChevron(Tag tag) {
+  /// "2 sub-shelves" and an arrow that turns: folds the branch, while the
+  /// rest of the row opens the shelf. The row's own value already reads the
+  /// count, so this node says only what it does.
+  Widget _buildFoldButton(Tag tag, int subShelves) {
     final collapsed = _collapsed.contains(tag.id);
     final key = collapsed ? 'shelf_expand_named' : 'shelf_collapse_named';
-    // One node: the button, its name and whether the branch is open.
-    return MergeSemantics(
-      child: Semantics(
-        expanded: !collapsed,
-        child: IconButton(
-          constraints: const BoxConstraints.tightFor(
-            width: shelfTreeLeadingWidth,
-            height: shelfTreeLeadingWidth,
+    final label = _t(key).replaceAll('{name}', tag.name);
+    final theme = Theme.of(context);
+    final color = theme.colorScheme.onSurfaceVariant;
+    return Semantics(
+      container: true,
+      button: true,
+      expanded: !collapsed,
+      label: label,
+      onTap: () => _toggle(tag),
+      excludeSemantics: true,
+      child: Tooltip(
+        message: label,
+        excludeFromSemantics: true,
+        child: InkWell(
+          onTap: () => _toggle(tag),
+          borderRadius: BorderRadius.circular(8),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      _plural('sub_shelves_count', subShelves),
+                      style: theme.textTheme.bodySmall?.copyWith(color: color),
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  AnimatedRotation(
+                    turns: collapsed ? 0 : 0.25,
+                    duration: MediaQuery.disableAnimationsOf(context)
+                        ? Duration.zero
+                        : const Duration(milliseconds: 200),
+                    child: Icon(Icons.chevron_right, size: 16, color: color),
+                  ),
+                ],
+              ),
+            ),
           ),
-          padding: EdgeInsets.zero,
-          icon: Icon(collapsed ? Icons.chevron_right : Icons.expand_more),
-          tooltip: _t(key).replaceAll('{name}', tag.name),
-          onPressed: () => _toggle(tag),
         ),
       ),
     );

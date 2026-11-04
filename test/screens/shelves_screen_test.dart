@@ -155,9 +155,10 @@ void main() {
   ) async {
     await pump(tester);
 
-    // Spelled out under the name, not left to a bare chevron. The book
+    // Spelled out under the name, and the sub-shelves fold the branch. The book
     // number is the whole subtree.
-    expect(find.text('5 books · 2 sub-shelves'), findsOneWidget);
+    expect(find.text('5 books · '), findsOneWidget);
+    expect(find.text('2 sub-shelves'), findsOneWidget);
     // Leaves keep the plain book count.
     expect(find.text('3 books'), findsOneWidget);
     expect(find.text('1 book'), findsOneWidget);
