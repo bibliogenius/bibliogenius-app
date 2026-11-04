@@ -656,7 +656,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
           legibleSubtitle: tag.id == _dragged?.id,
           onTap: forbidden ? null : () => widget.onOpen(tag),
           thumbnail: ShelfThumbnail(
-            name: tag.name,
+            size: ShelfThumbnailSize.s,
             coverPaths: tag.coverPaths,
             hasBooks: books > 0,
           ),

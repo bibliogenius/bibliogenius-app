@@ -188,34 +188,6 @@ List<BookGenre> selectedGenres(List<String> subjects) {
   ];
 }
 
-/// The icon of the genre a shelf named [name] stands for, or null when the
-/// shelf is not a genre of the closed list.
-///
-/// Matched by key across every UI language, like [selectedGenres], so a
-/// shelf created in French keeps its icon in English. A subgenre wears the
-/// icon of its genre; the "Genre" root is not a genre and gets none.
-IconData? genreIconForShelf(String name) =>
-    _genreIconsByLabel()[name.trim().toLowerCase()];
-
-Map<String, IconData>? _genreIconsCache;
-
-/// Every known label of every genre, to the icon it shows. Built once: a
-/// shelf tree asks for each row it draws, and resolving the aliases walks
-/// every catalogue. Not kept while empty, so a lookup made before the
-/// catalogues load cannot freeze an empty table.
-Map<String, IconData> _genreIconsByLabel() {
-  final cached = _genreIconsCache;
-  if (cached != null) return cached;
-  final table = <String, IconData>{
-    for (final genre in bookGenres)
-      for (final member in [genre, ...genre.children])
-        if (genre.icon case final icon?)
-          for (final label in genreAliases(member.key)) label: icon,
-  };
-  if (table.isNotEmpty) _genreIconsCache = table;
-  return table;
-}
-
 /// The label to file a book under for [genre], in the language in use now.
 String genreLabel(BuildContext context, BookGenre genre) =>
     TranslationService.translate(context, genre.key);

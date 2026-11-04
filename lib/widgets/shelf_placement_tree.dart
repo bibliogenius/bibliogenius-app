@@ -187,7 +187,7 @@ class _ShelfPlacementTreeState extends State<ShelfPlacementTree> {
                     : path,
                 legibleSubtitle: current,
                 thumbnail: ShelfThumbnail(
-                  name: entry.tag.name,
+                  size: ShelfThumbnailSize.s,
                   coverPaths: entry.tag.coverPaths,
                   hasBooks:
                       Tag.getAggregatedCount(entry.tag, widget.allTags) > 0,

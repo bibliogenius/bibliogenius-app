@@ -712,7 +712,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
       trailing: ShelfCheckMarker(checked: checked),
       onTap: () => _toggleTag(tag),
       thumbnail: ShelfThumbnail(
-        name: tag.name,
+        size: ShelfThumbnailSize.s,
         coverPaths: tag.coverPaths,
         hasBooks: Tag.getAggregatedCount(tag, _tags) > 0,
       ),

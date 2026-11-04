@@ -321,6 +321,11 @@ class CachedBookCover extends StatelessWidget {
   /// peer view never drops a locally-owned cover.
   final bool isPeerCover;
 
+  /// Shows [placeholder] while a local file decodes as well, for a caller
+  /// that has to know when the image is really there. Off by default: a list
+  /// scrolling through local covers should not flash a placeholder.
+  final bool placeholderWhileDecoding;
+
   const CachedBookCover({
     super.key,
     required this.imageUrl,
@@ -333,6 +338,7 @@ class CachedBookCover extends StatelessWidget {
     required this.semanticLabel,
     this.onTapPlaceholder,
     this.isPeerCover = false,
+    this.placeholderWhileDecoding = false,
   });
 
   /// Every width a local cover was decoded at. The image cache keys a resized
@@ -380,6 +386,10 @@ class CachedBookCover extends StatelessWidget {
         height: height,
         fit: fit,
         cacheWidth: localDecodeWidth,
+        frameBuilder: placeholderWhileDecoding && placeholder != null
+            ? (_, image, frame, synchronous) =>
+                  frame == null && !synchronous ? placeholder! : image
+            : null,
         errorBuilder: (_, _, _) => errorWidget ?? _buildTappableFallback(),
       );
       if (borderRadius != null) {

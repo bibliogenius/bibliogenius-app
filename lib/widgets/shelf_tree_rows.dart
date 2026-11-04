@@ -352,7 +352,7 @@ const double _rowPadding = 8;
 const double _iconSize = 22;
 const double _iconGap = 12;
 const double _thumbnailGap = 10;
-const double _thumbnailRowHeight = 68;
+const double _thumbnailRowHeight = 52;
 
 /// What takes a line of small text to the 44 pt of a subtitle action.
 const double _actionInset = 14;
