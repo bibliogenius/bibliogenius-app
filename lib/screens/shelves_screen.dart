@@ -443,6 +443,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                     final tag = roots[index];
                     return ShelfCard(
                       key: ValueKey('shelfCard:${tag.name}'),
+                      shelfId: tag.id,
                       name: tag.name,
                       books: _aggregatedCount(tag),
                       subShelves: _childrenOf(tag).length,

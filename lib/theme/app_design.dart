@@ -4,6 +4,52 @@ import 'package:flutter/material.dart';
 /// Centralized design tokens for consistent styling across the app
 
 class AppDesign {
+  /// The colours a shelf can take, each the lightest point of its gradient:
+  /// white text reads at 4.5:1 on all of them.
+  static const List<Color> shelfTintsLight = [
+    Color(0xFF4F46E5),
+    Color(0xFF7E22CE),
+    Color(0xFFDB2777),
+    Color(0xFF2563EB),
+    Color(0xFF15803D),
+    Color(0xFFE11D48),
+    Color(0xFFB45309),
+    Color(0xFFDC2626),
+  ];
+
+  /// The same for a dark theme, in cyans and blues.
+  static const List<Color> shelfTintsDark = [
+    Color(0xFF0A7EA4),
+    Color(0xFF0E7490),
+    Color(0xFF155E75),
+    Color(0xFF164E63),
+    Color(0xFF0277A8),
+    Color(0xFF0369A1),
+    Color(0xFF075985),
+    Color(0xFF0C4A6E),
+  ];
+
+  /// The colour of the shelf [shelfId], the same wherever it sits and on every
+  /// device. Not `String.hashCode`, which may change between runs.
+  static Color shelfTint(String shelfId, Brightness brightness) {
+    final tints = brightness == Brightness.dark
+        ? shelfTintsDark
+        : shelfTintsLight;
+    var hash = 0;
+    for (final unit in shelfId.codeUnits) {
+      hash = (hash * 31 + unit) & 0x7fffffff;
+    }
+    return tints[hash % tints.length];
+  }
+
+  /// A shelf's gradient: opaque, so the page under it cannot lower the contrast
+  /// of its text, and from a deeper shade down to [tint], where the text sits.
+  static LinearGradient shelfGradient(Color tint) => LinearGradient(
+    colors: [Color.lerp(tint, Colors.black, 0.22)!, tint],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
   AppDesign._();
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -48,12 +48,17 @@ List<String> shelfCountLabels(
 
 /// A shelf to walk into: its fan of covers, its name, its counts. One button,
 /// named by the shelf and its counts.
+///
+/// On the grid it wears the colour of its shelf, and the icon of a shelf where
+/// there is no cover to show. The small form stays on the theme's card.
 class ShelfCard extends StatelessWidget {
   static const double _padding = 12;
   static const double _gap = 8;
   static const double _nameGap = 2;
   static const int _maxLines = 2;
 
+  /// What picks the colour of the card; the small form has none.
+  final String? shelfId;
   final String name;
   final int books;
   final int subShelves;
@@ -71,6 +76,7 @@ class ShelfCard extends StatelessWidget {
 
   const ShelfCard({
     super.key,
+    required String this.shelfId,
     required this.name,
     required this.books,
     required this.subShelves,
@@ -88,7 +94,8 @@ class ShelfCard extends StatelessWidget {
     required this.onTap,
     this.coverPaths = const [],
     this.flight,
-  }) : horizontal = true,
+  }) : shelfId = null,
+       horizontal = true,
        compact = true;
 
   /// The height of a row of [ShelfCard.compact]: two lines of name at most,
@@ -124,26 +131,30 @@ class ShelfCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
     final counts = shelfCountLabels(
       context,
       books: books,
       subShelves: subShelves,
     );
     final corner = compact ? 14.0 : 18.0;
+    final tint = compact ? null : AppDesign.shelfTint(shelfId!, theme.brightness);
 
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
+    // On the grid, nothing flies from the icon of a shelf with no cover to show.
+    final flies = compact || (books > 0 && coverPaths.isNotEmpty);
     late BuildContext fanContext;
-    final fan = Builder(
-      builder: (context) {
-        fanContext = context;
-        return ShelfThumbnail(
-          size: fanSize,
-          hasBooks: books > 0,
-          coverPaths: coverPaths,
-        );
-      },
-    );
+    final fan = !compact && !flies
+        ? _ShelfIcon(hasSubShelves: subShelves > 0, centred: horizontal)
+        : Builder(
+            builder: (context) {
+              fanContext = context;
+              return ShelfThumbnail(
+                size: fanSize,
+                hasBooks: books > 0,
+                coverPaths: coverPaths,
+              );
+            },
+          );
     // The small form prints only a bare number, at the right: the sentence would
     // compete with the count of the head. A screen reader still gets it whole.
     final Widget text = compact
@@ -166,6 +177,7 @@ class ShelfCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
               const SizedBox(height: _nameGap),
@@ -174,11 +186,67 @@ class ShelfCard extends StatelessWidget {
                 maxLines: _maxLines,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: scheme.onSurfaceVariant,
+                  color: Colors.white,
                 ),
               ),
             ],
           );
+
+    final ink = InkWell(
+      // The theme's overlays are made for its surfaces: on a colour they vanish.
+      splashColor: tint == null ? null : Colors.white.withValues(alpha: 0.24),
+      highlightColor: tint == null ? null : Colors.white.withValues(alpha: 0.12),
+      hoverColor: tint == null ? null : Colors.white.withValues(alpha: 0.12),
+      focusColor: tint == null ? null : Colors.white.withValues(alpha: 0.24),
+      onTap: () {
+        if (flies) {
+          final box = fanContext.findRenderObject() as RenderBox?;
+          if (box != null) {
+            flight?.takeOff(
+              context,
+              name: name,
+              from: box.localToGlobal(Offset.zero) & box.size,
+              size: fanSize,
+              hasBooks: books > 0,
+              coverPaths: coverPaths,
+            );
+          }
+        }
+        onTap();
+      },
+      child: ExcludeSemantics(
+        child: Padding(
+          padding: compact
+              ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+              : const EdgeInsets.all(_padding),
+          child: horizontal
+              ? Row(
+                  children: [
+                    fan,
+                    SizedBox(width: compact ? 10 : _padding),
+                    Expanded(child: text),
+                    if (compact) ...[
+                      const SizedBox(width: 8),
+                      Text(
+                        '$books',
+                        // The theme's own muted colour: its
+                        // onSurfaceVariant can be the name's.
+                        style: theme.textTheme.bodySmall,
+                      ),
+                    ],
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    fan,
+                    const SizedBox(height: _gap),
+                    Flexible(child: text),
+                  ],
+                ),
+        ),
+      ),
+    );
 
     return MergeSemantics(
       child: Semantics(
@@ -187,60 +255,70 @@ class ShelfCard extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(corner),
-            boxShadow: AppDesign.subtleShadow,
+            boxShadow: tint == null
+                ? AppDesign.subtleShadow
+                : [
+                    BoxShadow(
+                      color: tint.withValues(alpha: 0.28),
+                      offset: const Offset(0, 6),
+                      blurRadius: 14,
+                    ),
+                  ],
           ),
-          child: Material(
-            color: shelfSurfaceColor(theme),
-            shape: shelfSurfaceShape(theme, corner),
-            clipBehavior: Clip.antiAlias,
-            child: InkWell(
-              onTap: () {
-                final box = fanContext.findRenderObject() as RenderBox?;
-                if (box != null) {
-                  flight?.takeOff(
-                    context,
-                    name: name,
-                    from: box.localToGlobal(Offset.zero) & box.size,
-                    size: fanSize,
-                    hasBooks: books > 0,
-                    coverPaths: coverPaths,
-                  );
-                }
-                onTap();
-              },
-              child: ExcludeSemantics(
-                child: Padding(
-                  padding: compact
-                      ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
-                      : const EdgeInsets.all(_padding),
-                  child: horizontal
-                      ? Row(
-                          children: [
-                            fan,
-                            SizedBox(width: compact ? 10 : _padding),
-                            Expanded(child: text),
-                            if (compact) ...[
-                              const SizedBox(width: 8),
-                              Text(
-                                '$books',
-                                // The theme's own muted colour: its
-                                // onSurfaceVariant can be the name's.
-                                style: theme.textTheme.bodySmall,
-                              ),
-                            ],
-                          ],
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            fan,
-                            const SizedBox(height: _gap),
-                            Flexible(child: text),
-                          ],
-                        ),
+          child: tint == null
+              ? Material(
+                  color: shelfSurfaceColor(theme),
+                  shape: shelfSurfaceShape(theme, corner),
+                  clipBehavior: Clip.antiAlias,
+                  child: ink,
+                )
+              : Material(
+                  color: Colors.transparent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(corner),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  child: Ink(
+                    key: const Key('shelfCardGround'),
+                    decoration: BoxDecoration(
+                      gradient: AppDesign.shelfGradient(tint),
+                    ),
+                    child: ink,
+                  ),
                 ),
-              ),
-            ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The picture of a shelf with no cover to show, in the frame of a fan so that
+/// the names of a row line up.
+class _ShelfIcon extends StatelessWidget {
+  final bool hasSubShelves;
+  final bool centred;
+
+  const _ShelfIcon({required this.hasSubShelves, required this.centred});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 92,
+      height: 66,
+      child: Align(
+        alignment: centred ? Alignment.centerLeft : Alignment.topLeft,
+        child: Container(
+          key: const Key('shelfCardIcon'),
+          width: 44,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.2),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            hasSubShelves ? Icons.folder : Icons.label,
+            color: Colors.white,
+            size: 24,
           ),
         ),
       ),

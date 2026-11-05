@@ -305,7 +305,12 @@ void main() {
       );
     });
 
-    testWidgets('wears the large thumbnail', (tester) async {
+    testWidgets('wears the large fan when it has covers to show', (
+      tester,
+    ) async {
+      repo.tags = [
+        Tag(id: 'a', name: 'Shelf 0', count: 2, coverPaths: const ['a.jpg']),
+      ];
       await pump(tester);
 
       final tile = find.descendant(
@@ -313,6 +318,50 @@ void main() {
         matching: find.byType(ShelfThumbnail),
       );
       expect(tester.getSize(tile), const Size(92, 66));
+      expect(find.byKey(const Key('shelfCardIcon')), findsNothing);
+    });
+
+    for (final (what, count, covers) in const [
+      ('an empty shelf', 0, <String>[]),
+      ('books with no cover', 2, <String>[]),
+    ]) {
+      testWidgets('wears the icon of a shelf, no fan, for $what', (
+        tester,
+      ) async {
+        repo.tags = [
+          Tag(id: 'a', name: 'Shelf 0', count: count, coverPaths: covers),
+        ];
+        await pump(tester);
+
+        expect(find.byType(ShelfThumbnail), findsNothing);
+        expect(find.byKey(const Key('shelfThumbnailGhost')), findsNothing);
+        expect(find.byIcon(Icons.label), findsOneWidget);
+      });
+    }
+
+    testWidgets('its icon says when it holds sub-shelves', (tester) async {
+      repo.tags = [
+        Tag(id: 'a', name: 'Shelf 0', count: 0),
+        Tag(id: 'b', name: 'Sub', parentId: 'a', count: 0),
+      ];
+      await pump(tester);
+
+      expect(find.byIcon(Icons.folder), findsOneWidget);
+    });
+
+    testWidgets('keeps the same height with the icon as with the fan', (
+      tester,
+    ) async {
+      repo.tags = [
+        Tag(id: 'a', name: 'With', count: 2, coverPaths: const ['a.jpg']),
+        Tag(id: 'b', name: 'Without', count: 0),
+      ];
+      await pump(tester);
+
+      expect(
+        tester.getTopLeft(find.text('Without')).dy,
+        tester.getTopLeft(find.text('With')).dy,
+      );
     });
 
     testWidgets('opens the shelf', (tester) async {
@@ -397,6 +446,169 @@ void main() {
     }
   });
 
+  group('the colour of a card', () {
+    final palettes = {
+      'light': AppDesign.shelfTintsLight,
+      'dark': AppDesign.shelfTintsDark,
+    };
+
+    palettes.forEach((name, tints) {
+      test('$name: eight distinct colours', () {
+        expect(tints.toSet(), hasLength(8));
+      });
+
+      for (final tint in tints) {
+        final hex = tint.toARGB32().toRadixString(16);
+
+        test('$name $hex: white text reads at 4.5:1 all along the gradient', () {
+          final gradient = AppDesign.shelfGradient(tint);
+          expect(gradient.colors.every((c) => c.a == 1), isTrue);
+          for (final point in gradient.colors) {
+            expect(
+              contrastRatio(Colors.white, point),
+              greaterThanOrEqualTo(4.5),
+            );
+          }
+          // The lightest point is the tint, where the gradient ends.
+          expect(gradient.colors.last, tint);
+        });
+
+        test('$name $hex: the icon reads at 3:1 on its translucent square', () {
+          final square = Color.alphaBlend(
+            Colors.white.withValues(alpha: 0.2),
+            tint,
+          );
+          expect(contrastRatio(Colors.white, square), greaterThanOrEqualTo(3));
+        });
+      }
+    });
+
+    test('hangs on the id alone, by a hash pinned across runs', () {
+      expect(AppDesign.shelfTint('s0', Brightness.light), const Color(0xFFE11D48));
+      expect(
+        AppDesign.shelfTint(
+          '0191f3a2-7c44-7d10-9a31-5e2b8c4d1f60',
+          Brightness.light,
+        ),
+        const Color(0xFF2563EB),
+      );
+    });
+
+    test('a dark theme draws from its own palette, at the same index', () {
+      final light = AppDesign.shelfTint('s0', Brightness.light);
+      final dark = AppDesign.shelfTint('s0', Brightness.dark);
+      expect(
+        AppDesign.shelfTintsDark.indexOf(dark),
+        AppDesign.shelfTintsLight.indexOf(light),
+      );
+    });
+
+    testWidgets('a shelf keeps its colour wherever it sits in the grid', (
+      tester,
+    ) async {
+      Gradient? groundOf(String name) =>
+          (tester
+                      .widget<Ink>(
+                        find.descendant(
+                          of: _card(name),
+                          matching: find.byKey(const Key('shelfCardGround')),
+                        ),
+                      )
+                      .decoration!
+                  as BoxDecoration)
+              .gradient;
+
+      repo.tags = _roots(2);
+      await pump(tester);
+      expect(
+        groundOf('Shelf 1'),
+        AppDesign.shelfGradient(AppDesign.shelfTint('s1', Brightness.light)),
+      );
+
+      repo.tags = _roots(2).reversed.toList();
+      await pump(tester);
+      expect(
+        groundOf('Shelf 1'),
+        AppDesign.shelfGradient(AppDesign.shelfTint('s1', Brightness.light)),
+      );
+    });
+
+    for (final style in const ['default', 'dark', 'minimal']) {
+      testWidgets('$style: a coloured ground, no line, a tinted shadow, white '
+          'text', (tester) async {
+        final theme = ThemeRegistry.get(style)!.buildTheme(
+          accentColor: Colors.blue,
+        );
+        await pump(tester, theme: theme);
+        final tint = AppDesign.shelfTint('s0', theme.brightness);
+
+        final material = tester.widget<Material>(
+          find
+              .descendant(of: _card('Shelf 0'), matching: find.byType(Material))
+              .first,
+        );
+        expect(material.color, Colors.transparent);
+        final shape = material.shape! as RoundedRectangleBorder;
+        expect(shape.side, BorderSide.none);
+        expect(shape.borderRadius, BorderRadius.circular(18));
+
+        final ground = tester.widget<Ink>(
+          find.descendant(
+            of: _card('Shelf 0'),
+            matching: find.byKey(const Key('shelfCardGround')),
+          ),
+        );
+        expect(
+          (ground.decoration! as BoxDecoration).gradient,
+          AppDesign.shelfGradient(tint),
+        );
+
+        final shadow = tester
+            .widgetList<DecoratedBox>(
+              find.ancestor(
+                of: find.text('Shelf 0'),
+                matching: find.byType(DecoratedBox),
+              ),
+            )
+            .map((b) => b.decoration)
+            .whereType<BoxDecoration>()
+            .firstWhere((d) => d.boxShadow?.isNotEmpty ?? false)
+            .boxShadow!
+            .single;
+        expect(shadow.color, tint.withValues(alpha: 0.28));
+
+        for (final text in ['Shelf 0', '1 book']) {
+          final painted = tester.widget<RichText>(
+            find.descendant(
+              of: find.descendant(
+                of: _card('Shelf 0'),
+                matching: find.text(text),
+              ),
+              matching: find.byType(RichText),
+            ),
+          );
+          expect(painted.text.style!.color, Colors.white);
+        }
+      });
+    }
+
+    testWidgets('no count bubble and no menu on the card', (tester) async {
+      await pump(tester);
+
+      expect(
+        find.descendant(
+          of: _card('Shelf 0'),
+          matching: find.byType(PopupMenuButton<String>),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: _card('Shelf 0'), matching: find.text('1')),
+        findsNothing,
+      );
+    });
+  });
+
   group('its surfaces', () {
     /// The nearest box with a shadow around [of].
     BoxDecoration shadowAround(WidgetTester tester, Finder of) => tester
@@ -425,17 +637,6 @@ void main() {
         expect(shape.side.width, 1);
         expect(shape.borderRadius, BorderRadius.circular(radius));
       }
-
-      testWidgets('$style: a card takes the colour and line of cardTheme, its '
-          'own corners, the subtle shadow', (tester) async {
-        await pump(tester, theme: themeOf());
-
-        expectSurface(tester, _card('Shelf 0'), 18);
-        expect(
-          shadowAround(tester, find.text('Shelf 0')).boxShadow,
-          AppDesign.subtleShadow,
-        );
-      });
 
       testWidgets('$style: a small card too', (tester) async {
         await tester.pumpWidget(
@@ -493,16 +694,14 @@ void main() {
         ),
       );
 
-      for (final surface in [_card('Shelf 0'), _line]) {
-        final material = tester.widget<Material>(
-          find.descendant(of: surface, matching: find.byType(Material)).first,
-        );
-        expect(material.color, ground);
-        expect(
-          (material.shape! as RoundedRectangleBorder).side,
-          const BorderSide(color: line, width: 3),
-        );
-      }
+      final material = tester.widget<Material>(
+        find.descendant(of: _line, matching: find.byType(Material)).first,
+      );
+      expect(material.color, ground);
+      expect(
+        (material.shape! as RoundedRectangleBorder).side,
+        const BorderSide(color: line, width: 3),
+      );
     });
 
     for (final style in const ['default', 'dark', 'minimal']) {

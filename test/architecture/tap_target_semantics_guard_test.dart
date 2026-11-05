@@ -4467,15 +4467,36 @@ void main() {
     final target = find.byKey(const Key('shelfPlaceFan'));
     Finder card(String shelf) => find.byKey(ValueKey('shelfCard:$shelf'));
     Finder subCard(String shelf) => find.byKey(ValueKey('subShelfCard:$shelf'));
-    final tab = _Probe('tab', '/shelves', size: _tallPhone, tags: _treeTags);
+    // A card flies only with a cover to show.
+    final tags = [
+      for (final t in _treeTags)
+        t.id == 's1'
+            ? Tag(id: t.id, name: t.name, count: t.count, coverPaths: const ['a.jpg'])
+            : t,
+    ];
+    final tab = _Probe('tab', '/shelves', size: _tallPhone, tags: tags);
     final page = _Probe(
       'page',
       '/shelves?tag=Living+room',
       size: _tallPhone,
-      tags: _treeTags,
+      tags: tags,
     );
     Finder fanOf(Finder of) =>
         find.descendant(of: of, matching: find.byType(ShelfThumbnail));
+
+    testWidgets('nothing flies from a card with no cover to show', (
+      tester,
+    ) async {
+      await _render(tester, tab);
+
+      await tester.tap(card('Study'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(flight, findsNothing);
+      await _settle(tester);
+      expect(tester.takeException(), isNull);
+    });
 
     testWidgets('a tap on a card sends its fan to the head, in 250 ms', (
       tester,
