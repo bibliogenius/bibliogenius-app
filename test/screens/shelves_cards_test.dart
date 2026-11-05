@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -551,6 +552,75 @@ void main() {
         ).ink,
       );
     });
+
+    for (final style in const ['default', 'dark']) {
+      for (var slot = 0; slot < 8; slot++) {
+        testWidgets('$style, slot $slot: its ink keeps 4.5:1 hovered and '
+            'pressed, and a focus ring says the keyboard is there', (
+          tester,
+        ) async {
+          final theme = ThemeRegistry.get(
+            style,
+          )!.buildTheme(accentColor: Colors.blue);
+          final tint = AppDesign.shelfTint(slot, theme.brightness);
+          await tester.pumpWidget(
+            ChangeNotifierProvider<ThemeProvider>(
+              create: (_) => ThemeProvider()..setLocaleSync(const Locale('en')),
+              child: MaterialApp(
+                theme: theme,
+                home: Scaffold(
+                  body: SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: ShelfCard(
+                      tintSlot: slot,
+                      name: 'A shelf',
+                      books: 0,
+                      subShelves: 0,
+                      onTap: () {},
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+
+          final well = tester.widget<InkWell>(find.byType(InkWell));
+          final ground = tint.ground;
+          // Together, as a pointer held down on the card has them.
+          final pressed = [
+            well.hoverColor!,
+            well.highlightColor!,
+            well.splashColor!,
+          ].fold(ground, (under, over) => Color.alphaBlend(over, under));
+          for (final state in [
+            Color.alphaBlend(well.hoverColor!, ground),
+            Color.alphaBlend(well.highlightColor!, ground),
+            Color.alphaBlend(well.splashColor!, ground),
+            pressed,
+          ]) {
+            expect(contrastRatio(tint.ink, state), greaterThanOrEqualTo(4.5));
+          }
+          // The ring says it, not a veil over the text.
+          expect(well.focusColor, Colors.transparent);
+
+          final ring = find.byKey(const Key('shelfCardFocusRing'));
+          expect(ring, findsNothing);
+          FocusManager.instance.highlightStrategy =
+              FocusHighlightStrategy.alwaysTraditional;
+          addTearDown(
+            () => FocusManager.instance.highlightStrategy =
+                FocusHighlightStrategy.automatic,
+          );
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          await tester.pump();
+          final decoration =
+              tester.widget<DecoratedBox>(ring).decoration as BoxDecoration;
+          expect((decoration.border! as Border).top.color, tint.ink);
+          expect((decoration.border! as Border).top.width, 2);
+        });
+      }
+    }
 
     test('a shelf asks for a slot by the id alone, a hash pinned across runs', () {
       expect(

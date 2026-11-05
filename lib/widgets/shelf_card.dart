@@ -150,6 +150,12 @@ class ShelfCard extends StatelessWidget {
         ? null
         : AppDesign.shelfTint(tintSlot!, theme.brightness);
 
+    final overlay = tint == null
+        ? null
+        : theme.brightness == Brightness.dark
+        ? Colors.black
+        : Colors.white;
+
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
     // On the grid, nothing flies from the icon of a shelf with no cover to show.
     final flies = compact || (books > 0 && coverPaths.isNotEmpty);
@@ -207,10 +213,12 @@ class ShelfCard extends StatelessWidget {
 
     final ink = InkWell(
       // The theme's overlays are made for its surfaces: on a colour they vanish.
-      splashColor: tint?.ink.withValues(alpha: 0.24),
-      highlightColor: tint?.ink.withValues(alpha: 0.12),
-      hoverColor: tint?.ink.withValues(alpha: 0.12),
-      focusColor: tint?.ink.withValues(alpha: 0.24),
+      // These go away from the ink, which keeps its contrast. A veil hardly
+      // shows on the palest grounds: the keyboard gets a ring instead.
+      splashColor: overlay?.withValues(alpha: 0.24),
+      highlightColor: overlay?.withValues(alpha: 0.12),
+      hoverColor: overlay?.withValues(alpha: 0.12),
+      focusColor: tint == null ? null : Colors.transparent,
       onTap: () {
         if (flies) {
           final box = fanContext.findRenderObject() as RenderBox?;
@@ -294,23 +302,43 @@ class ShelfCard extends StatelessWidget {
                         theme.brightness,
                       ),
                     ),
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Positioned(
-                          top: -20,
-                          right: -20,
-                          child: ExcludeSemantics(
-                            child: Icon(
-                              Icons.shelves,
-                              key: const Key('shelfCardWatermark'),
-                              size: 100,
-                              color: Colors.white.withValues(alpha: 0.1),
+                    child: Focus(
+                      canRequestFocus: false,
+                      skipTraversal: true,
+                      includeSemantics: false,
+                      child: Builder(
+                        builder: (context) => Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            Positioned(
+                              top: -20,
+                              right: -20,
+                              child: ExcludeSemantics(
+                                child: Icon(
+                                  Icons.shelves,
+                                  key: const Key('shelfCardWatermark'),
+                                  size: 100,
+                                  color: Colors.white.withValues(alpha: 0.1),
+                                ),
+                              ),
                             ),
-                          ),
+                            ink,
+                            if (Focus.of(context).hasFocus)
+                              IgnorePointer(
+                                child: DecoratedBox(
+                                  key: const Key('shelfCardFocusRing'),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: tint.ink,
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(corner),
+                                  ),
+                                ),
+                              ),
+                          ],
                         ),
-                        ink,
-                      ],
+                      ),
                     ),
                   ),
                 ),
