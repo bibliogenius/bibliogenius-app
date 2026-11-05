@@ -3424,7 +3424,7 @@ void main() {
     final name = find.byKey(const Key('shelfHeaderTitle'));
     final back = find.byKey(const Key('shelfBackButton'));
     final heading = find.byKey(const Key('shelvedHereHeading'));
-    final lastAdded = find.byKey(const Key('shelfPlaceLastAdded'));
+    final shelvedHereRow = find.byKey(const Key('shelvedHereRow'));
     final menu = find.byKey(const Key('shelfPlaceMenu'));
     final bigEmpty = find.byKey(const Key('shelfPlaceEmpty'));
     Finder subCard(String shelf) => find.byKey(ValueKey('subShelfCard:$shelf'));
@@ -3561,22 +3561,106 @@ void main() {
       expect(heading, findsNothing);
     });
 
-    testWidgets('the last arrived is the newest added among the books here, '
-        'not those of its sub-shelves', (tester) async {
+    testWidgets('the title and the pills share one row, the pills scrolling', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      double middle(Finder f) => tester.getCenter(f).dy;
+      expect(middle(find.text('Author')), middle(find.text('Shelved here')));
+      expect(
+        tester.getTopLeft(find.text('Author')).dx,
+        greaterThan(tester.getTopRight(find.text('Shelved here')).dx),
+      );
+      expect(
+        find.ancestor(
+          of: find.text('Author'),
+          matching: find.byType(SingleChildScrollView),
+        ),
+        findsWidgets,
+      );
+      // The title stays when the pills scroll.
+      final before = tester.getTopLeft(find.text('Shelved here'));
+      await tester.drag(find.text('Author'), const Offset(-60, 0));
+      await tester.pump();
+      expect(tester.getTopLeft(find.text('Shelved here')), before);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('where cards take one column, the pills go under the title', (
+      tester,
+    ) async {
+      await _render(
+        tester,
+        page('Living room', size: const Size(340, 800)),
+        books: books,
+      );
+
+      expect(
+        tester.getTopLeft(find.text('Author')).dy,
+        greaterThan(tester.getBottomLeft(find.text('Shelved here')).dy),
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the filter chip is gone, the filter still at work', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(find.text('#Living room'), findsNothing);
+      // Only what sits right here.
+      expect(find.text('New lamp'), findsWidgets);
+      expect(find.text('Sofa novel'), findsNothing);
+    });
+
+    testWidgets('the Books tab keeps the chip of its filter', (tester) async {
+      await _render(
+        tester,
+        _Probe('books', '/books?tag=Novels', size: _tallPhone, tags: tags),
+        books: books,
+      );
+
+      expect(find.text('#Novels'), findsOneWidget);
+    });
+
+    testWidgets('8 pt from the last sub-shelf to the row', (tester) async {
       await _render(tester, page('Living room'), books: books);
 
       expect(
-        tester.widget<Text>(lastAdded).textSpan!.toPlainText(),
-        contains('New lamp'),
+        tester.getTopLeft(shelvedHereRow).dy -
+            tester.getBottomLeft(subCard('Novels')).dy,
+        moreOrLessEquals(8),
       );
     });
 
-    testWidgets('no book here, or no date: no last arrived', (tester) async {
-      await _render(tester, page('Crime'), books: books);
-      expect(lastAdded, findsNothing);
+    testWidgets('12 pt from the head to the row with no sub-shelf', (
+      tester,
+    ) async {
+      // A name on one line: the fan is what ends the head.
+      await _render(
+        tester,
+        page('Study'),
+        books: [...books, filed('p6', 'Desk', 'Study')],
+      );
 
-      await _render(tester, page('Kitchen'), books: books);
-      expect(lastAdded, findsNothing);
+      expect(
+        tester.getTopLeft(shelvedHereRow).dy -
+            tester.getBottomLeft(find.byKey(const Key('shelfPlaceFan'))).dy,
+        moreOrLessEquals(12),
+      );
+    });
+
+    testWidgets('a selection still gets its own bar, under the title', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      await _tap(tester, find.byKey(const Key('selectBooksButton')));
+
+      expect(find.text('Shelved here'), findsOneWidget);
+      expect(find.text('Author'), findsNothing);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('a parent with no book of its own shows its sub-shelves and a '
@@ -3594,7 +3678,7 @@ void main() {
         find.descendant(of: heading, matching: find.text('Shelved here')),
         findsOneWidget,
       );
-      // Right under the title, above the filter bar.
+      // Under the row of the title and the pills.
       final hint = find.text('Nothing here yet. Add a book, or create a sub-shelf.');
       expect(hint, findsOneWidget);
       expect(
@@ -3603,7 +3687,7 @@ void main() {
       );
       expect(
         tester.getTopLeft(hint).dy,
-        lessThan(tester.getTopLeft(find.text('Author')).dy),
+        greaterThan(tester.getTopLeft(find.text('Author')).dy),
       );
     });
 

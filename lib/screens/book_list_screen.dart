@@ -7,6 +7,7 @@ import '../widgets/wisher_filter_chips.dart';
 import '../widgets/move_shelf_sheet.dart';
 import '../widgets/shelf_actions.dart';
 import '../widgets/shelf_fan_flight.dart';
+import '../widgets/shelf_card.dart';
 import '../widgets/shelf_place_header.dart';
 import '../widgets/books_top_slot.dart';
 import '../widgets/genie_app_bar.dart';
@@ -589,13 +590,8 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               if (widget.unshelvedOnly) _buildToShelveHeader(),
-              // Not during a search: it scans the whole library.
-              if (_isPlacePage &&
-                  !_isReordering &&
-                  !_placeIsEmpty &&
-                  _searchQuery.isEmpty)
-                _buildShelvedHereHeading(),
-              if (!_placeIsEmpty)
+              if (_showsShelvedHere) _buildShelvedHere(),
+              if (!_placeIsEmpty && (_isSelecting || !_showsShelvedHere))
                 _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
@@ -1130,8 +1126,6 @@ class _BookListScreenState extends State<BookListScreen>
     });
   }
 
-  String? _lastAddedTitle;
-
   /// A listing has landed on this page: the shelf shown is known, not assumed.
   bool _placeListed = false;
 
@@ -1175,26 +1169,12 @@ class _BookListScreenState extends State<BookListScreen>
       explicit: context.read<OwnershipPreferenceProvider>().scope,
       status: null,
     );
-    // Among the books of the page, as they stand without a passing filter.
-    if (!_isLoading && _searchQuery.isEmpty && _selectedStatus == null) {
-      DateTime? newest;
-      String? title;
-      for (final book in _filteredBooks) {
-        final added = book.addedAt;
-        if (added != null && (newest == null || added.isAfter(newest))) {
-          newest = added;
-          title = book.title;
-        }
-      }
-      _lastAddedTitle = title;
-    }
     notifier.value = ShelfPlace(
       requestedName: requested,
       shelf: inView,
       ancestors: Tag.ancestorsOf(inView, shown),
       subShelves: _subShelvesOf(inView),
       books: aggregatedCountForScope(inView, shown, scope),
-      lastAddedTitle: _lastAddedTitle,
       booksOf: (tag) => aggregatedCountForScope(tag, shown, scope),
       subShelvesOf: (tag) => Tag.getDirectChildren(tag.id, shown).length,
       hidden: _isReordering,
@@ -1304,43 +1284,69 @@ class _BookListScreenState extends State<BookListScreen>
 
   /// "Shelved here": a title without a number, the head carries the count. Its
   /// reorder action applies to the books below.
-  Widget _buildShelvedHereHeading() {
+  /// Not during a search: it scans the whole library.
+  bool get _showsShelvedHere =>
+      _isPlacePage &&
+      !_isReordering &&
+      !_placeIsEmpty &&
+      _searchQuery.isEmpty;
+
+  /// The title of the shelf's books and their sort and filter pills, on one
+  /// row. Where the grid of cards falls to one column, there is no room for
+  /// both: the pills go under the title.
+  Widget _buildShelvedHere() {
     final theme = Theme.of(context);
+    final title = Semantics(
+      key: const Key('shelvedHereHeading'),
+      header: true,
+      child: Text(
+        TranslationService.translate(context, 'shelved_here'),
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+    // Not during a search (it scans the whole library) nor a selection
+    // (entering the mode would drop it without a word).
+    final Widget? reorder =
+        _searchQuery.isEmpty && !_isSearching && !_isSelecting
+        ? IconButton(
+            icon: const Icon(Icons.swap_vert),
+            tooltip: TranslationService.translate(context, 'reorder_shelf'),
+            onPressed: _startReordering,
+          )
+        : null;
+    final stacked =
+        shelfGridColumns(
+          width: MediaQuery.sizeOf(context).width,
+          textScale: MediaQuery.textScalerOf(context).scale(1),
+        ) ==
+        1;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
+      key: const Key('shelvedHereRow'),
+      padding: const EdgeInsets.fromLTRB(16, 0, 4, 6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Semantics(
-                  key: const Key('shelvedHereHeading'),
-                  header: true,
-                  child: Text(
-                    TranslationService.translate(context, 'shelved_here'),
-                    style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+          if (stacked) ...[
+            Row(children: [Expanded(child: title), ?reorder]),
+            if (!_isSelecting) _buildFilterBar(besideTitle: true),
+          ] else
+            // No pills during a selection: its own bar comes under this row.
+            Row(
+              children: [
+                title,
+                Expanded(
+                  child: _isSelecting
+                      ? const SizedBox(height: 48)
+                      : _buildFilterBar(besideTitle: true),
                 ),
-              ),
-              // Not during a search (it scans the whole library) nor a
-              // selection (entering the mode would drop it without a word).
-              if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
-                IconButton(
-                  icon: const Icon(Icons.swap_vert),
-                  tooltip: TranslationService.translate(
-                    context,
-                    'reorder_shelf',
-                  ),
-                  onPressed: _startReordering,
-                ),
-            ],
-          ),
+                ?reorder,
+              ],
+            ),
           if (_placeHasNoOwnBooks)
             Padding(
-              padding: const EdgeInsets.only(right: 12, bottom: 4),
+              padding: const EdgeInsets.only(right: 12, top: 4),
               child: Text(
                 TranslationService.translate(context, 'shelf_empty_hint'),
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -1930,7 +1936,7 @@ class _BookListScreenState extends State<BookListScreen>
 
   // Header removed - Avatar is now in GenieAppBar
 
-  Widget _buildFilterBar() {
+  Widget _buildFilterBar({bool besideTitle = false}) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -1999,7 +2005,9 @@ class _BookListScreenState extends State<BookListScreen>
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: besideTitle
+          ? const EdgeInsets.only(left: 12, right: 4)
+          : const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         children: [
           // Search toggle (separate block) — hidden when the sticky sliver
@@ -2059,8 +2067,9 @@ class _BookListScreenState extends State<BookListScreen>
           ],
 
           // 2. Tag Filter Trigger
-          // If a tag is selected, show it as a clearable chip
-          if (_tagFilter != null)
+          // If a tag is selected, show it as a clearable chip. Not on the page
+          // of a shelf: it would repeat the title, and the back link leaves it.
+          if (_tagFilter != null && !_isPlacePage)
             _buildFilterPill(
               status: 'tag_filter',
               label: '#$_tagFilter',

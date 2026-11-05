@@ -12581,10 +12581,6 @@ msgstr "次に未整理の本が増えるまで「未整理」を隠す"
 msgid "shelved_here"
 msgstr "ここにある本"
 
-#. Shelf page: the book last added to this shelf, {title} is its title: Last arrived here: {title}
-msgid "last_added_here"
-msgstr "最近ここに来た本：{title}"
-
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "まだ何もありません。本を追加するか、下位の本棚を作成してください。"

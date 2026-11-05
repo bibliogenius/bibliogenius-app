@@ -12513,10 +12513,6 @@ msgstr ""
 msgid "shelved_here"
 msgstr ""
 
-#. Shelf page: the book last added to this shelf, {title} is its title: Last arrived here: {title}
-msgid "last_added_here"
-msgstr ""
-
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr ""

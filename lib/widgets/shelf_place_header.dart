@@ -22,7 +22,6 @@ class ShelfPlace {
 
   /// The books of the shelf and of its sub-shelves, as a card counts them.
   final int books;
-  final String? lastAddedTitle;
   final int Function(Tag) booksOf;
   final int Function(Tag) subShelvesOf;
 
@@ -44,7 +43,6 @@ class ShelfPlace {
     required this.ancestors,
     required this.subShelves,
     required this.books,
-    required this.lastAddedTitle,
     required this.booksOf,
     required this.subShelvesOf,
     required this.hidden,
@@ -109,7 +107,7 @@ class ShelfPlaceSlivers extends StatelessWidget {
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
               sliver: _SubShelfGrid(place: place),
             ),
           ],
@@ -218,11 +216,6 @@ class ShelfPlaceHeader extends StatelessWidget {
                             color: muted,
                           ),
                         ),
-                        if (place.lastAddedTitle != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: _LastAdded(title: place.lastAddedTitle!),
-                          ),
                       ],
                     ),
                   ),
@@ -347,37 +340,6 @@ class _BackButton extends StatelessWidget {
 }
 
 /// "Last arrived here: *title*".
-class _LastAdded extends StatelessWidget {
-  final String title;
-
-  const _LastAdded({required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final parts = TranslationService.translate(
-      context,
-      'last_added_here',
-    ).split('{title}');
-    return Text.rich(
-      key: const Key('shelfPlaceLastAdded'),
-      TextSpan(
-        children: [
-          TextSpan(text: parts.first),
-          TextSpan(
-            text: title,
-            style: const TextStyle(fontStyle: FontStyle.italic),
-          ),
-          if (parts.length > 1) TextSpan(text: parts[1]),
-        ],
-      ),
-      style: theme.textTheme.bodySmall?.copyWith(
-        color: theme.colorScheme.onSurfaceVariant,
-      ),
-    );
-  }
-}
-
 class _PlaceMenu extends StatelessWidget {
   final ShelfPlace place;
 

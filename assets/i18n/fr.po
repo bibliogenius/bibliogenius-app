@@ -12582,10 +12582,6 @@ msgstr "Masquer « À ranger » jusqu'aux prochains livres à ranger"
 msgid "shelved_here"
 msgstr "Rangés ici"
 
-#. Shelf page: the book last added to this shelf, {title} is its title: Last arrived here: {title}
-msgid "last_added_here"
-msgstr "Dernier arrivé ici : {title}"
-
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "Rien ici pour l'instant. Ajoutez un livre, ou créez une sous-étagère."

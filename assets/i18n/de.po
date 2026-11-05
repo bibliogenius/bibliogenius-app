@@ -12441,10 +12441,6 @@ msgstr "„Noch einzuräumen“ ausblenden, bis weitere Bücher einzuräumen sin
 msgid "shelved_here"
 msgstr "Hier eingeräumt"
 
-#. Shelf page: the book last added to this shelf, {title} is its title: Last arrived here: {title}
-msgid "last_added_here"
-msgstr "Zuletzt hier angekommen: {title}"
-
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "Hier ist noch nichts. Fügen Sie ein Buch hinzu oder erstellen Sie ein Unterregal."
