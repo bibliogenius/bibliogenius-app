@@ -287,10 +287,13 @@ void showRenameShelfDialog(
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 Navigator.pop(dialogContext);
+                final name = controller.text.trim();
+                // Nothing to write, and an Undo would undo nothing.
+                if (name == tag.name) return;
                 await _writeRename(
                   context,
                   tag,
-                  controller.text.trim(),
+                  name,
                   // Moving goes through "Move to…".
                   parentId: Tag.effectiveParentIds(allTags)[tag.id],
                   onRenamed: onRenamed,

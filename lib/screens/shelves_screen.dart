@@ -603,7 +603,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   void _hideToShelveLine() {
     final count = _unshelvedCount;
     setState(() => _toShelveDismissedAt = count);
-    _organizeFocus.requestFocus();
+    // Absent from the empty state: a request would wait and jump there later.
+    if (_organizeFocus.context != null) _organizeFocus.requestFocus();
     unawaited(ToShelveDismissalStore.dismissAt(count));
   }
 

@@ -3473,6 +3473,36 @@ void main() {
       await _tap(tester, find.text(item).last);
     }
 
+    testWidgets('adding from a link in another case files on the shelf as it '
+        'is named', (tester) async {
+      await _render(tester, page('novels'), books: books);
+
+      await _tap(tester, find.byIcon(Icons.add).last);
+
+      final extra =
+          GoRouterState.of(tester.element(find.byType(AddBookScreen))).extra!
+              as Map<String, dynamic>;
+      expect(extra['shelfId'], 'Novels');
+      expect(extra['shelfName'], 'Novels');
+    });
+
+    testWidgets('adding to an empty shelf from such a link does the same', (
+      tester,
+    ) async {
+      await _render(tester, page('kitchen'), books: books);
+
+      await _tap(
+        tester,
+        find.descendant(of: bigEmpty, matching: find.byIcon(Icons.add)),
+      );
+
+      final extra =
+          GoRouterState.of(tester.element(find.byType(AddBookScreen))).extra!
+              as Map<String, dynamic>;
+      expect(extra['shelfId'], 'Kitchen');
+      expect(extra['shelfName'], 'Kitchen');
+    });
+
     testWidgets('a first-level shelf: its name and counts, back to the shelves', (
       tester,
     ) async {
@@ -4700,6 +4730,55 @@ void main() {
             tester.getTopLeft(find.text(label).last).dy,
         ];
         expect(tops, [...tops]..sort());
+      });
+
+      testWidgets('renaming to the same name writes nothing', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+        await pick(tester, 'Rename');
+
+        await _tap(tester, find.text('Update'));
+
+        expect(find.byType(AlertDialog), findsNothing);
+        expect(harness.tags.updated, isEmpty);
+      });
+
+      testWidgets('renaming: the new page names its parent from its first '
+          'frame', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+        await pick(tester, 'Rename');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            t.id == 's3'
+                ? Tag(id: 's3', name: 'Thrillers', parentId: 's2', count: 1)
+                : t,
+        ];
+
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(AlertDialog),
+            matching: find.byType(TextFormField),
+          ),
+          'Thrillers',
+        );
+        await tester.tap(find.text('Update'));
+
+        final seen = <String>{};
+        for (var i = 0; i < 30; i++) {
+          await tester.pump(const Duration(milliseconds: 16));
+          if (location(tester) != '/shelves?tag=Thrillers') continue;
+          if (tester.any(back)) {
+            seen.add(
+              tester
+                  .widget<Text>(
+                    find.descendant(of: back, matching: find.byType(Text)),
+                  )
+                  .data!,
+            );
+          }
+        }
+        expect(seen, {'Novels'});
+        await _settle(tester);
+        await _letMessagesGo(tester);
       });
 
       group('the name it is asked for', () {

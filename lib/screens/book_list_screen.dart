@@ -938,7 +938,7 @@ class _BookListScreenState extends State<BookListScreen>
     final result = await router.push(
       '/books/add',
       extra: {
-        'shelfId': _currentShelf?.name ?? _tagFilter,
+        'shelfId': _openShelf?.name ?? _tagFilter,
         if (_isPlacePage) 'shelfName': _openShelf?.name ?? _tagFilter,
       },
     );
@@ -1229,6 +1229,11 @@ class _BookListScreenState extends State<BookListScreen>
       onRenamed: (name) {
         // The same address changes no page: nothing would use the landing.
         if (name == _tagFilter) return;
+        // The next page starts from these: under the new name, it knows where
+        // it stands before its own listing lands.
+        widget.onTagsLoaded?.call([
+          for (final t in _allTags) t.id == shelf.id ? t.renamed(name) : t,
+        ]);
         actions?.willLand();
         router.go(_placeLocation(name));
       },

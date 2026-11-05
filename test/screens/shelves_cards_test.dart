@@ -822,7 +822,8 @@ void main() {
           sorted.take(8).map((id) => slots[id]).toSet(),
           hasLength(8),
         );
-        expect(slots.values, everyElement(inInclusiveRange(0, 7)));
+        // A new round: the ninth has its own slot back, taken by an older one.
+        expect(slots[sorted.last], AppDesign.shelfTintHashSlot(sorted.last));
       });
     });
 
@@ -1250,6 +1251,28 @@ void main() {
         });
       }
     }
+
+    testWidgets('hiding "to shelve" with no "Organize" around leaves no focus '
+        'to jump later', (tester) async {
+      repo.tags = [];
+      repo.unshelved = 2;
+      await pump(tester);
+      expect(find.text('Organize'), findsNothing);
+
+      await tester.tap(_hide);
+      await tester.pumpAndSettle();
+
+      repo.tags = _roots(2);
+      tester.element(find.byType(ShelvesScreen))
+          .read<BookRefreshNotifier>()
+          .refresh();
+      await tester.pumpAndSettle();
+      expect(find.text('Organize'), findsOneWidget);
+      expect(
+        FocusManager.instance.primaryFocus?.debugLabel,
+        isNot('organizeShelves'),
+      );
+    });
 
     testWidgets('"Organize" leads to the organizing route', (tester) async {
       await pump(tester);

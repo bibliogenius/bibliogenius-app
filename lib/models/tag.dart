@@ -106,6 +106,20 @@ class Tag {
   /// listing, and over HTTP their id is empty.
   String get stableKey => isPersisted ? id : 'name:$name';
 
+  /// This shelf under another name, everything else as listed.
+  Tag renamed(String newName) => Tag(
+    id: id,
+    name: newName,
+    parentId: parentId,
+    path: path,
+    count: count,
+    totalCount: totalCount,
+    children: children,
+    coverPaths: coverPaths,
+    subtreeCount: subtreeCount,
+    subtreeTotalCount: subtreeTotalCount,
+  );
+
   /// Create a copy with updated children (for tree building)
   Tag copyWithChildren(List<Tag> newChildren) {
     return Tag(

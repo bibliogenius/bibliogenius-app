@@ -156,8 +156,8 @@ class _SubShelfGrid extends StatelessWidget {
   }
 }
 
-/// The way back, named after the parent, the shelf's name in large, its counts,
-/// what last arrived and its covers in large.
+/// The way back, named after the parent, the shelf's name in large, its counts
+/// and its covers in large.
 class ShelfPlaceHeader extends StatelessWidget {
   final ShelfPlace place;
 
@@ -339,7 +339,7 @@ class _BackButton extends StatelessWidget {
   }
 }
 
-/// "Last arrived here: *title*".
+/// The actions on this shelf, behind its "…".
 class _PlaceMenu extends StatelessWidget {
   final ShelfPlace place;
 

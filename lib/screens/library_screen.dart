@@ -229,6 +229,13 @@ class _LibraryScreenState extends State<LibraryScreen>
     setState(() => _isSearching = true);
   }
 
+  /// The open shelf as it is named, whatever the case of the link: filing on
+  /// the name of the link would make a second shelf.
+  String? get _openShelfName {
+    final requested = widget.shelfTagFilter;
+    return Tag.byName(_knownTags ?? const [], requested)?.name ?? requested;
+  }
+
   void _closeSearch() {
     _searchDebounce?.cancel();
     _searchController.clear();
@@ -467,8 +474,8 @@ class _LibraryScreenState extends State<LibraryScreen>
                       final extra = <String, dynamic>{};
                       if (_tabController.index == 1 &&
                           widget.shelfTagFilter != null) {
-                        extra['shelfId'] = widget.shelfTagFilter;
-                        extra['shelfName'] = widget.shelfTagFilter;
+                        extra['shelfId'] = _openShelfName!;
+                        extra['shelfName'] = _openShelfName!;
                       }
                       final isbn = await router.push<String>(
                         '/scan',
@@ -512,8 +519,8 @@ class _LibraryScreenState extends State<LibraryScreen>
                       final extra = <String, dynamic>{};
                       if (_tabController.index == 1 &&
                           widget.shelfTagFilter != null) {
-                        extra['shelfId'] = widget.shelfTagFilter;
-                        extra['shelfName'] = widget.shelfTagFilter;
+                        extra['shelfId'] = _openShelfName!;
+                        extra['shelfName'] = _openShelfName!;
                       }
                       final result = await router.push(
                         '/books/add',
