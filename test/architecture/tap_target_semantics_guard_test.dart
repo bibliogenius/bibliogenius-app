@@ -3645,14 +3645,21 @@ void main() {
       );
     });
 
-    testWidgets('neither sub-shelf nor book: the ghost, the sentence and its '
-        'two buttons', (tester) async {
+    testWidgets('neither sub-shelf nor book: the sentence and its two buttons, '
+        'one above the other', (tester) async {
       await _render(tester, page('Kitchen'), books: books);
 
       expect(bigEmpty, findsOneWidget);
+      // The head already shows the empty fan: no second one.
       expect(
-        find.descendant(of: bigEmpty, matching: find.byKey(const Key('shelfThumbnailGhost'))),
-        findsOneWidget,
+        find.descendant(of: bigEmpty, matching: find.byType(ShelfThumbnail)),
+        findsNothing,
+      );
+      expect(
+        tester.getTopLeft(find.byKey(const Key('shelfEmptyAddBook'))).dy,
+        lessThan(
+          tester.getTopLeft(find.byKey(const Key('shelfEmptyAddSubShelf'))).dy,
+        ),
       );
       expect(find.byKey(const Key('shelfEmptyAddBook')), findsOneWidget);
       expect(find.byKey(const Key('shelfEmptyAddSubShelf')), findsOneWidget);
@@ -3688,7 +3695,7 @@ void main() {
       );
     });
 
-    testWidgets('its two buttons have the corners of the app buttons', (
+    testWidgets('its two buttons have the shape of those of an empty library', (
       tester,
     ) async {
       await _render(tester, page('Kitchen'), books: books);
@@ -3699,12 +3706,12 @@ void main() {
             .style;
         expect(
           style?.shape?.resolve(const {}),
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           reason: key,
         );
         expect(
-          style?.textStyle?.resolve(const {})?.fontWeight,
-          FontWeight.w600,
+          style?.padding?.resolve(const {}),
+          const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           reason: key,
         );
       }

@@ -8,7 +8,6 @@ import '../widgets/move_shelf_sheet.dart';
 import '../widgets/shelf_actions.dart';
 import '../widgets/shelf_fan_flight.dart';
 import '../widgets/shelf_place_header.dart';
-import '../widgets/shelf_thumbnail.dart';
 import '../widgets/books_top_slot.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/suggestions_app_bar_action.dart';
@@ -1354,64 +1353,74 @@ class _BookListScreenState extends State<BookListScreen>
     );
   }
 
-  /// Neither sub-shelf nor book: the shelf, empty, and the two ways to fill it.
+  /// Neither sub-shelf nor book: the two ways to fill the shelf, laid out like
+  /// the empty library. The head above already shows the empty fan.
   Widget _buildPlaceEmpty() {
     final shelf = _openShelf!;
     final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+      borderRadius: BorderRadius.circular(16),
     );
-    const label = TextStyle(fontWeight: FontWeight.w600);
-    return RefreshIndicator(
-      onRefresh: _fetchBooks,
-      child: SingleChildScrollView(
-        physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          key: const Key('shelfPlaceEmpty'),
-          children: [
-            const ShelfThumbnail(
-              size: ShelfThumbnailSize.l,
-              hasBooks: false,
+    const padding = EdgeInsets.symmetric(horizontal: 32, vertical: 16);
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) => RefreshIndicator(
+        onRefresh: _fetchBooks,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 24, right: 24, bottom: 80),
+              child: Column(
+                key: const Key('shelfPlaceEmpty'),
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    TranslationService.translate(context, 'shelf_empty_hint'),
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton.icon(
+                    key: const Key('shelfEmptyAddBook'),
+                    style: ElevatedButton.styleFrom(
+                      padding: padding,
+                      shape: shape,
+                    ),
+                    onPressed: _addBook,
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      TranslationService.translate(context, 'add_book_button'),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    key: const Key('shelfEmptyAddSubShelf'),
+                    style: OutlinedButton.styleFrom(
+                      padding: padding,
+                      shape: shape,
+                    ),
+                    onPressed: () => _addSubShelfToPlace(shelf),
+                    icon: const Icon(Icons.create_new_folder_outlined),
+                    label: Text(
+                      TranslationService.translate(context, 'add_sub_shelf'),
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              TranslationService.translate(context, 'shelf_empty_hint'),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: 16),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilledButton(
-                  key: const Key('shelfEmptyAddBook'),
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size(0, 44),
-                    shape: shape,
-                    textStyle: label,
-                  ),
-                  onPressed: _addBook,
-                  child: Text(
-                    TranslationService.translate(context, 'add_book_button'),
-                  ),
-                ),
-                OutlinedButton(
-                  key: const Key('shelfEmptyAddSubShelf'),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(0, 44),
-                    shape: shape,
-                    textStyle: label,
-                  ),
-                  onPressed: () => _addSubShelfToPlace(shelf),
-                  child: Text(
-                    TranslationService.translate(context, 'add_sub_shelf'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
       ),
     );
