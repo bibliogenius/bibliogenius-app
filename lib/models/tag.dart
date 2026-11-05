@@ -365,6 +365,17 @@ int compareShelves(Tag a, Tag b) => compareShelfNames(a.name, b.name);
 /// a reader, so a search or a "name taken" check compares these keys.
 String shelfNameKey(String name) => _foldShelfName(name);
 
+/// The shelf a reader would take [name] for: same name once case and accents
+/// are folded. Only to say a typed name is taken: names stay unique byte for
+/// byte in the core.
+Tag? shelfTakenBy(List<Tag> tags, String name) {
+  final key = shelfNameKey(name);
+  for (final tag in tags) {
+    if (shelfNameKey(tag.name) == key) return tag;
+  }
+  return null;
+}
+
 const _foldedLetters = <String, String>{
   'à': 'a',
   'á': 'a',

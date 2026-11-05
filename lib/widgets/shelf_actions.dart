@@ -220,6 +220,24 @@ class _PendingShelfDeletion {
   }
 }
 
+/// What is wrong with [value] as the name of a shelf among [tags], if anything.
+/// The shelf being renamed may keep its name in another case.
+String? _shelfNameError(
+  BuildContext context,
+  String? value,
+  List<Tag> tags, {
+  Tag? renaming,
+}) {
+  final name = value?.trim() ?? '';
+  if (name.isEmpty) {
+    return TranslationService.translate(context, 'field_required');
+  }
+  final others = tags.where((t) => t.name != renaming?.name).toList();
+  return shelfTakenBy(others, name) == null
+      ? null
+      : TranslationService.translate(context, 'shelf_already_exists');
+}
+
 /// Asks for a new name for [tag], writes it and offers Undo.
 ///
 /// [allTags] is the stored tree: the one shown moves the sub-shelves of a
@@ -256,15 +274,12 @@ void showRenameShelfDialog(
                   ),
                   border: const OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return TranslationService.translate(
-                      dialogContext,
-                      'field_required',
-                    );
-                  }
-                  return null;
-                },
+                validator: (value) => _shelfNameError(
+                  dialogContext,
+                  value,
+                  allTags,
+                  renaming: tag,
+                ),
               ),
             ],
           ),
@@ -419,15 +434,8 @@ void showNewShelfDialog(
                       ),
                       border: const OutlineInputBorder(),
                     ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return TranslationService.translate(
-                          context,
-                          'field_required',
-                        );
-                      }
-                      return null;
-                    },
+                    validator: (value) =>
+                        _shelfNameError(context, value, shownTags),
                   ),
                   // Only if hierarchical tags are enabled and shelves exist.
                   if (AppConstants.enableHierarchicalTags &&

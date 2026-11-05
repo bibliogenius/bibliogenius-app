@@ -296,16 +296,6 @@ Tag? _shelfNamed(List<Tag> tags, String name) {
   return null;
 }
 
-/// The shelf a reader would take [name] for: same name once case and
-/// accents are folded. Used only to offer no "Create" for a taken name.
-Tag? _shelfTakenBy(List<Tag> tags, String name) {
-  final key = shelfNameKey(name);
-  for (final tag in tags) {
-    if (shelfNameKey(tag.name) == key) return tag;
-  }
-  return null;
-}
-
 // ---------------------------------------------------------------------------
 // Bottom Sheet Picker
 // ---------------------------------------------------------------------------
@@ -377,7 +367,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
   }
 
   /// The shelf the typed name would duplicate, case and accents ignored.
-  Tag? _taken(String name) => _shelfTakenBy(_tags, name);
+  Tag? _taken(String name) => shelfTakenBy(_tags, name);
 
   /// Creates [name] under [parent] (null: first level) and checks it.
   Future<void> _create(String name, Tag? parent) async {
@@ -408,7 +398,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
       // pick that shelf rather than surface a constraint error.
       final fresh = await repo.getTags().catchError((_) => _tags);
       if (!mounted) return;
-      final existing = _shelfTakenBy(fresh, name);
+      final existing = shelfTakenBy(fresh, name);
       setState(() {
         _tags = List.of(fresh);
         _placing = false;

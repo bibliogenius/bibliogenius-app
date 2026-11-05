@@ -4702,6 +4702,76 @@ void main() {
         expect(tops, [...tops]..sort());
       });
 
+      group('the name it is asked for', () {
+        final input = find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(TextFormField),
+        );
+        final dialog = find.byType(AlertDialog);
+        const taken = 'already exists';
+        const required = 'This field is required';
+
+        for (final (typed, message) in const [
+          ('', required),
+          ('   ', required),
+          ('Novels', taken),
+          ('novels', taken),
+          ('NOVELS  ', taken),
+        ]) {
+          testWidgets('renaming to "$typed": $message, nothing written', (
+            tester,
+          ) async {
+            final harness = await _render(tester, page('Crime'), books: books);
+            await pick(tester, 'Rename');
+
+            await tester.enterText(input, typed);
+            await _tap(tester, find.text('Update'));
+
+            expect(dialog, findsOneWidget);
+            expect(find.text(message), findsOneWidget);
+            expect(harness.tags.updated, isEmpty);
+          });
+
+          testWidgets('creating "$typed": $message, nothing written', (
+            tester,
+          ) async {
+            final harness = await _render(tester, page('Crime'), books: books);
+            await pick(tester, 'Add Sub-Shelf');
+
+            await tester.enterText(input, typed);
+            await _tap(tester, find.text('Create'));
+
+            expect(dialog, findsOneWidget);
+            expect(find.text(message), findsOneWidget);
+            expect(harness.tags.created, isEmpty);
+          });
+        }
+
+        testWidgets('its own name in another case is free', (tester) async {
+          final harness = await _render(tester, page('Crime'), books: books);
+          await pick(tester, 'Rename');
+
+          await tester.enterText(input, 'CRIME');
+          await _tap(tester, find.text('Update'));
+
+          expect(dialog, findsNothing);
+          expect(harness.tags.updated.single, contains(': CRIME'));
+          await _letMessagesGo(tester);
+        });
+
+        testWidgets('a free name is written', (tester) async {
+          final harness = await _render(tester, page('Crime'), books: books);
+          await pick(tester, 'Add Sub-Shelf');
+
+          await tester.enterText(input, 'Cosy crime');
+          await _tap(tester, find.text('Create'));
+
+          expect(dialog, findsNothing);
+          expect(harness.tags.created, ['Cosy crime < s3']);
+          await _letMessagesGo(tester);
+        });
+      });
+
       Tag? chosenParent(WidgetTester tester) => tester
           .widget<DropdownButton<Tag?>>(find.byType(DropdownButton<Tag?>))
           .value;
