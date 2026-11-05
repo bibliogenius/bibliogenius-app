@@ -3733,9 +3733,8 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a sub-shelf card shows its fan and its name, no count', (
-      tester,
-    ) async {
+    testWidgets('a sub-shelf card shows its fan, its name and, at the right, '
+        'the bare number the head will show', (tester) async {
       await _render(tester, page('Living room'), books: books);
 
       final texts = tester
@@ -3743,10 +3742,41 @@ void main() {
             find.descendant(of: subCard('Novels'), matching: find.byType(Text)),
           )
           .toList();
-      expect(texts.map((t) => t.data), ['Novels']);
-      expect(texts.single.maxLines, 2);
-      expect(texts.single.overflow, TextOverflow.ellipsis);
+      expect(texts.map((t) => t.data), ['Novels', '8']);
+      expect(texts.first.maxLines, 2);
+      expect(texts.first.overflow, TextOverflow.ellipsis);
+      final number = find.descendant(
+        of: subCard('Novels'),
+        matching: find.text('8'),
+      );
+      expect(
+        tester.getTopLeft(number).dx,
+        greaterThan(
+          tester
+              .getTopRight(
+                find.descendant(
+                  of: subCard('Novels'),
+                  matching: find.text('Novels'),
+                ),
+              )
+              .dx,
+        ),
+      );
       expect(tester.getSize(subCard('Novels')).height, greaterThanOrEqualTo(44));
+    });
+
+    testWidgets('the number of a sub-shelf card is quieter than its name', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      final number = tester.widget<Text>(
+        find.descendant(of: subCard('Novels'), matching: find.text('8')),
+      );
+      expect(
+        number.style?.color,
+        Theme.of(tester.element(subCard('Novels'))).colorScheme.onSurfaceVariant,
+      );
     });
 
     testWidgets('a sub-shelf card is one button with its counts', (

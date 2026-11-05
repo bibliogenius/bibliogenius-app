@@ -144,8 +144,8 @@ class ShelfCard extends StatelessWidget {
         );
       },
     );
-    // The small form says its counts to a screen reader only: on the page of
-    // the parent they would compete with the count of the head.
+    // The small form prints only a bare number, at the right: the sentence would
+    // compete with the count of the head. A screen reader still gets it whole.
     final Widget text = compact
         ? Text(
             name,
@@ -219,6 +219,15 @@ class ShelfCard extends StatelessWidget {
                             fan,
                             SizedBox(width: compact ? 10 : _padding),
                             Expanded(child: text),
+                            if (compact) ...[
+                              const SizedBox(width: 8),
+                              Text(
+                                '$books',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ],
                           ],
                         )
                       : Column(
