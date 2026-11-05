@@ -15,8 +15,9 @@ import '../../utils/settings_search.dart';
 ///
 /// The app provides it, so the section list and a section page stacked on top
 /// of it share one copy; the pages hand it to their sections through
-/// [SettingsScope]. A section mutates the fields it owns and rebuilds itself
-/// with `setState`; [load] and [autoConnectRelay] notify, since they finish on
+/// [SettingsScope]. It outlives the list: the list calls [forgetVisit] when it
+/// opens. A section mutates the fields it owns and rebuilds itself with
+/// `setState`; [load] and [autoConnectRelay] notify, since they finish on
 /// their own time.
 class SettingsData extends ChangeNotifier {
   bool isLoading = true;
@@ -42,7 +43,10 @@ class SettingsData extends ChangeNotifier {
   ThemeProvider? _theme;
   HubDirectoryProvider? _hub;
   bool _disposed = false;
-  bool _loadStarted = false;
+
+  /// Bumped when a section page opened from the search results closes; the
+  /// results key their sections with it.
+  int resultsGeneration = 0;
 
   void _notify() {
     if (!_disposed) notifyListeners();
@@ -58,7 +62,6 @@ class SettingsData extends ChangeNotifier {
     _api = api;
     _theme = theme;
     _hub = hub;
-    _loadStarted = true;
 
     isLoading = true;
     _notify();
@@ -152,14 +155,30 @@ class SettingsData extends ChangeNotifier {
     }
   }
 
-  /// Loads unless a load already started, for a section page opened without
-  /// the section list below it.
-  Future<void> ensureLoaded(
-    ApiService api,
-    ThemeProvider theme,
-    HubDirectoryProvider hub,
-  ) async {
-    if (!_loadStarted) await load(api, theme, hub);
+  /// Drops what the last visit loaded or typed, so a new visit starts from
+  /// what the backend answers (after a reset, a key no longer stored, a key
+  /// typed but not saved). Not part of [load]: a pull-to-refresh keeps the
+  /// fields. Leaves [relayLoading] alone, a connection may still be running.
+  void forgetVisit() {
+    isLoading = true;
+    config = null;
+    userInfo = null;
+    userStatus = null;
+    searchPrefs.clear();
+    googleBooksApiKey = '';
+    showGoogleAdvanced = false;
+    apiKeyController.clear();
+    relayMailboxUuid = null;
+    relayConnected = false;
+    relayUrlController.clear();
+    hubWebsiteController.clear();
+  }
+
+  /// A section page opened from the search results has closed: the results,
+  /// which stayed mounted under it, remount and read what it changed.
+  void sectionPageClosed() {
+    resultsGeneration++;
+    _notify();
   }
 
   /// Loads again with what the last [load] was given.

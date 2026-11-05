@@ -46,6 +46,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _data = context.read<SettingsData>();
+    // Shared with the section pages, it outlives this page: start this visit
+    // from what the backend answers. No notification, nothing listens yet.
+    _data.forgetVisit();
     _data.addListener(_onDataChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // After the frame: loading notifies the shared data's listeners, which
@@ -453,7 +456,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ] else
                   for (final group in settingsSectionGroups)
                     for (final section in group.sections)
-                      section.builder(key: ValueKey('${section.name}_section')),
+                      // Remounted when a section page opened from here
+                      // closes: they keep what they read when built.
+                      section.builder(
+                        key: ValueKey(
+                          '${section.name}_section_${_data.resultsGeneration}',
+                        ),
+                      ),
                 const SizedBox(height: 100),
               ],
             ),

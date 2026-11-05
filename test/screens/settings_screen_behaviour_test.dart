@@ -101,6 +101,37 @@ class _RelayApiService extends _OfflineApiService {
   }
 }
 
+/// A backend whose stored search settings a test changes between visits.
+class _StoredSearchApiService extends _OfflineApiService {
+  String googleKey = '';
+  Map<String, bool> sources = {};
+
+  Response _reply(String path, Object data) => Response(
+    requestOptions: RequestOptions(path: path),
+    statusCode: 200,
+    data: data,
+  );
+
+  @override
+  Future<Response> getMe() async => _reply('/api/me', <String, dynamic>{});
+
+  @override
+  Future<Response> getUserStatus() async => _reply('/api/user/status', {
+    'config': {
+      'fallback_preferences': {...sources},
+      'api_keys': {if (googleKey.isNotEmpty) 'google_books': googleKey},
+    },
+  });
+
+  @override
+  Future<Response> getRelayConfig() async =>
+      _reply('/api/relay', <String, dynamic>{});
+
+  @override
+  Future<Response> updateProfile({required Map<String, dynamic> data}) async =>
+      _reply('/api/profile', <String, dynamic>{});
+}
+
 class _RecordingHubDirectoryProvider extends _OfflineHubDirectoryProvider {
   int relayPublished = 0;
 
@@ -138,6 +169,10 @@ Future<ThemeProvider> _pumpSettings(
         builder: (_, state) =>
             SettingsScreen(initialFocus: state.uri.queryParameters['focus']),
         routes: [settingsSectionRoute],
+      ),
+      GoRoute(
+        path: '/elsewhere',
+        builder: (_, _) => const Scaffold(body: Text('elsewhere')),
       ),
     ],
   );
@@ -524,6 +559,62 @@ void main() {
       await _goBack(tester);
       expect(find.text(_t(tester, 'mcp_integration')), findsOneWidget);
       expect(reset, findsNothing);
+    });
+  });
+
+  group('one visit at a time', () {
+    Finder openLibrary() => find.widgetWithText(SwitchListTile, 'OpenLibrary');
+    bool openLibraryOn(WidgetTester tester) =>
+        tester.widget<SwitchListTile>(openLibrary()).value;
+    // The key field is obscured: match its value, not its text.
+    Finder keyField(String key) => find.byWidgetPredicate(
+      (w) => w is TextField && w.controller?.text == key,
+    );
+
+    testWidgets('back from a section page, the results show its changes', (
+      tester,
+    ) async {
+      await _pumpSettings(tester, api: _StoredSearchApiService());
+      await tester.enterText(
+        find.byType(TextField).first,
+        _t(tester, 'search_sources'),
+      );
+      await _settle(tester);
+      expect(openLibraryOn(tester), isTrue);
+
+      await _openSection(tester, 'settings_find_books_title');
+      await tester.ensureVisible(openLibrary());
+      await tester.tap(openLibrary());
+      await _settle(tester);
+      expect(openLibraryOn(tester), isFalse);
+
+      await _goBack(tester);
+      expect(openLibraryOn(tester), isFalse);
+    });
+
+    testWidgets('a new visit forgets what the last one loaded', (tester) async {
+      final api = _StoredSearchApiService()
+        ..googleKey = 'OLD-KEY'
+        // Google Books on, so its key field shows.
+        ..sources = {'openlibrary': false, 'google_books': true};
+      await _pumpSettings(tester, api: api);
+      await _openSection(tester, 'settings_find_books_title');
+      expect(keyField('OLD-KEY'), findsOneWidget);
+      expect(openLibraryOn(tester), isFalse);
+
+      // A reset, say: the backend no longer stores either.
+      api
+        ..googleKey = ''
+        ..sources = {};
+      final router = GoRouter.of(tester.element(find.byType(Navigator).first));
+      router.go('/elsewhere');
+      await _settle(tester);
+      router.go('/settings');
+      await _settle(tester);
+
+      await _openSection(tester, 'settings_find_books_title');
+      expect(keyField('OLD-KEY'), findsNothing);
+      expect(openLibraryOn(tester), isTrue);
     });
   });
 
