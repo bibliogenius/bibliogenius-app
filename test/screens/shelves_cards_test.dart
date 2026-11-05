@@ -744,6 +744,47 @@ void main() {
                   as BoxDecoration)
               .gradient;
 
+      group('a shelf known only from its books', () {
+        // Numbered by the core on the way through a hash map: the numbers
+        // swap between two listings. Over HTTP the id is empty, and shared.
+        Tag legacy(String id, String name) => shelf(id, name: name);
+        const a = 'Comics', b = 'Essays';
+
+        for (final (first, second) in const [
+          (('legacy:-1', 'legacy:-2'), ('legacy:-2', 'legacy:-1')),
+          (('', ''), ('', '')),
+        ]) {
+          testWidgets('with ids "${first.$1}", "${first.$2}": each keeps its '
+              'colour from one listing to the next', (tester) async {
+            repo.tags = [legacy(first.$1, a), legacy(first.$2, b)];
+            await pump(tester);
+            final beforeA = groundOf(tester, a);
+            final beforeB = groundOf(tester, b);
+            expect(beforeA, isNot(beforeB));
+
+            repo.tags = [legacy(second.$1, a), legacy(second.$2, b)];
+            await pump(tester);
+
+            expect(groundOf(tester, a), beforeA);
+            expect(groundOf(tester, b), beforeB);
+          });
+        }
+
+        testWidgets('takes no colour from a shelf with a row', (tester) async {
+          repo.tags = [shelf('s0'), shelf('s8'), legacy('legacy:-1', a)];
+          await pump(tester);
+
+          expect(
+            {
+              groundOf(tester, 's0'),
+              groundOf(tester, 's8'),
+              groundOf(tester, a),
+            },
+            hasLength(3),
+          );
+        });
+      });
+
       testWidgets('the grid draws them apart', (tester) async {
         repo.tags = [shelf('s0'), shelf('s8')];
         await pump(tester);

@@ -130,11 +130,11 @@ class ShelfCard extends StatelessWidget {
     return body + _padding * 2 + 2;
   }
 
-  /// The colour slot of every shelf of [tags]: sisters differ, level by level,
-  /// as far as the palette goes.
+  /// The colour slot of every shelf of [tags], by [Tag.stableKey]: sisters
+  /// differ, level by level, as far as the palette goes.
   static Map<String, int> tintSlotsOf(List<Tag> tags) => {
     for (final sisters in Tag.childrenIndex(tags).values)
-      ...AppDesign.shelfTintSlots(sisters.map((tag) => tag.id)),
+      ...AppDesign.shelfTintSlots(sisters.map((tag) => tag.stableKey)),
   };
 
   @override

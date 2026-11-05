@@ -100,6 +100,12 @@ class Tag {
   /// orphan created neither the genre nor its parents.
   bool get isPersisted => id.isNotEmpty && !id.startsWith(syntheticIdPrefix);
 
+  /// What tells this shelf apart from one listing to the next: a shelf with a
+  /// row by its id, one known only from the books' subjects by its name. The
+  /// core numbers those `legacy:` ids afresh, in no stable order, on every
+  /// listing, and over HTTP their id is empty.
+  String get stableKey => isPersisted ? id : 'name:$name';
+
   /// Create a copy with updated children (for tree building)
   Tag copyWithChildren(List<Tag> newChildren) {
     return Tag(

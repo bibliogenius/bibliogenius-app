@@ -60,7 +60,8 @@ class AppDesign {
   /// round starts and colours repeat.
   ///
   /// The order goes by id: on a UUIDv7 it follows creation, on an older id it
-  /// is stable but arbitrary.
+  /// is stable but arbitrary. A shelf with no row goes by its name, as stable,
+  /// after the shelves with one.
   static Map<String, int> shelfTintSlots(Iterable<String> sisterIds) {
     final taken = <int>{};
     final slots = <String, int>{};

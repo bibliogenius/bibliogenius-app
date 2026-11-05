@@ -35,14 +35,8 @@ class ShelfActionsController extends ChangeNotifier
   bool _disposed = false;
 
   /// Shelves deleted whose write has not landed yet: the one waiting on its
-  /// Undo, and any whose write is still on its way. Keyed by [_hideKey].
+  /// Undo, and any whose write is still on its way. By [Tag.stableKey].
   final Set<String> _hidden = {};
-
-  /// A shelf with a row by its id. One known only from the books' subjects
-  /// by its name: the core numbers those `legacy:` ids afresh, in no stable
-  /// order, on every listing.
-  static String _hideKey(Tag tag) =>
-      tag.isPersisted ? tag.id : 'name:${tag.name}';
 
   /// The latest Undo of a move or a rename. It goes when the reader leaves:
   /// under a screen reader it would otherwise follow them everywhere.
@@ -54,7 +48,7 @@ class ShelfActionsController extends ChangeNotifier
   int _generation = 0;
   int get generation => _generation;
 
-  /// Deletions the core has taken, by [_hideKey], with the generation current
+  /// Deletions the core has taken, by [Tag.stableKey], with the generation current
   /// when the write landed. Their rows stay hidden until a listing started
   /// after that lands: any earlier one may still hold the shelf.
   final Map<String, int> _written = {};
@@ -67,7 +61,7 @@ class ShelfActionsController extends ChangeNotifier
   /// sub-shelves where deleting them puts them.
   List<Tag> shown(List<Tag> allTags) => Tag.withoutShelves(allTags, {
     for (final t in allTags)
-      if (_hidden.contains(_hideKey(t))) t.id,
+      if (_hidden.contains(t.stableKey)) t.id,
   });
 
   /// To call before reading the shelves; hand the result to [listingLanded].
@@ -103,7 +97,7 @@ class ShelfActionsController extends ChangeNotifier
       Provider.of<SortPreferenceProvider?>(context, listen: false),
     );
     _pending = pending;
-    _hidden.add(_hideKey(tag));
+    _hidden.add(tag.stableKey);
     notifyListeners();
     final message = AppSnackBar.undoable(
       context,
@@ -120,7 +114,7 @@ class ShelfActionsController extends ChangeNotifier
     if (!pending.settle()) return;
     if (identical(_pending, pending)) _pending = null;
     if (_disposed) return;
-    _hidden.remove(_hideKey(pending.shelf));
+    _hidden.remove(pending.shelf.stableKey);
     notifyListeners();
   }
 
@@ -164,7 +158,7 @@ class ShelfActionsController extends ChangeNotifier
         onWritten?.call();
         return;
       }
-      _hidden.remove(_hideKey(shelf));
+      _hidden.remove(shelf.stableKey);
       notifyListeners();
       final context = _context();
       if (context == null || !context.mounted) return;
@@ -174,7 +168,7 @@ class ShelfActionsController extends ChangeNotifier
       return;
     }
     if (!_disposed) {
-      _written[_hideKey(shelf)] = _generation;
+      _written[shelf.stableKey] = _generation;
       notifyListeners();
     }
     onWritten?.call();
