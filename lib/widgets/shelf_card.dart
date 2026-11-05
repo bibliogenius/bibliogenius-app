@@ -77,19 +77,17 @@ class ShelfCard extends StatelessWidget {
   }) : horizontal = true,
        compact = true;
 
-  /// The height of a row of [ShelfCard.compact]: a line of name, two of counts.
+  /// The height of a row of [ShelfCard.compact]: two lines of name at most,
+  /// and never under the 44 pt of a target.
   static double compactExtentFor(BuildContext context) {
     final theme = Theme.of(context).textTheme;
     final scaler = MediaQuery.textScalerOf(context);
-    final name = scaler.scale(14) * (theme.bodyMedium?.height ?? 1.4);
-    final counts =
-        scaler.scale(theme.bodySmall?.fontSize ?? 12) *
-        (theme.bodySmall?.height ?? 1.4) *
-        _maxLines;
-    final text = name + _nameGap + counts;
+    final text =
+        scaler.scale(14) * (theme.bodyMedium?.height ?? 1.4) * _maxLines;
     const tile = 34.0;
     // A rounding margin: text metrics land a fraction above these sums.
-    return (text > tile ? text : tile) + 8 * 2 + 2;
+    final extent = (text > tile ? text : tile) + 8 * 2 + 2;
+    return extent < 44 ? 44 : extent;
   }
 
   /// The height of a grid row: room for two lines of name and of counts at
@@ -132,34 +130,41 @@ class ShelfCard extends StatelessWidget {
         );
       },
     );
-    final text = Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          name,
-          maxLines: compact ? 1 : _maxLines,
-          overflow: TextOverflow.ellipsis,
-          style: compact
-              ? theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                )
-              : theme.textTheme.titleMedium?.copyWith(
+    // The small form says its counts to a screen reader only: on the page of
+    // the parent they would compete with the count of the head.
+    final Widget text = compact
+        ? Text(
+            name,
+            maxLines: _maxLines,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                name,
+                maxLines: _maxLines,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
-        ),
-        const SizedBox(height: _nameGap),
-        Text(
-          counts.join(' · '),
-          maxLines: _maxLines,
-          overflow: TextOverflow.ellipsis,
-          style: theme.textTheme.bodySmall?.copyWith(
-            color: scheme.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
+              ),
+              const SizedBox(height: _nameGap),
+              Text(
+                counts.join(' · '),
+                maxLines: _maxLines,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          );
 
     return MergeSemantics(
       child: Semantics(

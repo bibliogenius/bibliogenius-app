@@ -114,6 +114,7 @@ import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
 import 'package:bibliogenius/widgets/selectable_book_tile.dart';
 import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
+import 'package:bibliogenius/widgets/shelf_place_header.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
 import '../helpers/mock_classes.dart';
@@ -3422,7 +3423,6 @@ void main() {
     );
     final name = find.byKey(const Key('shelfHeaderTitle'));
     final back = find.byKey(const Key('shelfBackButton'));
-    final chip = find.byKey(const Key('shelfPlaceChip'));
     final heading = find.byKey(const Key('shelvedHereHeading'));
     final lastAdded = find.byKey(const Key('shelfPlaceLastAdded'));
     final menu = find.byKey(const Key('shelfPlaceMenu'));
@@ -3437,8 +3437,9 @@ void main() {
       await _tap(tester, find.text(item).last);
     }
 
-    testWidgets('a first-level shelf: its name and counts, back to the shelves, '
-        'no path', (tester) async {
+    testWidgets('a first-level shelf: its name and counts, back to the shelves', (
+      tester,
+    ) async {
       await _render(tester, page('Living room'), books: books);
 
       expect(tester.widget<Text>(name).data, 'Living room');
@@ -3447,57 +3448,26 @@ void main() {
         find.descendant(of: back, matching: find.text('Shelves')),
         findsOneWidget,
       );
-      expect(chip, findsNothing);
     });
 
-    testWidgets('one level down the path names the parent, and back too', (
-      tester,
-    ) async {
-      await _render(tester, page('Novels'), books: books);
-
-      expect(
-        find.descendant(of: chip, matching: find.text('in Living room')),
-        findsOneWidget,
-      );
-      expect(
-        find.descendant(of: back, matching: find.text('Living room')),
-        findsOneWidget,
-      );
-    });
-
-    testWidgets('two levels down the path names both', (tester) async {
+    testWidgets('further down the way back names the parent, and no path '
+        'repeats it', (tester) async {
       await _render(tester, page('Crime'), books: books);
 
-      expect(
-        find.descendant(
-          of: chip,
-          matching: find.text('in Living room › Novels'),
-        ),
-        findsOneWidget,
-      );
       expect(
         find.descendant(of: back, matching: find.text('Novels')),
         findsOneWidget,
       );
-    });
-
-    testWidgets('three levels down the path cuts the top short', (
-      tester,
-    ) async {
-      await _render(tester, page('Nordic crime'), books: books);
-
+      expect(find.textContaining('in Living room'), findsNothing);
+      expect(find.textContaining('› Novels'), findsNothing);
+      // Only the way back and the head's fan: no third fan for the parent.
       expect(
-        find.descendant(of: chip, matching: find.text('… › Novels › Crime')),
+        find.descendant(
+          of: find.byType(ShelfPlaceHeader),
+          matching: find.byType(ShelfThumbnail),
+        ),
         findsOneWidget,
       );
-    });
-
-    testWidgets('the path leads up to the parent', (tester) async {
-      await _render(tester, page('Crime'), books: books);
-
-      await _tap(tester, chip);
-
-      expect(location(tester), '/shelves?tag=Novels');
     });
 
     testWidgets('back leads to the parent, then to the shelves', (
@@ -3547,20 +3517,12 @@ void main() {
       expect(location(tester), '/shelves?tag=Novels');
     });
 
-    testWidgets('the head wears the extra large fan, the path the smallest', (
-      tester,
-    ) async {
+    testWidgets('the head wears the extra large fan', (tester) async {
       await _render(tester, page('Novels'), books: books);
 
       expect(
         tester.getSize(find.byKey(const Key('shelfPlaceFan'))),
         const Size(112, 80),
-      );
-      expect(
-        tester.getSize(
-          find.descendant(of: chip, matching: find.byType(ShelfThumbnail)),
-        ),
-        const Size(34, 24),
       );
     });
 
@@ -3678,23 +3640,6 @@ void main() {
       );
     });
 
-    testWidgets('the chip of the path: the card colour, the hairline of the '
-        'theme, the subtle shadow', (tester) async {
-      await _render(tester, page('Novels'), books: books);
-      final theme = Theme.of(tester.element(chip));
-
-      final ink = tester.widget<Ink>(
-        find.descendant(of: chip, matching: find.byType(Ink)),
-      );
-      final decoration = ink.decoration! as BoxDecoration;
-      expect(decoration.color, theme.cardColor);
-      expect(decoration.boxShadow, AppDesign.subtleShadow);
-      expect(
-        (decoration.border! as Border).top.color,
-        theme.colorScheme.outline,
-      );
-    });
-
     testWidgets('its two buttons have the shape of those of an empty library', (
       tester,
     ) async {
@@ -3773,6 +3718,22 @@ void main() {
         findsOneWidget,
       );
       handle.dispose();
+    });
+
+    testWidgets('a sub-shelf card shows its fan and its name, no count', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      final texts = tester
+          .widgetList<Text>(
+            find.descendant(of: subCard('Novels'), matching: find.byType(Text)),
+          )
+          .toList();
+      expect(texts.map((t) => t.data), ['Novels']);
+      expect(texts.single.maxLines, 2);
+      expect(texts.single.overflow, TextOverflow.ellipsis);
+      expect(tester.getSize(subCard('Novels')).height, greaterThanOrEqualTo(44));
     });
 
     testWidgets('a sub-shelf card is one button with its counts', (

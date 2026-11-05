@@ -5,10 +5,9 @@ import 'package:flutter/scheduler.dart';
 
 import 'cached_book_cover.dart';
 
-/// The sizes of a shelf thumbnail: [xs] for the path of a shelf's page, [s] for
-/// sub-shelves and the trees, [l] for the cards of the shelves tab, [xl] for
-/// the head of a shelf's page.
-enum ShelfThumbnailSize { xs, s, l, xl }
+/// The sizes of a shelf thumbnail: [s] for sub-shelves and the trees, [l] for
+/// the cards of the shelves tab, [xl] for the head of a shelf's page.
+enum ShelfThumbnailSize { s, l, xl }
 
 /// Where the three covers of a fan sit in its frame.
 class _Fan {
@@ -37,15 +36,6 @@ class _Fan {
   });
 
   static const Map<ShelfThumbnailSize, _Fan> bySize = {
-    ShelfThumbnailSize.xs: _Fan(
-      frame: Size(34, 24),
-      cover: Size(12, 17),
-      centre: Offset(11, 2),
-      left: Offset(4, 3),
-      right: Offset(17, 3),
-      degrees: 9,
-      spine: 1,
-    ),
     ShelfThumbnailSize.s: _Fan(
       frame: Size(48, 34),
       cover: Size(18, 25),

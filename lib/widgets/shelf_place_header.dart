@@ -159,7 +159,7 @@ class _SubShelfGrid extends StatelessWidget {
   }
 }
 
-/// The way back, where the reader is, the shelf's name in large, its counts,
+/// The way back, named after the parent, the shelf's name in large, its counts,
 /// what last arrived and its covers in large.
 class ShelfPlaceHeader extends StatelessWidget {
   final ShelfPlace place;
@@ -202,7 +202,6 @@ class ShelfPlaceHeader extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (place.ancestors.isNotEmpty) _PathChip(place: place),
                         Semantics(
                           header: true,
                           child: Text(
@@ -343,85 +342,6 @@ class _BackButton extends StatelessWidget {
         onPressed: place.actions.onBack,
         icon: Icon(Icons.adaptive.arrow_back),
         label: Text(target, maxLines: 1, overflow: TextOverflow.ellipsis),
-      ),
-    );
-  }
-}
-
-/// "in Genre › Polar", and "… › Genre › Polar" further down: a tap goes up to
-/// the parent.
-class _PathChip extends StatelessWidget {
-  final ShelfPlace place;
-
-  const _PathChip({required this.place});
-
-  @override
-  Widget build(BuildContext context) {
-    final ancestors = place.ancestors;
-    final parent = ancestors.last;
-    final last = ancestors.length >= 2
-        ? ancestors.sublist(ancestors.length - 2)
-        : ancestors;
-    final path = last.map((t) => t.name).join(' › ');
-    final label = ancestors.length >= 3
-        ? '… › $path'
-        : TranslationService.translate(
-            context,
-            'shelf_in_path',
-          ).replaceAll('{path}', path);
-    final theme = Theme.of(context);
-    // Drawn 32 pt high, inside a 44 pt target. On a material of its own: the
-    // scaffold's lies under the ground of the head, with any ink drawn on it.
-    return MergeSemantics(
-      child: Semantics(
-        button: true,
-        child: Material(
-          type: MaterialType.transparency,
-          child: InkWell(
-            key: const Key('shelfPlaceChip'),
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => place.actions.onOpen(parent),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 44),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                widthFactor: 1,
-                heightFactor: 1,
-                child: Ink(
-                  padding: const EdgeInsetsDirectional.only(start: 6, end: 12),
-                  decoration: BoxDecoration(
-                    color: theme.cardColor,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: theme.colorScheme.outline),
-                    boxShadow: AppDesign.subtleShadow,
-                  ),
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: 32),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ShelfThumbnail(
-                          size: ShelfThumbnailSize.xs,
-                          hasBooks: place.booksOf(parent) > 0,
-                          coverPaths: parent.coverPaths,
-                        ),
-                        const SizedBox(width: 6),
-                        Flexible(
-                          child: Text(
-                            label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.textTheme.labelMedium,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

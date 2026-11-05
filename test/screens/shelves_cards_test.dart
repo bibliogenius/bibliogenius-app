@@ -312,8 +312,8 @@ void main() {
     expect(_card('New one'), findsOneWidget);
   });
 
-  testWidgets('a small card holds its name and two lines of counts, at every '
-      'text scale', (tester) async {
+  testWidgets('a small card holds two lines of name at every text scale, and '
+      'stays a 44 pt target', (tester) async {
     for (final scale in const [1.0, 1.29, 1.3, 2.0]) {
       tester.view.physicalSize = const Size(390, 844);
       tester.view.devicePixelRatio = 1.0;
@@ -344,6 +344,10 @@ void main() {
         ),
       );
       expect(tester.takeException(), isNull, reason: 'at $scale');
+      expect(
+        ShelfCard.compactExtentFor(tester.element(find.byType(ShelfCard))),
+        greaterThanOrEqualTo(44),
+      );
     }
   });
 
