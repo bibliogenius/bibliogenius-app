@@ -322,10 +322,16 @@ class _BookListScreenState extends State<BookListScreen>
     super.didChangeDependencies();
     // Subscribes to this route coming back on top, which is when an emptied
     // "to shelve" list may leave (see _leaveToShelveListWhenEmpty).
-    if (widget.unshelvedOnly && (ModalRoute.isCurrentOf(context) ?? false)) {
+    final onTop = ModalRoute.isCurrentOf(context) ?? false;
+    if (widget.unshelvedOnly && onTop) {
       WidgetsBinding.instance.addPostFrameCallback(
         (_) => _leaveToShelveListWhenEmpty(),
       );
+    }
+    if (_isPlacePage && onTop) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && !_isLoading) _followPlaceWhenGone(_allTags);
+      });
     }
     final state = GoRouterState.of(context);
     final newTag = state.uri.queryParameters['tag'];
@@ -1144,6 +1150,9 @@ class _BookListScreenState extends State<BookListScreen>
   void _followPlaceWhenGone(List<Tag> tags) {
     // An empty listing proves nothing: the FFI answers one on any core error.
     if (!_isPlacePage || tags.isEmpty || _openShelf != null) return;
+    // go() replaces the whole stack: from under a page pushed on top it would
+    // close that page. didChangeDependencies calls back once on top.
+    if (ModalRoute.isCurrentOf(context) == false) return;
     final renamed = tags.where((t) => t.id == _placeShelfId).firstOrNull;
     if (renamed != null) {
       context.go(_placeLocation(renamed.name));

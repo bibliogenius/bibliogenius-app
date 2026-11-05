@@ -4311,6 +4311,67 @@ void main() {
         expect(location(tester), '/shelves');
       });
 
+      group('with a book open above it', () {
+        final details = find.byType(BookDetailsScreen);
+
+        Future<void> openBook(WidgetTester tester) async {
+          GoRouter.of(
+            tester.element(find.byType(LibraryScreen)),
+          ).push('/books/${_books.first.id}');
+          await _settle(tester);
+          expect(details, findsOneWidget);
+        }
+
+        Future<void> closeBook(WidgetTester tester) async {
+          GoRouter.of(tester.element(details)).pop();
+          await _settle(tester);
+        }
+
+        testWidgets('renamed by a sync: the book stays open, the page follows '
+            'once back', (tester) async {
+          final harness = await _render(tester, page('Crime'), books: books);
+          await openBook(tester);
+
+          harness.tags.mockTags = [
+            for (final t in tags)
+              t.id == 's3'
+                  ? Tag(id: 's3', name: 'Thrillers', parentId: 's2', count: 4)
+                  : t,
+          ];
+          harness.refresh.refresh();
+          await _settle(tester);
+          expect(details, findsOneWidget);
+
+          await closeBook(tester);
+          expect(location(tester), '/shelves?tag=Thrillers');
+        });
+
+        testWidgets('gone with a sync: the book stays open, the page goes up '
+            'once back', (tester) async {
+          final harness = await _render(tester, page('Kitchen'), books: books);
+          await openBook(tester);
+
+          harness.tags.mockTags = [
+            for (final t in tags)
+              if (t.id != 's6') t,
+          ];
+          harness.refresh.refresh();
+          await _settle(tester);
+          expect(details, findsOneWidget);
+
+          await closeBook(tester);
+          expect(location(tester), '/shelves');
+        });
+
+        testWidgets('nothing changed: back on the same page', (tester) async {
+          await _render(tester, page('Crime'), books: books);
+          await openBook(tester);
+
+          await closeBook(tester);
+          expect(location(tester), '/shelves?tag=Crime');
+        });
+      });
+
       testWidgets('an empty listing proves nothing: the page stays', (
         tester,
       ) async {
