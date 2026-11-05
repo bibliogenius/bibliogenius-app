@@ -414,6 +414,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                   isTabView: true,
                   refreshNotifier: _refreshNotifier,
                   externalSearchQuery: _searchQuery,
+                  onCloseHeaderSearch: _closeSearch,
                 ),
                 widget.shelfTagFilter != null || widget.shelfUnshelvedFilter
                     ? BookListScreen(

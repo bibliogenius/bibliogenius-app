@@ -3889,6 +3889,27 @@ void main() {
         });
       });
 
+      testWidgets('on the Books tab, the button of an empty result empties the '
+          'field of the header too', (tester) async {
+        final field = find.byType(TextField);
+        await _render(
+          tester,
+          _Probe('books', '/books', size: _tallPhone, tags: tags),
+          books: mixed,
+        );
+        await _tap(tester, find.byIcon(Icons.search).first);
+        await tester.enterText(field, 'zzzzzz');
+        await tester.pump(const Duration(milliseconds: 350));
+        await _settle(tester);
+        expect(find.byType(PremiumEmptyState), findsOneWidget);
+
+        await _tap(tester, reset);
+
+        expect(field, findsNothing);
+        expect(find.byType(PremiumEmptyState), findsNothing);
+        expect(find.text('Waiting'), findsWidgets);
+      });
+
       testWidgets('a round trip through Books: the head of the next shelf is '
           'its own', (tester) async {
         await _render(tester, page('Living room'), books: mixed);

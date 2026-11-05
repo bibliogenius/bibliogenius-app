@@ -100,8 +100,8 @@ class BookListScreen extends StatefulWidget {
   /// icon + inline search field) is hidden in this case.
   final ValueListenable<String>? externalSearchQuery;
 
-  /// Closes that search, the field of the header with it. For the page of a
-  /// shelf, whose empty result offers a way back to the shelf's books.
+  /// Closes that search, the field of the header with it, from the button of
+  /// an empty result.
   final VoidCallback? onCloseHeaderSearch;
 
   const BookListScreen({
@@ -2818,8 +2818,10 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   void _resetFromEmptyResult() {
-    // The page of a shelf stays on its shelf, its books back in view.
-    if (_isPlacePage &&
+    // Out of the search, the field of the header with it: the page of a shelf
+    // stays on its shelf, the Books tab keeps its filters. The books to shelve
+    // are no shelf, and go back to the grid.
+    if (!widget.unshelvedOnly &&
         _searchQuery.isNotEmpty &&
         widget.onCloseHeaderSearch != null) {
       widget.onCloseHeaderSearch!();
