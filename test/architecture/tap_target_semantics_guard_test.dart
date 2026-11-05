@@ -610,7 +610,8 @@ class _Harness {
             ),
             GoRoute(
               path: '/books',
-              builder: (_, _) => LibraryScreen(initialIndex: 0),
+              pageBuilder: (_, _) =>
+                  NoTransitionPage(child: LibraryScreen(initialIndex: 0)),
               routes: [
                 GoRoute(path: 'add', builder: (_, _) => const AddBookScreen()),
                 GoRoute(
@@ -626,11 +627,14 @@ class _Harness {
             ),
             GoRoute(
               path: '/shelves',
-              builder: (_, state) => LibraryScreen.forShelvesUri(state.uri),
+              pageBuilder: (_, state) => NoTransitionPage(
+                child: LibraryScreen.forShelvesUri(state.uri),
+              ),
             ),
             GoRoute(
               path: '/collections',
-              builder: (_, _) => LibraryScreen(initialIndex: 2),
+              pageBuilder: (_, _) =>
+                  NoTransitionPage(child: LibraryScreen(initialIndex: 2)),
               routes: [
                 GoRoute(
                   path: ':id',
@@ -3816,15 +3820,56 @@ void main() {
         expect(find.byType(ShelvesScreen), findsOneWidget);
       });
 
-      testWidgets('the library hands the page of a shelf its way out of a search', (
-        tester,
-      ) async {
-        await _render(tester, page('Living room'), books: mixed);
+      group('the search of the library, carried from Books to a shelf', () {
+        final field = find.byType(TextField);
 
-        final list = tester.widget<BookListScreen>(
-          find.byType(BookListScreen, skipOffstage: false).last,
-        );
-        expect(list.onCloseHeaderSearch, isNotNull);
+        Future<void> searchThenOpenShelf(WidgetTester tester) async {
+          await _render(
+            tester,
+            _Probe('books', '/books', size: _tallPhone, tags: tags),
+            books: mixed,
+          );
+          await _tap(tester, find.byIcon(Icons.search).first);
+          await tester.enterText(field, 'zzzzzz');
+          await tester.pump(const Duration(milliseconds: 350));
+          await _settle(tester);
+          GoRouter.of(
+            tester.element(find.byType(LibraryScreen)),
+          ).go('/shelves?tag=Living+room');
+          await _settle(tester);
+        }
+
+        testWidgets('stays in the field of the same screen', (tester) async {
+          await searchThenOpenShelf(tester);
+
+          expect(tester.widget<TextField>(field).controller!.text, 'zzzzzz');
+          expect(find.byType(PremiumEmptyState), findsOneWidget);
+        });
+
+        testWidgets('the button of the empty result empties that field and '
+            'stays on the shelf', (tester) async {
+          await searchThenOpenShelf(tester);
+
+          await _tap(tester, reset);
+
+          expect(field, findsNothing);
+          expect(location(tester), '/shelves?tag=Living+room');
+          expect(find.byType(PremiumEmptyState), findsNothing);
+          expect(find.text('Waiting'), findsWidgets);
+        });
+      });
+
+      testWidgets('a round trip through Books: the head of the next shelf is '
+          'its own', (tester) async {
+        await _render(tester, page('Living room'), books: mixed);
+        final router = GoRouter.of(tester.element(find.byType(LibraryScreen)));
+
+        router.go('/books');
+        await _settle(tester);
+        router.go('/shelves?tag=Study');
+        await _settle(tester);
+
+        expect(tester.widget<Text>(name).data, 'Study');
       });
 
       group('on the Books tab, under a search of the header', () {
@@ -4861,6 +4906,21 @@ void main() {
         await tester.pump();
 
         expect(harness.tags.deleted, ['Crime']);
+      });
+
+      testWidgets('from the grid it landed on, another library tab sends it: no '
+          'shelf changes on the way', (tester) async {
+        final harness = await _render(tester, page('Kitchen'), books: books);
+
+        await pick(tester, 'Delete');
+        expect(location(tester), '/shelves');
+        expect(harness.tags.deleted, isEmpty);
+
+        await _tapNow(tester, find.widgetWithText(Tab, 'Books'));
+        await tester.pump();
+        await tester.pump();
+
+        expect(harness.tags.deleted, ['Kitchen']);
       });
 
       testWidgets('a page opened over the library sends it too', (tester) async {
