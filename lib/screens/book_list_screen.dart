@@ -2464,15 +2464,16 @@ class _BookListScreenState extends State<BookListScreen>
           ),
 
           // 4. Reset Filters Button - visible when any filter is active. On the
-          // page of a shelf only the status is one: the shelf is the page, the
-          // ownership axis a preference, and the query belongs to the field of
-          // the header, which has its own way out.
+          // page of a shelf only the status is one: the shelf is the page and
+          // the ownership axis a preference. A query in the field of the header
+          // is never one: that field has its own way out.
           if (_isPlacePage
               ? _selectedStatus != null
               : _selectedStatus != null ||
                     _selectedOwnership != null ||
                     _tagFilter != null ||
-                    _searchQuery.isNotEmpty) ...[
+                    (_searchQuery.isNotEmpty &&
+                        widget.externalSearchQuery == null)) ...[
             const SizedBox(width: 8),
             Semantics(
               button: true,
@@ -2797,7 +2798,7 @@ class _BookListScreenState extends State<BookListScreen>
     ];
   }
 
-  void _resetAllFilters() {
+  void _resetAllFilters({bool clearHeaderQuery = false}) {
     // The page of a shelf stays on its shelf, and the query stays in the field
     // of the header that owns it.
     if (_isPlacePage && _selectedStatus != null) {
@@ -2817,9 +2818,11 @@ class _BookListScreenState extends State<BookListScreen>
       // The ownership axis is a preference, not a filter: see 'clear' above.
       _tagFilter = null;
       _currentShelf = null;
-      _searchQuery = '';
-      _isSearching = false;
-      _searchController.clear();
+      if (clearHeaderQuery || widget.externalSearchQuery == null) {
+        _searchQuery = '';
+        _isSearching = false;
+        _searchController.clear();
+      }
       _filterBooks();
     });
   }
@@ -3579,7 +3582,7 @@ class _BookListScreenState extends State<BookListScreen>
                                     _searchQuery.isNotEmpty ||
                                     _selectedStatus != null ||
                                     _selectedOwnership != null
-                                ? _resetAllFilters
+                                ? () => _resetAllFilters(clearHeaderQuery: true)
                                 : null),
                     ),
                 ],

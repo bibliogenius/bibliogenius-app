@@ -98,6 +98,7 @@ import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
 import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
 import 'package:bibliogenius/screens/organize_shelves_screen.dart';
+import 'package:bibliogenius/widgets/premium_empty_state.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
@@ -588,6 +589,19 @@ class _Harness {
                 isTabView: true,
                 initialTagFilter: state.uri.queryParameters['tag'],
                 showBackToShelves: true,
+                externalSearchQuery: headerQuery,
+              ),
+            ),
+            // The list of an assistant's action: a query of its own, no header.
+            GoRoute(
+              path: '/own-search',
+              builder: (_, _) =>
+                  const BookListScreen(initialSearchQuery: 'Being'),
+            ),
+            GoRoute(
+              path: '/searched-books',
+              builder: (_, _) => BookListScreen(
+                isTabView: true,
                 externalSearchQuery: headerQuery,
               ),
             ),
@@ -3743,6 +3757,81 @@ void main() {
           expect(find.text('Waiting'), findsNothing);
           expect(reset, findsNothing);
         });
+      });
+
+      group('on the Books tab, under a search of the header', () {
+        Future<_Harness> searched(WidgetTester tester) async {
+          final harness = await _render(
+            tester,
+            _Probe('searched', '/searched-books', size: _tallPhone, tags: tags),
+            books: mixed,
+          );
+          harness.headerQuery.value = 'Being';
+          await tester.pumpAndSettle();
+          return harness;
+        }
+
+        testWidgets('is no way out of the search: it stays hidden', (
+          tester,
+        ) async {
+          await searched(tester);
+
+          expect(find.text('Being read'), findsWidgets);
+          expect(reset, findsNothing);
+        });
+
+        testWidgets('clearing a status leaves the query where the field has it', (
+          tester,
+        ) async {
+          final harness = await searched(tester);
+
+          await filterOnReading(tester);
+          await tester.dragUntilVisible(
+            reset,
+            find.byType(SingleChildScrollView).first,
+            const Offset(-80, 0),
+          );
+          await _tap(tester, reset);
+
+          expect(harness.headerQuery.value, 'Being');
+          expect(find.text('Being read'), findsWidgets);
+          expect(find.text('Waiting'), findsNothing);
+          expect(reset, findsNothing);
+        });
+
+        testWidgets('the button of an empty result still brings the books back', (
+          tester,
+        ) async {
+          final harness = await searched(tester);
+          harness.headerQuery.value = 'zzzzzz';
+          await tester.pumpAndSettle();
+          expect(find.byType(PremiumEmptyState), findsOneWidget);
+
+          await _tap(tester, reset);
+
+          expect(find.byType(PremiumEmptyState), findsNothing);
+          expect(find.text('Waiting'), findsWidgets);
+        });
+      });
+
+      testWidgets('a list with a query of its own keeps it, and clears it', (
+        tester,
+      ) async {
+        await _render(
+          tester,
+          _Probe('own', '/own-search', size: _tallPhone, tags: tags),
+          books: mixed,
+        );
+        await tester.dragUntilVisible(
+          reset,
+          find.byType(SingleChildScrollView).first,
+          const Offset(-80, 0),
+        );
+
+        await _tap(tester, reset);
+
+        expect(find.text('Waiting'), findsWidgets);
+        expect(reset, findsNothing);
       });
 
       testWidgets('the Books tab keeps it, with its shelf filter', (
