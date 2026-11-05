@@ -45,10 +45,13 @@ class AppDesign {
     return hash % shelfTintsLight.length;
   }
 
-  /// The slot of each of a family of sister shelves. Oldest first, by id (a
-  /// UUIDv7 sorts by creation), each takes the slot it asks for if still free,
-  /// otherwise the next free one, so a new sister leaves the older ones alone.
-  /// Past the size of the palette, a new round starts and colours repeat.
+  /// The slot of each of a family of sister shelves. Oldest first, each takes
+  /// the slot it asks for if still free, otherwise the next free one, so a new
+  /// sister leaves the older ones alone. Past the size of the palette, a new
+  /// round starts and colours repeat.
+  ///
+  /// The order goes by id: on a UUIDv7 it follows creation, on an older id it
+  /// is stable but arbitrary.
   static Map<String, int> shelfTintSlots(Iterable<String> sisterIds) {
     final taken = <int>{};
     final slots = <String, int>{};
