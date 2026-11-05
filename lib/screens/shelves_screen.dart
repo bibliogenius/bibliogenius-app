@@ -395,6 +395,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   /// line and the row that leads to organizing them.
   Widget _buildCards(BuildContext context, bool showToShelve) {
     final roots = Tag.getRootTags(_shownTags);
+    // From every shelf: one waiting on its Undo keeps its colour reserved.
+    final tintSlots = ShelfCard.tintSlotsOf(_allTags);
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
@@ -443,7 +445,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                     final tag = roots[index];
                     return ShelfCard(
                       key: ValueKey('shelfCard:${tag.name}'),
-                      shelfId: tag.id,
+                      tintSlot: tintSlots[tag.id]!,
                       name: tag.name,
                       books: _aggregatedCount(tag),
                       subShelves: _childrenOf(tag).length,

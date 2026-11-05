@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../models/tag.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import 'shelf_fan_flight.dart';
@@ -57,8 +58,9 @@ class ShelfCard extends StatelessWidget {
   static const double _nameGap = 2;
   static const int _maxLines = 2;
 
-  /// What picks the colour of the card; the small form has none.
-  final String? shelfId;
+  /// The colour of the card in the palette, from [tintSlotsOf]; the small form
+  /// has none.
+  final int? tintSlot;
   final String name;
   final int books;
   final int subShelves;
@@ -76,7 +78,7 @@ class ShelfCard extends StatelessWidget {
 
   const ShelfCard({
     super.key,
-    required String this.shelfId,
+    required int this.tintSlot,
     required this.name,
     required this.books,
     required this.subShelves,
@@ -94,7 +96,7 @@ class ShelfCard extends StatelessWidget {
     required this.onTap,
     this.coverPaths = const [],
     this.flight,
-  }) : shelfId = null,
+  }) : tintSlot = null,
        horizontal = true,
        compact = true;
 
@@ -128,6 +130,13 @@ class ShelfCard extends StatelessWidget {
     return body + _padding * 2 + 2;
   }
 
+  /// The colour slot of every shelf of [tags]: sisters differ, level by level,
+  /// as far as the palette goes.
+  static Map<String, int> tintSlotsOf(List<Tag> tags) => {
+    for (final sisters in Tag.childrenIndex(tags).values)
+      ...AppDesign.shelfTintSlots(sisters.map((tag) => tag.id)),
+  };
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -137,7 +146,9 @@ class ShelfCard extends StatelessWidget {
       subShelves: subShelves,
     );
     final corner = compact ? 14.0 : 18.0;
-    final tint = compact ? null : AppDesign.shelfTint(shelfId!, theme.brightness);
+    final tint = compact
+        ? null
+        : AppDesign.shelfTint(tintSlot!, theme.brightness);
 
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
     // On the grid, nothing flies from the icon of a shelf with no cover to show.

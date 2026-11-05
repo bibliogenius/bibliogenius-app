@@ -14,6 +14,7 @@ import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/theme/app_design.dart';
 import 'package:bibliogenius/utils/accessible_color.dart';
 import 'package:bibliogenius/themes/base/theme_registry.dart';
+import 'package:bibliogenius/widgets/shelf_actions.dart';
 import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
@@ -95,6 +96,7 @@ void main() {
     double width = 390,
     double textScale = 1,
     ThemeData? theme,
+    ShelfActionsController? actions,
   }) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -113,7 +115,7 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, _) => const ShelvesScreen(isTabView: true),
+          builder: (_, _) => ShelvesScreen(isTabView: true, actions: actions),
         ),
         GoRoute(path: '/shelves', builder: (_, s) => stub(s)),
         GoRoute(path: '/shelves-management', builder: (_, s) => stub(s)),
@@ -483,24 +485,153 @@ void main() {
       }
     });
 
-    test('hangs on the id alone, by a hash pinned across runs', () {
-      expect(AppDesign.shelfTint('s0', Brightness.light), const Color(0xFFE11D48));
+    test('a shelf asks for a slot by the id alone, a hash pinned across runs', () {
       expect(
         AppDesign.shelfTint(
-          '0191f3a2-7c44-7d10-9a31-5e2b8c4d1f60',
+          AppDesign.shelfTintHashSlot('s0'),
+          Brightness.light,
+        ),
+        const Color(0xFFE11D48),
+      );
+      expect(
+        AppDesign.shelfTint(
+          AppDesign.shelfTintHashSlot('0191f3a2-7c44-7d10-9a31-5e2b8c4d1f60'),
           Brightness.light,
         ),
         const Color(0xFF2563EB),
       );
     });
 
-    test('a dark theme draws from its own palette, at the same index', () {
-      final light = AppDesign.shelfTint('s0', Brightness.light);
-      final dark = AppDesign.shelfTint('s0', Brightness.dark);
+    test('a dark theme draws from its own palette, at the same slot', () {
       expect(
-        AppDesign.shelfTintsDark.indexOf(dark),
-        AppDesign.shelfTintsLight.indexOf(light),
+        AppDesign.shelfTintsDark.indexOf(AppDesign.shelfTint(3, Brightness.dark)),
+        AppDesign.shelfTintsLight.indexOf(
+          AppDesign.shelfTint(3, Brightness.light),
+        ),
       );
+    });
+
+    group('among sisters', () {
+      // 's0' and 's8' ask for the same slot.
+      Tag shelf(String id, {String? name, String? parent}) =>
+          Tag(id: id, name: name ?? id, parentId: parent, count: 0);
+
+      test('two of the same hash get two colours, the older one its own', () {
+        expect(
+          AppDesign.shelfTintHashSlot('s0'),
+          AppDesign.shelfTintHashSlot('s8'),
+        );
+
+        final slots = ShelfCard.tintSlotsOf([shelf('s8'), shelf('s0')]);
+
+        expect(slots['s0'], AppDesign.shelfTintHashSlot('s0'));
+        expect(slots['s8'], isNot(slots['s0']));
+      });
+
+      test('a new one leaves the older ones alone, even asking for a taken '
+          'slot', () {
+        final before = ShelfCard.tintSlotsOf([shelf('s0'), shelf('s8')]);
+        // 's9' asks for the slot 's8' moved to.
+        expect(AppDesign.shelfTintHashSlot('s9'), before['s8']);
+
+        final after = ShelfCard.tintSlotsOf([
+          shelf('s9'),
+          shelf('s0'),
+          shelf('s8'),
+        ]);
+
+        expect(after['s0'], before['s0']);
+        expect(after['s8'], before['s8']);
+        expect(after['s9'], isNot(after['s8']));
+        expect(after['s9'], isNot(after['s0']));
+      });
+
+      test('goes by age, never by name', () {
+        final slots = ShelfCard.tintSlotsOf([
+          shelf('s8', name: 'A first by name'),
+          shelf('s0', name: 'Z last by name'),
+        ]);
+
+        expect(slots['s0'], AppDesign.shelfTintHashSlot('s0'));
+      });
+
+      test('holds at every level, each family on its own', () {
+        final slots = ShelfCard.tintSlotsOf([
+          shelf('root'),
+          shelf('s0', parent: 'root'),
+          shelf('s8', parent: 'root'),
+          shelf('other'),
+          shelf('child', parent: 's0'),
+        ]);
+
+        expect(slots['s8'], isNot(slots['s0']));
+        // First at their level, whoever holds that slot elsewhere.
+        expect(slots['root'], AppDesign.shelfTintHashSlot('root'));
+        expect(slots['child'], AppDesign.shelfTintHashSlot('child'));
+      });
+
+      test('cousins may share a colour', () {
+        final slots = ShelfCard.tintSlotsOf([
+          shelf('a'),
+          shelf('b'),
+          shelf('s0', parent: 'a'),
+          shelf('s8', parent: 'b'),
+        ]);
+
+        expect(slots['s0'], slots['s8']);
+      });
+
+      Gradient? groundOf(WidgetTester tester, String name) =>
+          (tester
+                      .widget<Ink>(
+                        find.descendant(
+                          of: _card(name),
+                          matching: find.byKey(const Key('shelfCardGround')),
+                        ),
+                      )
+                      .decoration!
+                  as BoxDecoration)
+              .gradient;
+
+      testWidgets('the grid draws them apart', (tester) async {
+        repo.tags = [shelf('s0'), shelf('s8')];
+        await pump(tester);
+
+        expect(groundOf(tester, 's0'), isNot(groundOf(tester, 's8')));
+      });
+
+      testWidgets('one waiting on its Undo keeps its colour reserved', (
+        tester,
+      ) async {
+        final older = shelf('s0');
+        repo.tags = [older, shelf('s8')];
+        final actions = ShelfActionsController(() => null);
+        addTearDown(actions.dispose);
+        await pump(tester, actions: actions);
+        final before = groundOf(tester, 's8');
+
+        actions.delete(
+          tester.element(find.byType(ShelvesScreen)),
+          older,
+          subShelfCount: 0,
+        );
+        await tester.pump();
+
+        expect(_card('s0'), findsNothing);
+        expect(groundOf(tester, 's8'), before);
+      });
+
+      test('eight never repeat, a ninth has to', () {
+        final ids = [for (var i = 0; i < 9; i++) 's${i * 8}'];
+        final slots = AppDesign.shelfTintSlots(ids);
+
+        final sorted = ids.toList()..sort();
+        expect(
+          sorted.take(8).map((id) => slots[id]).toSet(),
+          hasLength(8),
+        );
+        expect(slots.values, everyElement(inInclusiveRange(0, 7)));
+      });
     });
 
     testWidgets('a shelf keeps its colour wherever it sits in the grid', (
@@ -522,14 +653,24 @@ void main() {
       await pump(tester);
       expect(
         groundOf('Shelf 1'),
-        AppDesign.shelfGradient(AppDesign.shelfTint('s1', Brightness.light)),
+        AppDesign.shelfGradient(
+          AppDesign.shelfTint(
+            AppDesign.shelfTintHashSlot('s1'),
+            Brightness.light,
+          ),
+        ),
       );
 
       repo.tags = _roots(2).reversed.toList();
       await pump(tester);
       expect(
         groundOf('Shelf 1'),
-        AppDesign.shelfGradient(AppDesign.shelfTint('s1', Brightness.light)),
+        AppDesign.shelfGradient(
+          AppDesign.shelfTint(
+            AppDesign.shelfTintHashSlot('s1'),
+            Brightness.light,
+          ),
+        ),
       );
     });
 
@@ -540,7 +681,10 @@ void main() {
           accentColor: Colors.blue,
         );
         await pump(tester, theme: theme);
-        final tint = AppDesign.shelfTint('s0', theme.brightness);
+        final tint = AppDesign.shelfTint(
+          AppDesign.shelfTintHashSlot('s0'),
+          theme.brightness,
+        );
 
         final material = tester.widget<Material>(
           find

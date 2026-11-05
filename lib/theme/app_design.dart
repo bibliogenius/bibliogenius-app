@@ -29,17 +29,36 @@ class AppDesign {
     Color(0xFF0C4A6E),
   ];
 
-  /// The colour of the shelf [shelfId], the same wherever it sits and on every
-  /// device. Not `String.hashCode`, which may change between runs.
-  static Color shelfTint(String shelfId, Brightness brightness) {
-    final tints = brightness == Brightness.dark
-        ? shelfTintsDark
-        : shelfTintsLight;
+  /// The colour in [slot] of the palette of [brightness].
+  static Color shelfTint(int slot, Brightness brightness) =>
+      (brightness == Brightness.dark ? shelfTintsDark : shelfTintsLight)[slot];
+
+  /// The slot a shelf asks for: the same on every device, as it hangs on the
+  /// id alone. Not `String.hashCode`, which may change between runs.
+  static int shelfTintHashSlot(String shelfId) {
     var hash = 0;
     for (final unit in shelfId.codeUnits) {
       hash = (hash * 31 + unit) & 0x7fffffff;
     }
-    return tints[hash % tints.length];
+    return hash % shelfTintsLight.length;
+  }
+
+  /// The slot of each of a family of sister shelves. Oldest first, by id (a
+  /// UUIDv7 sorts by creation), each takes the slot it asks for if still free,
+  /// otherwise the next free one, so a new sister leaves the older ones alone.
+  /// Past the size of the palette, a new round starts and colours repeat.
+  static Map<String, int> shelfTintSlots(Iterable<String> sisterIds) {
+    final taken = <int>{};
+    final slots = <String, int>{};
+    for (final id in sisterIds.toList()..sort()) {
+      if (taken.length == shelfTintsLight.length) taken.clear();
+      var slot = shelfTintHashSlot(id);
+      while (!taken.add(slot)) {
+        slot = (slot + 1) % shelfTintsLight.length;
+      }
+      slots[id] = slot;
+    }
+    return slots;
   }
 
   /// A shelf's gradient: opaque, so the page under it cannot lower the contrast
