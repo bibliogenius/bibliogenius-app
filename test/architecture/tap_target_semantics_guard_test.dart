@@ -3713,6 +3713,209 @@ void main() {
       handle.dispose();
     });
 
+    group('when its shelf changes under it', () {
+      final done = find.widgetWithText(TextButton, 'Done');
+      Future<void> toOrganize(WidgetTester tester) async {
+        await pick(tester, 'Organize shelves');
+        expect(_treeRow('Crime'), findsOneWidget);
+      }
+
+      testWidgets('renamed from Organize: the page follows the new name', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+        await toOrganize(tester);
+
+        await _renameFromRow(tester, 'Crime', 'Thrillers');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            t.id == 's3'
+                ? Tag(id: 's3', name: 'Thrillers', parentId: 's2', count: 4)
+                : t,
+        ];
+        await _tap(tester, done);
+        await _settle(tester);
+
+        expect(location(tester), '/shelves?tag=Thrillers');
+        expect(tester.widget<Text>(name).data, 'Thrillers');
+      });
+
+      testWidgets('deleted from Organize: back up to its parent', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+        await toOrganize(tester);
+
+        await _deleteFromRow(tester, 'Crime');
+        // The core takes the name off the books with the row.
+        harness.tags.mockTags = [
+          for (final t in tags)
+            if (t.id != 's3') t,
+        ];
+        harness.books.mockBooks = [
+          for (final b in books)
+            if (!(b.subjects?.contains('Crime') ?? false)) b,
+        ];
+        await _tap(tester, done);
+        await _settle(tester);
+
+        expect(harness.tags.deleted, ['Crime']);
+        expect(location(tester), '/shelves?tag=Novels');
+        await _letMessagesGo(tester);
+      });
+
+      testWidgets('gone with a sync: back to the grid for a first-level shelf', (
+        tester,
+      ) async {
+        final harness = await _render(
+          tester,
+          page('Kitchen'),
+          books: books,
+        );
+
+        harness.tags.mockTags = [
+          for (final t in tags)
+            if (t.id != 's6') t,
+        ];
+        harness.refresh.refresh();
+        await _settle(tester);
+
+        expect(location(tester), '/shelves');
+      });
+
+      testWidgets('an empty listing proves nothing: the page stays', (
+        tester,
+      ) async {
+        final harness = await _render(tester, page('Kitchen'), books: books);
+
+        harness.tags.mockTags = const [];
+        harness.refresh.refresh();
+        await _settle(tester);
+
+        expect(location(tester), '/shelves?tag=Kitchen');
+      });
+
+      testWidgets('a sub-shelf changed in Organize shows on coming back by a '
+          'tap on this shelf', (tester) async {
+        final harness = await _render(tester, page('Crime'), books: books);
+        await toOrganize(tester);
+        await _renameFromRow(tester, 'Nordic crime', 'Fjords');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            t.id == 's4'
+                ? Tag(id: 's4', name: 'Fjords', parentId: 's3', count: 1)
+                : t,
+        ];
+
+        await _tap(
+          tester,
+          find.descendant(of: _treeRow('Crime'), matching: find.text('Crime')),
+        );
+        await _settle(tester);
+
+        expect(subCard('Fjords'), findsOneWidget);
+      });
+    });
+
+    group('a shelf known only from its books', () {
+      final loose = Tag(id: 'legacy:-1', name: 'Loose', count: 1);
+      final fixture = [...tags, loose];
+      final filedLoose = [filed('l1', 'Stray', 'Loose')];
+
+      testWidgets('gets its row before a sub-shelf goes inside', (
+        tester,
+      ) async {
+        final harness = await _render(
+          tester,
+          _Probe('loose', '/shelves?tag=Loose', size: _tallPhone, tags: fixture),
+          books: filedLoose,
+        );
+
+        await pick(tester, 'Add Sub-Shelf');
+        await tester.enterText(find.byType(TextFormField).first, 'Inner');
+        await _tap(tester, find.text('Create'));
+
+        expect(harness.tags.created.first, 'Loose');
+        expect(harness.tags.created.last, startsWith('Inner < '));
+        expect(harness.tags.created.last, isNot(contains('legacy:')));
+      });
+
+      testWidgets('gets its row to be renamed', (tester) async {
+        final harness = await _render(
+          tester,
+          _Probe('loose', '/shelves?tag=Loose', size: _tallPhone, tags: fixture),
+          books: filedLoose,
+        );
+
+        await pick(tester, 'Rename');
+        await tester.enterText(find.byType(TextFormField).first, 'Found');
+        harness.tags.mockTags = [
+          ...tags,
+          Tag(id: '1', name: 'Found', count: 1),
+        ];
+        await _tap(tester, find.text('Update'));
+
+        expect(harness.tags.created, ['Loose']);
+        expect(harness.tags.updated.single, isNot(contains('legacy:')));
+        expect(location(tester), '/shelves?tag=Found');
+      });
+    });
+
+    testWidgets('a shelf not on the listing but with books has no menu to act '
+        'on it blind', (tester) async {
+      await _render(
+        tester,
+        _Probe('unlisted', '/shelves?tag=Ghost', size: _tallPhone, tags: tags),
+        books: [filed('g1', 'Haunted', 'Ghost')],
+      );
+
+      expect(name, findsOneWidget);
+      expect(menu, findsNothing);
+    });
+
+    testWidgets('a subject with stray spaces counts as filed here, as the core '
+        'counts it', (tester) async {
+      await _render(
+        tester,
+        page('Kitchen'),
+        books: [filed('s1', 'Spaced', ' Kitchen ')],
+      );
+
+      expect(bigEmpty, findsNothing);
+      expect(find.text('Spaced'), findsWidgets);
+    });
+
+    testWidgets('a page opened from far down starts at its own top', (
+      tester,
+    ) async {
+      final crowded = [
+        Tag(id: 'p', name: 'Crowded', count: 0),
+        for (var i = 0; i < 30; i++)
+          Tag(id: 'c$i', name: 'Sub $i', parentId: 'p', count: 0),
+      ];
+      await _render(
+        tester,
+        _Probe('crowded', '/shelves?tag=Sub+29', tags: crowded),
+        books: const [],
+      );
+      final top = tester.getTopLeft(name).dy;
+
+      GoRouter.of(
+        tester.element(find.byType(LibraryScreen)),
+      ).go('/shelves?tag=Crowded');
+      await _settle(tester);
+      await tester.scrollUntilVisible(
+        subCard('Sub 29'),
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
+      await _settle(tester);
+      await tester.tap(subCard('Sub 29'));
+      await _settle(tester);
+
+      expect(tester.getTopLeft(name).dy, top);
+    });
+
     group('in one scroll with the books', () {
       final many = [
         for (var i = 0; i < 40; i++)
@@ -3857,6 +4060,12 @@ void main() {
 
         await pick(tester, 'Rename');
         await tester.enterText(find.byType(TextFormField).first, 'Thrillers');
+        harness.tags.mockTags = [
+          for (final t in tags)
+            t.id == 's3'
+                ? Tag(id: 's3', name: 'Thrillers', parentId: 's2', count: 4)
+                : t,
+        ];
         await _tap(tester, find.text('Update'));
 
         expect(harness.tags.updated, ['s3: Thrillers < s2']);

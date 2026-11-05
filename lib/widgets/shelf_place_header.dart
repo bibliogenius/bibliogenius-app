@@ -24,6 +24,11 @@ class ShelfPlace {
 
   /// Out of the way while the books of the shelf are being reordered.
   final bool hidden;
+
+  /// Whether the shelf is known from a listing that landed on this page. Before
+  /// that nothing can be done to it safely: deleting a shelf taken for one with
+  /// no row would strip its name from the books and keep the row.
+  final bool canAct;
   final ShelfPlaceActions actions;
 
   const ShelfPlace({
@@ -36,6 +41,7 @@ class ShelfPlace {
     required this.booksOf,
     required this.subShelvesOf,
     required this.hidden,
+    required this.canAct,
     required this.actions,
   });
 }
@@ -166,7 +172,7 @@ class ShelfPlaceHeader extends StatelessWidget {
                   child: _BackButton(place: place),
                 ),
               ),
-              _PlaceMenu(place: place),
+              if (place.canAct) _PlaceMenu(place: place),
             ],
           ),
           Padding(

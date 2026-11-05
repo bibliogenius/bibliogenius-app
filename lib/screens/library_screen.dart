@@ -71,6 +71,9 @@ class _LibraryScreenState extends State<LibraryScreen>
   final ValueNotifier<int> _shelvesRefreshNotifier = ValueNotifier<int>(0);
   int _collectionsRefreshKey = 0;
 
+  final GlobalKey<NestedScrollViewState> _scrollKey =
+      GlobalKey<NestedScrollViewState>();
+
   /// The head of the shelf page on show, published by its list of books.
   final ValueNotifier<ShelfPlace?> _place = ValueNotifier<ShelfPlace?>(null);
 
@@ -85,8 +88,7 @@ class _LibraryScreenState extends State<LibraryScreen>
     () => mounted ? context : null,
   );
 
-  /// Off while a page opened over the library hides it. Another library tab
-  /// is another route: going there disposes this screen.
+  /// Off while a page opened over the library hides it.
   ValueListenable<bool>? _tickerMode;
 
   // The contextual-help button is onboarding aid: show it only while the
@@ -162,17 +164,31 @@ class _LibraryScreenState extends State<LibraryScreen>
   @override
   void didUpdateWidget(LibraryScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.initialIndex != oldWidget.initialIndex) {
+    final otherTab = widget.initialIndex != oldWidget.initialIndex;
+    if (otherTab) {
       _tabController.animateTo(widget.initialIndex, duration: Duration.zero);
     }
-    if (widget.shelfTagFilter != oldWidget.shelfTagFilter ||
+    final otherShelf = widget.shelfTagFilter != oldWidget.shelfTagFilter;
+    if (otherTab ||
+        otherShelf ||
         widget.shelfUnshelvedFilter != oldWidget.shelfUnshelvedFilter ||
         widget.shelfSelectOnOpen != oldWidget.shelfSelectOnOpen) {
       // Walking to another page is leaving, unless the page itself sent the
-      // reader there with an Undo to show.
+      // reader there with an Undo to show. The library tabs share this screen:
+      // their routes reuse it, so changing tab comes through here too.
       if (!_shelfActions.consumeLanding()) _shelfActions.leave();
       setState(() {});
     }
+    if (otherShelf) _scrollToTop();
+  }
+
+  /// A page starts at its own top, not where the last one was left: the head
+  /// of the page is in the scroll view the pages share.
+  void _scrollToTop() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final outer = _scrollKey.currentState?.outerController;
+      if (outer != null && outer.hasClients) outer.jumpTo(0);
+    });
   }
 
   void _onTickerModeChanged() {
@@ -319,6 +335,7 @@ class _LibraryScreenState extends State<LibraryScreen>
         context: context,
         removeTop: true,
         child: NestedScrollView(
+          key: _scrollKey,
           headerSliverBuilder: (context, innerBoxIsScrolled) => [
             SliverPersistentHeader(
               pinned: true,

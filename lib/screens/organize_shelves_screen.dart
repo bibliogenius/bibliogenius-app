@@ -259,11 +259,20 @@ class _OrganizeShelvesScreenState extends State<OrganizeShelvesScreen> {
       explicit: context.watch<OwnershipPreferenceProvider>().scope,
       status: null,
     );
-    // Whatever closes this screen: going back to a screen still mounted, it
-    // has to read what changed here. A link out rebuilds what it leads to.
+    // Whatever closes this screen, a link out included: what stands behind
+    // may be the very page it links to, which no navigation rebuilds.
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop && _changed) _refresh.refresh();
+        if (!didPop) return;
+        final refresh = _refresh;
+        final changed = _changed;
+        // Now, not when the route is gone after its transition: Undo must not
+        // stay live over the screen behind, which reads the result. After the
+        // frame: a link out pops this route while the navigator builds.
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _actions.leave();
+          if (changed) refresh.refresh();
+        });
       },
       child: CallbackShortcuts(
         bindings: {const SingleActivator(LogicalKeyboardKey.escape): _close},

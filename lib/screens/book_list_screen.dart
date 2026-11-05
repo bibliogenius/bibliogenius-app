@@ -585,7 +585,11 @@ class _BookListScreenState extends State<BookListScreen>
                 ),
 
               if (widget.unshelvedOnly) _buildToShelveHeader(),
-              if (_isPlacePage && !_isReordering && !_placeIsEmpty)
+              // Not during a search: it scans the whole library.
+              if (_isPlacePage &&
+                  !_isReordering &&
+                  !_placeIsEmpty &&
+                  _searchQuery.isEmpty)
                 _buildShelvedHereHeading(),
               if (!_placeIsEmpty)
                 _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
@@ -960,15 +964,22 @@ class _BookListScreenState extends State<BookListScreen>
       if (mounted) {
         // Also load tags for hierarchy navigation
         final tagRepo = Provider.of<TagRepository>(context, listen: false);
-        final listing = widget.shelfActions?.beginListing();
+        final actions = widget.shelfActions;
+        final listing = actions?.beginListing();
         final tags = await tagRepo.getTags();
         if (!mounted) return;
-        widget.onTagsLoaded?.call(tags);
+        // A listing started before a later one may still hold a shelf deleted
+        // since: its tags are dropped, its books still end the loading.
+        final stale = listing != null && listing != actions?.generation;
+        if (!stale) widget.onTagsLoaded?.call(tags);
 
         setState(() {
           _books = books; // Store ALL books, filtering happens in _filterBooks
-          _allTags = tags; // Store tags for hierarchy traversal
-          if (listing != null) widget.shelfActions?.listingLanded(listing);
+          if (!stale) {
+            _allTags = tags; // Store tags for hierarchy traversal
+            _placeListed = true;
+            if (listing != null) actions?.listingLanded(listing);
+          }
           _libraryName = libraryName;
           // Availability may have changed (new wish, fresh peer sync):
           // re-query it the next time the wanting filter renders.
@@ -978,6 +989,7 @@ class _BookListScreenState extends State<BookListScreen>
           if (!silent) _isLoading = false;
         });
         _leaveToShelveListWhenEmpty();
+        if (!stale) _followPlaceWhenGone(tags);
       }
     } catch (e) {
       if (mounted) {
@@ -1116,6 +1128,30 @@ class _BookListScreenState extends State<BookListScreen>
 
   String? _lastAddedTitle;
 
+  /// A listing has landed on this page: the shelf shown is known, not assumed.
+  bool _placeListed = false;
+
+  /// The row of the shelf on show and its parent's name, as last seen: all that
+  /// is left to go on once a listing no longer holds it.
+  String? _placeShelfId;
+  String? _placeParentName;
+
+  /// This page has no shelf any more: it was renamed or deleted in Organize or
+  /// by a sync. The page follows the new name, or goes up.
+  void _followPlaceWhenGone(List<Tag> tags) {
+    // An empty listing proves nothing: the FFI answers one on any core error.
+    if (!_isPlacePage || tags.isEmpty || _openShelf != null) return;
+    final renamed = tags.where((t) => t.id == _placeShelfId).firstOrNull;
+    if (renamed != null) {
+      context.go(_placeLocation(renamed.name));
+      return;
+    }
+    // The core lists every name the books carry: books here mean a shelf.
+    if (_filteredBooks.isNotEmpty) return;
+    final parent = tags.where((t) => t.name == _placeParentName).firstOrNull;
+    context.go(_placeLocation(parent?.name));
+  }
+
   void _publishPlace() {
     final notifier = widget.placeNotifier;
     final requested = _tagFilter;
@@ -1126,6 +1162,11 @@ class _BookListScreenState extends State<BookListScreen>
         _openShelf ?? Tag(id: 'legacy:route', name: requested, count: 0);
     final shown = _shownTags;
     final inView = shown.where((t) => t.id == shelf.id).firstOrNull ?? shelf;
+    final listed = _openShelf != null;
+    if (listed) {
+      if (shelf.isPersisted) _placeShelfId = shelf.id;
+      _placeParentName = _parentOf(inView)?.name;
+    }
     final scope = resolveOwnershipScope(
       explicit: context.read<OwnershipPreferenceProvider>().scope,
       status: null,
@@ -1153,6 +1194,7 @@ class _BookListScreenState extends State<BookListScreen>
       booksOf: (tag) => aggregatedCountForScope(tag, shown, scope),
       subShelvesOf: (tag) => Tag.getDirectChildren(tag.id, shown).length,
       hidden: _isReordering,
+      canAct: _placeListed && listed,
       actions: ShelfPlaceActions(
         onBack: () => _openPlace(_parentOf(inView)),
         onOpen: _openPlace,
@@ -1186,7 +1228,8 @@ class _BookListScreenState extends State<BookListScreen>
       tag: shelf,
       allTags: _allTags,
       onRenamed: (name) {
-        if (name == shelf.name) return;
+        // The same address changes no page: nothing would use the landing.
+        if (name == _tagFilter) return;
         actions?.willLand();
         router.go(_placeLocation(name));
       },
@@ -1523,7 +1566,8 @@ class _BookListScreenState extends State<BookListScreen>
         // The page of a shelf: its sub-shelves are cards above, the grid holds
         // what is filed right here. The tree of a shelf stays the filter of
         // the books tab.
-        shelfPredicate = (book) => book.subjects?.contains(shelf.name) ?? false;
+        shelfPredicate = (book) =>
+            book.subjects?.any((s) => s.trim() == shelf.name) ?? false;
       } else if (shelf != null && _allTags.isNotEmpty) {
         // Get all matching tag names (this tag + descendants)
         final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);

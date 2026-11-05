@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
 import '../models/tag.dart';
 import '../providers/sort_preference_provider.dart';
+import '../services/shelf_rows.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
 import 'app_snack_bar.dart';
@@ -158,7 +159,11 @@ class ShelfActionsController extends ChangeNotifier
       await pending.sortPreference?.setShelfOrder(shelf.id, false);
     } catch (e) {
       debugPrint('Deleting a shelf failed: ${e.runtimeType}');
-      if (_disposed) return;
+      if (_disposed) {
+        // No one left to say it to, but what shows the shelves can read again.
+        onWritten?.call();
+        return;
+      }
       _hidden.remove(_hideKey(shelf));
       notifyListeners();
       final context = _context();
@@ -304,7 +309,9 @@ Future<void> _writeRename(
 }) async {
   try {
     final repo = Provider.of<TagRepository>(context, listen: false);
-    await repo.updateTag(tag.uuid, name, parentId: parentId);
+    // A name known only from the books has no row to rename yet.
+    final row = await shelfWithRow(repo, tag) ?? tag;
+    await repo.updateTag(row.uuid, name, parentId: parentId);
     if (!context.mounted) return;
     final messenger = ScaffoldMessenger.of(context);
     final taken = TranslationService.translate(
@@ -316,7 +323,7 @@ Future<void> _writeRename(
         context,
         TranslationService.translate(context, 'shelf_updated'),
         onUndo: () =>
-            _undoRename(repo, messenger, tag.id, tag.name, taken, onUndone),
+            _undoRename(repo, messenger, row.id, tag.name, taken, onUndone),
       ),
     );
     onRenamed(name);
@@ -475,7 +482,7 @@ void showNewShelfDialog(
                     await _writeNewShelf(
                       outerContext,
                       controller.text.trim(),
-                      parentId: selectedParent?.id,
+                      parent: selectedParent,
                       onCreated: onCreated,
                     );
                   }
@@ -493,12 +500,14 @@ void showNewShelfDialog(
 Future<void> _writeNewShelf(
   BuildContext context,
   String name, {
-  required String? parentId,
+  required Tag? parent,
   required VoidCallback onCreated,
 }) async {
   try {
     final repo = Provider.of<TagRepository>(context, listen: false);
-    await repo.createTag(name, parentId: parentId);
+    // A name known only from the books cannot parent another shelf yet.
+    final parentRow = await shelfWithRow(repo, parent);
+    await repo.createTag(name, parentId: parentRow?.id);
     if (!context.mounted) return;
     // Replaces an Undo still up rather than queueing behind it.
     AppSnackBar.success(

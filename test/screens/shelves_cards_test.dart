@@ -11,6 +11,7 @@ import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
 /// The shelves tab as a place to walk into: a grid of first-level shelves,
@@ -308,6 +309,41 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(_card('New one'), findsOneWidget);
+  });
+
+  testWidgets('a small card holds its name and two lines of counts, at every '
+      'text scale', (tester) async {
+    for (final scale in const [1.0, 1.29, 1.3, 2.0]) {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => ThemeProvider()..setLocaleSync(const Locale('en')),
+          child: MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => Center(
+                  child: SizedBox(
+                    width: 174,
+                    height: ShelfCard.compactExtentFor(context),
+                    child: ShelfCard.compact(
+                      name: 'A rather long sub-shelf name',
+                      books: 30,
+                      subShelves: 3,
+                      onTap: () {},
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull, reason: 'at $scale');
+    }
   });
 
   group('the row above the grid', () {
