@@ -3638,6 +3638,28 @@ void main() {
       expect(find.byKey(const Key('shelfEmptyAddSubShelf')), findsOneWidget);
     });
 
+    testWidgets('its two buttons have the corners of the app buttons', (
+      tester,
+    ) async {
+      await _render(tester, page('Kitchen'), books: books);
+
+      for (final key in const ['shelfEmptyAddBook', 'shelfEmptyAddSubShelf']) {
+        final style = tester
+            .widget<ButtonStyleButton>(find.byKey(Key(key)))
+            .style;
+        expect(
+          style?.shape?.resolve(const {}),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          reason: key,
+        );
+        expect(
+          style?.textStyle?.resolve(const {})?.fontWeight,
+          FontWeight.w600,
+          reason: key,
+        );
+      }
+    });
+
     testWidgets('the empty page creates a sub-shelf inside the shelf, and its '
         'card shows without leaving', (tester) async {
       final harness = await _render(tester, page('Kitchen'), books: books);

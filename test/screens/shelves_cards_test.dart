@@ -369,6 +369,56 @@ void main() {
       );
     });
 
+    for (final (width, gap) in const [(390.0, 12.0), (700.0, 16.0)]) {
+      testWidgets('at $width pt it keeps $gap pt from the cards, like the cards '
+          'between them', (tester) async {
+        await pump(tester, width: width);
+
+        final organize = find.ancestor(
+          of: find.text('Organize'),
+          matching: find.byWidgetPredicate((w) => w is TextButton),
+        );
+        expect(
+          tester.getTopLeft(_card('Shelf 0')).dy -
+              tester.getBottomLeft(organize).dy,
+          gap,
+        );
+      });
+    }
+
+    testWidgets('it keeps its distance from the tabs with no "to shelve" line', (
+      tester,
+    ) async {
+      await pump(tester);
+
+      final organize = find.ancestor(
+        of: find.text('Organize'),
+        matching: find.byWidgetPredicate((w) => w is TextButton),
+      );
+      expect(tester.getTopLeft(organize).dy, 8);
+    });
+
+    testWidgets('the add button has the corners of the app buttons', (
+      tester,
+    ) async {
+      await pump(tester, width: 700);
+
+      final button = tester.widget<ButtonStyleButton>(
+        find.ancestor(
+          of: find.text('Create a shelf'),
+          matching: find.byWidgetPredicate((w) => w is OutlinedButton),
+        ),
+      );
+      expect(
+        button.style?.shape?.resolve(const {}),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      );
+      expect(
+        button.style?.textStyle?.resolve(const {})?.fontWeight,
+        FontWeight.w600,
+      );
+    });
+
     testWidgets('"Organize" leads to the organizing route', (tester) async {
       await pump(tester);
 

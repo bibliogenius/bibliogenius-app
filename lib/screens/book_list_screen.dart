@@ -1334,6 +1334,10 @@ class _BookListScreenState extends State<BookListScreen>
   /// Neither sub-shelf nor book: the shelf, empty, and the two ways to fill it.
   Widget _buildPlaceEmpty() {
     final shelf = _openShelf!;
+    final shape = RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+    );
+    const label = TextStyle(fontWeight: FontWeight.w600);
     return RefreshIndicator(
       onRefresh: _fetchBooks,
       child: SingleChildScrollView(
@@ -1360,7 +1364,11 @@ class _BookListScreenState extends State<BookListScreen>
               children: [
                 FilledButton(
                   key: const Key('shelfEmptyAddBook'),
-                  style: FilledButton.styleFrom(minimumSize: const Size(0, 44)),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 44),
+                    shape: shape,
+                    textStyle: label,
+                  ),
                   onPressed: _addBook,
                   child: Text(
                     TranslationService.translate(context, 'add_book_button'),
@@ -1370,6 +1378,8 @@ class _BookListScreenState extends State<BookListScreen>
                   key: const Key('shelfEmptyAddSubShelf'),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(0, 44),
+                    shape: shape,
+                    textStyle: label,
                   ),
                   onPressed: () => _addSubShelfToPlace(shelf),
                   child: Text(

@@ -465,7 +465,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   /// floating, at its left.
   Widget _buildGridHead(BuildContext context, {required bool wide}) {
     return Padding(
-      padding: const EdgeInsets.only(top: 4, bottom: 2),
+      // As far from the cards as the cards from each other.
+      padding: EdgeInsets.only(top: 8, bottom: wide ? 16 : 12),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
@@ -475,6 +476,12 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                 onPressed: _showCreateShelfDialog,
                 style: OutlinedButton.styleFrom(
                   minimumSize: const Size(0, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(
+                      AppDesign.radiusMedium,
+                    ),
+                  ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 icon: const Icon(Icons.add),
                 label: Text(
