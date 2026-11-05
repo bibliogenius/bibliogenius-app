@@ -100,6 +100,10 @@ class BookListScreen extends StatefulWidget {
   /// icon + inline search field) is hidden in this case.
   final ValueListenable<String>? externalSearchQuery;
 
+  /// Closes that search, the field of the header with it. For the page of a
+  /// shelf, whose empty result offers a way back to the shelf's books.
+  final VoidCallback? onCloseHeaderSearch;
+
   const BookListScreen({
     super.key,
     this.initialSearchQuery,
@@ -115,6 +119,7 @@ class BookListScreen extends StatefulWidget {
     this.unshelvedOnly = false,
     this.startInSelection = false,
     this.externalSearchQuery,
+    this.onCloseHeaderSearch,
   });
 
   @override
@@ -2798,6 +2803,17 @@ class _BookListScreenState extends State<BookListScreen>
     ];
   }
 
+  void _resetFromEmptyResult() {
+    // The page of a shelf stays on its shelf, its books back in view.
+    if (_isPlacePage &&
+        _searchQuery.isNotEmpty &&
+        widget.onCloseHeaderSearch != null) {
+      widget.onCloseHeaderSearch!();
+      return;
+    }
+    _resetAllFilters(clearHeaderQuery: true);
+  }
+
   void _resetAllFilters({bool clearHeaderQuery = false}) {
     // The page of a shelf stays on its shelf, and the query stays in the field
     // of the header that owns it.
@@ -3582,7 +3598,7 @@ class _BookListScreenState extends State<BookListScreen>
                                     _searchQuery.isNotEmpty ||
                                     _selectedStatus != null ||
                                     _selectedOwnership != null
-                                ? () => _resetAllFilters(clearHeaderQuery: true)
+                                ? _resetFromEmptyResult
                                 : null),
                     ),
                 ],

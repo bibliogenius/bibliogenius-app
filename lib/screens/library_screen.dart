@@ -424,6 +424,7 @@ class _LibraryScreenState extends State<LibraryScreen>
                         startInSelection: widget.shelfSelectOnOpen,
                         showBackToShelves: true,
                         externalSearchQuery: _searchQuery,
+                        onCloseHeaderSearch: _closeSearch,
                         placeNotifier: _place,
                         shelfActions: _shelfActions,
                         initialTags: _knownTags,

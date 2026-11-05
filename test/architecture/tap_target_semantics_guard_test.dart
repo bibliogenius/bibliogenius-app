@@ -98,6 +98,7 @@ import 'package:bibliogenius/screens/settings/settings_section_screen.dart';
 import 'package:bibliogenius/screens/settings/settings_sections.dart';
 import 'package:bibliogenius/screens/settings_screen.dart';
 import 'package:bibliogenius/screens/organize_shelves_screen.dart';
+import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/widgets/premium_empty_state.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
@@ -588,8 +589,10 @@ class _Harness {
               builder: (_, state) => BookListScreen(
                 isTabView: true,
                 initialTagFilter: state.uri.queryParameters['tag'],
+                unshelvedOnly: state.uri.queryParameters['unshelved'] == '1',
                 showBackToShelves: true,
                 externalSearchQuery: headerQuery,
+                onCloseHeaderSearch: () => headerQuery.value = '',
               ),
             ),
             // The list of an assistant's action: a query of its own, no header.
@@ -3757,6 +3760,71 @@ void main() {
           expect(find.text('Waiting'), findsNothing);
           expect(reset, findsNothing);
         });
+      });
+
+      testWidgets('an empty result under a search: its button closes the search '
+          'and stays on the shelf', (tester) async {
+        final harness = await _render(
+          tester,
+          _Probe(
+            'searched',
+            '/searched-shelf?tag=Living+room',
+            size: _tallPhone,
+            tags: tags,
+          ),
+          books: mixed,
+        );
+        harness.headerQuery.value = 'zzzzzz';
+        await tester.pumpAndSettle();
+        expect(find.byType(PremiumEmptyState), findsOneWidget);
+
+        await _tap(tester, reset);
+
+        expect(harness.headerQuery.value, '');
+        expect(
+          GoRouterState.of(
+            tester.element(find.byType(BookListScreen)),
+          ).uri.toString(),
+          '/searched-shelf?tag=Living+room',
+        );
+        expect(find.byType(PremiumEmptyState), findsNothing);
+        expect(find.text('Waiting'), findsWidgets);
+        expect(find.text('Elsewhere'), findsNothing);
+      });
+
+      testWidgets('the books to shelve are no shelf: their empty result goes '
+          'back to the grid', (tester) async {
+        final harness = await _render(
+          tester,
+          _Probe(
+            'searched',
+            '/searched-shelf?unshelved=1',
+            size: _tallPhone,
+            tags: tags,
+          ),
+          books: [
+            ...mixed,
+            Book(id: 'r4', title: 'Loose', author: 'Ann Able'),
+          ],
+        );
+        harness.headerQuery.value = 'zzzzzz';
+        await tester.pumpAndSettle();
+
+        await _tap(tester, reset);
+
+        expect(harness.headerQuery.value, 'zzzzzz');
+        expect(find.byType(ShelvesScreen), findsOneWidget);
+      });
+
+      testWidgets('the library hands the page of a shelf its way out of a search', (
+        tester,
+      ) async {
+        await _render(tester, page('Living room'), books: mixed);
+
+        final list = tester.widget<BookListScreen>(
+          find.byType(BookListScreen, skipOffstage: false).last,
+        );
+        expect(list.onCloseHeaderSearch, isNotNull);
       });
 
       group('on the Books tab, under a search of the header', () {
