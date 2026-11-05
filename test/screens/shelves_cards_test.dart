@@ -12,6 +12,7 @@ import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/theme/app_design.dart';
+import 'package:bibliogenius/themes/base/theme_registry.dart';
 import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
@@ -76,6 +77,8 @@ void main() {
   late BookRefreshNotifier refresh;
   final navigated = <String>[];
 
+  setUpAll(ThemeRegistry.initialize);
+
   setUp(() {
     SharedPreferences.setMockInitialValues({'languageCode': 'en'});
     TranslationService.setPoTranslationsForTest(_catalogue);
@@ -90,6 +93,7 @@ void main() {
     WidgetTester tester, {
     double width = 390,
     double textScale = 1,
+    ThemeData? theme,
   }) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1.0;
@@ -97,7 +101,7 @@ void main() {
     tester.platformDispatcher.textScaleFactorTestValue = textScale;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
 
-    final theme = ThemeProvider()..setLocaleSync(const Locale('en'));
+    final themeProvider = ThemeProvider()..setLocaleSync(const Locale('en'));
     Widget stub(GoRouterState state) {
       navigated.add(state.uri.toString());
       return const Scaffold(body: Text('elsewhere'));
@@ -118,14 +122,14 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider<ThemeProvider>.value(value: theme),
+          ChangeNotifierProvider<ThemeProvider>.value(value: themeProvider),
           ChangeNotifierProvider<BookRefreshNotifier>.value(value: refresh),
           ChangeNotifierProvider<OwnershipPreferenceProvider>(
             create: (_) => OwnershipPreferenceProvider(),
           ),
           Provider<TagRepository>.value(value: repo),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(routerConfig: router, theme: theme),
       ),
     );
     await tester.pumpAndSettle();
@@ -352,8 +356,8 @@ void main() {
   });
 
   group('its surfaces', () {
-    /// The decoration of the box around [of], nearest first.
-    BoxDecoration surfaceAround(WidgetTester tester, Finder of) => tester
+    /// The nearest box with a shadow around [of].
+    BoxDecoration shadowAround(WidgetTester tester, Finder of) => tester
         .widgetList<DecoratedBox>(
           find.ancestor(of: of, matching: find.byType(DecoratedBox)),
         )
@@ -361,90 +365,88 @@ void main() {
         .whereType<BoxDecoration>()
         .firstWhere((d) => d.boxShadow?.isNotEmpty ?? false);
 
-    testWidgets('a card: the card colour, the hairline of the theme, the '
-        'subtle shadow', (tester) async {
-      await pump(tester);
-      final theme = Theme.of(tester.element(_card('Shelf 0')));
+    for (final (style, card, line) in const [
+      ('default', Color(0xFFFFFFFF), Color(0xFFE7E5E4)),
+      ('dark', Color(0xFF1E293B), Color(0xFF334155)),
+      ('minimal', Color(0xFFFAFAFA), Color(0xFFE5E5E5)),
+    ]) {
+      ThemeData themeOf() =>
+          ThemeRegistry.get(style)!.buildTheme(accentColor: Colors.blue);
 
-      final material = tester.widget<Material>(
-        find.descendant(of: _card('Shelf 0'), matching: find.byType(Material)).first,
-      );
-      expect(material.color, theme.cardColor);
-      final shape = material.shape! as RoundedRectangleBorder;
-      expect(shape.side.color, theme.colorScheme.outline);
-      expect(
-        tester
-            .widget<DecoratedBox>(
-              find.descendant(of: _card('Shelf 0'), matching: find.byType(DecoratedBox)).first,
-            )
-            .decoration,
-        isA<BoxDecoration>().having(
-          (d) => d.boxShadow,
-          'shadow',
+      void expectSurface(WidgetTester tester, Finder of, double radius) {
+        final material = tester.widget<Material>(
+          find.descendant(of: of, matching: find.byType(Material)).first,
+        );
+        expect(material.color, card);
+        final shape = material.shape! as RoundedRectangleBorder;
+        expect(shape.side.color, line);
+        expect(shape.side.width, 1);
+        expect(shape.borderRadius, BorderRadius.circular(radius));
+      }
+
+      testWidgets('$style: a card takes the colour and line of cardTheme, its '
+          'own corners, the subtle shadow', (tester) async {
+        await pump(tester, theme: themeOf());
+
+        expectSurface(tester, _card('Shelf 0'), 18);
+        expect(
+          shadowAround(tester, find.text('Shelf 0')).boxShadow,
           AppDesign.subtleShadow,
-        ),
-      );
-    });
+        );
+      });
 
-    testWidgets('a small card has the same surface', (tester) async {
-      await tester.pumpWidget(
-        ChangeNotifierProvider<ThemeProvider>(
-          create: (_) => ThemeProvider()..setLocaleSync(const Locale('en')),
-          child: MaterialApp(
-            home: Scaffold(
-              body: ShelfCard.compact(
-                key: const Key('small'),
-                name: 'Comics',
-                books: 3,
-                subShelves: 0,
-                onTap: () {},
+      testWidgets('$style: a small card too', (tester) async {
+        await tester.pumpWidget(
+          ChangeNotifierProvider<ThemeProvider>(
+            create: (_) => ThemeProvider()..setLocaleSync(const Locale('en')),
+            child: MaterialApp(
+              theme: themeOf(),
+              home: Scaffold(
+                body: ShelfCard.compact(
+                  key: const Key('small'),
+                  name: 'Comics',
+                  books: 3,
+                  subShelves: 0,
+                  onTap: () {},
+                ),
               ),
             ),
           ),
-        ),
-      );
-      final small = find.byKey(const Key('small'));
-      final theme = Theme.of(tester.element(small));
+        );
 
-      final material = tester.widget<Material>(
-        find.descendant(of: small, matching: find.byType(Material)).first,
-      );
-      expect(material.color, theme.cardColor);
+        expectSurface(tester, find.byKey(const Key('small')), 14);
+      });
+
+      testWidgets('$style: the "to shelve" line too', (tester) async {
+        repo.unshelved = 2;
+        await pump(tester, theme: themeOf());
+
+        expectSurface(tester, _line, 12);
+        expect(
+          shadowAround(tester, find.textContaining('To shelve')).boxShadow,
+          AppDesign.subtleShadow,
+        );
+      });
+    }
+
+    testWidgets('the row above the grid has no ground of its own', (
+      tester,
+    ) async {
+      await pump(tester, width: 700);
+
       expect(
-        (material.shape! as RoundedRectangleBorder).side.color,
-        theme.colorScheme.outline,
+        tester
+            .widgetList<DecoratedBox>(
+              find.ancestor(
+                of: find.text('Organize'),
+                matching: find.byType(DecoratedBox),
+              ),
+            )
+            .map((b) => b.decoration)
+            .whereType<BoxDecoration>()
+            .where((d) => d.boxShadow?.isNotEmpty ?? false),
+        isEmpty,
       );
-    });
-
-    testWidgets('the "to shelve" line: the card colour and the shadow, no '
-        'border', (tester) async {
-      repo.unshelved = 2;
-      await pump(tester);
-      final theme = Theme.of(tester.element(_line));
-
-      final material = tester.widget<Material>(
-        find.descendant(of: _line, matching: find.byType(Material)).first,
-      );
-      expect(material.color, theme.cardColor);
-      expect(
-        (material.shape! as RoundedRectangleBorder).side,
-        BorderSide.none,
-      );
-      expect(
-        surfaceAround(tester, find.textContaining('To shelve')).boxShadow,
-        AppDesign.subtleShadow,
-      );
-    });
-
-    testWidgets('the row above the grid: the card colour and the shadow, no '
-        'border', (tester) async {
-      await pump(tester);
-      final theme = Theme.of(tester.element(find.text('Organize')));
-
-      final surface = surfaceAround(tester, find.text('Organize'));
-      expect(surface.color, theme.cardColor);
-      expect(surface.boxShadow, AppDesign.subtleShadow);
-      expect(surface.border, isNull);
     });
   });
 

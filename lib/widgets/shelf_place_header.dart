@@ -95,18 +95,17 @@ class ShelfPlaceSlivers extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(child: ShelfPlaceHeader(place: place)),
           if (place.subShelves.isNotEmpty) ...[
-            SliverPadding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              sliver: SliverToBoxAdapter(
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    TranslationService.translate(context, 'sub_categories'),
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
+            // The section's landmark for screen readers, with nothing on screen:
+            // the head announces the sub-shelves and the cards speak for
+            // themselves. A sliver with no height, or a node with no surface,
+            // would never reach the platform: it keeps a sliver of the gap.
+            SliverToBoxAdapter(
+              child: Semantics(
+                key: const Key('subShelvesMarker'),
+                container: true,
+                header: true,
+                label: TranslationService.translate(context, 'sub_categories'),
+                child: const SizedBox(height: 4, width: double.infinity),
               ),
             ),
             SliverPadding(

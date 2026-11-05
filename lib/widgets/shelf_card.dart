@@ -5,6 +5,20 @@ import '../theme/app_design.dart';
 import 'shelf_fan_flight.dart';
 import 'shelf_thumbnail.dart';
 
+/// The ground of a shelf surface: that of the theme's cards.
+Color shelfSurfaceColor(ThemeData theme) =>
+    theme.cardTheme.color ?? theme.cardColor;
+
+/// The outline of a shelf surface: the line of the theme's cards, around the
+/// corners the shelves keep whatever the theme.
+ShapeBorder shelfSurfaceShape(ThemeData theme, double radius) {
+  final themed = theme.cardTheme.shape;
+  return RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(radius),
+    side: themed is OutlinedBorder ? themed.side : BorderSide.none,
+  );
+}
+
 /// How many columns of shelf cards fit [width]: one on a very narrow screen
 /// or with large text, where two would cut the names short.
 int shelfGridColumns({required double width, required double textScale}) {
@@ -116,7 +130,7 @@ class ShelfCard extends StatelessWidget {
       books: books,
       subShelves: subShelves,
     );
-    final radius = BorderRadius.circular(compact ? 14 : 18);
+    final corner = compact ? 14.0 : 18.0;
 
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
     late BuildContext fanContext;
@@ -172,15 +186,12 @@ class ShelfCard extends StatelessWidget {
         label: [name, ...counts].join(', '),
         child: DecoratedBox(
           decoration: BoxDecoration(
-            borderRadius: radius,
+            borderRadius: BorderRadius.circular(corner),
             boxShadow: AppDesign.subtleShadow,
           ),
           child: Material(
-            color: theme.cardColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: radius,
-              side: BorderSide(color: scheme.outline),
-            ),
+            color: shelfSurfaceColor(theme),
+            shape: shelfSurfaceShape(theme, corner),
             clipBehavior: Clip.antiAlias,
             child: InkWell(
               onTap: () {

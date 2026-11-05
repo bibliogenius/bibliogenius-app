@@ -467,54 +467,42 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return Padding(
       // As far from the cards as the cards from each other.
       padding: EdgeInsets.only(top: 8, bottom: wide ? 16 : 12),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: AppDesign.subtleShadow,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              if (wide) ...[
-                Flexible(
-                  child: OutlinedButton.icon(
-                    onPressed: _showCreateShelfDialog,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 44),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                          AppDesign.radiusMedium,
-                        ),
-                      ),
-                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: Text(
-                      TranslationService.translate(context, 'create_shelf'),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (wide) ...[
+            Flexible(
+              child: OutlinedButton.icon(
+                onPressed: _showCreateShelfDialog,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size(0, 44),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
                   ),
+                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                const SizedBox(width: 8),
-              ],
-              Flexible(
-                child: TextButton.icon(
-                  focusNode: _organizeFocus,
-                  onPressed: _openOrganize,
-                  style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
-                  icon: const Icon(Icons.tune),
-                  label: Text(
-                    TranslationService.translate(context, 'organize'),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                icon: const Icon(Icons.add),
+                label: Text(
+                  TranslationService.translate(context, 'create_shelf'),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ],
+            ),
+            const SizedBox(width: 8),
+          ],
+          Flexible(
+            child: TextButton.icon(
+              focusNode: _organizeFocus,
+              onPressed: _openOrganize,
+              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+              icon: const Icon(Icons.tune),
+              label: Text(
+                TranslationService.translate(context, 'organize'),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -540,8 +528,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           boxShadow: AppDesign.subtleShadow,
         ),
         child: Material(
-          color: Theme.of(context).cardColor,
-          shape: RoundedRectangleBorder(borderRadius: radius),
+          color: shelfSurfaceColor(Theme.of(context)),
+          shape: shelfSurfaceShape(Theme.of(context), 12),
           clipBehavior: Clip.antiAlias,
           child: Row(
             children: [

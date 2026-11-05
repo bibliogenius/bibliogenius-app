@@ -3713,9 +3713,22 @@ void main() {
         tester.getSemantics(heading),
         containsSemantics(isHeader: true),
       );
+      // A landmark for screen readers, nothing on screen.
+      expect(find.text('Sub-shelves'), findsNothing);
+      final marker = find.byKey(const Key('subShelvesMarker'));
+      expect(tester.getSize(marker).height, 4);
       expect(
-        find.bySemanticsLabel('Sub-shelves'),
-        findsOneWidget,
+        find.descendant(of: marker, matching: find.byType(Text)),
+        findsNothing,
+      );
+      final node = tester.getSemantics(marker);
+      expect(node, containsSemantics(label: 'Sub-shelves', isHeader: true));
+      // An empty node never reaches the platform: it must have a surface.
+      expect(node.isInvisible, isFalse);
+      // It comes before the cards it announces.
+      expect(
+        tester.getTopLeft(marker).dy,
+        lessThan(tester.getTopLeft(subCard('Novels')).dy),
       );
       handle.dispose();
     });
