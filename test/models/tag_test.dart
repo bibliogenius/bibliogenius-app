@@ -210,6 +210,53 @@ void main() {
       expect(aggregatedCountForScope(a, [a, b], OwnershipScope.library), 3);
     });
 
+    test('while a shelf waits on its Undo, those above it stop saying the '
+        'core\'s number: it still holds the shelf', () {
+      final top = Tag(
+        id: 't',
+        name: 'Top',
+        count: 0,
+        subtreeCount: 3,
+        subtreeTotalCount: 3,
+      );
+      final mid = Tag(
+        id: 'm',
+        name: 'Mid',
+        parentId: 't',
+        count: 1,
+        subtreeCount: 3,
+        subtreeTotalCount: 3,
+      );
+      final doomed = Tag(
+        id: 'd',
+        name: 'Doomed',
+        parentId: 'm',
+        count: 2,
+        subtreeCount: 2,
+        subtreeTotalCount: 2,
+      );
+      final other = Tag(
+        id: 'o',
+        name: 'Other',
+        count: 5,
+        subtreeCount: 5,
+        subtreeTotalCount: 5,
+      );
+
+      final shown = Tag.withoutShelves([top, mid, doomed, other], {'d'});
+      int books(String id) => aggregatedCountForScope(
+        shown.firstWhere((t) => t.id == id),
+        shown,
+        OwnershipScope.library,
+      );
+
+      expect(books('m'), 1);
+      expect(books('t'), 1);
+      // Off the branch: the core's number still holds.
+      expect(shown.firstWhere((t) => t.id == 'o').subtreeCount, 5);
+      expect(books('o'), 5);
+    });
+
     test('a tag shown under another parent keeps its subtree counts', () {
       final shown = Tag.withoutShelves([parent, child], {'p'});
       expect(shown.single.subtreeCount, 3);

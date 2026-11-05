@@ -208,8 +208,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   List<Tag> _childrenOf(Tag tag) =>
       Tag.getDirectChildren(tag.id, _shownTags);
 
-  /// Own books plus every descendant's: the number the shelf's book list
-  /// will show, since filtering on a parent includes its whole subtree.
+  /// Own books plus every descendant's, each once: the number the head of the
+  /// shelf's page says. Its grid holds only the books filed right there.
   int _aggregatedCount(Tag tag) => aggregatedCountForScope(
     tag,
     _shownTags,
@@ -219,7 +219,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     ),
   );
 
-  /// The book list of a shelf, sub-shelves included.
+  /// The page of a shelf.
   void _openShelfBooks(Tag tag) {
     context.go('/shelves?tag=${Uri.encodeQueryComponent(tag.name)}');
   }

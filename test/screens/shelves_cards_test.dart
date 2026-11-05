@@ -12,6 +12,7 @@ import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/theme/app_design.dart';
+import 'package:bibliogenius/utils/accessible_color.dart';
 import 'package:bibliogenius/themes/base/theme_registry.dart';
 import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
@@ -235,8 +236,8 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('a book on a shelf and on its sub-shelf counts once: 3 books, '
-        'not the 4 the shelves add up to', (tester) async {
+    testWidgets('prints the core\'s subtree count, not what the shelves add up '
+        'to: 3 books, not 4', (tester) async {
       repo.tags = [
         Tag(
           id: 'a',
@@ -470,23 +471,123 @@ void main() {
       });
     }
 
+    testWidgets('the values come from cardTheme, not from elsewhere in the '
+        'theme', (tester) async {
+      const ground = Color(0xFF112233);
+      const line = Color(0xFF445566);
+      repo.unshelved = 2;
+      await pump(
+        tester,
+        theme: ThemeData(
+          colorScheme: const ColorScheme.light(
+            surface: Color(0xFFAA0000),
+            outline: Color(0xFF00AA00),
+          ),
+          cardColor: const Color(0xFF0000AA),
+          cardTheme: const CardThemeData(
+            color: ground,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: line, width: 3),
+            ),
+          ),
+        ),
+      );
+
+      for (final surface in [_card('Shelf 0'), _line]) {
+        final material = tester.widget<Material>(
+          find.descendant(of: surface, matching: find.byType(Material)).first,
+        );
+        expect(material.color, ground);
+        expect(
+          (material.shape! as RoundedRectangleBorder).side,
+          const BorderSide(color: line, width: 3),
+        );
+      }
+    });
+
+    for (final style in const ['default', 'dark', 'minimal']) {
+      testWidgets('$style: the number of a small card is quieter than its name, '
+          'and still legible', (tester) async {
+        final theme = ThemeRegistry.get(style)!.buildTheme(
+          accentColor: Colors.blue,
+        );
+        await tester.pumpWidget(
+          ChangeNotifierProvider<ThemeProvider>(
+            create: (_) => ThemeProvider()..setLocaleSync(const Locale('en')),
+            child: MaterialApp(
+              theme: theme,
+              home: Scaffold(
+                body: ShelfCard.compact(
+                  name: 'Comics',
+                  books: 3,
+                  subShelves: 0,
+                  onTap: () {},
+                ),
+              ),
+            ),
+          ),
+        );
+        final surface = theme.cardTheme.color!;
+        Color colourOf(String text) => tester
+            .widget<RichText>(
+              find.descendant(
+                of: find.text(text),
+                matching: find.byType(RichText),
+              ),
+            )
+            .text
+            .style!
+            .color!;
+
+        final number = contrastRatio(colourOf('3'), surface);
+        expect(number, greaterThanOrEqualTo(4.5));
+        expect(number, lessThan(contrastRatio(colourOf('Comics'), surface)));
+      });
+
+      testWidgets('$style: "Organize" stays legible on the page gradient', (
+        tester,
+      ) async {
+        final theme = ThemeRegistry.get(style)!.buildTheme(
+          accentColor: Colors.blue,
+        );
+        await pump(tester, theme: theme);
+
+        final colour = tester
+            .widget<RichText>(
+              find.descendant(
+                of: find.text('Organize'),
+                matching: find.byType(RichText),
+              ),
+            )
+            .text
+            .style!
+            .color!;
+        expect(
+          contrastRatio(
+            colour,
+            AppDesign.pageGradientForTheme(style).colors.first,
+          ),
+          greaterThanOrEqualTo(4.5),
+        );
+      });
+    }
+
     testWidgets('the row above the grid has no ground of its own', (
       tester,
     ) async {
       await pump(tester, width: 700);
 
       expect(
-        tester
-            .widgetList<DecoratedBox>(
-              find.ancestor(
-                of: find.text('Organize'),
-                matching: find.byType(DecoratedBox),
-              ),
-            )
-            .map((b) => b.decoration)
-            .whereType<BoxDecoration>()
-            .where((d) => d.boxShadow?.isNotEmpty ?? false),
-        isEmpty,
+        find.ancestor(
+          of: find.text('Organize'),
+          matching: find.descendant(
+            of: find.byKey(const Key('shelfCardsScroll')),
+            matching: find.byWidgetPredicate(
+              (w) => w is DecoratedBox || w is ColoredBox,
+            ),
+          ),
+        ),
+        findsNothing,
       );
     });
   });

@@ -223,9 +223,9 @@ class ShelfCard extends StatelessWidget {
                               const SizedBox(width: 8),
                               Text(
                                 '$books',
-                                style: theme.textTheme.bodySmall?.copyWith(
-                                  color: scheme.onSurfaceVariant,
-                                ),
+                                // The theme's own muted colour: its
+                                // onSurfaceVariant can be the name's.
+                                style: theme.textTheme.bodySmall,
                               ),
                             ],
                           ],

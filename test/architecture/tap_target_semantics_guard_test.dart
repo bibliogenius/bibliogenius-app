@@ -3765,18 +3765,83 @@ void main() {
       expect(tester.getSize(subCard('Novels')).height, greaterThanOrEqualTo(44));
     });
 
-    testWidgets('the number of a sub-shelf card is quieter than its name', (
-      tester,
-    ) async {
-      await _render(tester, page('Living room'), books: books);
+    group('with the counts of the core', () {
+      // A book on Essay and Politics, another on Politics and Crime: at every
+      // level the shelves add up to more than the distinct books.
+      final counted = [
+        Tag(
+          id: 'e',
+          name: 'Essay',
+          count: 1,
+          subtreeCount: 3,
+          subtreeTotalCount: 3,
+        ),
+        Tag(
+          id: 'p',
+          name: 'Politics',
+          parentId: 'e',
+          count: 2,
+          subtreeCount: 2,
+          subtreeTotalCount: 2,
+        ),
+        Tag(
+          id: 'c',
+          name: 'Crime',
+          parentId: 'p',
+          count: 1,
+          subtreeCount: 1,
+          subtreeTotalCount: 1,
+        ),
+      ];
+      _Probe at(String location) =>
+          _Probe('counted', location, size: _tallPhone, tags: counted);
 
-      final number = tester.widget<Text>(
-        find.descendant(of: subCard('Novels'), matching: find.text('8')),
-      );
-      expect(
-        number.style?.color,
-        Theme.of(tester.element(subCard('Novels'))).colorScheme.onSurfaceVariant,
-      );
+      testWidgets('the head of the page says 3, not 4', (tester) async {
+        await _render(tester, at('/shelves?tag=Essay'), books: const []);
+
+        expect(find.text('3 books · 1 sub-shelf'), findsOneWidget);
+      });
+
+      testWidgets('a small card says the number its page will say', (
+        tester,
+      ) async {
+        await _render(tester, at('/shelves?tag=Essay'), books: const []);
+
+        expect(
+          find.descendant(of: subCard('Politics'), matching: find.text('2')),
+          findsOneWidget,
+        );
+
+        await _tap(tester, subCard('Politics'));
+
+        expect(find.text('2 books · 1 sub-shelf'), findsOneWidget);
+      });
+
+      testWidgets('its label says it too', (tester) async {
+        final handle = tester.ensureSemantics();
+        await _render(tester, at('/shelves?tag=Essay'), books: const []);
+
+        expect(
+          tester.getSemantics(subCard('Politics')),
+          containsSemantics(
+            label: 'Politics, 2 books, 1 sub-shelf',
+            isButton: true,
+          ),
+        );
+        handle.dispose();
+      });
+
+      testWidgets('a row of Organize says 3 too', (tester) async {
+        await _render(tester, at('/shelves-management'));
+
+        expect(
+          find.descendant(
+            of: _treeRow('Essay'),
+            matching: find.textContaining('3 books'),
+          ),
+          findsOneWidget,
+        );
+      });
     });
 
     testWidgets('a sub-shelf card is one button with its counts', (

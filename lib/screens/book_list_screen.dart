@@ -4108,8 +4108,18 @@ class _ShelfNavigationSheetState extends State<_ShelfNavigationSheet> {
     );
   }
 
+  /// The number a shelf card says, so that this sheet does not contradict it.
+  int _booksOf(Tag tag) => aggregatedCountForScope(
+    tag,
+    widget.tags,
+    resolveOwnershipScope(
+      explicit: context.read<OwnershipPreferenceProvider>().scope,
+      status: null,
+    ),
+  );
+
   Widget _buildCurrentShelfCard(ThemeData theme) {
-    final aggregatedCount = Tag.getAggregatedCount(_currentLevel!, widget.tags);
+    final aggregatedCount = _booksOf(_currentLevel!);
 
     return Card(
       elevation: 2,
@@ -4184,7 +4194,7 @@ class _ShelfNavigationSheetState extends State<_ShelfNavigationSheet> {
 
   Widget _buildCategoryCard(Tag tag, ThemeData theme) {
     final hasChildren = Tag.getDirectChildren(tag.id, widget.tags).isNotEmpty;
-    final aggregatedCount = Tag.getAggregatedCount(tag, widget.tags);
+    final aggregatedCount = _booksOf(tag);
 
     return Card(
       elevation: 1,

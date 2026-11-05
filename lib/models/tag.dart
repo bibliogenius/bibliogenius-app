@@ -29,7 +29,8 @@ class Tag {
   final List<String> coverPaths;
 
   /// [count] with the sub-shelves, worked out by the core so that a book on a
-  /// shelf and on its sub-shelf counts once. Null on a tag from no listing.
+  /// shelf and on its sub-shelf counts once. Null on a tag from no listing, and
+  /// above a shelf waiting on its Undo (see [withoutShelves]).
   final int? subtreeCount;
 
   /// [totalCount] with the sub-shelves, likewise.
@@ -162,9 +163,20 @@ class Tag {
       return id != null && ids.contains(id) ? null : id;
     }
 
+    // Above a removed shelf the core's count still holds its books, and only
+    // the core could say which of them are elsewhere too.
+    final above = <String>{};
+    for (final id in ids) {
+      var parent = parents[id];
+      while (parent != null && above.add(parent)) {
+        parent = parents[parent];
+      }
+    }
+
     return [
       for (final t in allTags)
-        if (!ids.contains(t.id)) _shownUnder(t, parents[t.id], shownParent),
+        if (!ids.contains(t.id))
+          _shownUnder(t, parents[t.id], shownParent, above.contains(t.id)),
     ];
   }
 
@@ -172,9 +184,10 @@ class Tag {
     Tag tag,
     String? parent,
     String? Function(String?) shownParent,
+    bool holdsARemovedShelf,
   ) {
     final shown = shownParent(parent);
-    if (shown == parent) return tag;
+    if (shown == parent && !holdsARemovedShelf) return tag;
     return Tag(
       id: tag.id,
       name: tag.name,
@@ -184,8 +197,8 @@ class Tag {
       totalCount: tag.totalCount,
       children: tag.children,
       coverPaths: tag.coverPaths,
-      subtreeCount: tag.subtreeCount,
-      subtreeTotalCount: tag.subtreeTotalCount,
+      subtreeCount: holdsARemovedShelf ? null : tag.subtreeCount,
+      subtreeTotalCount: holdsARemovedShelf ? null : tag.subtreeTotalCount,
     );
   }
 
@@ -492,8 +505,9 @@ int countForOwnershipScope(Tag tag, String scope) {
 /// The books of [tag] and of its sub-shelves under the ownership [scope]: what
 /// a card announces, each book once.
 ///
-/// A tag from no listing has no such count from the core, and adds up its
-/// shelves over [shown], which counts twice a book on a shelf and its sub-shelf.
+/// A tag from no listing, or above a shelf waiting on its Undo, has no such
+/// count from the core and adds up its shelves over [shown], which counts twice
+/// a book on a shelf and its sub-shelf.
 int aggregatedCountForScope(Tag tag, List<Tag> shown, String scope) {
   final owned = tag.subtreeCount;
   final total = tag.subtreeTotalCount;
