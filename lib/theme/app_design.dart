@@ -375,6 +375,20 @@ class AppDesign {
     );
   }
 
+  /// A button filled with the accent whatever the theme makes of a plain
+  /// elevated one. Every theme keeps `primary` and `onPrimary` readable.
+  static ButtonStyle accentFilledButtonStyle(ColorScheme scheme) =>
+      ElevatedButton.styleFrom(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        minimumSize: const Size(0, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(radiusMedium),
+        ),
+        textStyle: const TextStyle(fontWeight: FontWeight.w600),
+      );
+
   static ButtonStyle headerIconButtonStyle() {
     return IconButton.styleFrom(
       backgroundColor: Colors.white.withValues(alpha: 0.15),

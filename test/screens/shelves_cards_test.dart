@@ -1018,18 +1018,54 @@ void main() {
       final button = tester.widget<ButtonStyleButton>(
         find.ancestor(
           of: find.text('Create a shelf'),
-          matching: find.byWidgetPredicate((w) => w is OutlinedButton),
+          matching: find.byWidgetPredicate((w) => w is ElevatedButton),
         ),
       );
       expect(
         button.style?.shape?.resolve(const {}),
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       );
+      // On a desktop nothing pads it up to a tap target.
+      expect(button.style?.minimumSize?.resolve(const {}), const Size(0, 44));
       expect(
         button.style?.textStyle?.resolve(const {})?.fontWeight,
         FontWeight.w600,
       );
     });
+
+    for (final style in const ['default', 'dark', 'minimal']) {
+      for (final accent in const [Colors.blue, Colors.amber, Colors.teal]) {
+        testWidgets('$style, accent ${accent.toARGB32().toRadixString(16)}: the '
+            'add button is filled with the accent, its label at 4.5:1; '
+            '"Organize" stays flat', (tester) async {
+          final theme = ThemeRegistry.get(
+            style,
+          )!.buildTheme(accentColor: accent);
+          await pump(tester, width: 700, theme: theme);
+
+          final add = find.ancestor(
+            of: find.text('Create a shelf'),
+            matching: find.byWidgetPredicate((w) => w is ElevatedButton),
+          );
+          final material = tester.widget<Material>(
+            find.descendant(of: add, matching: find.byType(Material)),
+          );
+          expect(material.color, theme.colorScheme.primary);
+          expect(
+            contrastRatio(material.color!, theme.colorScheme.onPrimary),
+            greaterThanOrEqualTo(4.5),
+          );
+          final organize = find.ancestor(
+            of: find.text('Organize'),
+            matching: find.byWidgetPredicate((w) => w is TextButton),
+          );
+          final flat = tester.widget<Material>(
+            find.descendant(of: organize, matching: find.byType(Material)),
+          );
+          expect(flat.color, anyOf(isNull, Colors.transparent));
+        });
+      }
+    }
 
     testWidgets('"Organize" leads to the organizing route', (tester) async {
       await pump(tester);

@@ -475,14 +475,10 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         children: [
           if (wide) ...[
             Flexible(
-              child: OutlinedButton.icon(
+              child: ElevatedButton.icon(
                 onPressed: _showCreateShelfDialog,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
-                  ),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                style: AppDesign.accentFilledButtonStyle(
+                  Theme.of(context).colorScheme,
                 ),
                 icon: const Icon(Icons.add),
                 label: Text(
