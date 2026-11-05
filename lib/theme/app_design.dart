@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/accessible_color.dart';
+
 /// BiblioGenius Design System
 /// Centralized design tokens for consistent styling across the app
 
@@ -354,6 +356,25 @@ class AppDesign {
   /// notifications, settings) so they read as tappable over the header
   /// gradient. The white tint lightens whatever theme gradient sits behind it,
   /// keeping the accent coherent across themes.
+  /// An icon button on the page itself rather than a header: a circle tinted
+  /// with the accent, 44 pt on every platform, the icon in the accent as ink.
+  static ButtonStyle tintedCircleButtonStyle(ColorScheme scheme) {
+    final tint = scheme.primary.withValues(alpha: 0.14);
+    return IconButton.styleFrom(
+      backgroundColor: tint,
+      foregroundColor: inkOn(
+        Color.alphaBlend(tint, scheme.surface),
+        scheme.primary,
+      ),
+      fixedSize: const Size.square(44),
+      minimumSize: const Size.square(44),
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.standard,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      shape: const CircleBorder(),
+    );
+  }
+
   static ButtonStyle headerIconButtonStyle() {
     return IconButton.styleFrom(
       backgroundColor: Colors.white.withValues(alpha: 0.15),

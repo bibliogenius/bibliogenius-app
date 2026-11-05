@@ -360,6 +360,7 @@ class _PlaceMenu extends StatelessWidget {
         'shelf_actions_named',
       ).replaceAll('{name}', place.shelf.name),
       icon: const Icon(Icons.more_horiz),
+      style: AppDesign.tintedCircleButtonStyle(Theme.of(context).colorScheme),
       onSelected: (action) => action(),
       itemBuilder: (context) => [
         item(actions.onRename, 'rename'),

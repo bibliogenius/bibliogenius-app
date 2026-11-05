@@ -4406,6 +4406,21 @@ void main() {
     });
 
     group('its menu', () {
+      testWidgets('is a tinted circle of 44 pt', (tester) async {
+        await _render(tester, page('Novels'), books: books);
+
+        final button = find.descendant(
+          of: menu,
+          matching: find.byType(IconButton),
+        );
+        expect(tester.getSize(button), const Size.square(44));
+        final scheme = Theme.of(tester.element(menu)).colorScheme;
+        final ink = find.descendant(of: button, matching: find.byType(Material));
+        final material = tester.widget<Material>(ink);
+        expect(material.color, scheme.primary.withValues(alpha: 0.14));
+        expect(material.shape, const CircleBorder());
+      });
+
       testWidgets('offers the five actions, in order', (tester) async {
         await _render(tester, page('Novels'), books: books);
 

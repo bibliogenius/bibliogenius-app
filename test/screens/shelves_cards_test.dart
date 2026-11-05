@@ -511,6 +511,29 @@ void main() {
       );
     });
 
+    for (final style in const ['default', 'dark', 'minimal']) {
+      for (final accent in const [Colors.blue, Colors.amber, Colors.teal]) {
+        test('$style, accent ${accent.toARGB32().toRadixString(16)}: the icon of '
+            'a tinted circle reads at 3:1 on it', () {
+          final scheme = ThemeRegistry.get(
+            style,
+          )!.buildTheme(accentColor: accent).colorScheme;
+          final buttonStyle = AppDesign.tintedCircleButtonStyle(scheme);
+          final ground = Color.alphaBlend(
+            buttonStyle.backgroundColor!.resolve(const {})!,
+            scheme.surface,
+          );
+          expect(
+            contrastRatio(
+              buttonStyle.foregroundColor!.resolve(const {})!,
+              ground,
+            ),
+            greaterThanOrEqualTo(3),
+          );
+        });
+      }
+    }
+
     group('among sisters', () {
       // 's0' and 's8' ask for the same slot.
       Tag shelf(String id, {String? name, String? parent}) =>
