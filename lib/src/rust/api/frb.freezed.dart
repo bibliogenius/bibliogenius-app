@@ -10617,7 +10617,7 @@ as String,
 /// @nodoc
 mixin _$FrbTag {
 
- String get id; String get name; String? get parentId; PlatformInt64 get count; PlatformInt64 get totalCount; List<String> get coverPaths;
+ String get id; String get name; String? get parentId; PlatformInt64 get count; PlatformInt64 get totalCount; List<String> get coverPaths; PlatformInt64 get subtreeCount; PlatformInt64 get subtreeTotalCount;
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -10628,16 +10628,16 @@ $FrbTagCopyWith<FrbTag> get copyWith => _$FrbTagCopyWithImpl<FrbTag>(this as Frb
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&const DeepCollectionEquality().equals(other.coverPaths, coverPaths));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&const DeepCollectionEquality().equals(other.coverPaths, coverPaths)&&(identical(other.subtreeCount, subtreeCount) || other.subtreeCount == subtreeCount)&&(identical(other.subtreeTotalCount, subtreeTotalCount) || other.subtreeTotalCount == subtreeTotalCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,parentId,count,totalCount,const DeepCollectionEquality().hash(coverPaths));
+int get hashCode => Object.hash(runtimeType,id,name,parentId,count,totalCount,const DeepCollectionEquality().hash(coverPaths),subtreeCount,subtreeTotalCount);
 
 @override
 String toString() {
-  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, totalCount: $totalCount, coverPaths: $coverPaths)';
+  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, totalCount: $totalCount, coverPaths: $coverPaths, subtreeCount: $subtreeCount, subtreeTotalCount: $subtreeTotalCount)';
 }
 
 
@@ -10648,7 +10648,7 @@ abstract mixin class $FrbTagCopyWith<$Res>  {
   factory $FrbTagCopyWith(FrbTag value, $Res Function(FrbTag) _then) = _$FrbTagCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? parentId, PlatformInt64 count, PlatformInt64 totalCount, List<String> coverPaths
+ String id, String name, String? parentId, PlatformInt64 count, PlatformInt64 totalCount, List<String> coverPaths, PlatformInt64 subtreeCount, PlatformInt64 subtreeTotalCount
 });
 
 
@@ -10665,7 +10665,7 @@ class _$FrbTagCopyWithImpl<$Res>
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? totalCount = null,Object? coverPaths = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? totalCount = null,Object? coverPaths = null,Object? subtreeCount = null,Object? subtreeTotalCount = null,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -10673,7 +10673,9 @@ as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: c
 as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,coverPaths: null == coverPaths ? _self.coverPaths : coverPaths // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,subtreeCount: null == subtreeCount ? _self.subtreeCount : subtreeCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,subtreeTotalCount: null == subtreeTotalCount ? _self.subtreeTotalCount : subtreeTotalCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
   ));
 }
 
@@ -10755,10 +10757,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount,  List<String> coverPaths)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount,  List<String> coverPaths,  PlatformInt64 subtreeCount,  PlatformInt64 subtreeTotalCount)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _FrbTag() when $default != null:
-return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,_that.coverPaths);case _:
+return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,_that.coverPaths,_that.subtreeCount,_that.subtreeTotalCount);case _:
   return orElse();
 
 }
@@ -10776,10 +10778,10 @@ return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount,  List<String> coverPaths)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount,  List<String> coverPaths,  PlatformInt64 subtreeCount,  PlatformInt64 subtreeTotalCount)  $default,) {final _that = this;
 switch (_that) {
 case _FrbTag():
-return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,_that.coverPaths);}
+return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,_that.coverPaths,_that.subtreeCount,_that.subtreeTotalCount);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -10793,10 +10795,10 @@ return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount,  List<String> coverPaths)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? parentId,  PlatformInt64 count,  PlatformInt64 totalCount,  List<String> coverPaths,  PlatformInt64 subtreeCount,  PlatformInt64 subtreeTotalCount)?  $default,) {final _that = this;
 switch (_that) {
 case _FrbTag() when $default != null:
-return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,_that.coverPaths);case _:
+return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,_that.coverPaths,_that.subtreeCount,_that.subtreeTotalCount);case _:
   return null;
 
 }
@@ -10808,7 +10810,7 @@ return $default(_that.id,_that.name,_that.parentId,_that.count,_that.totalCount,
 
 
 class _FrbTag implements FrbTag {
-  const _FrbTag({required this.id, required this.name, this.parentId, required this.count, required this.totalCount, required final  List<String> coverPaths}): _coverPaths = coverPaths;
+  const _FrbTag({required this.id, required this.name, this.parentId, required this.count, required this.totalCount, required final  List<String> coverPaths, required this.subtreeCount, required this.subtreeTotalCount}): _coverPaths = coverPaths;
   
 
 @override final  String id;
@@ -10823,6 +10825,8 @@ class _FrbTag implements FrbTag {
   return EqualUnmodifiableListView(_coverPaths);
 }
 
+@override final  PlatformInt64 subtreeCount;
+@override final  PlatformInt64 subtreeTotalCount;
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
@@ -10834,16 +10838,16 @@ _$FrbTagCopyWith<_FrbTag> get copyWith => __$FrbTagCopyWithImpl<_FrbTag>(this, _
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&const DeepCollectionEquality().equals(other._coverPaths, _coverPaths));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _FrbTag&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.parentId, parentId) || other.parentId == parentId)&&(identical(other.count, count) || other.count == count)&&(identical(other.totalCount, totalCount) || other.totalCount == totalCount)&&const DeepCollectionEquality().equals(other._coverPaths, _coverPaths)&&(identical(other.subtreeCount, subtreeCount) || other.subtreeCount == subtreeCount)&&(identical(other.subtreeTotalCount, subtreeTotalCount) || other.subtreeTotalCount == subtreeTotalCount));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,id,name,parentId,count,totalCount,const DeepCollectionEquality().hash(_coverPaths));
+int get hashCode => Object.hash(runtimeType,id,name,parentId,count,totalCount,const DeepCollectionEquality().hash(_coverPaths),subtreeCount,subtreeTotalCount);
 
 @override
 String toString() {
-  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, totalCount: $totalCount, coverPaths: $coverPaths)';
+  return 'FrbTag(id: $id, name: $name, parentId: $parentId, count: $count, totalCount: $totalCount, coverPaths: $coverPaths, subtreeCount: $subtreeCount, subtreeTotalCount: $subtreeTotalCount)';
 }
 
 
@@ -10854,7 +10858,7 @@ abstract mixin class _$FrbTagCopyWith<$Res> implements $FrbTagCopyWith<$Res> {
   factory _$FrbTagCopyWith(_FrbTag value, $Res Function(_FrbTag) _then) = __$FrbTagCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? parentId, PlatformInt64 count, PlatformInt64 totalCount, List<String> coverPaths
+ String id, String name, String? parentId, PlatformInt64 count, PlatformInt64 totalCount, List<String> coverPaths, PlatformInt64 subtreeCount, PlatformInt64 subtreeTotalCount
 });
 
 
@@ -10871,7 +10875,7 @@ class __$FrbTagCopyWithImpl<$Res>
 
 /// Create a copy of FrbTag
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? totalCount = null,Object? coverPaths = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? parentId = freezed,Object? count = null,Object? totalCount = null,Object? coverPaths = null,Object? subtreeCount = null,Object? subtreeTotalCount = null,}) {
   return _then(_FrbTag(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -10879,7 +10883,9 @@ as String,parentId: freezed == parentId ? _self.parentId : parentId // ignore: c
 as String?,count: null == count ? _self.count : count // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,totalCount: null == totalCount ? _self.totalCount : totalCount // ignore: cast_nullable_to_non_nullable
 as PlatformInt64,coverPaths: null == coverPaths ? _self._coverPaths : coverPaths // ignore: cast_nullable_to_non_nullable
-as List<String>,
+as List<String>,subtreeCount: null == subtreeCount ? _self.subtreeCount : subtreeCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,subtreeTotalCount: null == subtreeTotalCount ? _self.subtreeTotalCount : subtreeTotalCount // ignore: cast_nullable_to_non_nullable
+as PlatformInt64,
   ));
 }
 

@@ -3779,6 +3779,8 @@ sealed class FrbTag with _$FrbTag {
     required PlatformInt64 count,
     required PlatformInt64 totalCount,
     required List<String> coverPaths,
+    required PlatformInt64 subtreeCount,
+    required PlatformInt64 subtreeTotalCount,
   }) = _FrbTag;
 }
 

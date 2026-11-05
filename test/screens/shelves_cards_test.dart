@@ -235,6 +235,47 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('a book on a shelf and on its sub-shelf counts once: 3 books, '
+        'not the 4 the shelves add up to', (tester) async {
+      repo.tags = [
+        Tag(
+          id: 'a',
+          name: 'Essay',
+          count: 1,
+          totalCount: 1,
+          subtreeCount: 3,
+          subtreeTotalCount: 3,
+        ),
+        Tag(
+          id: 'b',
+          name: 'Politics',
+          parentId: 'a',
+          count: 2,
+          totalCount: 2,
+          subtreeCount: 3,
+          subtreeTotalCount: 3,
+        ),
+        Tag(
+          id: 'c',
+          name: 'Crime',
+          parentId: 'b',
+          count: 1,
+          totalCount: 1,
+          subtreeCount: 1,
+          subtreeTotalCount: 1,
+        ),
+      ];
+      await pump(tester);
+
+      expect(
+        find.descendant(
+          of: _card('Essay'),
+          matching: find.text('3 books · 1 sub-shelf'),
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('says "0 books" and no sub-shelf when there is none', (
       tester,
     ) async {

@@ -14,6 +14,8 @@ void main() {
         count: 2,
         totalCount: 5,
         coverPaths: ['/covers/a.jpg', 'https://c/b.jpg'],
+        subtreeCount: 3,
+        subtreeTotalCount: 7,
       ),
     ]);
 
@@ -24,6 +26,8 @@ void main() {
     expect(tag.count, 2);
     expect(tag.totalCount, 5);
     expect(tag.coverPaths, ['/covers/a.jpg', 'https://c/b.jpg']);
+    expect(tag.subtreeCount, 3);
+    expect(tag.subtreeTotalCount, 7);
   });
 
   test('no shelf gives no tag', () {

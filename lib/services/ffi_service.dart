@@ -29,6 +29,8 @@ List<Tag> tagsFromFrb(List<frb.FrbTag> frbTags) {
           count: t.count.toInt(),
           totalCount: t.totalCount.toInt(),
           coverPaths: t.coverPaths,
+          subtreeCount: t.subtreeCount.toInt(),
+          subtreeTotalCount: t.subtreeTotalCount.toInt(),
           // A flat list: the shelf tree widgets build the hierarchy
           // themselves (see flattenShelfTree).
         ),

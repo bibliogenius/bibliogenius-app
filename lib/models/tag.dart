@@ -28,6 +28,13 @@ class Tag {
   /// a file of this device or a URL, ready for `CachedBookCover`.
   final List<String> coverPaths;
 
+  /// [count] with the sub-shelves, worked out by the core so that a book on a
+  /// shelf and on its sub-shelf counts once. Null on a tag from no listing.
+  final int? subtreeCount;
+
+  /// [totalCount] with the sub-shelves, likewise.
+  final int? subtreeTotalCount;
+
   Tag({
     required this.id,
     required this.name,
@@ -37,6 +44,8 @@ class Tag {
     int? totalCount,
     this.children = const [],
     this.coverPaths = const [],
+    this.subtreeCount,
+    this.subtreeTotalCount,
   }) : totalCount = totalCount ?? count;
 
   factory Tag.fromJson(Map<String, dynamic> json) {
@@ -101,6 +110,8 @@ class Tag {
       totalCount: totalCount,
       children: newChildren,
       coverPaths: coverPaths,
+      subtreeCount: subtreeCount,
+      subtreeTotalCount: subtreeTotalCount,
     );
   }
 
@@ -173,6 +184,8 @@ class Tag {
       totalCount: tag.totalCount,
       children: tag.children,
       coverPaths: tag.coverPaths,
+      subtreeCount: tag.subtreeCount,
+      subtreeTotalCount: tag.subtreeTotalCount,
     );
   }
 
@@ -477,12 +490,23 @@ int countForOwnershipScope(Tag tag, String scope) {
 }
 
 /// The books of [tag] and of its sub-shelves under the ownership [scope]: what
-/// a card announces.
+/// a card announces, each book once.
+///
+/// A tag from no listing has no such count from the core, and adds up its
+/// shelves over [shown], which counts twice a book on a shelf and its sub-shelf.
 int aggregatedCountForScope(Tag tag, List<Tag> shown, String scope) {
-  final descendants = Tag.getDescendantIds(tag.id, shown);
-  var total = countForOwnershipScope(tag, scope);
-  for (final t in shown) {
-    if (descendants.contains(t.id)) total += countForOwnershipScope(t, scope);
+  final owned = tag.subtreeCount;
+  final total = tag.subtreeTotalCount;
+  if (owned != null && total != null) {
+    return countForOwnershipScope(
+      Tag(id: tag.id, name: tag.name, count: owned, totalCount: total),
+      scope,
+    );
   }
-  return total;
+  final descendants = Tag.getDescendantIds(tag.id, shown);
+  var sum = countForOwnershipScope(tag, scope);
+  for (final t in shown) {
+    if (descendants.contains(t.id)) sum += countForOwnershipScope(t, scope);
+  }
+  return sum;
 }

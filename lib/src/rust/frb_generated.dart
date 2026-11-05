@@ -9823,8 +9823,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbTag dco_decode_frb_tag(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
     return FrbTag(
       id: dco_decode_String(arr[0]),
       name: dco_decode_String(arr[1]),
@@ -9832,6 +9832,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       count: dco_decode_i_64(arr[3]),
       totalCount: dco_decode_i_64(arr[4]),
       coverPaths: dco_decode_list_String(arr[5]),
+      subtreeCount: dco_decode_i_64(arr[6]),
+      subtreeTotalCount: dco_decode_i_64(arr[7]),
     );
   }
 
@@ -12088,6 +12090,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_count = sse_decode_i_64(deserializer);
     var var_totalCount = sse_decode_i_64(deserializer);
     var var_coverPaths = sse_decode_list_String(deserializer);
+    var var_subtreeCount = sse_decode_i_64(deserializer);
+    var var_subtreeTotalCount = sse_decode_i_64(deserializer);
     return FrbTag(
       id: var_id,
       name: var_name,
@@ -12095,6 +12099,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       count: var_count,
       totalCount: var_totalCount,
       coverPaths: var_coverPaths,
+      subtreeCount: var_subtreeCount,
+      subtreeTotalCount: var_subtreeTotalCount,
     );
   }
 
@@ -14330,6 +14336,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_i_64(self.count, serializer);
     sse_encode_i_64(self.totalCount, serializer);
     sse_encode_list_String(self.coverPaths, serializer);
+    sse_encode_i_64(self.subtreeCount, serializer);
+    sse_encode_i_64(self.subtreeTotalCount, serializer);
   }
 
   @protected

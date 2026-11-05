@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:bibliogenius/models/tag.dart';
+import 'package:bibliogenius/utils/book_filters.dart';
 
 Tag _shelf(String id, {String? parent}) =>
     Tag(id: id, name: id, parentId: parent, count: 0);
@@ -171,6 +172,48 @@ void main() {
         compareShelfNames('Etagere', 'Étagère'),
         -compareShelfNames('Étagère', 'Etagere'),
       );
+    });
+  });
+
+  group('aggregatedCountForScope', () {
+    final parent = Tag(
+      id: 'p',
+      name: 'Parent',
+      count: 1,
+      totalCount: 2,
+      subtreeCount: 3,
+      subtreeTotalCount: 7,
+    );
+    final child = Tag(
+      id: 'c',
+      name: 'Child',
+      parentId: 'p',
+      count: 3,
+      totalCount: 6,
+      subtreeCount: 3,
+      subtreeTotalCount: 6,
+    );
+
+    test('reads the core\'s subtree counts, which hold each book once', () {
+      final shown = [parent, child];
+      expect(aggregatedCountForScope(parent, shown, OwnershipScope.library), 3);
+      expect(aggregatedCountForScope(parent, shown, OwnershipScope.all), 7);
+      expect(
+        aggregatedCountForScope(parent, shown, OwnershipScope.notOwned),
+        4,
+      );
+    });
+
+    test('a tag from no listing adds up its shelves, as before', () {
+      final a = Tag(id: 'a', name: 'A', count: 1);
+      final b = Tag(id: 'b', name: 'B', parentId: 'a', count: 2);
+      expect(aggregatedCountForScope(a, [a, b], OwnershipScope.library), 3);
+    });
+
+    test('a tag shown under another parent keeps its subtree counts', () {
+      final shown = Tag.withoutShelves([parent, child], {'p'});
+      expect(shown.single.subtreeCount, 3);
+      expect(shown.single.subtreeTotalCount, 6);
     });
   });
 }
