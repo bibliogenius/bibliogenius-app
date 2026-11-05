@@ -569,6 +569,9 @@ class _Harness {
         resolveBackupsDir: () async => Directory.systemTemp,
       );
 
+  /// The query of the field in the library header, for the route below.
+  final headerQuery = ValueNotifier<String>('');
+
   Widget app(String location) {
     final router = GoRouter(
       initialLocation: location,
@@ -576,6 +579,18 @@ class _Harness {
         ShellRoute(
           builder: (_, _, child) => ScaffoldWithNav(child: child),
           routes: [
+            // The page of a shelf under a running search: the library screen
+            // only gets there by a route change the harness does not reuse it
+            // across, so this hands the list the query the way it does.
+            GoRoute(
+              path: '/searched-shelf',
+              builder: (_, state) => BookListScreen(
+                isTabView: true,
+                initialTagFilter: state.uri.queryParameters['tag'],
+                showBackToShelves: true,
+                externalSearchQuery: headerQuery,
+              ),
+            ),
             GoRoute(
               path: '/books',
               builder: (_, _) => LibraryScreen(initialIndex: 0),
@@ -3622,6 +3637,130 @@ void main() {
       );
 
       expect(find.text('#Novels'), findsOneWidget);
+    });
+
+    group('its reset pill', () {
+      final reset = find.text('Reset');
+      final mixed = [
+        Book(
+          id: 'r1',
+          title: 'Being read',
+          author: 'Ann Able',
+          subjects: const ['Living room'],
+          readingStatus: 'reading',
+        ),
+        Book(
+          id: 'r2',
+          title: 'Waiting',
+          author: 'Ann Able',
+          subjects: const ['Living room'],
+          readingStatus: 'to_read',
+        ),
+        Book(
+          id: 'r3',
+          title: 'Elsewhere',
+          author: 'Ann Able',
+          subjects: const ['Study'],
+          readingStatus: 'reading',
+        ),
+      ];
+
+      Future<void> filterOnReading(WidgetTester tester) async {
+        await _tap(tester, find.text('All'));
+        await _tap(tester, find.text('Reading').last);
+      }
+
+      testWidgets('is hidden while only the shelf narrows the page', (
+        tester,
+      ) async {
+        await _render(tester, page('Living room'), books: mixed);
+
+        expect(reset, findsNothing);
+        expect(find.text('Waiting'), findsWidgets);
+        expect(find.text('Elsewhere'), findsNothing);
+      });
+
+      testWidgets('with a status filter it shows, and clears that filter only: '
+          'the page stays on its shelf', (tester) async {
+        await _render(tester, page('Living room'), books: mixed);
+
+        await filterOnReading(tester);
+        expect(reset, findsOneWidget);
+        expect(find.text('Being read'), findsWidgets);
+        expect(find.text('Waiting'), findsNothing);
+
+        await _tap(tester, reset);
+
+        expect(location(tester), '/shelves?tag=Living+room');
+        // Reaching the pill scrolled the head away: it is above, not gone.
+        await tester.drag(find.byType(NestedScrollView), const Offset(0, 800));
+        await _settle(tester);
+        expect(tester.widget<Text>(name).data, 'Living room');
+        expect(find.text('Waiting'), findsWidgets);
+        expect(find.text('Elsewhere'), findsNothing);
+        expect(reset, findsNothing);
+      });
+
+      group('under a search of the header', () {
+        Future<_Harness> searched(WidgetTester tester) async {
+          final harness = await _render(
+            tester,
+            _Probe(
+              'searched',
+              '/searched-shelf?tag=Living+room',
+              size: _tallPhone,
+              tags: tags,
+            ),
+            books: mixed,
+          );
+          harness.headerQuery.value = 'Being';
+          await tester.pumpAndSettle();
+          return harness;
+        }
+
+        testWidgets('is no way out of the search: it stays hidden', (
+          tester,
+        ) async {
+          await searched(tester);
+
+          expect(find.text('Being read'), findsWidgets);
+          expect(find.text('Waiting'), findsNothing);
+          expect(reset, findsNothing);
+        });
+
+        testWidgets('clearing a status leaves the query where the field has it', (
+          tester,
+        ) async {
+          final harness = await searched(tester);
+
+          await filterOnReading(tester);
+          expect(reset, findsOneWidget);
+
+          await _tap(tester, reset);
+
+          expect(harness.headerQuery.value, 'Being');
+          expect(find.text('Being read'), findsWidgets);
+          expect(find.text('Waiting'), findsNothing);
+          expect(reset, findsNothing);
+        });
+      });
+
+      testWidgets('the Books tab keeps it, with its shelf filter', (
+        tester,
+      ) async {
+        await _render(
+          tester,
+          _Probe('books', '/books?tag=Novels', size: _tallPhone, tags: tags),
+          books: books,
+        );
+
+        await tester.dragUntilVisible(
+          reset,
+          find.byType(SingleChildScrollView).first,
+          const Offset(-80, 0),
+        );
+        expect(reset, findsOneWidget);
+      });
     });
 
     testWidgets('8 pt from the last sub-shelf to the row', (tester) async {

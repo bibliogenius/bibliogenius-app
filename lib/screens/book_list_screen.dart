@@ -2463,11 +2463,16 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ),
 
-          // 4. Reset Filters Button - visible when any filter is active
-          if (_selectedStatus != null ||
-              _selectedOwnership != null ||
-              _tagFilter != null ||
-              _searchQuery.isNotEmpty) ...[
+          // 4. Reset Filters Button - visible when any filter is active. On the
+          // page of a shelf only the status is one: the shelf is the page, the
+          // ownership axis a preference, and the query belongs to the field of
+          // the header, which has its own way out.
+          if (_isPlacePage
+              ? _selectedStatus != null
+              : _selectedStatus != null ||
+                    _selectedOwnership != null ||
+                    _tagFilter != null ||
+                    _searchQuery.isNotEmpty) ...[
             const SizedBox(width: 8),
             Semantics(
               button: true,
@@ -2793,6 +2798,15 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   void _resetAllFilters() {
+    // The page of a shelf stays on its shelf, and the query stays in the field
+    // of the header that owns it.
+    if (_isPlacePage && _selectedStatus != null) {
+      setState(() {
+        _selectedStatus = null;
+        _filterBooks();
+      });
+      return;
+    }
     if (widget.showBackToShelves) {
       // Navigate back to shelves grid when resetting filters from shelf view
       context.go('/shelves');
