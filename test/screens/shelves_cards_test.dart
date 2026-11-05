@@ -11,6 +11,7 @@ import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/theme/app_design.dart';
 import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
@@ -344,6 +345,103 @@ void main() {
       );
       expect(tester.takeException(), isNull, reason: 'at $scale');
     }
+  });
+
+  group('its surfaces', () {
+    /// The decoration of the box around [of], nearest first.
+    BoxDecoration surfaceAround(WidgetTester tester, Finder of) => tester
+        .widgetList<DecoratedBox>(
+          find.ancestor(of: of, matching: find.byType(DecoratedBox)),
+        )
+        .map((b) => b.decoration)
+        .whereType<BoxDecoration>()
+        .firstWhere((d) => d.boxShadow?.isNotEmpty ?? false);
+
+    testWidgets('a card: the card colour, the hairline of the theme, the '
+        'subtle shadow', (tester) async {
+      await pump(tester);
+      final theme = Theme.of(tester.element(_card('Shelf 0')));
+
+      final material = tester.widget<Material>(
+        find.descendant(of: _card('Shelf 0'), matching: find.byType(Material)).first,
+      );
+      expect(material.color, theme.cardColor);
+      final shape = material.shape! as RoundedRectangleBorder;
+      expect(shape.side.color, theme.colorScheme.outline);
+      expect(
+        tester
+            .widget<DecoratedBox>(
+              find.descendant(of: _card('Shelf 0'), matching: find.byType(DecoratedBox)).first,
+            )
+            .decoration,
+        isA<BoxDecoration>().having(
+          (d) => d.boxShadow,
+          'shadow',
+          AppDesign.subtleShadow,
+        ),
+      );
+    });
+
+    testWidgets('a small card has the same surface', (tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => ThemeProvider()..setLocaleSync(const Locale('en')),
+          child: MaterialApp(
+            home: Scaffold(
+              body: ShelfCard.compact(
+                key: const Key('small'),
+                name: 'Comics',
+                books: 3,
+                subShelves: 0,
+                onTap: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      final small = find.byKey(const Key('small'));
+      final theme = Theme.of(tester.element(small));
+
+      final material = tester.widget<Material>(
+        find.descendant(of: small, matching: find.byType(Material)).first,
+      );
+      expect(material.color, theme.cardColor);
+      expect(
+        (material.shape! as RoundedRectangleBorder).side.color,
+        theme.colorScheme.outline,
+      );
+    });
+
+    testWidgets('the "to shelve" line: the card colour and the shadow, no '
+        'border', (tester) async {
+      repo.unshelved = 2;
+      await pump(tester);
+      final theme = Theme.of(tester.element(_line));
+
+      final material = tester.widget<Material>(
+        find.descendant(of: _line, matching: find.byType(Material)).first,
+      );
+      expect(material.color, theme.cardColor);
+      expect(
+        (material.shape! as RoundedRectangleBorder).side,
+        BorderSide.none,
+      );
+      expect(
+        surfaceAround(tester, find.textContaining('To shelve')).boxShadow,
+        AppDesign.subtleShadow,
+      );
+    });
+
+    testWidgets('the row above the grid: the card colour and the shadow, no '
+        'border', (tester) async {
+      await pump(tester);
+      final theme = Theme.of(tester.element(find.text('Organize')));
+
+      final surface = surfaceAround(tester, find.text('Organize'));
+      expect(surface.color, theme.cardColor);
+      expect(surface.boxShadow, AppDesign.subtleShadow);
+      expect(surface.border, isNull);
+    });
   });
 
   group('the row above the grid', () {

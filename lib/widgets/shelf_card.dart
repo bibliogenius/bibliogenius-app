@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import 'shelf_fan_flight.dart';
 import 'shelf_thumbnail.dart';
 
@@ -103,9 +104,7 @@ class ShelfCard extends StatelessWidget {
 
     final text = lines(theme.titleMedium) + _nameGap + lines(theme.bodySmall);
     const tile = 66.0;
-    final body = horizontal
-        ? (text > tile ? text : tile)
-        : tile + _gap + text;
+    final body = horizontal ? (text > tile ? text : tile) : tile + _gap + text;
     // A rounding margin: text metrics land a fraction above these sums.
     return body + _padding * 2 + 2;
   }
@@ -166,49 +165,55 @@ class ShelfCard extends StatelessWidget {
       child: Semantics(
         button: true,
         label: [name, ...counts].join(', '),
-        child: Material(
-          color: scheme.surface,
-          shape: RoundedRectangleBorder(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
             borderRadius: radius,
-            side: BorderSide(color: scheme.outlineVariant),
+            boxShadow: AppDesign.subtleShadow,
           ),
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            onTap: () {
-              final box = fanContext.findRenderObject() as RenderBox?;
-              if (box != null) {
-                flight?.takeOff(
-                  context,
-                  name: name,
-                  from: box.localToGlobal(Offset.zero) & box.size,
-                  size: fanSize,
-                  hasBooks: books > 0,
-                  coverPaths: coverPaths,
-                );
-              }
-              onTap();
-            },
-            child: ExcludeSemantics(
-              child: Padding(
-                padding: compact
-                    ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
-                    : const EdgeInsets.all(_padding),
-                child: horizontal
-                    ? Row(
-                        children: [
-                          fan,
-                          SizedBox(width: compact ? 10 : _padding),
-                          Expanded(child: text),
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          fan,
-                          const SizedBox(height: _gap),
-                          Flexible(child: text),
-                        ],
-                      ),
+          child: Material(
+            color: theme.cardColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: radius,
+              side: BorderSide(color: scheme.outline),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: InkWell(
+              onTap: () {
+                final box = fanContext.findRenderObject() as RenderBox?;
+                if (box != null) {
+                  flight?.takeOff(
+                    context,
+                    name: name,
+                    from: box.localToGlobal(Offset.zero) & box.size,
+                    size: fanSize,
+                    hasBooks: books > 0,
+                    coverPaths: coverPaths,
+                  );
+                }
+                onTap();
+              },
+              child: ExcludeSemantics(
+                child: Padding(
+                  padding: compact
+                      ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+                      : const EdgeInsets.all(_padding),
+                  child: horizontal
+                      ? Row(
+                          children: [
+                            fan,
+                            SizedBox(width: compact ? 10 : _padding),
+                            Expanded(child: text),
+                          ],
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            fan,
+                            const SizedBox(height: _gap),
+                            Flexible(child: text),
+                          ],
+                        ),
+                ),
               ),
             ),
           ),

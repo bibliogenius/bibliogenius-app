@@ -1293,38 +1293,61 @@ class _BookListScreenState extends State<BookListScreen>
   /// What changes there reaches this page through the global notifier.
   void _organizeFromPlace() => context.push('/shelves-management');
 
-  /// "Shelved here · 3 books": what the grid below holds, not what the head
-  /// counts with the sub-shelves. Its reorder action applies to these books.
+  /// A parent with nothing of its own: its sub-shelves above are what the page
+  /// offers, and the section says so rather than counting nothing.
+  bool get _placeHasNoOwnBooks =>
+      _isPlacePage &&
+      _filteredBooks.isEmpty &&
+      !_isLoading &&
+      _searchQuery.isEmpty &&
+      _selectedStatus == null &&
+      _shelfHiddenByOwnership == 0;
+
+  /// "Shelved here": a title without a number, the head carries the count. Its
+  /// reorder action applies to the books below.
   Widget _buildShelvedHereHeading() {
     final theme = Theme.of(context);
-    final count = _filteredBooks.length;
-    final books = TranslationService.translate(
-      context,
-      count == 1 ? 'displayed_books_count' : 'displayed_books_count_plural',
-    ).replaceAll('%d', '$count');
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 4, 0),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: Semantics(
-              key: const Key('shelvedHereHeading'),
-              header: true,
-              child: Text(
-                '${TranslationService.translate(context, 'shelved_here')} · $books',
-                style: theme.textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Expanded(
+                child: Semantics(
+                  key: const Key('shelvedHereHeading'),
+                  header: true,
+                  child: Text(
+                    TranslationService.translate(context, 'shelved_here'),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              // Not during a search (it scans the whole library) nor a
+              // selection (entering the mode would drop it without a word).
+              if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
+                IconButton(
+                  icon: const Icon(Icons.swap_vert),
+                  tooltip: TranslationService.translate(
+                    context,
+                    'reorder_shelf',
+                  ),
+                  onPressed: _startReordering,
+                ),
+            ],
           ),
-          // Not during a search (it scans the whole library) nor a selection
-          // (entering the mode would drop it without a word).
-          if (_searchQuery.isEmpty && !_isSearching && !_isSelecting)
-            IconButton(
-              icon: const Icon(Icons.swap_vert),
-              tooltip: TranslationService.translate(context, 'reorder_shelf'),
-              onPressed: _startReordering,
+          if (_placeHasNoOwnBooks)
+            Padding(
+              padding: const EdgeInsets.only(right: 12, bottom: 4),
+              child: Text(
+                TranslationService.translate(context, 'shelf_empty_hint'),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
             ),
         ],
       ),
@@ -3421,14 +3444,8 @@ class _BookListScreenState extends State<BookListScreen>
 
     // 2. No Results: Books exist but filters/search removed them
     if (_placeIsEmpty) return _buildPlaceEmpty();
-    // A parent with nothing of its own: its heading says so, its sub-shelves
-    // above are what the page offers. Still a scroll view, to carry them.
-    if (_isPlacePage &&
-        _filteredBooks.isEmpty &&
-        !_isLoading &&
-        _searchQuery.isEmpty &&
-        _selectedStatus == null &&
-        _shelfHiddenByOwnership == 0) {
+    // Its heading says so. Still a scroll view, to carry the sub-shelves above.
+    if (_placeHasNoOwnBooks) {
       return RefreshIndicator(
         onRefresh: _fetchBooks,
         child: ListView(physics: const AlwaysScrollableScrollPhysics()),

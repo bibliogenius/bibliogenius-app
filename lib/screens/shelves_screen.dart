@@ -467,44 +467,54 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return Padding(
       // As far from the cards as the cards from each other.
       padding: EdgeInsets.only(top: 8, bottom: wide ? 16 : 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          if (wide) ...[
-            Flexible(
-              child: OutlinedButton.icon(
-                onPressed: _showCreateShelfDialog,
-                style: OutlinedButton.styleFrom(
-                  minimumSize: const Size(0, 44),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(
-                      AppDesign.radiusMedium,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: AppDesign.subtleShadow,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (wide) ...[
+                Flexible(
+                  child: OutlinedButton.icon(
+                    onPressed: _showCreateShelfDialog,
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 44),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppDesign.radiusMedium,
+                        ),
+                      ),
+                      textStyle: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    icon: const Icon(Icons.add),
+                    label: Text(
+                      TranslationService.translate(context, 'create_shelf'),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
                 ),
-                icon: const Icon(Icons.add),
-                label: Text(
-                  TranslationService.translate(context, 'create_shelf'),
-                  overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: TextButton.icon(
+                  focusNode: _organizeFocus,
+                  onPressed: _openOrganize,
+                  style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
+                  icon: const Icon(Icons.tune),
+                  label: Text(
+                    TranslationService.translate(context, 'organize'),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-          ],
-          Flexible(
-            child: TextButton.icon(
-              focusNode: _organizeFocus,
-              onPressed: _openOrganize,
-              style: TextButton.styleFrom(minimumSize: const Size(0, 44)),
-              icon: const Icon(Icons.tune),
-              label: Text(
-                TranslationService.translate(context, 'organize'),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -524,59 +534,62 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return Padding(
       key: const Key('toShelveCard'),
       padding: const EdgeInsets.only(top: 12, bottom: 4),
-      child: Material(
-        color: Colors.transparent,
-        shape: RoundedRectangleBorder(
+      child: DecoratedBox(
+        decoration: BoxDecoration(
           borderRadius: radius,
-          side: BorderSide(color: scheme.outlineVariant),
+          boxShadow: AppDesign.subtleShadow,
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Row(
-          children: [
-            Expanded(
-              // One button, read as the whole sentence.
-              child: MergeSemantics(
-                child: Semantics(
-                  button: true,
-                  label:
-                      '$title, ${_plural(context, 'to_shelve_count', _unshelvedCount)}',
-                  child: InkWell(
-                    onTap: () => context.go(toShelveLocation),
-                    child: ExcludeSemantics(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: 44),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 8,
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.move_to_inbox_outlined,
-                                color: scheme.primary,
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Text.rich(
-                                  TextSpan(
-                                    children: [
-                                      TextSpan(
-                                        text: title,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      TextSpan(
-                                        text:
-                                            ' · ${_plural(context, 'displayed_books_count', _unshelvedCount)}',
-                                      ),
-                                    ],
-                                  ),
-                                  style: textTheme.bodyMedium,
+        child: Material(
+          color: Theme.of(context).cardColor,
+          shape: RoundedRectangleBorder(borderRadius: radius),
+          clipBehavior: Clip.antiAlias,
+          child: Row(
+            children: [
+              Expanded(
+                // One button, read as the whole sentence.
+                child: MergeSemantics(
+                  child: Semantics(
+                    button: true,
+                    label:
+                        '$title, ${_plural(context, 'to_shelve_count', _unshelvedCount)}',
+                    child: InkWell(
+                      onTap: () => context.go(toShelveLocation),
+                      child: ExcludeSemantics(
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: 44),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.move_to_inbox_outlined,
+                                  color: scheme.primary,
                                 ),
-                              ),
-                            ],
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: title,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        TextSpan(
+                                          text:
+                                              ' · ${_plural(context, 'displayed_books_count', _unshelvedCount)}',
+                                        ),
+                                      ],
+                                    ),
+                                    style: textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -584,14 +597,17 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                   ),
                 ),
               ),
-            ),
-            IconButton(
-              constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
-              icon: const Icon(Icons.close),
-              tooltip: TranslationService.translate(context, 'to_shelve_hide'),
-              onPressed: _hideToShelveLine,
-            ),
-          ],
+              IconButton(
+                constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                icon: const Icon(Icons.close),
+                tooltip: TranslationService.translate(
+                  context,
+                  'to_shelve_hide',
+                ),
+                onPressed: _hideToShelveLine,
+              ),
+            ],
+          ),
         ),
       ),
     );

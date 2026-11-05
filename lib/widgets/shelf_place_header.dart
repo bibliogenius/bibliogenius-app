@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../models/tag.dart';
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../theme/app_design.dart';
 import 'shelf_card.dart';
 import 'shelf_fan_flight.dart';
 import 'shelf_thumbnail.dart';
@@ -81,30 +84,38 @@ class ShelfPlaceSlivers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliverMainAxisGroup(
-      slivers: [
-        SliverToBoxAdapter(child: ShelfPlaceHeader(place: place)),
-        if (place.subShelves.isNotEmpty) ...[
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            sliver: SliverToBoxAdapter(
-              child: Semantics(
-                header: true,
-                child: Text(
-                  TranslationService.translate(context, 'sub_categories'),
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+    // The first colour of the gradient the books below are painted on, so the
+    // page reads as one ground: the scaffold's colour would show a seam.
+    final ground = AppDesign.pageGradientForTheme(
+      context.select<ThemeProvider, String>((p) => p.themeStyle),
+    ).colors.first;
+    return DecoratedSliver(
+      decoration: BoxDecoration(color: ground),
+      sliver: SliverMainAxisGroup(
+        slivers: [
+          SliverToBoxAdapter(child: ShelfPlaceHeader(place: place)),
+          if (place.subShelves.isNotEmpty) ...[
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              sliver: SliverToBoxAdapter(
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    TranslationService.translate(context, 'sub_categories'),
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            sliver: _SubShelfGrid(place: place),
-          ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              sliver: _SubShelfGrid(place: place),
+            ),
+          ],
         ],
-      ],
+      ),
     );
   }
 }
@@ -359,45 +370,53 @@ class _PathChip extends StatelessWidget {
             'shelf_in_path',
           ).replaceAll('{path}', path);
     final theme = Theme.of(context);
-    // Drawn 32 pt high, inside a 44 pt target.
+    // Drawn 32 pt high, inside a 44 pt target. On a material of its own: the
+    // scaffold's lies under the ground of the head, with any ink drawn on it.
     return MergeSemantics(
       child: Semantics(
         button: true,
-        child: InkWell(
-          key: const Key('shelfPlaceChip'),
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => place.actions.onOpen(parent),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Align(
-              alignment: AlignmentDirectional.centerStart,
-              widthFactor: 1,
-              heightFactor: 1,
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 32),
-                padding: const EdgeInsetsDirectional.only(start: 6, end: 12),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: theme.colorScheme.outlineVariant),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ShelfThumbnail(
-                      size: ShelfThumbnailSize.xs,
-                      hasBooks: place.booksOf(parent) > 0,
-                      coverPaths: parent.coverPaths,
+        child: Material(
+          type: MaterialType.transparency,
+          child: InkWell(
+            key: const Key('shelfPlaceChip'),
+            borderRadius: BorderRadius.circular(16),
+            onTap: () => place.actions.onOpen(parent),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 44),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                widthFactor: 1,
+                heightFactor: 1,
+                child: Ink(
+                  padding: const EdgeInsetsDirectional.only(start: 6, end: 12),
+                  decoration: BoxDecoration(
+                    color: theme.cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: theme.colorScheme.outline),
+                    boxShadow: AppDesign.subtleShadow,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: 32),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ShelfThumbnail(
+                          size: ShelfThumbnailSize.xs,
+                          hasBooks: place.booksOf(parent) > 0,
+                          coverPaths: parent.coverPaths,
+                        ),
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelMedium,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text(
-                        label,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.labelMedium,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),

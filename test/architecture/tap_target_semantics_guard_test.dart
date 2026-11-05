@@ -84,6 +84,7 @@ import 'package:bibliogenius/providers/recommendation_provider.dart';
 import 'package:bibliogenius/providers/sort_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/add_book_screen.dart';
+import 'package:bibliogenius/theme/app_design.dart';
 import 'package:bibliogenius/screens/book_list_screen.dart';
 import 'package:bibliogenius/screens/book_details_screen.dart';
 import 'package:bibliogenius/screens/borrow_requests_screen.dart';
@@ -3568,13 +3569,21 @@ void main() {
     ) async {
       await _render(tester, page('Living room'), books: books);
 
-      expect(
-        find.descendant(of: heading, matching: find.textContaining('2 books')),
-        findsOneWidget,
-      );
       expect(find.text('New lamp'), findsWidgets);
       expect(find.text('Sofa novel'), findsNothing);
       expect(find.text('Fjord'), findsNothing);
+    });
+
+    testWidgets('the section title says no number: the head has the count', (
+      tester,
+    ) async {
+      await _render(tester, page('Living room'), books: books);
+
+      expect(
+        find.descendant(of: heading, matching: find.text('Shelved here')),
+        findsOneWidget,
+      );
+      expect(find.text('Nothing here yet. Add a book, or create a sub-shelf.'), findsNothing);
     });
 
     testWidgets('the Books tab filter still takes the whole subtree', (
@@ -3620,8 +3629,19 @@ void main() {
       expect(bigEmpty, findsNothing);
       expect(find.text('No books found'), findsNothing);
       expect(
-        find.descendant(of: heading, matching: find.textContaining('0 books')),
+        find.descendant(of: heading, matching: find.text('Shelved here')),
         findsOneWidget,
+      );
+      // Right under the title, above the filter bar.
+      final hint = find.text('Nothing here yet. Add a book, or create a sub-shelf.');
+      expect(hint, findsOneWidget);
+      expect(
+        tester.getTopLeft(hint).dy,
+        greaterThan(tester.getTopLeft(heading).dy),
+      );
+      expect(
+        tester.getTopLeft(hint).dy,
+        lessThan(tester.getTopLeft(find.text('Author')).dy),
       );
     });
 
@@ -3636,6 +3656,36 @@ void main() {
       );
       expect(find.byKey(const Key('shelfEmptyAddBook')), findsOneWidget);
       expect(find.byKey(const Key('shelfEmptyAddSubShelf')), findsOneWidget);
+    });
+
+    testWidgets('the head stands on the first colour of the page gradient, so '
+        'the books below continue it', (tester) async {
+      await _render(tester, page('Novels'), books: books);
+
+      final ground = tester.widget<DecoratedSliver>(
+        find.ancestor(of: name, matching: find.byType(DecoratedSliver)),
+      );
+      expect(
+        (ground.decoration as BoxDecoration).color,
+        AppDesign.pageGradientForTheme('default').colors.first,
+      );
+    });
+
+    testWidgets('the chip of the path: the card colour, the hairline of the '
+        'theme, the subtle shadow', (tester) async {
+      await _render(tester, page('Novels'), books: books);
+      final theme = Theme.of(tester.element(chip));
+
+      final ink = tester.widget<Ink>(
+        find.descendant(of: chip, matching: find.byType(Ink)),
+      );
+      final decoration = ink.decoration! as BoxDecoration;
+      expect(decoration.color, theme.cardColor);
+      expect(decoration.boxShadow, AppDesign.subtleShadow);
+      expect(
+        (decoration.border! as Border).top.color,
+        theme.colorScheme.outline,
+      );
     });
 
     testWidgets('its two buttons have the corners of the app buttons', (
