@@ -388,10 +388,8 @@ class ApiService {
   Future<Response> createBook(Map<String, dynamic> bookData) async {
     if (useFfi) {
       try {
-        // Native FFI Call
-        // WORKAROUND: Force owned=false to prevent backend from trying to create a copy internally
-        // (which fails with NotFound likely due to missing Library Context in the native struct).
-        // We will manually create the copy using the working HTTP endpoint below.
+        // Native FFI Call. The backend creates the default copy of an owned
+        // book itself, and returns an error if it cannot.
         final frbBookInput = frb.FrbBook(
           title: bookData['title'] ?? 'Untitled',
           author: bookData['author'],
@@ -407,7 +405,8 @@ class ApiService {
               ? jsonEncode(bookData['subjects'])
               : null,
           readingStatus: bookData['reading_status'],
-          owned: false, // FORCE FALSE to bypass native bug
+          // An absent value means owned, as everywhere else.
+          owned: bookData['owned'] != false,
           price: bookData['price'] is num
               ? (bookData['price'] as num).toDouble()
               : null,
@@ -421,30 +420,6 @@ class ApiService {
         );
 
         final createdBook = await FfiService().createBook(frbBookInput);
-
-        // If the user wanted it owned, manually create the copy using the reliable HTTP endpoint
-        if (bookData['owned'] != false) {
-          final newUuid = createdBook.id;
-          if (newUuid == null) {
-            throw Exception('Native createBook returned null id');
-          }
-          await createCopy({
-            'book_id': newUuid,
-            'is_temporary': false,
-            'status': 'available',
-            // library_id handled by createCopy default
-          });
-
-          // [FIX] Update the book itself to owned=true so it shows up correctly in lists
-          // Pass only the field we want to update; updateBook handles merging with existing data
-          try {
-            await updateBook(newUuid, {'owned': true});
-            debugPrint('✅ Ownership status updated to true for Book $newUuid');
-          } catch (e) {
-            debugPrint('⚠️ Failed to update ownership status: $e');
-            // We don't rethrow here because the book and copy were created successfully
-          }
-        }
 
         return Response(
           requestOptions: RequestOptions(path: '/api/books'),
