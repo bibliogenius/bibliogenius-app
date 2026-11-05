@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../services/translation_service.dart';
+import 'shelf_fan_flight.dart';
 import 'shelf_thumbnail.dart';
 
 /// How many columns of shelf cards fit [width]: one on a very narrow screen
@@ -50,6 +51,9 @@ class ShelfCard extends StatelessWidget {
   final bool compact;
   final VoidCallback onTap;
 
+  /// Sends the fan off on its way to the shelf's page, on a tap.
+  final ShelfFanFlight? flight;
+
   const ShelfCard({
     super.key,
     required this.name,
@@ -58,6 +62,7 @@ class ShelfCard extends StatelessWidget {
     required this.onTap,
     this.coverPaths = const [],
     this.horizontal = false,
+    this.flight,
   }) : compact = false;
 
   const ShelfCard.compact({
@@ -67,6 +72,7 @@ class ShelfCard extends StatelessWidget {
     required this.subShelves,
     required this.onTap,
     this.coverPaths = const [],
+    this.flight,
   }) : horizontal = true,
        compact = true;
 
@@ -115,10 +121,17 @@ class ShelfCard extends StatelessWidget {
     );
     final radius = BorderRadius.circular(compact ? 14 : 18);
 
-    final fan = ShelfThumbnail(
-      size: compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l,
-      hasBooks: books > 0,
-      coverPaths: coverPaths,
+    final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
+    late BuildContext fanContext;
+    final fan = Builder(
+      builder: (context) {
+        fanContext = context;
+        return ShelfThumbnail(
+          size: fanSize,
+          hasBooks: books > 0,
+          coverPaths: coverPaths,
+        );
+      },
     );
     final text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +174,20 @@ class ShelfCard extends StatelessWidget {
           ),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: onTap,
+            onTap: () {
+              final box = fanContext.findRenderObject() as RenderBox?;
+              if (box != null) {
+                flight?.takeOff(
+                  context,
+                  name: name,
+                  from: box.localToGlobal(Offset.zero) & box.size,
+                  size: fanSize,
+                  hasBooks: books > 0,
+                  coverPaths: coverPaths,
+                );
+              }
+              onTap();
+            },
             child: ExcludeSemantics(
               child: Padding(
                 padding: compact

@@ -11,6 +11,7 @@ import '../widgets/shelf_actions.dart';
 import '../services/to_shelve_dismissal_store.dart';
 import '../widgets/scaffold_with_nav.dart';
 import '../widgets/shelf_card.dart';
+import '../widgets/shelf_fan_flight.dart';
 import '../widgets/shelf_or_collection_note.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/contextual_help_sheet.dart';
@@ -34,12 +35,16 @@ class ShelvesScreen extends StatefulWidget {
   /// Told each listing, for the page of a shelf opened next to start from.
   final ValueChanged<List<Tag>>? onTagsLoaded;
 
+  /// What a card sends its fan off with.
+  final ShelfFanFlight? fanFlight;
+
   const ShelvesScreen({
     super.key,
     this.isTabView = false,
     this.refreshNotifier,
     this.actions,
     this.onTagsLoaded,
+    this.fanFlight,
   });
 
   @override
@@ -443,6 +448,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       subShelves: _childrenOf(tag).length,
                       coverPaths: tag.coverPaths,
                       horizontal: horizontal,
+                      flight: widget.fanFlight,
                       onTap: () => _openShelfBooks(tag),
                     );
                   }, childCount: roots.length),

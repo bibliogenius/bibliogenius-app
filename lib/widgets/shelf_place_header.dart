@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/tag.dart';
 import '../services/translation_service.dart';
 import 'shelf_card.dart';
+import 'shelf_fan_flight.dart';
 import 'shelf_thumbnail.dart';
 
 /// What the page of a shelf says about it, published by the list of its books
@@ -29,6 +30,9 @@ class ShelfPlace {
   /// that nothing can be done to it safely: deleting a shelf taken for one with
   /// no row would strip its name from the books and keep the row.
   final bool canAct;
+
+  /// The fan on its way here, if any, and what the sub-shelf cards send off.
+  final ShelfFanFlight? flight;
   final ShelfPlaceActions actions;
 
   const ShelfPlace({
@@ -42,6 +46,7 @@ class ShelfPlace {
     required this.subShelvesOf,
     required this.hidden,
     required this.canAct,
+    this.flight,
     required this.actions,
   });
 }
@@ -87,9 +92,9 @@ class ShelfPlaceSlivers extends StatelessWidget {
                 header: true,
                 child: Text(
                   TranslationService.translate(context, 'sub_categories'),
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -133,6 +138,7 @@ class _SubShelfGrid extends StatelessWidget {
               books: place.booksOf(tag),
               subShelves: place.subShelvesOf(tag),
               coverPaths: tag.coverPaths,
+              flight: place.flight,
               onTap: () => place.actions.onOpen(tag),
             );
           }, childCount: place.subShelves.length),
@@ -181,42 +187,47 @@ class ShelfPlaceHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (place.ancestors.isNotEmpty)
-                        _PathChip(place: place),
-                      Semantics(
-                        header: true,
-                        child: Text(
-                          shelf.name,
-                          key: const Key('shelfHeaderTitle'),
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
+                  child: _FadeIn(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (place.ancestors.isNotEmpty) _PathChip(place: place),
+                        Semantics(
+                          header: true,
+                          child: Text(
+                            shelf.name,
+                            key: const Key('shelfHeaderTitle'),
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        counts.join(' · '),
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: muted,
+                        const SizedBox(height: 2),
+                        Text(
+                          counts.join(' · '),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: muted,
+                          ),
                         ),
-                      ),
-                      if (place.lastAddedTitle != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 4),
-                          child: _LastAdded(title: place.lastAddedTitle!),
-                        ),
-                    ],
+                        if (place.lastAddedTitle != null)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: _LastAdded(title: place.lastAddedTitle!),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
-                ShelfThumbnail(
-                  key: const Key('shelfPlaceFan'),
-                  size: ShelfThumbnailSize.xl,
-                  hasBooks: place.books > 0,
-                  coverPaths: shelf.coverPaths,
+                _LandingFan(
+                  name: shelf.name,
+                  flight: place.flight,
+                  child: ShelfThumbnail(
+                    key: const Key('shelfPlaceFan'),
+                    size: ShelfThumbnailSize.xl,
+                    hasBooks: place.books > 0,
+                    coverPaths: shelf.coverPaths,
+                  ),
                 ),
               ],
             ),
@@ -225,6 +236,77 @@ class ShelfPlaceHeader extends StatelessWidget {
       ),
     );
   }
+}
+
+/// What the head says appears as the fan arrives: only the fan travels.
+class _FadeIn extends StatelessWidget {
+  final Widget child;
+
+  const _FadeIn({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: MediaQuery.disableAnimationsOf(context)
+          ? Duration.zero
+          : ShelfFanFlight.duration,
+      builder: (context, value, child) => Opacity(
+        opacity: value,
+        // Announced and touchable from the start: a fade costs no one a second.
+        alwaysIncludeSemantics: true,
+        child: child,
+      ),
+      child: child,
+    );
+  }
+}
+
+/// The fan of the head, out of sight while the one from the card flies here.
+class _LandingFan extends StatefulWidget {
+  final String name;
+  final ShelfFanFlight? flight;
+  final Widget child;
+
+  const _LandingFan({
+    required this.name,
+    required this.flight,
+    required this.child,
+  });
+
+  @override
+  State<_LandingFan> createState() => _LandingFanState();
+}
+
+class _LandingFanState extends State<_LandingFan> {
+  bool _waiting = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final flight = widget.flight;
+    if (flight == null) return;
+    // Hidden from this frame: the flight is up by the time this head builds.
+    _waiting = !MediaQuery.disableAnimationsOf(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final box = context.findRenderObject() as RenderBox?;
+      final landed = box == null
+          ? null
+          : flight.land(widget.name, box.localToGlobal(Offset.zero) & box.size);
+      if (landed == null) {
+        if (_waiting) setState(() => _waiting = false);
+        return;
+      }
+      landed.then((_) {
+        if (mounted) setState(() => _waiting = false);
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      Opacity(opacity: _waiting ? 0 : 1, child: widget.child);
 }
 
 /// "‹ Living room": a way back that says where it leads.

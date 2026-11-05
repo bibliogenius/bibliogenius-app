@@ -11,6 +11,7 @@ import '../providers/book_refresh_notifier.dart';
 import '../theme/app_design.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/shelf_actions.dart';
+import '../widgets/shelf_fan_flight.dart';
 import '../widgets/shelf_place_header.dart';
 import '../widgets/suggestions_app_bar_action.dart';
 import '../widgets/scaffold_with_nav.dart';
@@ -87,6 +88,8 @@ class _LibraryScreenState extends State<LibraryScreen>
   late final ShelfActionsController _shelfActions = ShelfActionsController(
     () => mounted ? context : null,
   );
+
+  final ShelfFanFlight _fanFlight = ShelfFanFlight();
 
   /// Off while a page opened over the library hides it.
   ValueListenable<bool>? _tickerMode;
@@ -201,6 +204,7 @@ class _LibraryScreenState extends State<LibraryScreen>
 
   @override
   void dispose() {
+    _fanFlight.cancel();
     _tickerMode?.removeListener(_onTickerModeChanged);
     _shelfActions.dispose();
     _place.dispose();
@@ -424,12 +428,14 @@ class _LibraryScreenState extends State<LibraryScreen>
                         shelfActions: _shelfActions,
                         initialTags: _knownTags,
                         onTagsLoaded: (tags) => _knownTags = tags,
+                        fanFlight: _fanFlight,
                       )
                     : ShelvesScreen(
                         isTabView: true,
                         refreshNotifier: _shelvesRefreshNotifier,
                         actions: _shelfActions,
                         onTagsLoaded: (tags) => _knownTags = tags,
+                        fanFlight: _fanFlight,
                       ),
                 if (themeProvider.collectionsEnabled)
                   CollectionListScreen(

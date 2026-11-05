@@ -4253,6 +4253,163 @@ void main() {
     });
   });
 
+  // Only the fan travels from a card to the head of the shelf's page.
+  group('the flight of a fan on the real route', () {
+    final flight = find.byKey(const Key('shelfFanFlight'));
+    final target = find.byKey(const Key('shelfPlaceFan'));
+    Finder card(String shelf) => find.byKey(ValueKey('shelfCard:$shelf'));
+    Finder subCard(String shelf) => find.byKey(ValueKey('subShelfCard:$shelf'));
+    final tab = _Probe('tab', '/shelves', size: _tallPhone, tags: _treeTags);
+    final page = _Probe(
+      'page',
+      '/shelves?tag=Living+room',
+      size: _tallPhone,
+      tags: _treeTags,
+    );
+    Finder fanOf(Finder of) =>
+        find.descendant(of: of, matching: find.byType(ShelfThumbnail));
+
+    testWidgets('a tap on a card sends its fan to the head, in 250 ms', (
+      tester,
+    ) async {
+      await _render(tester, tab);
+      final from = tester.getRect(fanOf(card('Living room')));
+
+      await tester.tap(card('Living room'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+
+      expect(flight, findsOneWidget);
+      final start = tester.getRect(flight);
+      expect(start.top, closeTo(from.top, 40));
+
+      await tester.pump(const Duration(milliseconds: 125));
+      final middle = tester.getRect(flight);
+      expect(middle.width, greaterThan(from.width));
+
+      await tester.pump(const Duration(milliseconds: 150));
+      await tester.pump();
+      expect(flight, findsNothing);
+      await _settle(tester);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('the fan at the head waits for it, then shows', (tester) async {
+      await _render(tester, tab);
+
+      await tester.tap(card('Living room'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      double opacity() => tester
+          .widget<Opacity>(
+            find.ancestor(of: target, matching: find.byType(Opacity)).first,
+          )
+          .opacity;
+      expect(opacity(), 0);
+
+      await tester.pump(const Duration(milliseconds: 300));
+      await tester.pump();
+      expect(opacity(), 1);
+      await _settle(tester);
+    });
+
+    testWidgets('only the fan travels: nothing else is in the flight', (
+      tester,
+    ) async {
+      await _render(tester, tab);
+
+      await tester.tap(card('Living room'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        find.descendant(of: flight, matching: find.byType(ShelfThumbnail)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: flight, matching: find.byType(Text)),
+        findsNothing,
+      );
+      await _settle(tester);
+    });
+
+    testWidgets('a sub-shelf card flies too', (tester) async {
+      await _render(tester, page);
+
+      await tester.tap(subCard('Novels'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+
+      expect(flight, findsOneWidget);
+      await _settle(tester);
+      expect(flight, findsNothing);
+    });
+
+    testWidgets('with animations off, no flight at all', (tester) async {
+      tester.platformDispatcher.accessibilityFeaturesTestValue =
+          const FakeAccessibilityFeatures(disableAnimations: true);
+      addTearDown(
+        tester.platformDispatcher.clearAccessibilityFeaturesTestValue,
+      );
+      await _render(tester, tab);
+
+      await tester.tap(card('Living room'));
+      await tester.pump();
+      expect(flight, findsNothing);
+      await tester.pump();
+      await tester.pump();
+      expect(flight, findsNothing);
+      await _settle(tester);
+      expect(target, findsOneWidget);
+    });
+
+    testWidgets('the page answers before the end of the flight', (
+      tester,
+    ) async {
+      await _render(tester, tab);
+
+      await tester.tap(card('Living room'));
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      expect(flight, findsOneWidget);
+      // A touch goes through the fan itself to what lies under it.
+      final fan = tester.renderObject(
+        find.descendant(of: flight, matching: find.byType(ShelfThumbnail)),
+      );
+      final hits = tester.hitTestOnBinding(tester.getCenter(flight));
+      expect(hits.path.map((e) => e.target), isNot(contains(fan)));
+
+      await tester.tap(find.byKey(const Key('shelfBackButton')));
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        GoRouterState.of(tester.element(find.byType(LibraryScreen))).uri.toString(),
+        '/shelves',
+      );
+      await _settle(tester);
+      expect(flight, findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a flight with nowhere to land ends by itself', (tester) async {
+      await _render(tester, tab);
+
+      await tester.tap(card('Living room'));
+      // The way back before the head is there.
+      GoRouter.of(
+        tester.element(find.byType(LibraryScreen)),
+      ).go('/shelves');
+      await _settle(tester);
+
+      expect(flight, findsNothing);
+    });
+  });
+
   // Organizing is another place, with a title and a way out, not a mode of the
   // grid: the tree, its drag and its Undo live there and end with it.
   group('organizing the shelves on the real route', () {

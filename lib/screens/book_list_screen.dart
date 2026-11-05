@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../widgets/wisher_filter_chips.dart';
 import '../widgets/move_shelf_sheet.dart';
 import '../widgets/shelf_actions.dart';
+import '../widgets/shelf_fan_flight.dart';
 import '../widgets/shelf_place_header.dart';
 import '../widgets/shelf_thumbnail.dart';
 import '../widgets/books_top_slot.dart';
@@ -83,6 +84,9 @@ class BookListScreen extends StatefulWidget {
   /// Told each listing of the shelves, for the next page to start from.
   final ValueChanged<List<Tag>>? onTagsLoaded;
 
+  /// The fan on its way to the head of this page, if any.
+  final ShelfFanFlight? fanFlight;
+
   /// Lists only the books on no shelf, under a "to shelve" header: where the
   /// shelves tab's card leads. Once shelving empties it, the list hands the
   /// grid back.
@@ -107,6 +111,7 @@ class BookListScreen extends StatefulWidget {
     this.shelfActions,
     this.initialTags,
     this.onTagsLoaded,
+    this.fanFlight,
     this.unshelvedOnly = false,
     this.startInSelection = false,
     this.externalSearchQuery,
@@ -1195,6 +1200,7 @@ class _BookListScreenState extends State<BookListScreen>
       subShelvesOf: (tag) => Tag.getDirectChildren(tag.id, shown).length,
       hidden: _isReordering,
       canAct: _placeListed && listed,
+      flight: widget.fanFlight,
       actions: ShelfPlaceActions(
         onBack: () => _openPlace(_parentOf(inView)),
         onOpen: _openPlace,
