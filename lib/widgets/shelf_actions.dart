@@ -386,7 +386,11 @@ void showNewShelfDialog(
   final outerContext = context;
   final controller = TextEditingController();
   final formKey = GlobalKey<FormState>();
-  Tag? selectedParent = parent;
+  // The list below knows its entries by instance, and a listing can hand out
+  // new ones for the same shelf: a parent holding a shelf whose deletion waits
+  // for its undo is one.
+  Tag? selectedParent =
+      shownTags.where((t) => t.id == parent?.id).firstOrNull ?? parent;
 
   showDialog(
     context: context,

@@ -4201,6 +4201,66 @@ void main() {
         expect(tops, [...tops]..sort());
       });
 
+      Tag? chosenParent(WidgetTester tester) => tester
+          .widget<DropdownButton<Tag?>>(find.byType(DropdownButton<Tag?>))
+          .value;
+
+      testWidgets('adding a sub-shelf starts from the shelf on show', (
+        tester,
+      ) async {
+        await _render(tester, page('Novels'), books: books);
+
+        await pick(tester, 'Add Sub-Shelf');
+
+        expect(chosenParent(tester)?.name, 'Novels');
+        expect(
+          find.descendant(
+            of: find.byType(DropdownButton<Tag?>),
+            matching: find.text('Novels'),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('adding a sub-shelf starts from the shelf on show, after '
+          'the listing was read again', (tester) async {
+        final harness = await _render(tester, page('Novels'), books: books);
+
+        harness.tags.mockTags = [
+          for (final t in tags)
+            Tag(id: t.id, name: t.name, parentId: t.parentId, count: t.count),
+        ];
+        final context = tester.element(find.byType(BookListScreen).first);
+        context.read<BookRefreshNotifier>().refresh();
+        await tester.pumpAndSettle();
+        await pick(tester, 'Add Sub-Shelf');
+
+        expect(chosenParent(tester)?.name, 'Novels');
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('adding a sub-shelf starts from the shelf on show, while the '
+          'deletion of one of its sub-shelves waits for its undo', (
+        tester,
+      ) async {
+        await _render(tester, page('Living room'), books: books);
+
+        await _tap(tester, subCard('Novels'));
+        await pick(tester, 'Delete');
+        await pick(tester, 'Add Sub-Shelf');
+
+        expect(chosenParent(tester)?.name, 'Living room');
+        expect(
+          find.descendant(
+            of: find.byType(DropdownButton<Tag?>),
+            matching: find.text('Living room'),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      });
+
       testWidgets('renaming reopens the page under the new name', (
         tester,
       ) async {
