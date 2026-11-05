@@ -450,39 +450,106 @@ void main() {
 
   group('the colour of a card', () {
     final palettes = {
-      'light': AppDesign.shelfTintsLight,
-      'dark': AppDesign.shelfTintsDark,
+      Brightness.light: AppDesign.shelfTintsLight,
+      Brightness.dark: AppDesign.shelfTintsDark,
     };
+    palettes.forEach((brightness, tints) {
+      final name = brightness.name;
 
-    palettes.forEach((name, tints) {
-      test('$name: eight distinct colours', () {
-        expect(tints.toSet(), hasLength(8));
+      test('$name: eight distinct grounds', () {
+        expect(tints.map((t) => t.ground).toSet(), hasLength(8));
       });
 
       for (final tint in tints) {
-        final hex = tint.toARGB32().toRadixString(16);
+        final hex = tint.ground.toARGB32().toRadixString(16);
 
-        test('$name $hex: white text reads at 4.5:1 all along the gradient', () {
-          final gradient = AppDesign.shelfGradient(tint);
+        test('$name $hex: the gradient starts on the ground, opaque', () {
+          final gradient = AppDesign.shelfGradient(tint.ground, brightness);
           expect(gradient.colors.every((c) => c.a == 1), isTrue);
-          for (final point in gradient.colors) {
+          expect(gradient.colors.first, tint.ground);
+          expect(gradient.begin, Alignment.topLeft);
+          expect(gradient.end, Alignment.bottomRight);
+        });
+
+        test('$name $hex: its ink reads at 4.5:1 all along the gradient', () {
+          final gradient = AppDesign.shelfGradient(tint.ground, brightness);
+          // Under the text at the bottom left, about halfway on a phone.
+          for (final t in const [0.0, 0.5, 1.0]) {
             expect(
-              contrastRatio(Colors.white, point),
+              contrastRatio(
+                tint.ink,
+                Color.lerp(gradient.colors.first, gradient.colors.last, t)!,
+              ),
               greaterThanOrEqualTo(4.5),
+              reason: 'at $t',
             );
           }
-          // The lightest point is the tint, where the gradient ends.
-          expect(gradient.colors.last, tint);
         });
 
-        test('$name $hex: the icon reads at 3:1 on its translucent square', () {
+        test('$name $hex: its ink reads at 3:1 on the square of the icon', () {
           final square = Color.alphaBlend(
             Colors.white.withValues(alpha: 0.2),
-            tint,
+            tint.ground,
           );
-          expect(contrastRatio(Colors.white, square), greaterThanOrEqualTo(3));
+          expect(contrastRatio(tint.ink, square), greaterThanOrEqualTo(3));
         });
       }
+    });
+
+    test('the light grounds are those the grid had, a lavender for its purple', () {
+      expect(AppDesign.shelfTintsLight.map((t) => t.ground), const [
+        Color(0xFF667EEA),
+        Color(0xFF9F7AEA),
+        Color(0xFFF093FB),
+        Color(0xFF4FACFE),
+        Color(0xFF43E97B),
+        Color(0xFFFA709A),
+        Color(0xFFFEE140),
+        Color(0xFFF5576C),
+      ]);
+    });
+
+    test('a dark ground ends deeper, its light ink having no room above', () {
+      final ground = AppDesign.shelfTintsDark.first.ground;
+      expect(
+        AppDesign.shelfGradient(ground, Brightness.dark).colors.last,
+        Color.lerp(ground, Colors.black, 0.3),
+      );
+    });
+
+    test('a light ground ends mixed with 30% of white', () {
+      final gradient = AppDesign.shelfGradient(
+        AppDesign.shelfTintsLight.first.ground,
+        Brightness.light,
+      );
+      expect(
+        gradient.colors.last,
+        Color.lerp(AppDesign.shelfTintsLight.first.ground, Colors.white, 0.3),
+      );
+    });
+
+    testWidgets('the icon of an empty shelf: the ink on 20% of white', (
+      tester,
+    ) async {
+      repo.tags = [Tag(id: 's0', name: 'Empty', count: 0)];
+      await pump(tester);
+
+      final square = find.byKey(const Key('shelfCardIcon'));
+      expect(
+        (tester.widget<Container>(square).decoration! as BoxDecoration).color,
+        Colors.white.withValues(alpha: 0.2),
+      );
+      expect(
+        tester
+            .widget<Icon>(
+              find.descendant(of: square, matching: find.byType(Icon)),
+            )
+            .color,
+        AppDesign.shelfTint(
+          AppDesign.shelfTintHashSlot('s0'),
+          Brightness.light,
+        ).ink,
+      );
     });
 
     test('a shelf asks for a slot by the id alone, a hash pinned across runs', () {
@@ -490,24 +557,15 @@ void main() {
         AppDesign.shelfTint(
           AppDesign.shelfTintHashSlot('s0'),
           Brightness.light,
-        ),
-        const Color(0xFFE11D48),
+        ).ground,
+        const Color(0xFFFA709A),
       );
       expect(
         AppDesign.shelfTint(
           AppDesign.shelfTintHashSlot('0191f3a2-7c44-7d10-9a31-5e2b8c4d1f60'),
           Brightness.light,
-        ),
-        const Color(0xFF2563EB),
-      );
-    });
-
-    test('a dark theme draws from its own palette, at the same slot', () {
-      expect(
-        AppDesign.shelfTintsDark.indexOf(AppDesign.shelfTint(3, Brightness.dark)),
-        AppDesign.shelfTintsLight.indexOf(
-          AppDesign.shelfTint(3, Brightness.light),
-        ),
+        ).ground,
+        const Color(0xFF4FACFE),
       );
     });
 
@@ -680,7 +738,8 @@ void main() {
           AppDesign.shelfTint(
             AppDesign.shelfTintHashSlot('s1'),
             Brightness.light,
-          ),
+          ).ground,
+          Brightness.light,
         ),
       );
 
@@ -692,14 +751,15 @@ void main() {
           AppDesign.shelfTint(
             AppDesign.shelfTintHashSlot('s1'),
             Brightness.light,
-          ),
+          ).ground,
+          Brightness.light,
         ),
       );
     });
 
     for (final style in const ['default', 'dark', 'minimal']) {
-      testWidgets('$style: a coloured ground, no line, a tinted shadow, white '
-          'text', (tester) async {
+      testWidgets('$style: a coloured ground, no line, a tinted shadow, the ink '
+          'of the pair, a watermark behind', (tester) async {
         final theme = ThemeRegistry.get(style)!.buildTheme(
           accentColor: Colors.blue,
         );
@@ -714,10 +774,11 @@ void main() {
               .descendant(of: _card('Shelf 0'), matching: find.byType(Material))
               .first,
         );
-        expect(material.color, Colors.transparent);
+        expect(material.elevation, 8);
+        expect(material.shadowColor, tint.ground.withValues(alpha: 0.4));
         final shape = material.shape! as RoundedRectangleBorder;
         expect(shape.side, BorderSide.none);
-        expect(shape.borderRadius, BorderRadius.circular(18));
+        expect(shape.borderRadius, BorderRadius.circular(20));
 
         final ground = tester.widget<Ink>(
           find.descendant(
@@ -727,22 +788,34 @@ void main() {
         );
         expect(
           (ground.decoration! as BoxDecoration).gradient,
-          AppDesign.shelfGradient(tint),
+          AppDesign.shelfGradient(tint.ground, theme.brightness),
         );
 
-        final shadow = tester
-            .widgetList<DecoratedBox>(
-              find.ancestor(
-                of: find.text('Shelf 0'),
-                matching: find.byType(DecoratedBox),
-              ),
+        final watermark = find.descendant(
+          of: _card('Shelf 0'),
+          matching: find.byKey(const Key('shelfCardWatermark')),
+        );
+        final icon = tester.widget<Icon>(watermark);
+        expect(icon.icon, Icons.shelves);
+        expect(icon.size, 100);
+        expect(icon.color, Colors.white.withValues(alpha: 0.1));
+        final box = tester.getRect(_card('Shelf 0'));
+        expect(tester.getTopRight(watermark), box.topRight + const Offset(20, -20));
+        expect(
+          find.ancestor(of: watermark, matching: find.byType(ExcludeSemantics)),
+          findsWidgets,
+        );
+
+        // Behind the fan and the text: first in the stack, the rest above it.
+        final layers = tester
+            .widget<Stack>(
+              find
+                  .ancestor(of: watermark, matching: find.byType(Stack))
+                  .first,
             )
-            .map((b) => b.decoration)
-            .whereType<BoxDecoration>()
-            .firstWhere((d) => d.boxShadow?.isNotEmpty ?? false)
-            .boxShadow!
-            .single;
-        expect(shadow.color, tint.withValues(alpha: 0.28));
+            .children;
+        expect(layers.first, isA<Positioned>());
+        expect(layers.last, isA<InkWell>());
 
         for (final text in ['Shelf 0', '1 book']) {
           final painted = tester.widget<RichText>(
@@ -754,7 +827,7 @@ void main() {
               matching: find.byType(RichText),
             ),
           );
-          expect(painted.text.style!.color, Colors.white);
+          expect(painted.text.style!.color, tint.ink);
         }
       });
     }

@@ -145,7 +145,7 @@ class ShelfCard extends StatelessWidget {
       books: books,
       subShelves: subShelves,
     );
-    final corner = compact ? 14.0 : 18.0;
+    final corner = compact ? 14.0 : 20.0;
     final tint = compact
         ? null
         : AppDesign.shelfTint(tintSlot!, theme.brightness);
@@ -155,7 +155,11 @@ class ShelfCard extends StatelessWidget {
     final flies = compact || (books > 0 && coverPaths.isNotEmpty);
     late BuildContext fanContext;
     final fan = !compact && !flies
-        ? _ShelfIcon(hasSubShelves: subShelves > 0, centred: horizontal)
+        ? _ShelfIcon(
+            hasSubShelves: subShelves > 0,
+            centred: horizontal,
+            ink: tint!.ink,
+          )
         : Builder(
             builder: (context) {
               fanContext = context;
@@ -188,7 +192,7 @@ class ShelfCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: tint?.ink,
                 ),
               ),
               const SizedBox(height: _nameGap),
@@ -196,19 +200,17 @@ class ShelfCard extends StatelessWidget {
                 counts.join(' · '),
                 maxLines: _maxLines,
                 overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                ),
+                style: theme.textTheme.bodySmall?.copyWith(color: tint?.ink),
               ),
             ],
           );
 
     final ink = InkWell(
       // The theme's overlays are made for its surfaces: on a colour they vanish.
-      splashColor: tint == null ? null : Colors.white.withValues(alpha: 0.24),
-      highlightColor: tint == null ? null : Colors.white.withValues(alpha: 0.12),
-      hoverColor: tint == null ? null : Colors.white.withValues(alpha: 0.12),
-      focusColor: tint == null ? null : Colors.white.withValues(alpha: 0.24),
+      splashColor: tint?.ink.withValues(alpha: 0.24),
+      highlightColor: tint?.ink.withValues(alpha: 0.12),
+      hoverColor: tint?.ink.withValues(alpha: 0.12),
+      focusColor: tint?.ink.withValues(alpha: 0.24),
       onTap: () {
         if (flies) {
           final box = fanContext.findRenderObject() as RenderBox?;
@@ -266,15 +268,7 @@ class ShelfCard extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(corner),
-            boxShadow: tint == null
-                ? AppDesign.subtleShadow
-                : [
-                    BoxShadow(
-                      color: tint.withValues(alpha: 0.28),
-                      offset: const Offset(0, 6),
-                      blurRadius: 14,
-                    ),
-                  ],
+            boxShadow: tint == null ? AppDesign.subtleShadow : null,
           ),
           child: tint == null
               ? Material(
@@ -284,7 +278,10 @@ class ShelfCard extends StatelessWidget {
                   child: ink,
                 )
               : Material(
-                  color: Colors.transparent,
+                  color: tint.ground,
+                  elevation: 8,
+                  shadowColor: tint.ground.withValues(alpha: 0.4),
+                  surfaceTintColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(corner),
                   ),
@@ -292,9 +289,29 @@ class ShelfCard extends StatelessWidget {
                   child: Ink(
                     key: const Key('shelfCardGround'),
                     decoration: BoxDecoration(
-                      gradient: AppDesign.shelfGradient(tint),
+                      gradient: AppDesign.shelfGradient(
+                        tint.ground,
+                        theme.brightness,
+                      ),
                     ),
-                    child: ink,
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Positioned(
+                          top: -20,
+                          right: -20,
+                          child: ExcludeSemantics(
+                            child: Icon(
+                              Icons.shelves,
+                              key: const Key('shelfCardWatermark'),
+                              size: 100,
+                              color: Colors.white.withValues(alpha: 0.1),
+                            ),
+                          ),
+                        ),
+                        ink,
+                      ],
+                    ),
                   ),
                 ),
         ),
@@ -308,8 +325,13 @@ class ShelfCard extends StatelessWidget {
 class _ShelfIcon extends StatelessWidget {
   final bool hasSubShelves;
   final bool centred;
+  final Color ink;
 
-  const _ShelfIcon({required this.hasSubShelves, required this.centred});
+  const _ShelfIcon({
+    required this.hasSubShelves,
+    required this.centred,
+    required this.ink,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -328,7 +350,7 @@ class _ShelfIcon extends StatelessWidget {
           ),
           child: Icon(
             hasSubShelves ? Icons.folder : Icons.label,
-            color: Colors.white,
+            color: ink,
             size: 24,
           ),
         ),

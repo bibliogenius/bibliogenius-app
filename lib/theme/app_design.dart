@@ -2,37 +2,46 @@ import 'package:flutter/material.dart';
 
 import '../utils/accessible_color.dart';
 
+/// A colour of a shelf: its ground, and the ink of what is written on it.
+class ShelfTint {
+  final Color ground;
+  final Color ink;
+
+  const ShelfTint(this.ground, this.ink);
+}
+
 /// BiblioGenius Design System
 /// Centralized design tokens for consistent styling across the app
 
 class AppDesign {
-  /// The colours a shelf can take, each the lightest point of its gradient:
-  /// white text reads at 4.5:1 on all of them.
-  static const List<Color> shelfTintsLight = [
-    Color(0xFF4F46E5),
-    Color(0xFF7E22CE),
-    Color(0xFFDB2777),
-    Color(0xFF2563EB),
-    Color(0xFF15803D),
-    Color(0xFFE11D48),
-    Color(0xFFB45309),
-    Color(0xFFDC2626),
+  /// The colours a shelf can take. Each ink holds 4.5:1 on its ground, the
+  /// darkest point of a light gradient and the lightest of a dark one, so
+  /// wherever a large screen puts the text.
+  static const List<ShelfTint> shelfTintsLight = [
+    ShelfTint(Color(0xFF667EEA), Color(0xFF19164C)),
+    ShelfTint(Color(0xFF9F7AEA), Color(0xFF321264)),
+    ShelfTint(Color(0xFFF093FB), Color(0xFF791681)),
+    ShelfTint(Color(0xFF4FACFE), Color(0xFF18338C)),
+    ShelfTint(Color(0xFF43E97B), Color(0xFF156233)),
+    ShelfTint(Color(0xFFFA709A), Color(0xFF6C0C27)),
+    ShelfTint(Color(0xFFFEE140), Color(0xFF78350F)),
+    ShelfTint(Color(0xFFF5576C), Color(0xFF510E0E)),
   ];
 
-  /// The same for a dark theme, in cyans and blues.
-  static const List<Color> shelfTintsDark = [
-    Color(0xFF0A7EA4),
-    Color(0xFF0E7490),
-    Color(0xFF155E75),
-    Color(0xFF164E63),
-    Color(0xFF0277A8),
-    Color(0xFF0369A1),
-    Color(0xFF075985),
-    Color(0xFF0C4A6E),
+  /// The same for a dark theme: cyans and blues under a very light ink.
+  static const List<ShelfTint> shelfTintsDark = [
+    ShelfTint(Color(0xFF0A7EA4), Color(0xFFFAFEFF)),
+    ShelfTint(Color(0xFF0E7490), Color(0xFFECFEFF)),
+    ShelfTint(Color(0xFF155E75), Color(0xFFCFFAFE)),
+    ShelfTint(Color(0xFF164E63), Color(0xFFCFFAFE)),
+    ShelfTint(Color(0xFF0277A8), Color(0xFFF0F9FF)),
+    ShelfTint(Color(0xFF0369A1), Color(0xFFE0F2FE)),
+    ShelfTint(Color(0xFF075985), Color(0xFFE0F2FE)),
+    ShelfTint(Color(0xFF0C4A6E), Color(0xFFE0F2FE)),
   ];
 
-  /// The colour in [slot] of the palette of [brightness].
-  static Color shelfTint(int slot, Brightness brightness) =>
+  /// The pair in [slot] of the palette of [brightness].
+  static ShelfTint shelfTint(int slot, Brightness brightness) =>
       (brightness == Brightness.dark ? shelfTintsDark : shelfTintsLight)[slot];
 
   /// The slot a shelf asks for: the same on every device, as it hangs on the
@@ -66,13 +75,22 @@ class AppDesign {
     return slots;
   }
 
-  /// A shelf's gradient: opaque, so the page under it cannot lower the contrast
-  /// of its text, and from a deeper shade down to [tint], where the text sits.
-  static LinearGradient shelfGradient(Color tint) => LinearGradient(
-    colors: [Color.lerp(tint, Colors.black, 0.22)!, tint],
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+  /// A shelf's gradient, opaque so the page under it cannot lower the contrast
+  /// of its text: from [ground] towards white, on a dark theme towards black, a
+  /// light ink having no room for a lighter end.
+  static LinearGradient shelfGradient(Color ground, Brightness brightness) =>
+      LinearGradient(
+        colors: [
+          ground,
+          Color.lerp(
+            ground,
+            brightness == Brightness.dark ? Colors.black : Colors.white,
+            0.3,
+          )!,
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   AppDesign._();
 
