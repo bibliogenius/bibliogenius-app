@@ -12,12 +12,16 @@ Color shelfSurfaceColor(ThemeData theme) =>
 
 /// The outline of a shelf surface: the line of the theme's cards, around the
 /// corners the shelves keep whatever the theme.
-ShapeBorder shelfSurfaceShape(ThemeData theme, double radius) {
+ShapeBorder shelfSurfaceShape(ThemeData theme, double radius) =>
+    RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(radius),
+      side: shelfSurfaceSide(theme),
+    );
+
+/// The line of the theme's cards.
+BorderSide shelfSurfaceSide(ThemeData theme) {
   final themed = theme.cardTheme.shape;
-  return RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(radius),
-    side: themed is OutlinedBorder ? themed.side : BorderSide.none,
-  );
+  return themed is OutlinedBorder ? themed.side : BorderSide.none;
 }
 
 /// How many columns of shelf cards fit [width]: one on a very narrow screen
@@ -121,7 +125,8 @@ class ShelfCard extends StatelessWidget {
   /// aligned.
   static double extentFor(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
-    // Rounded up: a line of text lays itself out on whole points.
+    // Rounded up, a point or two above what the text ends up taking: the rest
+    // goes to the air under the band.
     final name = (scaler.scale(_nameSize) * _nameHeight * _maxLines).ceil();
     final count = (scaler.scale(_countSize) * _countHeight).ceil();
     return _ShelfCardDress.bandHeight +
@@ -272,6 +277,8 @@ class ShelfCard extends StatelessWidget {
       ),
     );
 
+    final line = shelfSurfaceSide(theme).width;
+
     return MergeSemantics(
       child: Semantics(
         button: true,
@@ -298,14 +305,21 @@ class ShelfCard extends StatelessWidget {
                           ink,
                           if (Focus.of(context).hasFocus)
                             IgnorePointer(
-                              child: DecoratedBox(
-                                key: const Key('shelfCardFocusRing'),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: tint.ink,
-                                    width: 2,
+                              // Inside the line of the card, which paints over
+                              // its content and would hide half of the ring.
+                              child: Padding(
+                                padding: EdgeInsets.all(line),
+                                child: DecoratedBox(
+                                  key: const Key('shelfCardFocusRing'),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: tint.ink,
+                                      width: 2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(
+                                      corner - line,
+                                    ),
                                   ),
-                                  borderRadius: BorderRadius.circular(corner),
                                 ),
                               ),
                             ),

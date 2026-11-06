@@ -826,6 +826,15 @@ void main() {
           final line = (decoration.border! as Border).top;
           expect(line.color, tint.ink);
           expect(line.width, 2);
+          // Inside the line of the card, which paints over the content: on it,
+          // half of the ring would be hidden.
+          final side = shelfSurfaceSide(theme).width;
+          expect(side, greaterThan(0));
+          expect(
+            tester.getRect(ring),
+            tester.getRect(find.byType(ShelfCard)).deflate(side),
+          );
+          expect(decoration.borderRadius, BorderRadius.circular(20 - side));
           for (final under in [card, ...ends]) {
             expect(contrastRatio(line.color, under), greaterThanOrEqualTo(3));
           }
@@ -1289,6 +1298,16 @@ void main() {
         );
 
         expectSurface(tester, find.byKey(const Key('small')), 14);
+
+        // It keeps the theme's overlays, and wears none of the shelf's colour.
+        final well = tester.widget<InkWell>(find.byType(InkWell));
+        expect(well.hoverColor, isNull);
+        expect(well.highlightColor, isNull);
+        expect(well.splashColor, isNull);
+        expect(well.focusColor, isNull);
+        expect(find.byKey(const Key('shelfCardGround')), findsNothing);
+        expect(find.byKey(const Key('shelfCardWatermark')), findsNothing);
+        expect(find.byKey(const Key('shelfCardSubShelves')), findsNothing);
       });
 
       testWidgets('$style: the "to shelve" line too', (tester) async {
