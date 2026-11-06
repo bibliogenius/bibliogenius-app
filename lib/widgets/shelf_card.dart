@@ -59,11 +59,22 @@ List<String> shelfCountLabels(
   ];
 }
 
+/// The two ways a card of the grid can wear its colour, to compare them on a
+/// device: under a band, or along a strip.
+enum ShelfCardVariant { band, spine }
+
+/// The variant the grid draws. In memory only, and changed only by a row of the
+/// settings that a release build does not have.
+final ValueNotifier<ShelfCardVariant> shelfCardVariant = ValueNotifier(
+  ShelfCardVariant.band,
+);
+
 /// A shelf to walk into: its fan of covers, its name, its counts. One button,
 /// named by the shelf and its counts.
 ///
 /// On the grid it is the theme's card, dressed in the colour of its shelf by
-/// [_ShelfCardBandDress]. The small form stays on the plain card.
+/// [_ShelfCardBandDress] or [_ShelfCardSpineDress]. The small form stays on the
+/// plain card.
 class ShelfCard extends StatelessWidget {
   static const double _padding = 13;
   static const double _nameSize = 18;
@@ -152,7 +163,14 @@ class ShelfCard extends StatelessWidget {
   };
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => compact
+      ? _buildCard(context, ShelfCardVariant.band)
+      : ValueListenableBuilder<ShelfCardVariant>(
+          valueListenable: shelfCardVariant,
+          builder: (context, variant, _) => _buildCard(context, variant),
+        );
+
+  Widget _buildCard(BuildContext context, ShelfCardVariant variant) {
     final theme = Theme.of(context);
     final counts = shelfCountLabels(
       context,
@@ -166,9 +184,10 @@ class ShelfCard extends StatelessWidget {
     final veils = compact ? null : AppDesign.shelfCardVeils(theme.brightness);
 
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
+    final spine = variant == ShelfCardVariant.spine;
     // Under a band, the empty fan is drawn for the band and stays there: it has
     // no place on the page of the shelf in that colour.
-    final flies = compact || (books > 0 && coverPaths.isNotEmpty);
+    final flies = compact || spine || (books > 0 && coverPaths.isNotEmpty);
     late BuildContext fanContext;
     final fan = Builder(
       builder: (context) {
@@ -177,7 +196,9 @@ class ShelfCard extends StatelessWidget {
           size: fanSize,
           hasBooks: books > 0,
           coverPaths: coverPaths,
-          ghostColor: tint == null ? null : AppDesign.shelfBandGhostColor,
+          ghostColor: spine || tint == null
+              ? null
+              : AppDesign.shelfBandGhostColor,
         );
       },
     );
@@ -286,6 +307,12 @@ class ShelfCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              )
+            : spine
+            ? _ShelfCardSpineDress(
+                tint: tint,
+                fan: fan,
+                text: text,
               )
             : _ShelfCardBandDress(
                 tint: tint,
@@ -419,6 +446,69 @@ class _ShelfCardBandDress extends StatelessWidget {
               child: text,
             ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+/// How a card of the grid wears the colour of its shelf along a strip at its
+/// left, with the [fan] and the watermark on the card itself. A shelf with no
+/// cover to show keeps its fan, empty.
+class _ShelfCardSpineDress extends StatelessWidget {
+  static const double stripWidth = 7;
+  static const double top = 13;
+
+  /// The frame of a fan leaves its covers some room at the left: from here,
+  /// their tilted edge lines up with the name.
+  static const double fanLeft = 10;
+  static const double textLeft = 18;
+  static const double right = 10;
+
+  final ShelfTint tint;
+  final Widget fan;
+  final Widget text;
+
+  const _ShelfCardSpineDress({
+    required this.tint,
+    required this.fan,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned(
+          top: -20,
+          right: -20,
+          child: Icon(
+            Icons.shelves,
+            key: const Key('shelfCardWatermark'),
+            size: 100,
+            color: AppDesign.shelfSpineWatermarkColor(tint),
+          ),
+        ),
+        // Clear of the line of the card, which paints over its content.
+        Positioned(
+          left: shelfSurfaceSide(Theme.of(context)).width,
+          top: 0,
+          bottom: 0,
+          width: stripWidth,
+          child: Ink(
+            key: const Key('shelfCardSpine'),
+            decoration: BoxDecoration(
+              gradient: AppDesign.shelfSpineGradient(tint),
+            ),
+          ),
+        ),
+        Positioned(left: fanLeft, top: top, child: fan),
+        Positioned(
+          left: textLeft,
+          right: right,
+          bottom: ShelfCard._padding,
+          child: text,
         ),
       ],
     );

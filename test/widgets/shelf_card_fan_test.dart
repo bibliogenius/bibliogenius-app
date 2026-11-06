@@ -15,6 +15,7 @@ import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/themes/base/theme_registry.dart';
+import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
 /// Where the covers of a fan really fall on a card, tilted as they are, against
@@ -78,7 +79,10 @@ void main() {
     });
   });
 
-  tearDown(() => TranslationService.setPoTranslationsForTest({}));
+  tearDown(() {
+    TranslationService.setPoTranslationsForTest({});
+    shelfCardVariant.value = ShelfCardVariant.band;
+  });
 
   final card = find.byKey(const ValueKey('shelfCard:Parent'));
 
@@ -181,7 +185,39 @@ void main() {
     });
   }
 
-  {
+  group('along a strip', () {
+    setUp(() => shelfCardVariant.value = ShelfCardVariant.spine);
+
+    for (final style in const ['default', 'dark', 'minimal']) {
+      testWidgets('$style: the left edge of the fan lines up with the name, '
+          'clear of the strip', (tester) async {
+        await pumpGrid(tester, width: 390, textScale: 1, style: style);
+
+        final left = coversOf(tester).left;
+        final name = tester
+            .getTopLeft(
+              find.descendant(of: card, matching: find.text('Parent')),
+            )
+            .dx;
+        expect(left, closeTo(name, 1));
+        expect(
+          left,
+          greaterThan(
+            tester
+                .getTopRight(
+                  find.descendant(
+                    of: card,
+                    matching: find.byKey(const Key('shelfCardSpine')),
+                  ),
+                )
+                .dx,
+          ),
+        );
+      });
+    }
+  });
+
+  for (final variant in ShelfCardVariant.values) {
     for (final style in const ['default', 'dark', 'minimal']) {
         for (final (width, scale, words, books, subShelves, least) in const [
           (360.0, 1.19, '%d Bücher', 1234, 12, 0.95),
@@ -191,9 +227,10 @@ void main() {
           (390.0, 1.29, '%d Bücher', 1234, 123, 0.85),
         ]) {
           {
-            testWidgets('$style, $width pt, text at $scale: "$words" '
+            testWidgets('$style, ${variant.name}, $width pt, text at $scale: "$words" '
                 'of $books books '
                 'next to $subShelves sub-shelves stays whole', (tester) async {
+              shelfCardVariant.value = variant;
               TranslationService.setPoTranslationsForTest({
                 'en': {
                   'displayed_books_count_plural': words,
@@ -243,7 +280,7 @@ void main() {
   }
 
   // On two columns from the sizes where a name of 18 pt still has the room.
-  {
+  for (final variant in ShelfCardVariant.values) {
     for (final name in const ['Informatique', 'Bibliothèque']) {
       for (final (width, scale) in const [
         (360.0, 1.15),
@@ -253,8 +290,9 @@ void main() {
         (390.0, 1.15),
         (390.0, 1.29),
       ]) {
-        testWidgets('$width pt, text at $scale: "$name" is not '
+        testWidgets('${variant.name}, $width pt, text at $scale: "$name" is not '
             'cut in the middle', (tester) async {
+          shelfCardVariant.value = variant;
           await tester.runAsync(_loadRoboto);
           tester.view.physicalSize = Size(width, 844);
           tester.view.devicePixelRatio = 1;

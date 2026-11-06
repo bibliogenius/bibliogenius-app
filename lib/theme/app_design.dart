@@ -101,6 +101,17 @@ class AppDesign {
   /// in words.
   static final Color shelfBandGhostColor = Colors.white.withValues(alpha: 0.25);
 
+  /// The strip along a shelf's card, from its ground down to its ink.
+  static LinearGradient shelfSpineGradient(ShelfTint tint) => LinearGradient(
+    colors: [tint.ground, tint.ink],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
+
+  /// The big icon drawn faintly on a shelf's card, with no gradient under it.
+  static Color shelfSpineWatermarkColor(ShelfTint tint) =>
+      tint.ground.withValues(alpha: 0.16);
+
   /// The veils of a shelf card under a pointer or a finger, which lie over the
   /// card and its gradient alike and add up while a pointer is held down.
   ///
