@@ -60,6 +60,10 @@ class ShelfCard extends StatelessWidget {
   static const double _countSize = 13;
   static const double _countHeight = 1.25;
   static const double _nameGap = 3;
+
+  /// The least air between the band and a name on two lines; a shorter name
+  /// has more.
+  static const double _bandGap = 6;
   static const int _maxLines = 2;
 
   /// The colour of the card in the palette, from [tintSlotsOf]; the small form
@@ -117,10 +121,15 @@ class ShelfCard extends StatelessWidget {
   /// aligned.
   static double extentFor(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
-    // Rounded up, as a block of text lays itself out.
+    // Rounded up: a line of text lays itself out on whole points.
     final name = (scaler.scale(_nameSize) * _nameHeight * _maxLines).ceil();
     final count = (scaler.scale(_countSize) * _countHeight).ceil();
-    return _ShelfCardDress.bandHeight + name + _nameGap + count + _padding;
+    return _ShelfCardDress.bandHeight +
+        _bandGap +
+        name +
+        _nameGap +
+        count +
+        _padding;
   }
 
   /// The colour slot of every shelf of [tags], by [Tag.stableKey]: sisters

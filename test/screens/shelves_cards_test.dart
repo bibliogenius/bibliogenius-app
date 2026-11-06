@@ -349,10 +349,11 @@ void main() {
         );
         expect(title.left, card.left + 13);
         expect(count.left, card.left + 13);
+        // Two lines are the fullest a card gets: they still leave 6 pt of air.
         expect(
-          title.top,
-          greaterThanOrEqualTo(band.bottom),
-          reason: 'the name stays under the band',
+          title.top - band.bottom,
+          greaterThanOrEqualTo(6),
+          reason: 'the name keeps its distance from the band',
         );
         expect(count.top, greaterThanOrEqualTo(title.bottom));
         // Anchored at the bottom: what is left over goes above the text.
@@ -364,7 +365,7 @@ void main() {
         ThemeData themeOf() =>
             ThemeRegistry.get(style)!.buildTheme(accentColor: Colors.blue);
 
-        testWidgets('$style: two columns, about 164 pt, two lines of name fit', (
+        testWidgets('$style: two columns, 170 pt, two lines of name fit', (
           tester,
         ) async {
           repo.tags = [
@@ -374,7 +375,7 @@ void main() {
           await pump(tester, theme: themeOf());
 
           expect(columns2(tester, twoLines, 'Short'), isTrue);
-          expect(tester.getSize(_card(twoLines)).height, closeTo(164, 3));
+          expect(tester.getSize(_card(twoLines)).height, 170);
           final title = find.text(twoLines);
           expect(
             tester.getSize(title).height,
@@ -390,6 +391,7 @@ void main() {
           repo.tags = [Tag(id: 'a', name: twoLines, count: 3)];
           await pump(tester, width: 320, theme: themeOf());
           final atOne = tester.getSize(_card(twoLines)).height;
+          expect(atOne, 170);
           expectLaidOut(tester, twoLines);
 
           await pump(tester, width: 390, textScale: 1.3, theme: themeOf());
@@ -405,7 +407,7 @@ void main() {
           ];
           await pump(tester, width: 1024, theme: themeOf());
 
-          expect(tester.getSize(_card(twoLines)).height, closeTo(164, 3));
+          expect(tester.getSize(_card(twoLines)).height, 170);
           expectLaidOut(tester, twoLines);
         });
       }
