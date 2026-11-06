@@ -16,8 +16,7 @@ class ShelfTint {
 class AppDesign {
   /// The colours a shelf can take. Each ink holds 4.5:1 on its ground, the
   /// darkest point of a light gradient and the lightest of a dark one, so
-  /// wherever a focus ring crosses it; and 4.5:1 in a pill, 3:1 on the square
-  /// of an icon, at both ends of the gradient and under the veils of a card.
+  /// wherever a focus ring crosses it.
   static const List<ShelfTint> shelfTintsLight = [
     ShelfTint(Color(0xFF667EEA), Color(0xFF19164C)),
     ShelfTint(Color(0xFF9F7AEA), Color(0xFF321264)),
@@ -97,15 +96,10 @@ class AppDesign {
   /// The big icon drawn faintly on a shelf's gradient.
   static final Color shelfWatermarkColor = Colors.white.withValues(alpha: 0.1);
 
-  /// The square under the icon of a shelf with no cover to show.
-  static final Color shelfIconSquareColor = Colors.white.withValues(alpha: 0.2);
-
-  /// The ground of a pill on a shelf's gradient, under the ink of the shelf:
-  /// white would take a light ink under 3:1, so a dark theme goes to black.
-  static Color shelfPillColor(Brightness brightness) =>
-      brightness == Brightness.dark
-      ? Colors.black.withValues(alpha: 0.3)
-      : Colors.white.withValues(alpha: 0.42);
+  /// The outlines of an empty fan on a shelf's gradient: thin lines, so whiter
+  /// than the watermark to show as much. Decorative: the card says what it holds
+  /// in words.
+  static final Color shelfBandGhostColor = Colors.white.withValues(alpha: 0.25);
 
   /// The veils of a shelf card under a pointer or a finger, which lie over the
   /// card and its gradient alike and add up while a pointer is held down.

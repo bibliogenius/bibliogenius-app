@@ -163,6 +163,13 @@ void main() {
       (359.0, 1.0, 1),
       (360.0, 1.0, 2),
       (390.0, 1.0, 2),
+      (360.0, 1.15, 2),
+      (360.0, 1.19, 2),
+      (360.0, 1.2, 1),
+      (375.0, 1.29, 1),
+      (389.0, 1.19, 2),
+      (389.0, 1.2, 1),
+      (390.0, 1.2, 2),
       (390.0, 1.29, 2),
       (390.0, 1.3, 1),
       (599.0, 1.0, 2),
@@ -296,9 +303,8 @@ void main() {
       );
     });
 
-    testWidgets('prints its books on a line and its sub-shelves in a pill', (
-      tester,
-    ) async {
+    testWidgets('prints its sub-shelves at the end of the line of its books, '
+        'with no ground', (tester) async {
       repo.tags = [
         Tag(id: 'a', name: 'Living room', count: 1),
         Tag(id: 'b', name: 'Comics', parentId: 'a', count: 0),
@@ -306,30 +312,43 @@ void main() {
       ];
       await pump(tester);
 
-      final count = tester.widget<Text>(
-        find.descendant(of: _card('Living room'), matching: find.text('1 book')),
+      final count = find.descendant(
+        of: _card('Living room'),
+        matching: find.text('1 book'),
       );
-      expect(count.maxLines, 1);
-      final pill = _inCard('Living room', 'shelfCardSubShelves');
-      expect(find.descendant(of: pill, matching: find.text('2')), findsOneWidget);
+      expect(tester.widget<Text>(count).maxLines, 1);
+      final mark = _inCard('Living room', 'shelfCardSubShelvesMark');
+      expect(find.descendant(of: mark, matching: find.text('2')), findsOneWidget);
       expect(
-        find.descendant(of: pill, matching: find.byIcon(Icons.folder)),
+        find.descendant(of: mark, matching: find.byIcon(Icons.folder)),
         findsOneWidget,
       );
       expect(find.textContaining('sub-shel'), findsNothing);
+      expect(
+        find.descendant(
+          of: mark,
+          matching: find.byWidgetPredicate(
+            (w) => w is Container || w is DecoratedBox || w is ColoredBox,
+          ),
+        ),
+        findsNothing,
+      );
 
-      // At the top right of the band, on the sizes of the mock-up.
-      final band = tester.getRect(_inCard('Living room', 'shelfCardGround'));
-      final box = tester.getRect(pill);
-      expect(box.right, band.right - 13);
-      expect(box.top, band.top + 12);
-      expect(box.height, 25);
+      final card = tester.getRect(_card('Living room'));
+      final box = tester.getRect(mark);
+      expect(box.right, card.right - 13);
+      expect(box.bottom, card.bottom - 13);
+      expect(box.center.dy, tester.getCenter(count).dy);
+      expect(
+        box.top,
+        greaterThan(tester.getRect(_inCard('Living room', 'shelfCardGround')).bottom),
+      );
     });
 
-    testWidgets('has no pill with no sub-shelf', (tester) async {
+    testWidgets('has no mark with no sub-shelf', (tester) async {
       await pump(tester);
 
-      expect(_inCard('Shelf 0', 'shelfCardSubShelves'), findsNothing);
+      expect(_inCard('Shelf 0', 'shelfCardSubShelvesMark'), findsNothing);
     });
 
     group('its layout', () {
@@ -443,14 +462,14 @@ void main() {
         tester.getTopLeft(_inCard('Shelf 0', 'shelfCardGround')) +
             const Offset(5, 12),
       );
-      expect(find.byKey(const Key('shelfCardIcon')), findsNothing);
+      expect(find.byKey(const Key('shelfThumbnailGhost')), findsNothing);
     });
 
     for (final (what, count, covers) in const [
       ('an empty shelf', 0, <String>[]),
       ('books with no cover', 2, <String>[]),
     ]) {
-      testWidgets('wears the icon of a shelf, no fan, for $what', (
+      testWidgets('wears the empty fan for $what, where the covers would be', (
         tester,
       ) async {
         repo.tags = [
@@ -458,18 +477,22 @@ void main() {
         ];
         await pump(tester);
 
-        expect(find.byType(ShelfThumbnail), findsNothing);
-        expect(find.byKey(const Key('shelfThumbnailGhost')), findsNothing);
-        expect(find.byIcon(Icons.label), findsOneWidget);
-        // Held in the middle of the band, at the left edge of the fan's frame.
-        final band = tester.getRect(_inCard('Shelf 0', 'shelfCardGround'));
-        final icon = tester.getRect(_inCard('Shelf 0', 'shelfCardIcon'));
-        expect(icon.left, band.left + 13);
-        expect(icon.center.dy, closeTo(band.center.dy, 1));
+        expect(_inCard('Shelf 0', 'shelfThumbnailGhost'), findsOneWidget);
+        expect(
+          tester.getTopLeft(_inCard('Shelf 0', 'shelfThumbnailGhost')),
+          tester.getTopLeft(_inCard('Shelf 0', 'shelfCardGround')) +
+              const Offset(5, 12),
+        );
+        expect(tester.getSize(_inCard('Shelf 0', 'shelfThumbnailGhost')),
+            const Size(92, 66));
+        expect(
+          find.descendant(of: _card('Shelf 0'), matching: find.byIcon(Icons.label)),
+          findsNothing,
+        );
       });
     }
 
-    testWidgets('its icon says when it holds sub-shelves', (tester) async {
+    testWidgets('the same folder nowhere else than by the count', (tester) async {
       repo.tags = [
         Tag(id: 'a', name: 'Shelf 0', count: 0),
         Tag(id: 'b', name: 'Sub', parentId: 'a', count: 0),
@@ -477,15 +500,12 @@ void main() {
       await pump(tester);
 
       expect(
-        find.descendant(
-          of: find.byKey(const Key('shelfCardIcon')),
-          matching: find.byIcon(Icons.folder),
-        ),
+        find.descendant(of: _card('Shelf 0'), matching: find.byIcon(Icons.folder)),
         findsOneWidget,
       );
     });
 
-    testWidgets('keeps the same height with the icon as with the fan', (
+    testWidgets('keeps the same height with the empty fan as with covers', (
       tester,
     ) async {
       repo.tags = [
@@ -604,29 +624,6 @@ void main() {
           expect(gradient.begin, Alignment.topLeft);
           expect(gradient.end, Alignment.bottomRight);
         });
-
-        test('$name $hex: at both ends of the gradient, its ink reads at 3:1 '
-            'on the square of the icon, 4.5:1 in the pill', () {
-          for (final end in AppDesign.shelfGradient(
-            tint.ground,
-            brightness,
-          ).colors) {
-            expect(
-              contrastRatio(
-                tint.ink,
-                Color.alphaBlend(AppDesign.shelfIconSquareColor, end),
-              ),
-              greaterThanOrEqualTo(3),
-            );
-            expect(
-              contrastRatio(
-                tint.ink,
-                Color.alphaBlend(AppDesign.shelfPillColor(brightness), end),
-              ),
-              greaterThanOrEqualTo(4.5),
-            );
-          }
-        });
       }
     });
 
@@ -662,41 +659,20 @@ void main() {
       );
     });
 
-    test('the pill: 42% of white on a light band, as drawn; 30% of black on a '
-        'dark one, where no light ink reads on white', () {
-      expect(
-        AppDesign.shelfPillColor(Brightness.light),
-        Colors.white.withValues(alpha: 0.42),
-      );
-      expect(
-        AppDesign.shelfPillColor(Brightness.dark),
-        Colors.black.withValues(alpha: 0.3),
-      );
-    });
-
-    testWidgets('the icon of an empty shelf: the ink on 20% of white', (
-      tester,
-    ) async {
+    testWidgets('the empty fan: white outlines, its inside left open on the '
+        'band', (tester) async {
       repo.tags = [Tag(id: 's0', name: 'Empty', count: 0)];
       await pump(tester);
-
-      final square = find.byKey(const Key('shelfCardIcon'));
+      final outline = Colors.white.withValues(alpha: 0.25);
+      final ghost = tester.renderObject(_inCard('Empty', 'shelfThumbnailGhost'));
       expect(
-        (tester.widget<Container>(square).decoration! as BoxDecoration).color,
-        Colors.white.withValues(alpha: 0.2),
+        ghost,
+        paints
+          ..path(color: outline, style: PaintingStyle.stroke)
+          ..path(color: outline, style: PaintingStyle.stroke)
+          ..path(color: outline, style: PaintingStyle.stroke),
       );
-      expect(AppDesign.shelfIconSquareColor, Colors.white.withValues(alpha: 0.2));
-      expect(
-        tester
-            .widget<Icon>(
-              find.descendant(of: square, matching: find.byType(Icon)),
-            )
-            .color,
-        AppDesign.shelfTint(
-          AppDesign.shelfTintHashSlot('s0'),
-          Brightness.light,
-        ).ink,
-      );
+      expect(ghost, isNot(paints..path(style: PaintingStyle.fill)));
     });
 
     for (final style in const ['default', 'dark', 'minimal']) {
@@ -771,28 +747,11 @@ void main() {
                 reason: '"$text" on the card',
               );
             }
-            for (final end in ends) {
-              final band = veiled(end, state);
-              expect(
-                contrastRatio(
-                  tint.ink,
-                  Color.alphaBlend(
-                    AppDesign.shelfPillColor(theme.brightness),
-                    band,
-                  ),
-                ),
-                greaterThanOrEqualTo(4.5),
-                reason: 'the pill',
-              );
-              expect(
-                contrastRatio(
-                  tint.ink,
-                  Color.alphaBlend(AppDesign.shelfIconSquareColor, band),
-                ),
-                greaterThanOrEqualTo(3),
-                reason: 'the icon',
-              );
-            }
+            expect(
+              contrastRatio(tint.ink, veiled(card, state)),
+              greaterThanOrEqualTo(4.5),
+              reason: 'the mark of the sub-shelves',
+            );
           }
 
           for (final under in [card, ...ends]) {
@@ -1153,7 +1112,7 @@ void main() {
           findsWidgets,
         );
 
-        // Behind the fan and the pill: first in the stack of the band.
+        // Behind the fan: first in the stack of the band.
         final layers = tester
             .widget<Stack>(
               find
@@ -1187,7 +1146,7 @@ void main() {
         expect(colourOf('1 book'), theme.textTheme.bodySmall!.color);
       });
 
-      testWidgets('$style: the pill writes in the ink of the shelf', (
+      testWidgets('$style: the mark writes in the ink of the shelf', (
         tester,
       ) async {
         final theme = ThemeRegistry.get(style)!.buildTheme(
@@ -1203,16 +1162,12 @@ void main() {
           theme.brightness,
         );
 
-        final pill = _inCard('Shelf 0', 'shelfCardSubShelves');
-        final decoration =
-            tester.widget<Container>(pill).decoration! as BoxDecoration;
-        expect(decoration.color, AppDesign.shelfPillColor(theme.brightness));
-        expect(decoration.borderRadius, BorderRadius.circular(13));
+        final mark = _inCard('Shelf 0', 'shelfCardSubShelvesMark');
         expect(
           tester
               .widget<RichText>(
                 find.descendant(
-                  of: find.descendant(of: pill, matching: find.text('1')),
+                  of: find.descendant(of: mark, matching: find.text('1')),
                   matching: find.byType(RichText),
                 ),
               )
@@ -1223,7 +1178,7 @@ void main() {
         );
         expect(
           tester
-              .widget<Icon>(find.descendant(of: pill, matching: find.byType(Icon)))
+              .widget<Icon>(find.descendant(of: mark, matching: find.byType(Icon)))
               .color,
           tint.ink,
         );
@@ -1307,7 +1262,7 @@ void main() {
         expect(well.focusColor, isNull);
         expect(find.byKey(const Key('shelfCardGround')), findsNothing);
         expect(find.byKey(const Key('shelfCardWatermark')), findsNothing);
-        expect(find.byKey(const Key('shelfCardSubShelves')), findsNothing);
+        expect(find.byKey(const Key('shelfCardSubShelvesMark')), findsNothing);
       });
 
       testWidgets('$style: the "to shelve" line too', (tester) async {

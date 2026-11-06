@@ -33,6 +33,14 @@ int shelfGridColumns({required double width, required double textScale}) {
   return 2;
 }
 
+/// How many columns of the big cards fit [width]: one more step than
+/// [shelfGridColumns], whose two columns would cut a common word of a name of
+/// 18 pt in the middle.
+int shelfCardGridColumns({required double width, required double textScale}) {
+  if (width < 390 && textScale >= 1.2) return 1;
+  return shelfGridColumns(width: width, textScale: textScale);
+}
+
 /// The counts of a shelf, to print or to announce: its books, whatever their
 /// number, then its sub-shelves when it has some.
 List<String> shelfCountLabels(
@@ -55,8 +63,7 @@ List<String> shelfCountLabels(
 /// named by the shelf and its counts.
 ///
 /// On the grid it is the theme's card, dressed in the colour of its shelf by
-/// [_ShelfCardDress], with the icon of a shelf where there is no cover to show.
-/// The small form stays on the plain card.
+/// [_ShelfCardBandDress]. The small form stays on the plain card.
 class ShelfCard extends StatelessWidget {
   static const double _padding = 13;
   static const double _nameSize = 18;
@@ -129,7 +136,7 @@ class ShelfCard extends StatelessWidget {
     // goes to the air under the band.
     final name = (scaler.scale(_nameSize) * _nameHeight * _maxLines).ceil();
     final count = (scaler.scale(_countSize) * _countHeight).ceil();
-    return _ShelfCardDress.bandHeight +
+    return _ShelfCardBandDress.bandHeight +
         _bandGap +
         name +
         _nameGap +
@@ -159,21 +166,68 @@ class ShelfCard extends StatelessWidget {
     final veils = compact ? null : AppDesign.shelfCardVeils(theme.brightness);
 
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
-    // On the grid, nothing flies from the icon of a shelf with no cover to show.
+    // Under a band, the empty fan is drawn for the band and stays there: it has
+    // no place on the page of the shelf in that colour.
     final flies = compact || (books > 0 && coverPaths.isNotEmpty);
     late BuildContext fanContext;
-    final fan = !compact && !flies
-        ? _ShelfIcon(hasSubShelves: subShelves > 0, ink: tint!.ink)
-        : Builder(
-            builder: (context) {
-              fanContext = context;
-              return ShelfThumbnail(
-                size: fanSize,
-                hasBooks: books > 0,
-                coverPaths: coverPaths,
-              );
-            },
-          );
+    final fan = Builder(
+      builder: (context) {
+        fanContext = context;
+        return ShelfThumbnail(
+          size: fanSize,
+          hasBooks: books > 0,
+          coverPaths: coverPaths,
+          ghostColor: tint == null ? null : AppDesign.shelfBandGhostColor,
+        );
+      },
+    );
+
+    final countText = Text(
+      // The sub-shelves are in the mark.
+      counts.first,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: theme.textTheme.bodySmall?.copyWith(
+        fontSize: _countSize,
+        height: _countHeight,
+      ),
+    );
+    final text = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          name,
+          maxLines: _maxLines,
+          overflow: TextOverflow.ellipsis,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontSize: _nameSize,
+            fontWeight: FontWeight.w800,
+            height: _nameHeight,
+            letterSpacing: 0.2,
+          ),
+        ),
+        const SizedBox(height: _nameGap),
+        if (subShelves > 0 && tint != null)
+          Row(
+            children: [
+              Expanded(
+                // Smaller rather than cut: a count is nothing without its
+                // digits.
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: countText,
+                ),
+              ),
+              const SizedBox(width: 6),
+              _SubShelvesMark(count: subShelves, ink: tint.ink),
+            ],
+          )
+        else
+          countText,
+      ],
+    );
 
     final ink = InkWell(
       // The theme's overlays are made for its plain surfaces, not for a card
@@ -233,46 +287,10 @@ class ShelfCard extends StatelessWidget {
                   ],
                 ),
               )
-            : _ShelfCardDress(
+            : _ShelfCardBandDress(
                 tint: tint,
                 fan: fan,
-                subShelves: subShelves,
-                text: Padding(
-                  padding: const EdgeInsets.fromLTRB(
-                    _padding,
-                    0,
-                    _padding,
-                    _padding,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        name,
-                        maxLines: _maxLines,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: _nameSize,
-                          fontWeight: FontWeight.w800,
-                          height: _nameHeight,
-                          letterSpacing: 0.2,
-                        ),
-                      ),
-                      const SizedBox(height: _nameGap),
-                      Text(
-                        // The sub-shelves are in the pill.
-                        counts.first,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: _countSize,
-                          height: _countHeight,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                text: text,
               ),
       ),
     );
@@ -335,9 +353,9 @@ class ShelfCard extends StatelessWidget {
 }
 
 /// How a card of the grid wears the colour of its shelf: a band at the top in
-/// its gradient, carrying the [fan], the watermark and the pill of [subShelves],
-/// with the [text] at the bottom of what is left, on the card itself.
-class _ShelfCardDress extends StatelessWidget {
+/// its gradient, carrying the [fan] and the watermark, with the [text] at the
+/// bottom of what is left, on the card itself.
+class _ShelfCardBandDress extends StatelessWidget {
   static const double bandHeight = 88;
 
   /// The frame of a fan leaves its covers some room at the left: from here,
@@ -346,13 +364,11 @@ class _ShelfCardDress extends StatelessWidget {
 
   final ShelfTint tint;
   final Widget fan;
-  final int subShelves;
   final Widget text;
 
-  const _ShelfCardDress({
+  const _ShelfCardBandDress({
     required this.tint,
     required this.fan,
-    required this.subShelves,
     required this.text,
   });
 
@@ -386,98 +402,55 @@ class _ShelfCardDress extends StatelessWidget {
                   ),
                 ),
                 Positioned(left: fanLeft, top: 12, child: fan),
-                if (subShelves > 0)
-                  Positioned(
-                    top: 12,
-                    right: 13,
-                    child: _SubShelvesPill(count: subShelves, ink: tint.ink),
-                  ),
               ],
             ),
           ),
         ),
         Expanded(
-          child: Align(alignment: Alignment.bottomLeft, child: text),
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                ShelfCard._padding,
+                0,
+                ShelfCard._padding,
+                ShelfCard._padding,
+              ),
+              child: text,
+            ),
+          ),
         ),
       ],
     );
   }
 }
 
-/// The number of sub-shelves of a card, on its band. The label of the card says
-/// it in a sentence.
-class _SubShelvesPill extends StatelessWidget {
+/// The number of sub-shelves of a card, on the line of its count. The label of
+/// the card says it in a sentence.
+class _SubShelvesMark extends StatelessWidget {
   final int count;
   final Color ink;
 
-  const _SubShelvesPill({required this.count, required this.ink});
+  const _SubShelvesMark({required this.count, required this.ink});
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      key: const Key('shelfCardSubShelves'),
-      constraints: const BoxConstraints(minHeight: 25),
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 9),
-      decoration: BoxDecoration(
-        color: AppDesign.shelfPillColor(theme.brightness),
-        borderRadius: BorderRadius.circular(13),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.folder, size: 13, color: ink),
-          const SizedBox(width: 5),
-          Text(
-            '$count',
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12.5,
-              fontWeight: FontWeight.w700,
-              color: ink,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// The picture of a shelf with no cover to show, in the frame of a fan.
-class _ShelfIcon extends StatelessWidget {
-  final bool hasSubShelves;
-  final Color ink;
-
-  const _ShelfIcon({required this.hasSubShelves, required this.ink});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 92,
-      height: 66,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        // In line with the name: nothing tilts here.
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: ShelfCard._padding - _ShelfCardDress.fanLeft,
-          ),
-          child: Container(
-            key: const Key('shelfCardIcon'),
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppDesign.shelfIconSquareColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Icon(
-              hasSubShelves ? Icons.folder : Icons.label,
-              color: ink,
-              size: 24,
-            ),
+    return Row(
+      key: const Key('shelfCardSubShelvesMark'),
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(Icons.folder, size: 13, color: ink),
+        const SizedBox(width: 5),
+        Text(
+          '$count',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            fontSize: ShelfCard._countSize,
+            fontWeight: FontWeight.w700,
+            height: ShelfCard._countHeight,
+            color: ink,
           ),
         ),
-      ),
+      ],
     );
   }
 }

@@ -17,8 +17,8 @@ import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/themes/base/theme_registry.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
-/// Where the covers of a fan really fall on the band of a card, tilted as they
-/// are, against the pill and the name.
+/// Where the covers of a fan really fall on a card, tilted as they are, against
+/// the name; and what the name and the counts really take on the line.
 ///
 /// In a file of its own: it loads a real font, which would change the metrics
 /// of every test run after it. The square glyphs of the test font make digits
@@ -89,6 +89,7 @@ void main() {
     required double textScale,
     required String style,
     int subShelves = 12,
+    int books = 3,
   }) async {
     tester.view.physicalSize = Size(width, 844);
     tester.view.devicePixelRatio = 1;
@@ -113,7 +114,7 @@ void main() {
               Tag(
                 id: 'p',
                 name: 'Parent',
-                count: 3,
+                count: books,
                 coverPaths: const ['a.jpg', 'b.jpg', 'c.jpg'],
               ),
               Tag(id: 'q', name: 'Other', count: 1),
@@ -161,36 +162,6 @@ void main() {
   }
 
   for (final style in const ['default', 'dark', 'minimal']) {
-    for (final width in const [360.0, 375.0]) {
-      testWidgets(
-        '$style, $width pt, text at 1.29: a pill of two digits covers '
-        'no cover',
-        (tester) async {
-          await tester.runAsync(_loadRoboto);
-          await pumpGrid(tester, width: width, textScale: 1.29, style: style);
-
-          // Two columns, as the grid has them at this size.
-          expect(
-            tester.getTopLeft(find.byKey(const ValueKey('shelfCard:Other'))).dy,
-            tester.getTopLeft(card).dy,
-          );
-          final pill = find.descendant(
-            of: card,
-            matching: find.byKey(const Key('shelfCardSubShelves')),
-          );
-          expect(
-            find.descendant(of: pill, matching: find.text('12')),
-            findsOneWidget,
-          );
-          expect(
-            tester.getTopLeft(pill).dx,
-            greaterThan(coversOf(tester).right),
-          );
-          expect(tester.takeException(), isNull);
-        },
-      );
-    }
-
     testWidgets('$style: the left edge of the fan lines up with the name', (
       tester,
     ) async {
@@ -208,6 +179,122 @@ void main() {
         ),
       );
     });
+  }
+
+  {
+    for (final style in const ['default', 'dark', 'minimal']) {
+        for (final (width, scale, words, books, subShelves, least) in const [
+          (360.0, 1.19, '%d Bücher', 1234, 12, 0.95),
+          (390.0, 1.29, '%d livres', 1234, 12, 1.0),
+          (390.0, 1.29, '%d Bücher', 1234, 12, 1.0),
+          // The long case: the count gets a little smaller, never cut.
+          (390.0, 1.29, '%d Bücher', 1234, 123, 0.85),
+        ]) {
+          {
+            testWidgets('$style, $width pt, text at $scale: "$words" '
+                'of $books books '
+                'next to $subShelves sub-shelves stays whole', (tester) async {
+              TranslationService.setPoTranslationsForTest({
+                'en': {
+                  'displayed_books_count_plural': words,
+                  'sub_shelves_count_plural': '%d sub-shelves',
+                },
+              });
+              await tester.runAsync(_loadRoboto);
+              await pumpGrid(
+                tester,
+                width: width,
+                textScale: scale,
+                style: style,
+                books: books,
+                subShelves: subShelves,
+              );
+
+              expect(
+                tester
+                    .getTopLeft(find.byKey(const ValueKey('shelfCard:Other')))
+                    .dy,
+                tester.getTopLeft(card).dy,
+              );
+              final mark = find.descendant(
+                of: card,
+                matching: find.byKey(const Key('shelfCardSubShelvesMark')),
+              );
+              expect(
+                find.descendant(of: mark, matching: find.text('$subShelves')),
+                findsOneWidget,
+              );
+              final count = find.descendant(
+                of: card,
+                matching: find.text(words.replaceAll('%d', '$books')),
+              );
+              final paragraph = tester.renderObject<RenderParagraph>(
+                find.descendant(of: count, matching: find.byType(RichText)),
+              );
+              expect(paragraph.didExceedMaxLines, isFalse);
+              final drawn = tester.getRect(count);
+              expect(drawn.right, lessThanOrEqualTo(tester.getRect(mark).left));
+              expect(drawn.width / paragraph.size.width, greaterThan(least - 0.01));
+              expect(tester.takeException(), isNull);
+            });
+          }
+        }
+    }
+  }
+
+  // On two columns from the sizes where a name of 18 pt still has the room.
+  {
+    for (final name in const ['Informatique', 'Bibliothèque']) {
+      for (final (width, scale) in const [
+        (360.0, 1.15),
+        (360.0, 1.19),
+        (360.0, 1.29),
+        (375.0, 1.29),
+        (390.0, 1.15),
+        (390.0, 1.29),
+      ]) {
+        testWidgets('$width pt, text at $scale: "$name" is not '
+            'cut in the middle', (tester) async {
+          await tester.runAsync(_loadRoboto);
+          tester.view.physicalSize = Size(width, 844);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          tester.platformDispatcher.textScaleFactorTestValue = scale;
+          addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+          await tester.pumpWidget(
+            MultiProvider(
+              providers: [
+                ChangeNotifierProvider<ThemeProvider>(
+                  create: (_) =>
+                      ThemeProvider()..setLocaleSync(const Locale('en')),
+                ),
+                ChangeNotifierProvider<BookRefreshNotifier>(
+                  create: (_) => BookRefreshNotifier(),
+                ),
+                ChangeNotifierProvider<OwnershipPreferenceProvider>(
+                  create: (_) => OwnershipPreferenceProvider(),
+                ),
+                Provider<TagRepository>.value(
+                  value: _Repo([Tag(id: 'p', name: name, count: 3)]),
+                ),
+              ],
+              child: MaterialApp(
+                theme: ThemeRegistry.get(
+                  'default',
+                )!.buildTheme(accentColor: Colors.blue),
+                home: const Scaffold(body: ShelvesScreen(isTabView: true)),
+              ),
+            ),
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+
+          expect(
+            tester.getSize(find.text(name)).height,
+            lessThan(18 * scale * 1.18 * 1.5),
+          );
+        });
+      }
+    }
   }
 
   testWidgets('the fan stays within the band and the card', (tester) async {

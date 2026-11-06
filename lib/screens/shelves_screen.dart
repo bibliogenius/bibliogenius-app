@@ -400,7 +400,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
-        final columns = shelfGridColumns(
+        final columns = shelfCardGridColumns(
           width: width,
           textScale: MediaQuery.textScalerOf(context).scale(1),
         );

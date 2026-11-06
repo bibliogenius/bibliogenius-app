@@ -99,11 +99,16 @@ class ShelfThumbnail extends StatelessWidget {
   /// printed next to it.
   final bool hasBooks;
 
+  /// The outlines of the empty fan, on a ground the theme's colours are not
+  /// made for.
+  final Color? ghostColor;
+
   const ShelfThumbnail({
     super.key,
     required this.size,
     required this.hasBooks,
     this.coverPaths = const [],
+    this.ghostColor,
   });
 
   @override
@@ -124,9 +129,10 @@ class ShelfThumbnail extends StatelessWidget {
                 // border colour, which the empty fan would vanish in.
                 painter: _GhostFanPainter(
                   fan,
-                  Theme.of(context).colorScheme.onSurface.withValues(
-                    alpha: 0.38,
-                  ),
+                  ghostColor ??
+                      Theme.of(context).colorScheme.onSurface.withValues(
+                        alpha: 0.38,
+                      ),
                 ),
               ),
       ),
