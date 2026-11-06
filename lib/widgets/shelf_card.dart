@@ -340,6 +340,10 @@ class ShelfCard extends StatelessWidget {
 class _ShelfCardDress extends StatelessWidget {
   static const double bandHeight = 88;
 
+  /// The frame of a fan leaves its covers some room at the left: from here,
+  /// their tilted edge lines up with the name.
+  static const double fanLeft = 5;
+
   final ShelfTint tint;
   final Widget fan;
   final int subShelves;
@@ -381,7 +385,7 @@ class _ShelfCardDress extends StatelessWidget {
                     ),
                   ),
                 ),
-                Positioned(left: 13, top: 12, child: fan),
+                Positioned(left: fanLeft, top: 12, child: fan),
                 if (subShelves > 0)
                   Positioned(
                     top: 12,
@@ -453,18 +457,24 @@ class _ShelfIcon extends StatelessWidget {
       height: 66,
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Container(
-          key: const Key('shelfCardIcon'),
-          width: 44,
-          height: 44,
-          decoration: BoxDecoration(
-            color: AppDesign.shelfIconSquareColor,
-            borderRadius: BorderRadius.circular(12),
+        // In line with the name: nothing tilts here.
+        child: Padding(
+          padding: const EdgeInsets.only(
+            left: ShelfCard._padding - _ShelfCardDress.fanLeft,
           ),
-          child: Icon(
-            hasSubShelves ? Icons.folder : Icons.label,
-            color: ink,
-            size: 24,
+          child: Container(
+            key: const Key('shelfCardIcon'),
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppDesign.shelfIconSquareColor,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              hasSubShelves ? Icons.folder : Icons.label,
+              color: ink,
+              size: 24,
+            ),
           ),
         ),
       ),

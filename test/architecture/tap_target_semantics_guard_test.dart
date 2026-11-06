@@ -5189,6 +5189,7 @@ void main() {
     ) async {
       await _render(tester, tab);
       final from = tester.getRect(fanOf(card('Living room')));
+      final cardLeft = tester.getTopLeft(card('Living room')).dx;
 
       await tester.tap(card('Living room'));
       await tester.pump();
@@ -5198,6 +5199,9 @@ void main() {
       expect(flight, findsOneWidget);
       final start = tester.getRect(flight);
       expect(start.top, closeTo(from.top, 40));
+      // It leaves from where the fan sits on the band of its card.
+      expect(start.left, closeTo(from.left, 1));
+      expect(from.left, cardLeft + 5);
 
       await tester.pump(const Duration(milliseconds: 125));
       final middle = tester.getRect(flight);

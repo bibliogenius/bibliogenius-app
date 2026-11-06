@@ -441,7 +441,7 @@ void main() {
       expect(
         tester.getTopLeft(tile),
         tester.getTopLeft(_inCard('Shelf 0', 'shelfCardGround')) +
-            const Offset(13, 12),
+            const Offset(5, 12),
       );
       expect(find.byKey(const Key('shelfCardIcon')), findsNothing);
     });
