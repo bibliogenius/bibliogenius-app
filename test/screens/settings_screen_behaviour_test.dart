@@ -11,6 +11,8 @@
 //   sheet it targets.
 // - Each setting has a single place, and a search finds it there.
 // - Each section has its own page; a search result's title opens it.
+// - However a section page is left, the search results below it read again, so
+//   they cannot write stale values back.
 
 import 'dart:async';
 import 'dart:io';
@@ -40,9 +42,40 @@ import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/backup_scheduler_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/src/rust/api/frb.dart' show FrbLoanSettings;
+import 'package:bibliogenius/src/rust/frb_generated.dart';
 import 'package:bibliogenius/widgets/goal_tile.dart';
 
 import '../helpers/mock_classes.dart';
+
+/// The only FFI calls these tests answer: the loan settings, stored here. Any
+/// other call fails, as it does with no FFI up.
+class _LoanSettingsFfi implements RustLibApi {
+  FrbLoanSettings stored = _defaultLoanSettings;
+
+  @override
+  Future<FrbLoanSettings> crateApiFrbGetLoanSettings() async => stored;
+
+  @override
+  Future<FrbLoanSettings> crateApiFrbUpdateLoanSettings({
+    required int defaultLoanDurationDays,
+    required bool perBookDurationEnabled,
+    required int reminderDaysBeforeDue,
+  }) async => stored = FrbLoanSettings(
+    defaultLoanDurationDays: defaultLoanDurationDays,
+    perBookDurationEnabled: perBookDurationEnabled,
+    reminderDaysBeforeDue: reminderDaysBeforeDue,
+  );
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
+}
+
+const _defaultLoanSettings = FrbLoanSettings(
+  defaultLoanDurationDays: 21,
+  perBookDurationEnabled: false,
+  reminderDaysBeforeDue: 2,
+);
 
 /// The library config the page loads on open, answered empty.
 class _OfflineApiService extends MockApiService {
@@ -162,6 +195,8 @@ Future<ThemeProvider> _pumpSettings(
   final theme = ThemeProvider()..setLocaleSync(const Locale('en'));
   await tester.runAsync(theme.loadSettings);
   final router = GoRouter(
+    // As in the app: a notification makes the router parse the route again.
+    refreshListenable: theme,
     initialLocation: location,
     routes: [
       GoRoute(
@@ -250,7 +285,10 @@ Finder _inSheet(Finder matching) =>
     find.descendant(of: find.byType(BottomSheet), matching: matching);
 
 void main() {
+  final loanFfi = _LoanSettingsFfi();
+
   setUpAll(() async {
+    RustLib.initMock(api: loanFfi);
     // `ApiService.hubUrl` reads the env; the page renders it.
     dotenv.testLoad();
     // The peer covers card sizes its disk cache under the temp directory.
@@ -264,6 +302,7 @@ void main() {
   });
 
   setUp(() {
+    loanFfi.stored = _defaultLoanSettings;
     // A first launch: nothing saved yet, not even a language.
     SharedPreferences.setMockInitialValues({});
     // The Reader preset seeds the favorites collection through the FFI,
@@ -591,6 +630,52 @@ void main() {
       await _goBack(tester);
       expect(openLibraryOn(tester), isFalse);
     });
+
+    // The results keep their own copy of the three loan values, and each
+    // change writes all three.
+    final waysOut =
+        <String, Future<void> Function(WidgetTester, ThemeProvider)>{
+          'the back button': (tester, _) => _goBack(tester),
+          'the back button, after a notification': (tester, theme) async {
+            theme.setCarouselCollapsedOwnLib(true);
+            await _settle(tester);
+            await _goBack(tester);
+          },
+          'the navigation to the list': (tester, _) async {
+            GoRouter.of(
+              tester.element(find.byType(Navigator).first),
+            ).go('/settings');
+            await _settle(tester);
+          },
+        };
+    for (final MapEntry(key: wayOut, value: leave) in waysOut.entries) {
+      testWidgets('left by $wayOut, the results keep what the page saved', (
+        tester,
+      ) async {
+        final theme = await _pumpSettings(tester);
+        await tester.enterText(
+          find.byType(TextField).first,
+          _t(tester, 'loan_reminder_days_label'),
+        );
+        await _settle(tester);
+
+        await _openSection(tester, 'modules_group_lending');
+        // Duration first, then reminder.
+        final increase = find.byTooltip(_t(tester, 'increase_by_one'));
+        await tester.ensureVisible(increase.last);
+        await tester.tap(increase.last);
+        await _settle(tester);
+        expect(loanFfi.stored.reminderDaysBeforeDue, 3);
+
+        await leave(tester, theme);
+        await tester.ensureVisible(increase.first);
+        await tester.tap(increase.first);
+        await _settle(tester);
+
+        expect(loanFfi.stored.defaultLoanDurationDays, 22);
+        expect(loanFfi.stored.reminderDaysBeforeDue, 3);
+      });
+    }
 
     testWidgets('a new visit forgets what the last one loaded', (tester) async {
       final api = _StoredSearchApiService()

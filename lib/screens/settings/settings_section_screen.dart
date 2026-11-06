@@ -24,13 +24,40 @@ final settingsSectionRoute = GoRoute(
 
 /// One settings section on its own page, unfiltered. Always stacked on the
 /// section list, which loads the data.
-class SettingsSectionScreen extends StatelessWidget {
+class SettingsSectionScreen extends StatefulWidget {
   const SettingsSectionScreen({super.key, required this.section});
 
   final SettingsSectionInfo section;
 
   @override
+  State<SettingsSectionScreen> createState() => _SettingsSectionScreenState();
+}
+
+class _SettingsSectionScreenState extends State<SettingsSectionScreen> {
+  late final SettingsData _data;
+
+  @override
+  void initState() {
+    super.initState();
+    _data = context.read<SettingsData>();
+  }
+
+  @override
+  void dispose() {
+    // Here rather than after `await context.push`: that Future never completes
+    // when the page is left with `go`, or once the router has parsed the route
+    // again. After the frame: the list rebuilds, which is not allowed during
+    // this one's teardown.
+    final data = _data;
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => data.sectionPageClosed(),
+    );
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final section = widget.section;
     final data = context.watch<SettingsData>();
     final themeProvider = Provider.of<ThemeProvider>(context);
 

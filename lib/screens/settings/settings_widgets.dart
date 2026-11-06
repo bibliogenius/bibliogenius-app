@@ -56,11 +56,7 @@ class SettingsSection extends StatelessWidget {
               ),
             ),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () async {
-              final data = settingsDataOf(context);
-              await context.push('/settings/$name');
-              data.sectionPageClosed();
-            },
+            onTap: () => context.push('/settings/$name'),
           ),
           body,
         ],

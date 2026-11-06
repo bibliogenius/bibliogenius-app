@@ -44,8 +44,8 @@ class SettingsData extends ChangeNotifier {
   HubDirectoryProvider? _hub;
   bool _disposed = false;
 
-  /// Bumped when a section page opened from the search results closes; the
-  /// results key their sections with it.
+  /// Bumped when a section page closes; the search results key their sections
+  /// with it.
   int resultsGeneration = 0;
 
   void _notify() {
@@ -174,8 +174,8 @@ class SettingsData extends ChangeNotifier {
     hubWebsiteController.clear();
   }
 
-  /// A section page opened from the search results has closed: the results,
-  /// which stayed mounted under it, remount and read what it changed.
+  /// A section page has closed: search results that stayed mounted under it
+  /// remount and read what it changed.
   void sectionPageClosed() {
     resultsGeneration++;
     _notify();
