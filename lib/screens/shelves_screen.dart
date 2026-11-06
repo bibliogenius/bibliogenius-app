@@ -404,7 +404,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
           width: width,
           textScale: MediaQuery.textScalerOf(context).scale(1),
         );
-        final horizontal = columns == 1;
         final spacing = width >= _wideRowWidth ? 16.0 : 12.0;
         return RefreshIndicator(
           onRefresh: _loadTags,
@@ -436,10 +435,7 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                     crossAxisCount: columns,
                     mainAxisSpacing: spacing,
                     crossAxisSpacing: spacing,
-                    mainAxisExtent: ShelfCard.extentFor(
-                      context,
-                      horizontal: horizontal,
-                    ),
+                    mainAxisExtent: ShelfCard.extentFor(context),
                   ),
                   delegate: SliverChildBuilderDelegate((context, index) {
                     final tag = roots[index];
@@ -450,7 +446,6 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
                       books: _aggregatedCount(tag),
                       subShelves: _childrenOf(tag).length,
                       coverPaths: tag.coverPaths,
-                      horizontal: horizontal,
                       flight: widget.fanFlight,
                       onTap: () => _openShelfBooks(tag),
                     );

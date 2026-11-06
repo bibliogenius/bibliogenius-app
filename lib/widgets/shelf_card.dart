@@ -50,12 +50,16 @@ List<String> shelfCountLabels(
 /// A shelf to walk into: its fan of covers, its name, its counts. One button,
 /// named by the shelf and its counts.
 ///
-/// On the grid it wears the colour of its shelf, and the icon of a shelf where
-/// there is no cover to show. The small form stays on the theme's card.
+/// On the grid it is the theme's card, dressed in the colour of its shelf by
+/// [_ShelfCardDress], with the icon of a shelf where there is no cover to show.
+/// The small form stays on the plain card.
 class ShelfCard extends StatelessWidget {
-  static const double _padding = 12;
-  static const double _gap = 8;
-  static const double _nameGap = 2;
+  static const double _padding = 13;
+  static const double _nameSize = 18;
+  static const double _nameHeight = 1.18;
+  static const double _countSize = 13;
+  static const double _countHeight = 1.25;
+  static const double _nameGap = 3;
   static const int _maxLines = 2;
 
   /// The colour of the card in the palette, from [tintSlotsOf]; the small form
@@ -65,9 +69,6 @@ class ShelfCard extends StatelessWidget {
   final int books;
   final int subShelves;
   final List<String> coverPaths;
-
-  /// The fan beside the text, for a single column.
-  final bool horizontal;
 
   /// The small form, for a sub-shelf on a shelf's page.
   final bool compact;
@@ -84,7 +85,6 @@ class ShelfCard extends StatelessWidget {
     required this.subShelves,
     required this.onTap,
     this.coverPaths = const [],
-    this.horizontal = false,
     this.flight,
   }) : compact = false;
 
@@ -97,7 +97,6 @@ class ShelfCard extends StatelessWidget {
     this.coverPaths = const [],
     this.flight,
   }) : tintSlot = null,
-       horizontal = true,
        compact = true;
 
   /// The height of a row of [ShelfCard.compact]: two lines of name at most,
@@ -113,21 +112,15 @@ class ShelfCard extends StatelessWidget {
     return extent < 44 ? 44 : extent;
   }
 
-  /// The height of a grid row: room for two lines of name and of counts at
-  /// the text scale in use, so that no card overflows and rows stay aligned.
-  static double extentFor(BuildContext context, {required bool horizontal}) {
-    final theme = Theme.of(context).textTheme;
+  /// The height of a grid row: the band, then two lines of name and one of
+  /// count at the text scale in use, so that no card overflows and rows stay
+  /// aligned.
+  static double extentFor(BuildContext context) {
     final scaler = MediaQuery.textScalerOf(context);
-    double lines(TextStyle? style) {
-      final size = style?.fontSize ?? 14;
-      return scaler.scale(size) * (style?.height ?? 1.4) * _maxLines;
-    }
-
-    final text = lines(theme.titleMedium) + _nameGap + lines(theme.bodySmall);
-    const tile = 66.0;
-    final body = horizontal ? (text > tile ? text : tile) : tile + _gap + text;
-    // A rounding margin: text metrics land a fraction above these sums.
-    return body + _padding * 2 + 2;
+    // Rounded up, as a block of text lays itself out.
+    final name = (scaler.scale(_nameSize) * _nameHeight * _maxLines).ceil();
+    final count = (scaler.scale(_countSize) * _countHeight).ceil();
+    return _ShelfCardDress.bandHeight + name + _nameGap + count + _padding;
   }
 
   /// The colour slot of every shelf of [tags], by [Tag.stableKey]: sisters
@@ -149,23 +142,14 @@ class ShelfCard extends StatelessWidget {
     final tint = compact
         ? null
         : AppDesign.shelfTint(tintSlot!, theme.brightness);
-
-    final overlay = tint == null
-        ? null
-        : theme.brightness == Brightness.dark
-        ? Colors.black
-        : Colors.white;
+    final veils = compact ? null : AppDesign.shelfCardVeils(theme.brightness);
 
     final fanSize = compact ? ShelfThumbnailSize.s : ShelfThumbnailSize.l;
     // On the grid, nothing flies from the icon of a shelf with no cover to show.
     final flies = compact || (books > 0 && coverPaths.isNotEmpty);
     late BuildContext fanContext;
     final fan = !compact && !flies
-        ? _ShelfIcon(
-            hasSubShelves: subShelves > 0,
-            centred: horizontal,
-            ink: tint!.ink,
-          )
+        ? _ShelfIcon(hasSubShelves: subShelves > 0, ink: tint!.ink)
         : Builder(
             builder: (context) {
               fanContext = context;
@@ -176,48 +160,13 @@ class ShelfCard extends StatelessWidget {
               );
             },
           );
-    // The small form prints only a bare number, at the right: the sentence would
-    // compete with the count of the head. A screen reader still gets it whole.
-    final Widget text = compact
-        ? Text(
-            name,
-            maxLines: _maxLines,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-            ),
-          )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                name,
-                maxLines: _maxLines,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: tint?.ink,
-                ),
-              ),
-              const SizedBox(height: _nameGap),
-              Text(
-                counts.join(' · '),
-                maxLines: _maxLines,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(color: tint?.ink),
-              ),
-            ],
-          );
 
     final ink = InkWell(
-      // The theme's overlays are made for its surfaces: on a colour they vanish.
-      // These go away from the ink, which keeps its contrast. A veil hardly
-      // shows on the palest grounds: the keyboard gets a ring instead.
-      splashColor: overlay?.withValues(alpha: 0.24),
-      highlightColor: overlay?.withValues(alpha: 0.12),
-      hoverColor: overlay?.withValues(alpha: 0.12),
+      // The theme's overlays are made for its plain surfaces, not for a card
+      // that also carries a colour. The keyboard gets a ring, not a veil.
+      splashColor: veils?.splash,
+      highlightColor: veils?.highlight,
+      hoverColor: veils?.hover,
       focusColor: tint == null ? null : Colors.transparent,
       onTap: () {
         if (flies) {
@@ -236,36 +185,81 @@ class ShelfCard extends StatelessWidget {
         onTap();
       },
       child: ExcludeSemantics(
-        child: Padding(
-          padding: compact
-              ? const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
-              : const EdgeInsets.all(_padding),
-          child: horizontal
-              ? Row(
+        child: tint == null
+            ? Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 8,
+                ),
+                child: Row(
                   children: [
                     fan,
-                    SizedBox(width: compact ? 10 : _padding),
-                    Expanded(child: text),
-                    if (compact) ...[
-                      const SizedBox(width: 8),
-                      Text(
-                        '$books',
-                        // The theme's own muted colour: its
-                        // onSurfaceVariant can be the name's.
-                        style: theme.textTheme.bodySmall,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      // Only a bare number at the right: the sentence would
+                      // compete with the count of the head. A screen reader
+                      // still gets it whole.
+                      child: Text(
+                        name,
+                        maxLines: _maxLines,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ],
-                  ],
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    fan,
-                    const SizedBox(height: _gap),
-                    Flexible(child: text),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      '$books',
+                      // The theme's own muted colour: its
+                      // onSurfaceVariant can be the name's.
+                      style: theme.textTheme.bodySmall,
+                    ),
                   ],
                 ),
-        ),
+              )
+            : _ShelfCardDress(
+                tint: tint,
+                fan: fan,
+                subShelves: subShelves,
+                text: Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    _padding,
+                    0,
+                    _padding,
+                    _padding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: _maxLines,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: _nameSize,
+                          fontWeight: FontWeight.w800,
+                          height: _nameHeight,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      const SizedBox(height: _nameGap),
+                      Text(
+                        // The sub-shelves are in the pill.
+                        counts.first,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: _countSize,
+                          height: _countHeight,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
 
@@ -276,90 +270,158 @@ class ShelfCard extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(corner),
-            boxShadow: tint == null ? AppDesign.subtleShadow : null,
+            boxShadow: AppDesign.subtleShadow,
           ),
-          child: tint == null
-              ? Material(
-                  color: shelfSurfaceColor(theme),
-                  shape: shelfSurfaceShape(theme, corner),
-                  clipBehavior: Clip.antiAlias,
-                  child: ink,
-                )
-              : Material(
-                  color: tint.ground,
-                  elevation: 8,
-                  shadowColor: tint.ground.withValues(alpha: 0.4),
-                  surfaceTintColor: Colors.transparent,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(corner),
-                  ),
-                  clipBehavior: Clip.antiAlias,
-                  child: Ink(
-                    key: const Key('shelfCardGround'),
-                    decoration: BoxDecoration(
-                      gradient: AppDesign.shelfGradient(
-                        tint.ground,
-                        theme.brightness,
-                      ),
-                    ),
-                    child: Focus(
-                      canRequestFocus: false,
-                      skipTraversal: true,
-                      includeSemantics: false,
-                      child: Builder(
-                        builder: (context) => Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Positioned(
-                              top: -20,
-                              right: -20,
-                              child: ExcludeSemantics(
-                                child: Icon(
-                                  Icons.shelves,
-                                  key: const Key('shelfCardWatermark'),
-                                  size: 100,
-                                  color: Colors.white.withValues(alpha: 0.1),
+          child: Material(
+            color: shelfSurfaceColor(theme),
+            shape: shelfSurfaceShape(theme, corner),
+            clipBehavior: Clip.antiAlias,
+            child: tint == null
+                ? ink
+                : Focus(
+                    canRequestFocus: false,
+                    skipTraversal: true,
+                    includeSemantics: false,
+                    child: Builder(
+                      builder: (context) => Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          ink,
+                          if (Focus.of(context).hasFocus)
+                            IgnorePointer(
+                              child: DecoratedBox(
+                                key: const Key('shelfCardFocusRing'),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: tint.ink,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(corner),
                                 ),
                               ),
                             ),
-                            ink,
-                            if (Focus.of(context).hasFocus)
-                              IgnorePointer(
-                                child: DecoratedBox(
-                                  key: const Key('shelfCardFocusRing'),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: tint.ink,
-                                      width: 2,
-                                    ),
-                                    borderRadius: BorderRadius.circular(corner),
-                                  ),
-                                ),
-                              ),
-                          ],
-                        ),
+                        ],
                       ),
                     ),
                   ),
-                ),
+          ),
         ),
       ),
     );
   }
 }
 
-/// The picture of a shelf with no cover to show, in the frame of a fan so that
-/// the names of a row line up.
-class _ShelfIcon extends StatelessWidget {
-  final bool hasSubShelves;
-  final bool centred;
+/// How a card of the grid wears the colour of its shelf: a band at the top in
+/// its gradient, carrying the [fan], the watermark and the pill of [subShelves],
+/// with the [text] at the bottom of what is left, on the card itself.
+class _ShelfCardDress extends StatelessWidget {
+  static const double bandHeight = 88;
+
+  final ShelfTint tint;
+  final Widget fan;
+  final int subShelves;
+  final Widget text;
+
+  const _ShelfCardDress({
+    required this.tint,
+    required this.fan,
+    required this.subShelves,
+    required this.text,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(
+          height: bandHeight,
+          child: Ink(
+            key: const Key('shelfCardGround'),
+            decoration: BoxDecoration(
+              gradient: AppDesign.shelfGradient(
+                tint.ground,
+                Theme.of(context).brightness,
+              ),
+            ),
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -20,
+                  right: -20,
+                  child: ExcludeSemantics(
+                    child: Icon(
+                      Icons.shelves,
+                      key: const Key('shelfCardWatermark'),
+                      size: 100,
+                      color: AppDesign.shelfWatermarkColor,
+                    ),
+                  ),
+                ),
+                Positioned(left: 13, top: 12, child: fan),
+                if (subShelves > 0)
+                  Positioned(
+                    top: 12,
+                    right: 13,
+                    child: _SubShelvesPill(count: subShelves, ink: tint.ink),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        Expanded(
+          child: Align(alignment: Alignment.bottomLeft, child: text),
+        ),
+      ],
+    );
+  }
+}
+
+/// The number of sub-shelves of a card, on its band. The label of the card says
+/// it in a sentence.
+class _SubShelvesPill extends StatelessWidget {
+  final int count;
   final Color ink;
 
-  const _ShelfIcon({
-    required this.hasSubShelves,
-    required this.centred,
-    required this.ink,
-  });
+  const _SubShelvesPill({required this.count, required this.ink});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      key: const Key('shelfCardSubShelves'),
+      constraints: const BoxConstraints(minHeight: 25),
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 9),
+      decoration: BoxDecoration(
+        color: AppDesign.shelfPillColor(theme.brightness),
+        borderRadius: BorderRadius.circular(13),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.folder, size: 13, color: ink),
+          const SizedBox(width: 5),
+          Text(
+            '$count',
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              color: ink,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The picture of a shelf with no cover to show, in the frame of a fan.
+class _ShelfIcon extends StatelessWidget {
+  final bool hasSubShelves;
+  final Color ink;
+
+  const _ShelfIcon({required this.hasSubShelves, required this.ink});
 
   @override
   Widget build(BuildContext context) {
@@ -367,13 +429,13 @@ class _ShelfIcon extends StatelessWidget {
       width: 92,
       height: 66,
       child: Align(
-        alignment: centred ? Alignment.centerLeft : Alignment.topLeft,
+        alignment: Alignment.centerLeft,
         child: Container(
           key: const Key('shelfCardIcon'),
           width: 44,
           height: 44,
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
+            color: AppDesign.shelfIconSquareColor,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(

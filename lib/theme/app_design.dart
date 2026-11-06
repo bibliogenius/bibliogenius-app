@@ -16,7 +16,8 @@ class ShelfTint {
 class AppDesign {
   /// The colours a shelf can take. Each ink holds 4.5:1 on its ground, the
   /// darkest point of a light gradient and the lightest of a dark one, so
-  /// wherever a large screen puts the text.
+  /// wherever a focus ring crosses it; and 4.5:1 in a pill, 3:1 on the square
+  /// of an icon, at both ends of the gradient and under the veils of a card.
   static const List<ShelfTint> shelfTintsLight = [
     ShelfTint(Color(0xFF667EEA), Color(0xFF19164C)),
     ShelfTint(Color(0xFF9F7AEA), Color(0xFF321264)),
@@ -77,8 +78,8 @@ class AppDesign {
   }
 
   /// A shelf's gradient, opaque so the page under it cannot lower the contrast
-  /// of its text: from [ground] towards white, on a dark theme towards black, a
-  /// light ink having no room for a lighter end.
+  /// of what it carries: from [ground] towards white, on a dark theme towards
+  /// black, a light ink having no room for a lighter end.
   static LinearGradient shelfGradient(Color ground, Brightness brightness) =>
       LinearGradient(
         colors: [
@@ -92,6 +93,39 @@ class AppDesign {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
+
+  /// The big icon drawn faintly on a shelf's gradient.
+  static final Color shelfWatermarkColor = Colors.white.withValues(alpha: 0.1);
+
+  /// The square under the icon of a shelf with no cover to show.
+  static final Color shelfIconSquareColor = Colors.white.withValues(alpha: 0.2);
+
+  /// The ground of a pill on a shelf's gradient, under the ink of the shelf:
+  /// white would take a light ink under 3:1, so a dark theme goes to black.
+  static Color shelfPillColor(Brightness brightness) =>
+      brightness == Brightness.dark
+      ? Colors.black.withValues(alpha: 0.3)
+      : Colors.white.withValues(alpha: 0.42);
+
+  /// The veils of a shelf card under a pointer or a finger, which lie over the
+  /// card and its gradient alike and add up while a pointer is held down.
+  ///
+  /// A dark theme goes to black, away from all its light text. A light one has
+  /// to go towards its dark text to show on a white card: light enough, then,
+  /// for the muted text of the theme to keep 4.5:1 under all three.
+  static ({Color hover, Color highlight, Color splash}) shelfCardVeils(
+    Brightness brightness,
+  ) => brightness == Brightness.dark
+      ? (
+          hover: Colors.black.withValues(alpha: 0.12),
+          highlight: Colors.black.withValues(alpha: 0.12),
+          splash: Colors.black.withValues(alpha: 0.24),
+        )
+      : (
+          hover: Colors.black.withValues(alpha: 0.03),
+          highlight: Colors.black.withValues(alpha: 0.04),
+          splash: Colors.black.withValues(alpha: 0.04),
+        );
 
   AppDesign._();
 
