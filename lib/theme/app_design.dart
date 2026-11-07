@@ -101,6 +101,19 @@ class AppDesign {
   /// in words.
   static final Color shelfBandGhostColor = Colors.white.withValues(alpha: 0.25);
 
+  /// The round badge of an empty shelf, as the empty library has one: a veil of
+  /// the shelf's colour under its ink, which holds 4.5:1 on the full colour and
+  /// so on the veil too. With no colour known yet, the library's own badge.
+  static ({Color ground, Color icon}) shelfEmptyBadge(
+    ShelfTint? tint,
+    ThemeData theme,
+  ) => tint == null
+      ? (
+          ground: theme.primaryColor.withValues(alpha: 0.1),
+          icon: theme.primaryColor,
+        )
+      : (ground: tint.ground.withValues(alpha: 0.18), icon: tint.ink);
+
   /// The veils of a shelf card under a pointer or a finger, which lie over the
   /// card and its gradient alike and add up while a pointer is held down.
   ///

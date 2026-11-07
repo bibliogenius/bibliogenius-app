@@ -602,7 +602,9 @@ class _BookListScreenState extends State<BookListScreen>
 
               if (widget.unshelvedOnly) _buildToShelveHeader(),
               if (_showsShelvedHere) _buildShelvedHere(),
-              if (!_placeIsEmpty && (_isSelecting || !_showsShelvedHere))
+              if (!_placeIsEmpty &&
+                  !_placeHasNoOwnBooks &&
+                  (_isSelecting || !_showsShelvedHere))
                 _isSelecting ? _buildSelectionBar() : _buildFilterBar(),
               if (_selectedStatus == 'wanting')
                 WisherFilterChips(
@@ -1292,8 +1294,10 @@ class _BookListScreenState extends State<BookListScreen>
   /// What changes there reaches this page through the global notifier.
   void _organizeFromPlace() => context.push('/shelves-management');
 
-  /// A parent with nothing of its own: its sub-shelves above are what the page
-  /// offers, and the section says so rather than counting nothing.
+  /// A parent with nothing of its own: its sub-shelves are what the page offers,
+  /// and it shows them alone. Some parents never hold a book, as the one of the
+  /// genres: a section of its books, their pills and a call to fill it would be
+  /// noise there.
   bool get _placeHasNoOwnBooks =>
       _isPlacePage &&
       _filteredBooks.isEmpty &&
@@ -1309,6 +1313,7 @@ class _BookListScreenState extends State<BookListScreen>
       _isPlacePage &&
       !_isReordering &&
       !_placeIsEmpty &&
+      !_placeHasNoOwnBooks &&
       _searchQuery.isEmpty;
 
   /// The title of the shelf's books and their sort and filter pills, on one
@@ -1364,23 +1369,14 @@ class _BookListScreenState extends State<BookListScreen>
                 ?reorder,
               ],
             ),
-          if (_placeHasNoOwnBooks)
-            Padding(
-              padding: const EdgeInsets.only(right: 12, top: 4),
-              child: Text(
-                TranslationService.translate(context, 'shelf_empty_hint'),
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-            ),
         ],
       ),
     );
   }
 
   /// Neither sub-shelf nor book: the two ways to fill the shelf, laid out like
-  /// the empty library. The head above already shows the empty fan.
+  /// the empty library, under its round badge in the colour of the shelf. The
+  /// head above already shows the empty fan.
   Widget _buildPlaceEmpty() {
     final shelf = _openShelf!;
     final shape = RoundedRectangleBorder(
@@ -1388,6 +1384,15 @@ class _BookListScreenState extends State<BookListScreen>
     );
     const padding = EdgeInsets.symmetric(horizontal: 32, vertical: 16);
     final theme = Theme.of(context);
+    final slot = ShelfCard.placeTintSlot(
+      shelf,
+      shown: _shownTags,
+      all: _allTags,
+    );
+    final badge = AppDesign.shelfEmptyBadge(
+      slot == null ? null : AppDesign.shelfTint(slot, theme.brightness),
+      theme,
+    );
     return LayoutBuilder(
       builder: (context, constraints) => RefreshIndicator(
         onRefresh: _fetchBooks,
@@ -1401,6 +1406,18 @@ class _BookListScreenState extends State<BookListScreen>
                 key: const Key('shelfPlaceEmpty'),
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  ExcludeSemantics(
+                    child: Container(
+                      key: const Key('shelfPlaceEmptyBadge'),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: badge.ground,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.shelves, size: 64, color: badge.icon),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                   Text(
                     TranslationService.translate(context, 'shelf_empty_hint'),
                     textAlign: TextAlign.center,

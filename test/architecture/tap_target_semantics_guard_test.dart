@@ -116,6 +116,7 @@ import 'package:bibliogenius/widgets/scaffold_with_nav.dart';
 import 'package:bibliogenius/widgets/selectable_book_tile.dart';
 import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
+import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_place_header.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
@@ -4056,8 +4057,10 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('a parent with no book of its own shows its sub-shelves and a '
-        'quiet section, not the big empty state', (tester) async {
+    testWidgets('a parent with no book of its own shows its sub-shelves alone: '
+        'no section of its books, no pills, no call to fill it', (
+      tester,
+    ) async {
       await _render(
         tester,
         page('Living room'),
@@ -4067,21 +4070,15 @@ void main() {
       expect(subCard('Novels'), findsOneWidget);
       expect(bigEmpty, findsNothing);
       expect(find.text('No books found'), findsNothing);
+      expect(heading, findsNothing);
+      expect(shelvedHereRow, findsNothing);
+      expect(find.text('Author'), findsNothing);
+      expect(find.byIcon(Icons.swap_vert), findsNothing);
       expect(
-        find.descendant(of: heading, matching: find.text('Shelved here')),
-        findsOneWidget,
+        find.text('Nothing here yet. Add a book, or create a sub-shelf.'),
+        findsNothing,
       );
-      // Under the row of the title and the pills.
-      final hint = find.text('Nothing here yet. Add a book, or create a sub-shelf.');
-      expect(hint, findsOneWidget);
-      expect(
-        tester.getTopLeft(hint).dy,
-        greaterThan(tester.getTopLeft(heading).dy),
-      );
-      expect(
-        tester.getTopLeft(hint).dy,
-        greaterThan(tester.getTopLeft(find.text('Author')).dy),
-      );
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('neither sub-shelf nor book: the sentence and its two buttons, '
@@ -4102,6 +4099,35 @@ void main() {
       );
       expect(find.byKey(const Key('shelfEmptyAddBook')), findsOneWidget);
       expect(find.byKey(const Key('shelfEmptyAddSubShelf')), findsOneWidget);
+      // The empty library's round badge, above the sentence, in the colour of
+      // the shelf and silent for a screen reader.
+      final badge = find.byKey(const Key('shelfPlaceEmptyBadge'));
+      expect(
+        tester.getBottomLeft(badge).dy,
+        lessThan(
+          tester.getTopLeft(find.textContaining('Nothing here yet')).dy,
+        ),
+      );
+      final kitchen = tags.firstWhere((t) => t.name == 'Kitchen');
+      final tint = AppDesign.shelfTint(
+        ShelfCard.placeTintSlot(kitchen, shown: tags, all: tags)!,
+        Brightness.light,
+      );
+      expect(
+        tester.widget<Icon>(
+          find.descendant(of: badge, matching: find.byType(Icon)),
+        ).color,
+        tint.ink,
+      );
+      expect(
+        find.descendant(
+          of: badge,
+          matching: find.byWidgetPredicate(
+            (w) => w is Semantics && w.properties.label != null,
+          ),
+        ),
+        findsNothing,
+      );
     });
 
     testWidgets('the head stands on the first colour of the page gradient, so '
