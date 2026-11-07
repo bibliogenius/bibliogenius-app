@@ -46,6 +46,63 @@ Tag _shelf(String id, String name, {String? parentId}) =>
     Tag(id: id, name: name, parentId: parentId, count: 0);
 
 void main() {
+  group('GenreTagService.resolveGenreShelf', () {
+    test('a new library gets its genres at the first level, with no Genre shelf', () async {
+      final repo = _RecordingTagRepository();
+      final service = GenreTagService(repo);
+
+      final leaf = await service.resolveGenreShelf(root: 'Genre', genre: 'Polar');
+
+      expect(repo.created, ['Polar']);
+      expect(leaf.parentId, isNull);
+    });
+
+    test('a new library gets a subgenre under its genre, at the first level', () async {
+      final repo = _RecordingTagRepository();
+      final service = GenreTagService(repo);
+
+      final leaf = await service.resolveGenreShelf(root: 'Genre', parent: 'Polar', genre: 'Thriller');
+
+      expect(repo.created, ['Polar', 'Thriller']);
+      final polar = repo.tags.firstWhere((t) => t.name == 'Polar');
+      expect(polar.parentId, isNull);
+      expect(leaf.parentId, polar.id);
+    });
+
+    test('a library that keeps a Genre shelf goes on filing under it', () async {
+      final repo = _RecordingTagRepository([_shelf('uuid-1', 'Genre')]);
+      final service = GenreTagService(repo);
+
+      final leaf = await service.resolveGenreShelf(root: 'Genre', genre: 'Science-fiction');
+
+      expect(repo.created, ['Science-fiction']);
+      expect(leaf.parentId, 'uuid-1');
+    });
+
+    test('a Genre shelf only spelt in a subject, with no row, is not kept', () async {
+      final repo = _RecordingTagRepository([_shelf('legacy:Genre', 'Genre')]);
+      final service = GenreTagService(repo);
+
+      final leaf = await service.resolveGenreShelf(root: 'Genre', genre: 'Polar');
+
+      expect(repo.created, ['Polar']);
+      expect(leaf.parentId, isNull);
+    });
+
+    test('a genre the user already keeps is reused where it stands', () async {
+      final repo = _RecordingTagRepository([
+        _shelf('uuid-1', 'Genre'),
+        _shelf('uuid-2', 'Polar'),
+      ]);
+      final service = GenreTagService(repo);
+
+      final leaf = await service.resolveGenreShelf(root: 'Genre', genre: 'Polar');
+
+      expect(repo.created, isEmpty);
+      expect(leaf.id, 'uuid-2');
+    });
+  });
+
   group('GenreTagService.resolveShelfChain', () {
     test('creates nothing for a library where no genre is ever picked', () async {
       final repo = _RecordingTagRepository();

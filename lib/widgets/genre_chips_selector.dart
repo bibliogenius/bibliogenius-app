@@ -79,13 +79,11 @@ class _GenreChipsSelectorState extends State<GenreChipsSelector> {
       final service = GenreTagService(context.read<TagRepository>());
       final parent = parentOfGenre(genre);
 
-      final chain = [
-        TranslationService.translate(context, genreRootKey),
-        if (parent != null) genreLabel(context, parent),
-        genreLabel(context, genre),
-      ];
-
-      final shelf = await service.resolveShelfChain(chain);
+      final shelf = await service.resolveGenreShelf(
+        root: TranslationService.translate(context, genreRootKey),
+        parent: parent == null ? null : genreLabel(context, parent),
+        genre: genreLabel(context, genre),
+      );
       if (!mounted) return;
 
       final shelves = List<String>.from(widget.selectedShelves);

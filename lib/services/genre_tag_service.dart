@@ -5,11 +5,30 @@ import '../models/tag.dart';
 /// rows only when they are actually needed.
 ///
 /// Nothing is created until a genre is picked: a user who ignores the feature
-/// keeps a tag tree with no "Genre" shelf in it.
+/// keeps a tag tree with no genre shelf in it.
 class GenreTagService {
   final TagRepository _tags;
 
   GenreTagService(this._tags);
+
+  /// Ensure the shelf of [genre] exists, under its [parent] genre if it has
+  /// one, and return it.
+  ///
+  /// Genres sit at the first level, where most libraries look for them. Only a
+  /// library that already keeps a shelf named [root] ("Genre", from the days
+  /// every genre went under it) goes on filing under it: its genres stay
+  /// together rather than half under it and half beside it. Nothing is moved:
+  /// a reader who wants them flat takes them out of it and deletes it, and the
+  /// next genres land at the first level.
+  Future<Tag> resolveGenreShelf({
+    required String root,
+    String? parent,
+    required String genre,
+  }) async {
+    final known = await _tags.getTags();
+    final keepsRoot = _findByName(known, root)?.isPersisted ?? false;
+    return _resolve([if (keepsRoot) root, ?parent, genre], known);
+  }
 
   /// Ensure the shelf chain [labels] exists (outermost first, e.g.
   /// `["Genre", "Polar", "Thriller"]`) and return the leaf.
@@ -23,8 +42,11 @@ class GenreTagService {
   /// Only the ancestors that actually end up parenting something are created.
   /// Filing a book under a "Polar" shelf the user already keeps at the root
   /// creates no "Genre" shelf at all, rather than an empty one next to it.
-  Future<Tag> resolveShelfChain(List<String> labels) async {
-    var known = await _tags.getTags();
+  Future<Tag> resolveShelfChain(List<String> labels) async =>
+      _resolve(labels, await _tags.getTags());
+
+  Future<Tag> _resolve(List<String> labels, List<Tag> listed) async {
+    var known = listed;
 
     final leaf = _findByName(known, labels.last);
     if (leaf != null && leaf.isPersisted) return leaf;

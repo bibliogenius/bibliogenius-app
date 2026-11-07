@@ -1,7 +1,8 @@
 /// The closed list of genres offered when a book is added or edited.
 ///
 /// A genre is not a schema concept: once picked it becomes an ordinary shelf (a
-/// `tags` row) nested under a lazily created "Genre" parent. It therefore
+/// `tags` row), created lazily at the first level, or under the "Genre" shelf
+/// of a library that already keeps one (see `GenreTagService`). It therefore
 /// inherits shelf filtering, renaming, syncing and deletion for free, and a
 /// user who never picks a genre never gets a single extra row.
 ///
@@ -34,7 +35,8 @@ class BookGenre {
   const BookGenre(this.key, {this.icon, this.children = const []});
 }
 
-/// Translation key of the parent shelf every genre hangs under.
+/// Translation key of the shelf genres went under, and still go under in a
+/// library that keeps it.
 const String genreRootKey = 'genre_root';
 
 /// The curated taxonomy. Two levels: a short list of genres always visible, and

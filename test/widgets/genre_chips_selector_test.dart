@@ -124,7 +124,12 @@ void main() {
     await tester.tap(find.text('Crime & thriller'));
     await tester.pumpAndSettle();
 
-    expect(repo.created, ['Genre', 'Crime & thriller']);
+    // A new library: the genre lands at the first level, no Genre shelf.
+    expect(repo.created, ['Crime & thriller']);
+    expect(
+      repo.tags.firstWhere((t) => t.name == 'Crime & thriller').parentId,
+      isNull,
+    );
 
     final host = tester.state<_HostState>(find.byType(_Host));
     expect(host.shelves, ['Crime & thriller']);
@@ -142,7 +147,7 @@ void main() {
     await tester.tap(find.text('Thriller'));
     await tester.pumpAndSettle();
 
-    expect(repo.created, ['Genre', 'Crime & thriller', 'Thriller']);
+    expect(repo.created, ['Crime & thriller', 'Thriller']);
 
     final thriller = repo.tags.firstWhere((t) => t.name == 'Thriller');
     final crime = repo.tags.firstWhere((t) => t.name == 'Crime & thriller');
@@ -160,6 +165,22 @@ void main() {
     final host = tester.state<_HostState>(find.byType(_Host));
     expect(host.shelves, isEmpty);
     expect(repo.created, isEmpty, reason: 'unselecting never creates a shelf');
+  });
+
+  testWidgets('a library that keeps a Genre shelf files the genre under it', (
+    tester,
+  ) async {
+    repo.tags.add(Tag(id: 'uuid-genre', name: 'Genre', count: 0));
+    await pumpSelector(tester);
+
+    await tester.tap(find.text('Crime & thriller'));
+    await tester.pumpAndSettle();
+
+    expect(repo.created, ['Crime & thriller']);
+    expect(
+      repo.tags.firstWhere((t) => t.name == 'Crime & thriller').parentId,
+      'uuid-genre',
+    );
   });
 
   testWidgets('leaves the user own shelves untouched', (tester) async {

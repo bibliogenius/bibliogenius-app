@@ -411,7 +411,7 @@ abstract final class CuratedImportDialog {
   /// `resolveShelfChain` already reuses an existing shelf by name wherever
   /// it stands and never re-parents it, so step 1 and step 2 are the same
   /// call: the reader's own "Polar" is adopted, and a genre they have no
-  /// shelf for gets one created under "Genre".
+  /// shelf for gets one, where `resolveGenreShelf` puts new genres.
   static Future<List<String>> _ensureShelves(
     BuildContext context,
     CuratedList list,
@@ -426,13 +426,14 @@ abstract final class CuratedImportDialog {
       if (!keys.contains(genre.key)) continue;
       final parent = parentOfGenre(genre);
       if (!context.mounted) break;
-      final chain = [
-        rootLabel,
-        if (parent != null) genreLabel(context, parent),
-        genreLabel(context, genre),
-      ];
+      final parentLabel = parent == null ? null : genreLabel(context, parent);
+      final label = genreLabel(context, genre);
       try {
-        final shelf = await service.resolveShelfChain(chain);
+        final shelf = await service.resolveGenreShelf(
+          root: rootLabel,
+          parent: parentLabel,
+          genre: label,
+        );
         if (!labels.contains(shelf.name)) labels.add(shelf.name);
       } catch (e) {
         // Best effort: a shelf that fails to resolve is dropped, the
