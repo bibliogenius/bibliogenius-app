@@ -117,7 +117,6 @@ import 'package:bibliogenius/widgets/selectable_book_tile.dart';
 import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
 import 'package:bibliogenius/widgets/shelf_place_header.dart';
-import 'package:bibliogenius/widgets/shelf_card.dart';
 import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 
 import '../helpers/mock_classes.dart';
@@ -5213,58 +5212,6 @@ void main() {
       expect(flight, findsNothing);
       await _settle(tester);
       expect(tester.takeException(), isNull);
-    });
-
-    group('along a strip', () {
-      setUp(() => shelfCardVariant.value = ShelfCardVariant.spine);
-      tearDown(() => shelfCardVariant.value = ShelfCardVariant.band);
-
-      testWidgets('a tap sends the fan to the head, from where it sits', (
-        tester,
-      ) async {
-        await _render(tester, tab);
-        final from = tester.getRect(fanOf(card('Living room')));
-        final cardBox = tester.getRect(card('Living room'));
-
-        await tester.tap(card('Living room'));
-        await tester.pump();
-        await tester.pump();
-        await tester.pump();
-
-        expect(flight, findsOneWidget);
-        final start = tester.getRect(flight);
-        expect(start.left, closeTo(from.left, 1));
-        expect(start.top, closeTo(from.top, 40));
-        expect(from.left, cardBox.left + 10);
-
-        await tester.pump(const Duration(milliseconds: 300));
-        await tester.pump();
-        expect(flight, findsNothing);
-        await _settle(tester);
-        expect(tester.takeException(), isNull);
-      });
-
-      testWidgets('an empty fan flies too, in outline', (tester) async {
-        await _render(tester, tab);
-
-        await tester.tap(card('Study'));
-        await tester.pump();
-        await tester.pump();
-        await tester.pump();
-
-        expect(flight, findsOneWidget);
-        expect(
-          find.descendant(
-            of: flight,
-            matching: find.byKey(const Key('shelfThumbnailGhost')),
-          ),
-          findsOneWidget,
-        );
-        await tester.pump(const Duration(milliseconds: 300));
-        await tester.pump();
-        await _settle(tester);
-        expect(tester.takeException(), isNull);
-      });
     });
 
     testWidgets('the fan at the head waits for it, then shows', (tester) async {

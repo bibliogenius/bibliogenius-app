@@ -3,8 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/foundation.dart'
-    show debugPrint, kIsWeb, kReleaseMode;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../services/api_service.dart';
@@ -12,7 +11,6 @@ import '../../services/translation_service.dart';
 import '../../providers/theme_provider.dart';
 import '../../utils/app_constants.dart';
 import '../../utils/backup_actions.dart';
-import '../../widgets/shelf_card.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
@@ -140,7 +138,6 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
               },
             ),
           ),
-        const ShelfCardVariantToggle(),
         if (showVersion)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
@@ -293,34 +290,5 @@ class _AdvancedSettingsSectionState extends State<AdvancedSettingsSection> {
         );
       }
     }
-  }
-}
-
-/// Switches the cards of the shelves tab between their two variants, to compare
-/// them on a device. Not translated and not saved: it has no place in a release.
-class ShelfCardVariantToggle extends StatelessWidget {
-  final bool isRelease;
-
-  const ShelfCardVariantToggle({super.key, this.isRelease = kReleaseMode});
-
-  @override
-  Widget build(BuildContext context) {
-    if (isRelease || settingsIsSearching(context)) {
-      return const SizedBox.shrink();
-    }
-    return ValueListenableBuilder<ShelfCardVariant>(
-      valueListenable: shelfCardVariant,
-      builder: (context, variant, _) => Card(
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-        child: SwitchListTile(
-          secondary: const Icon(Icons.shelves),
-          title: const Text('Shelf cards: variant B'),
-          value: variant == ShelfCardVariant.spine,
-          onChanged: (spine) => shelfCardVariant.value = spine
-              ? ShelfCardVariant.spine
-              : ShelfCardVariant.band,
-        ),
-      ),
-    );
   }
 }
