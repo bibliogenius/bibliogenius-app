@@ -4029,7 +4029,8 @@ void main() {
     testWidgets('12 pt from the head to the row with no sub-shelf', (
       tester,
     ) async {
-      // A name on one line: the fan is what ends the head.
+      // A name on one line: the corner or the counts end the head, whichever
+      // text scale and font make the longer.
       await _render(
         tester,
         page('Study'),
@@ -4038,8 +4039,8 @@ void main() {
 
       expect(
         tester.getTopLeft(shelvedHereRow).dy -
-            tester.getBottomLeft(find.byKey(const Key('shelfPlaceFan'))).dy,
-        moreOrLessEquals(12),
+            tester.getBottomLeft(find.byKey(const Key('shelfPlaceCorner'))).dy,
+        greaterThanOrEqualTo(12),
       );
     });
 
@@ -4719,8 +4720,30 @@ void main() {
       });
     });
 
+    testWidgets('a sub-shelf wears the corner of its first level', (
+      tester,
+    ) async {
+      Gradient? corner() =>
+          (tester
+                      .widget<DecoratedBox>(
+                        find.byKey(const Key('shelfPlaceCorner')),
+                      )
+                      .decoration
+                  as BoxDecoration)
+              .gradient;
+
+      await _render(tester, page('Living room'), books: books);
+      final parent = corner();
+      expect(parent, isNotNull);
+
+      await _render(tester, page('Novels'), books: books);
+      expect(corner(), parent);
+    });
+
     group('its menu', () {
-      testWidgets('is a tinted circle of 44 pt', (tester) async {
+      testWidgets('is a tinted circle of 30 pt in a target of 44', (
+        tester,
+      ) async {
         await _render(tester, page('Novels'), books: books);
 
         final button = find.descendant(
@@ -4729,10 +4752,14 @@ void main() {
         );
         expect(tester.getSize(button), const Size.square(44));
         final scheme = Theme.of(tester.element(menu)).colorScheme;
+        final disc = find.byKey(const Key('shelfPlaceMenuDisc'));
+        expect(tester.getSize(disc), const Size.square(30));
+        final drawn =
+            tester.widget<DecoratedBox>(disc).decoration as BoxDecoration;
+        expect(drawn.color, scheme.primary.withValues(alpha: 0.14));
+        expect(drawn.shape, BoxShape.circle);
         final ink = find.descendant(of: button, matching: find.byType(Material));
-        final material = tester.widget<Material>(ink);
-        expect(material.color, scheme.primary.withValues(alpha: 0.14));
-        expect(material.shape, const CircleBorder());
+        expect(tester.widget<Material>(ink).shape, const CircleBorder());
       });
 
       testWidgets('offers the five actions, in order', (tester) async {

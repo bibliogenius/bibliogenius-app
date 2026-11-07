@@ -1193,6 +1193,7 @@ class _BookListScreenState extends State<BookListScreen>
       subShelvesOf: (tag) => Tag.getDirectChildren(tag.id, shown).length,
       hidden: _isReordering,
       canAct: _placeListed && listed,
+      tintSlot: ShelfCard.placeTintSlot(inView, shown: shown, all: _allTags),
       flight: widget.fanFlight,
       actions: ShelfPlaceActions(
         onBack: () => _openPlace(_parentOf(inView)),

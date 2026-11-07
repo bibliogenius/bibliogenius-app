@@ -33,6 +33,10 @@ class ShelfPlace {
   /// no row would strip its name from the books and keep the row.
   final bool canAct;
 
+  /// The colour of the page in the palette, from [ShelfCard.placeTintSlot]. None
+  /// until a listing knows the shelf.
+  final int? tintSlot;
+
   /// The fan on its way here, if any, and what the sub-shelf cards send off.
   final ShelfFanFlight? flight;
   final ShelfPlaceActions actions;
@@ -47,6 +51,7 @@ class ShelfPlace {
     required this.subShelvesOf,
     required this.hidden,
     required this.canAct,
+    this.tintSlot,
     this.flight,
     required this.actions,
   });
@@ -156,9 +161,50 @@ class _SubShelfGrid extends StatelessWidget {
   }
 }
 
-/// The way back, named after the parent, the shelf's name in large, its counts
-/// and its covers in large.
+/// The way back, named after the parent, the shelf's name in large with its
+/// actions, its counts; at the top right, its covers in large, on a ground with
+/// the colour and the rounding of the card the shelf was entered by. The ground
+/// hangs from the angle of the page and takes what the text leaves, as far as
+/// the proportions of the band of a card.
 class ShelfPlaceHeader extends StatelessWidget {
+  /// The air between the covers and the edge of the ground, above and under:
+  /// what the lowest tip of a leaning cover leaves on the band of a card.
+  static const double _coverMargin = 12.44;
+
+  /// Where the covers of the fan start and end in its frame: the centre one at
+  /// the top, the lowest tip of a leaning one at the bottom.
+  static const double _coversTop = 7;
+  static const double _coversBottom = 74.02;
+
+  static const double _fanTop = _coverMargin - _coversTop;
+  static const double _groundHeight =
+      _coversBottom - _coversTop + 2 * _coverMargin;
+
+  /// The air above the ground: it is a card laid against the side of the page.
+  static const double _groundTop = 12;
+
+  /// The rounding of the two angles that face the page.
+  static const BorderRadius _groundRadius = BorderRadius.horizontal(
+    left: Radius.circular(20),
+  );
+
+  /// The fan and its margins: what a long name leaves the ground at least.
+  static const double _groundMinWidth = 148;
+
+  /// Past this, the ground would stop reading as the band of a card and become
+  /// a strip across the page.
+  static const double _groundMaxWidth = 300;
+
+  /// The margin of the fan from the angle of the page.
+  static const double _fanRight = 18;
+
+  /// The air between the text and the ground.
+  static const double _textGap = 12;
+
+  /// What the menu asks to be touched. Its room is kept before it comes with the
+  /// listing, for neither the name nor the ground to move then.
+  static const double _menuTarget = 44;
+
   final ShelfPlace place;
 
   const ShelfPlaceHeader({super.key, required this.place});
@@ -173,55 +219,93 @@ class ShelfPlaceHeader extends StatelessWidget {
       subShelves: place.subShelves.length,
     );
     final muted = theme.colorScheme.onSurfaceVariant;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 4, 16, 12),
+    final slot = place.tintSlot;
+    final tint = slot == null
+        ? null
+        : AppDesign.shelfTint(slot, theme.brightness);
+    final text = Padding(
+      padding: const EdgeInsets.fromLTRB(4, 4, _textGap, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: _BackButton(place: place),
-                ),
-              ),
-              if (place.canAct) _PlaceMenu(place: place),
-            ],
-          ),
+          _BackButton(place: place),
           Padding(
             padding: const EdgeInsets.only(left: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: _FadeIn(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            child: _FadeIn(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: _menuTarget),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            shelf.name,
-                            key: const Key('shelfHeaderTitle'),
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
+                        Flexible(
+                          child: Semantics(
+                            header: true,
+                            child: Text(
+                              shelf.name,
+                              key: const Key('shelfHeaderTitle'),
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          counts.join(' · '),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: muted,
-                          ),
-                        ),
+                        if (place.canAct)
+                          _PlaceMenu(place: place)
+                        else
+                          const SizedBox(width: _menuTarget),
                       ],
                     ),
                   ),
+                  Text(
+                    counts.join(' · '),
+                    style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+    // Decorative. With no colour known yet it takes the same room with no
+    // ground, so the page does not move when the listing lands.
+    final ground = SizedBox(
+      width: double.infinity,
+      height: _groundHeight,
+      child: DecoratedBox(
+        key: const Key('shelfPlaceCorner'),
+        decoration: BoxDecoration(
+          gradient: tint == null
+              ? null
+              : AppDesign.shelfGradient(tint.ground, theme.brightness),
+          borderRadius: _groundRadius,
+        ),
+        child: ClipRRect(
+          borderRadius: _groundRadius,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              // Across from the fan, as on a card: behind it, it would not show.
+              if (tint != null)
+                Positioned(
+                  top: -20,
+                  left: -20,
+                  child: ExcludeSemantics(
+                    child: Icon(
+                      Icons.shelves,
+                      key: const Key('shelfPlaceWatermark'),
+                      size: 100,
+                      color: AppDesign.shelfWatermarkColor,
+                    ),
+                  ),
                 ),
-                const SizedBox(width: 12),
-                _LandingFan(
+              Positioned(
+                top: _fanTop,
+                right: _fanRight,
+                child: _LandingFan(
                   name: shelf.name,
                   flight: place.flight,
                   child: ShelfThumbnail(
@@ -229,12 +313,43 @@ class ShelfPlaceHeader extends StatelessWidget {
                     size: ShelfThumbnailSize.xl,
                     hasBooks: place.books > 0,
                     coverPaths: shelf.coverPaths,
+                    ghostColor: tint == null
+                        ? null
+                        : AppDesign.shelfBandGhostColor,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
+      ),
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: constraints.maxWidth - _groundMinWidth,
+              ),
+              child: text,
+            ),
+            Expanded(
+              child: Align(
+                alignment: Alignment.topRight,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: _groundMaxWidth),
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: _groundTop),
+                    child: ground,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -353,14 +468,35 @@ class _PlaceMenu extends StatelessWidget {
           value: action,
           child: Text(TranslationService.translate(context, key)),
         );
+    // Discreet beside the name, and still 44 pt under a finger: the circle is
+    // drawn smaller than the button.
+    final circle = AppDesign.tintedCircleButtonStyle(
+      Theme.of(context).colorScheme,
+    );
     return PopupMenuButton<VoidCallback>(
       key: const Key('shelfPlaceMenu'),
       tooltip: TranslationService.translate(
         context,
         'shelf_actions_named',
       ).replaceAll('{name}', place.shelf.name),
-      icon: const Icon(Icons.more_horiz),
-      style: AppDesign.tintedCircleButtonStyle(Theme.of(context).colorScheme),
+      icon: DecoratedBox(
+        key: const Key('shelfPlaceMenuDisc'),
+        decoration: BoxDecoration(
+          color: circle.backgroundColor?.resolve(const {}),
+          shape: BoxShape.circle,
+        ),
+        child: SizedBox.square(
+          dimension: 30,
+          child: Icon(
+            Icons.more_horiz,
+            size: 20,
+            color: circle.foregroundColor?.resolve(const {}),
+          ),
+        ),
+      ),
+      style: circle.copyWith(
+        backgroundColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
       onSelected: (action) => action(),
       itemBuilder: (context) => [
         item(actions.onRename, 'rename'),

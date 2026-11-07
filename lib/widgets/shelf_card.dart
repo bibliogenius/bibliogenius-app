@@ -151,6 +151,21 @@ class ShelfCard extends StatelessWidget {
       ...AppDesign.shelfTintSlots(sisters.map((tag) => tag.stableKey)),
   };
 
+  /// The colour slot of the page of [shelf]: that of the first-level card it was
+  /// entered by, however deep it lies. A shelf has one parent, so one colour.
+  ///
+  /// The way up reads [shown], as the page does; the slots read [all], as the
+  /// grid does, where a shelf waiting on its Undo keeps its colour reserved. Null
+  /// for a shelf no listing knows yet.
+  static int? placeTintSlot(
+    Tag shelf, {
+    required List<Tag> shown,
+    required List<Tag> all,
+  }) {
+    final first = Tag.ancestorsOf(shelf, shown).firstOrNull ?? shelf;
+    return tintSlotsOf(all)[first.stableKey];
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
