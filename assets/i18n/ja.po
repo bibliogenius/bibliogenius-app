@@ -12600,3 +12600,11 @@ msgstr "本棚を整理"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "本棚を別の本棚にドラッグすると、その中に入れられます（スマートフォンでは長押し）。「…」メニューでは、キーボードやスクリーンリーダーで同じ操作ができます。"
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ 注意：このリセットはすべてのデバイスに適用されます。"
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "このデバイスはまずアカウントからログアウトされるため、ほかのデバイスのデータはそのまま残ります。このデバイスはアカウントのデバイス一覧に残るので、別のデバイスから削除してください。"

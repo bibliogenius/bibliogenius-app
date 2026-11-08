@@ -12600,3 +12600,11 @@ msgstr "책장 정리"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "책장을 다른 책장으로 끌어다 놓으면 그 안에 넣을 수 있습니다(휴대폰에서는 길게 누르기). \"…\" 메뉴에서는 키보드와 화면 낭독기로 같은 작업을 할 수 있습니다."
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ 주의: 이 재설정은 모든 기기에 적용됩니다."
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "이 기기는 먼저 계정에서 로그아웃되므로 다른 기기의 데이터는 그대로 유지됩니다. 이 기기는 계정의 기기 목록에 남아 있으니 다른 기기에서 제거하세요."

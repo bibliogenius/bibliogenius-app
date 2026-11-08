@@ -12600,3 +12600,11 @@ msgstr "整理书架"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "将书架拖到另一个书架上即可放入其中（手机上请长按）。“…”菜单可通过键盘和屏幕阅读器完成同样的操作。"
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ 注意：此重置将应用于您的所有设备。"
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "此设备将先退出您的账号登录，因此您的其他设备会保留其数据。此设备仍会留在账号的设备列表中，请从另一台设备上将其移除。"
