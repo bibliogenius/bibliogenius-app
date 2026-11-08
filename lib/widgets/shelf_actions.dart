@@ -465,8 +465,12 @@ void showNewShelfDialog(
                               context,
                               'first_level',
                             ),
+                            // The theme's muted text, vetted on its dialogs
+                            // and menus; a fixed grey was not, in the dark.
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurfaceVariant,
                               fontStyle: FontStyle.italic,
                             ),
                           ),
