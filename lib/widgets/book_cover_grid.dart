@@ -4,6 +4,7 @@ import '../models/book.dart';
 import '../services/translation_service.dart';
 import '../utils/book_status.dart';
 import 'book_cover_card.dart';
+import 'cover_grid_delegate.dart';
 import 'selectable_book_tile.dart';
 
 /// Whether the "new" band differentiates anything: when every book is new
@@ -141,11 +142,9 @@ class BookCoverGrid extends StatelessWidget {
       );
     }
 
-    final gridDelegate = SliverGridDelegateWithMaxCrossAxisExtent(
-      maxCrossAxisExtent: maxCoverExtent, // Controls the width of items
+    final gridDelegate = CoverGridDelegate(
+      maxCoverExtent: maxCoverExtent, // Controls the width of items
       childAspectRatio: 0.65, // Standard book ratio (width / height)
-      crossAxisSpacing: 16,
-      mainAxisSpacing: 16,
     );
     // Evaluated once on the whole list, never per section: a section made
     // only of fresh books must keep its bands.
