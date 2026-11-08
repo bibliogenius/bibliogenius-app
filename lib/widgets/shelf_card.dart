@@ -33,12 +33,29 @@ int shelfGridColumns({required double width, required double textScale}) {
   return 2;
 }
 
-/// How many columns of the big cards fit [width]: one more step than
-/// [shelfGridColumns], whose two columns would cut a common word of a name of
-/// 18 pt in the middle.
-int shelfCardGridColumns({required double width, required double textScale}) {
+/// The widest a big card gets. Its height is set by its text, not by its
+/// width: past this, a card turns into a flat banner with its fan lost at the
+/// left of an empty band.
+const double shelfCardMaxWidth = 240;
+
+/// How many columns of the big cards fit [width], the whole width of the grid
+/// with its two [margin]s and its [spacing] between cards.
+///
+/// One where [shelfGridColumns] has one, and also under 390 pt with text at
+/// 1.2, where two columns would cut a common word of a name of 18 pt in the
+/// middle. Otherwise at least two, and as many as keep every card within
+/// [shelfCardMaxWidth].
+int shelfCardGridColumns({
+  required double width,
+  required double textScale,
+  required double margin,
+  required double spacing,
+}) {
   if (width < 390 && textScale >= 1.2) return 1;
-  return shelfGridColumns(width: width, textScale: textScale);
+  if (shelfGridColumns(width: width, textScale: textScale) == 1) return 1;
+  final room = width - 2 * margin + spacing;
+  final columns = (room / (shelfCardMaxWidth + spacing)).ceil();
+  return columns < 2 ? 2 : columns;
 }
 
 /// The counts of a shelf, to print or to announce: its books, whatever their

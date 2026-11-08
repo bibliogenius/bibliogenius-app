@@ -400,11 +400,13 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final width = constraints.maxWidth;
+        final spacing = width >= _wideRowWidth ? 16.0 : 12.0;
         final columns = shelfCardGridColumns(
           width: width,
           textScale: MediaQuery.textScalerOf(context).scale(1),
+          margin: _gridMargin,
+          spacing: spacing,
         );
-        final spacing = width >= _wideRowWidth ? 16.0 : 12.0;
         return RefreshIndicator(
           onRefresh: _loadTags,
           child: CustomScrollView(

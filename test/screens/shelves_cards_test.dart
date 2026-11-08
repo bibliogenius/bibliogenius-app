@@ -172,12 +172,17 @@ void main() {
       (390.0, 1.2, 2),
       (390.0, 1.29, 2),
       (390.0, 1.3, 1),
-      (599.0, 1.0, 2),
+      // From two columns on, as many as keep a card within 240 pt.
+      (500.0, 1.0, 2),
+      (599.0, 1.0, 3),
       (600.0, 1.0, 3),
       (700.0, 1.0, 3),
-      (899.0, 1.0, 3),
+      (790.0, 1.0, 4),
+      (899.0, 1.0, 4),
       (900.0, 1.0, 4),
       (1024.0, 1.0, 4),
+      (1100.0, 1.0, 5),
+      (1440.0, 1.0, 6),
       (1024.0, 1.3, 1),
     ];
     for (final (width, scale, expected) in cases) {
@@ -419,16 +424,24 @@ void main() {
           expectLaidOut(tester, twoLines);
         });
 
-        testWidgets('$style: wide columns keep the same card', (tester) async {
-          repo.tags = [
-            Tag(id: 'a', name: twoLines, count: 3),
-            Tag(id: 'b', name: 'Short', count: 3),
-          ];
-          await pump(tester, width: 1024, theme: themeOf());
+        for (final width in const [899.0, 900.0, 1024.0, 1440.0]) {
+          testWidgets('$style: at $width pt the card keeps its height and '
+              'stays within 240 pt', (tester) async {
+            repo.tags = [
+              Tag(id: 'a', name: twoLines, count: 3),
+              Tag(id: 'b', name: 'Short', count: 3),
+            ];
+            await pump(tester, width: width, theme: themeOf());
 
-          expect(tester.getSize(_card(twoLines)).height, 170);
-          expectLaidOut(tester, twoLines);
-        });
+            final card = tester.getSize(_card(twoLines));
+            expect(card.height, 170);
+            expect(card.width, lessThanOrEqualTo(240));
+            // Never a band: no wider than the square of a phone by much.
+            expect(card.width / card.height, lessThan(1.45));
+            expectLaidOut(tester, twoLines);
+            expectLaidOut(tester, 'Short');
+          });
+        }
       }
 
       testWidgets('the name in 18 pt, weight 800, on two lines at most', (
