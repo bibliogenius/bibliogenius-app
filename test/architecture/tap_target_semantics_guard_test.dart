@@ -4577,6 +4577,77 @@ void main() {
         expect(location(tester), '/shelves');
       });
 
+      // Organize sits on the root navigator, above the shell that holds the
+      // page: the page's own route stays the shell's current one under it.
+      group('with Organize open above it', () {
+        final organize = find.byType(OrganizeShelvesScreen);
+        final withoutCrime = [
+          for (final t in tags)
+            if (t.id != 's3') t,
+        ];
+        List<Book> booksWithoutCrime() => [
+          for (final b in books)
+            if (!(b.subjects?.contains('Crime') ?? false)) b,
+        ];
+
+        testWidgets('deleted and written: Organize stays, the page goes up '
+            'once back', (tester) async {
+          final harness = await _render(tester, page('Crime'), books: books);
+          await toOrganize(tester);
+
+          await _deleteFromRow(tester, 'Crime');
+          harness.tags.mockTags = withoutCrime;
+          harness.books.mockBooks = booksWithoutCrime();
+          // The Undo runs out: the write lands and everything reloads.
+          await _letMessagesGo(tester);
+          expect(harness.tags.deleted, ['Crime']);
+          expect(organize, findsOneWidget);
+
+          await _tap(tester, done);
+          await _settle(tester);
+          expect(location(tester), '/shelves?tag=Novels');
+        });
+
+        testWidgets('renamed by a sync: Organize stays, the page follows '
+            'once back', (tester) async {
+          final harness = await _render(tester, page('Crime'), books: books);
+          await toOrganize(tester);
+
+          harness.tags.mockTags = [
+            for (final t in tags)
+              t.id == 's3'
+                  ? Tag(id: 's3', name: 'Thrillers', parentId: 's2', count: 4)
+                  : t,
+          ];
+          harness.refresh.refresh();
+          await _settle(tester);
+          expect(organize, findsOneWidget);
+
+          await _tap(tester, done);
+          await _settle(tester);
+          expect(location(tester), '/shelves?tag=Thrillers');
+        });
+
+        testWidgets('a second deletion keeps its Undo while the first one '
+            'lands', (tester) async {
+          final harness = await _render(tester, page('Crime'), books: books);
+          await toOrganize(tester);
+
+          await _deleteFromRow(tester, 'Crime');
+          harness.tags.mockTags = withoutCrime;
+          harness.books.mockBooks = booksWithoutCrime();
+          // A second deletion sends the first one, which reloads the page.
+          await _deleteNowFromRow(tester, 'Kitchen');
+          expect(harness.tags.deleted, ['Crime']);
+          expect(organize, findsOneWidget);
+
+          await _tapNow(tester, _undo);
+          await _letMessagesGo(tester);
+          expect(harness.tags.deleted, ['Crime'], reason: 'Kitchen undone');
+          expect(_treeRow('Kitchen'), findsOneWidget);
+        });
+      });
+
       group('with a book open above it', () {
         final details = find.byType(BookDetailsScreen);
 

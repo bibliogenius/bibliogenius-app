@@ -137,6 +137,11 @@ class _BookListScreenState extends State<BookListScreen>
   // Global refresh notifier
   BookRefreshNotifier? _globalRefreshNotifier;
 
+  /// Off while this page is out of sight: a page of the root navigator
+  /// (Organize) covering the shell, or a tab not shown. See
+  /// [_coveredByAnotherPage].
+  ValueListenable<bool>? _tickerMode;
+
   // Global sort preference (persisted across sessions)
   SortPreferenceProvider? _sortPrefProvider;
 
@@ -324,15 +329,13 @@ class _BookListScreenState extends State<BookListScreen>
     // Subscribes to this route coming back on top, which is when an emptied
     // "to shelve" list may leave (see _leaveToShelveListWhenEmpty).
     final onTop = ModalRoute.isCurrentOf(context) ?? false;
-    if (widget.unshelvedOnly && onTop) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => _leaveToShelveListWhenEmpty(),
-      );
-    }
-    if (_isPlacePage && onTop) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && !_isLoading) _followPlaceWhenGone(_allTags);
-      });
+    if (onTop) _catchUpOnceOnTop();
+    // A page of the root navigator coming down does not reach this route's
+    // dependencies: its ticker mode does.
+    final tickerMode = TickerMode.getNotifier(context);
+    if (!identical(tickerMode, _tickerMode)) {
+      _tickerMode?.removeListener(_onTickerModeChanged);
+      _tickerMode = tickerMode..addListener(_onTickerModeChanged);
     }
     final state = GoRouterState.of(context);
     final newTag = state.uri.queryParameters['tag'];
@@ -415,6 +418,7 @@ class _BookListScreenState extends State<BookListScreen>
     _sortPrefProvider?.removeListener(_handleSortPrefChanged);
     _ownershipPrefProvider?.removeListener(_handleOwnershipPrefChanged);
     _themeProvider?.removeListener(_handleThemePrefChanged);
+    _tickerMode?.removeListener(_onTickerModeChanged);
     _searchController.dispose();
     _searchDebounce?.cancel();
     super.dispose();
@@ -1020,9 +1024,30 @@ class _BookListScreenState extends State<BookListScreen>
     if (!widget.unshelvedOnly || !mounted || _isLoading) return;
     // go() replaces the whole stack: from under a page pushed on top (the
     // book being shelved, the shelving sheet) it would pull the reader out
-    // of it. didChangeDependencies calls back once this list is on top.
-    if (ModalRoute.isCurrentOf(context) == false) return;
+    // of it. _catchUpOnceOnTop calls back once this list is on top.
+    if (_coveredByAnotherPage) return;
     if (_unshelvedLeft == 0) context.go('/shelves');
+  }
+
+  /// Whether a page is pushed above this one: a route of the shell above it
+  /// (a book, a sheet), or a page of the root navigator above the whole
+  /// shell (Organize), under which this route still reads as current.
+  bool get _coveredByAnotherPage =>
+      ModalRoute.isCurrentOf(context) == false ||
+      !TickerMode.getNotifier(context).value;
+
+  /// What this page held back while covered, done once it is on top again.
+  void _catchUpOnceOnTop() {
+    if (!widget.unshelvedOnly && !_isPlacePage) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _isLoading) return;
+      if (widget.unshelvedOnly) _leaveToShelveListWhenEmpty();
+      if (_isPlacePage) _followPlaceWhenGone(_allTags);
+    });
+  }
+
+  void _onTickerModeChanged() {
+    if (_tickerMode?.value == true) _catchUpOnceOnTop();
   }
 
   /// Books still to shelve, as the card counts them: the default view, not
@@ -1155,8 +1180,8 @@ class _BookListScreenState extends State<BookListScreen>
     // An empty listing proves nothing: the FFI answers one on any core error.
     if (!_isPlacePage || tags.isEmpty || _openShelf != null) return;
     // go() replaces the whole stack: from under a page pushed on top it would
-    // close that page. didChangeDependencies calls back once on top.
-    if (ModalRoute.isCurrentOf(context) == false) return;
+    // close that page. _catchUpOnceOnTop calls back once on top.
+    if (_coveredByAnotherPage) return;
     final renamed = tags.where((t) => t.id == _placeShelfId).firstOrNull;
     if (renamed != null) {
       context.go(_placeLocation(renamed.name));
