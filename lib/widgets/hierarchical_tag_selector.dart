@@ -8,6 +8,7 @@ import '../services/recent_shelves_store.dart';
 import '../services/shelf_rows.dart';
 import '../services/translation_service.dart';
 import '../utils/book_genres.dart';
+import '../utils/shelf_spelling.dart';
 import 'shelf_placement_tree.dart';
 import 'shelf_thumbnail.dart';
 import 'shelf_tree_rows.dart';
@@ -75,10 +76,15 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
     }
   }
 
-  /// Exact comparison: two shelves may differ by case or accents alone
-  /// (see [_shelfNamed]).
-  bool _isSelected(String name) =>
-      _currentSelection.any((s) => s.trim() == name.trim());
+  /// By [ShelfSpelling], as the core counts: a name some shelf carries
+  /// exactly is that shelf, as two may differ by case or accents alone (see
+  /// [_shelfNamed]); a name no shelf carries exactly stands for the one that
+  /// differs from it by case alone. Left unchecked, the picker would drop it
+  /// from the book.
+  bool _isSelected(String name, [List<Tag>? tags]) {
+    final spelling = ShelfSpelling((tags ?? _allTags).map((tag) => tag.name));
+    return _currentSelection.any((s) => spelling.shelfOf(s) == name.trim());
+  }
 
   /// Recent shelves that still exist.
   List<Tag> get _recentShelves => [
@@ -107,7 +113,7 @@ class _HierarchicalTagSelectorState extends State<HierarchicalTagSelector> {
     if (!mounted) return;
 
     final selectedIds = tags
-        .where((t) => _isSelected(t.fullPath))
+        .where((t) => _isSelected(t.fullPath, tags))
         .map((t) => t.id)
         .toSet();
 

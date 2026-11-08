@@ -19,15 +19,21 @@ import '../helpers/mock_repositories.dart';
 
 Finder _row(String name) => find.byKey(ValueKey('shelfRow:$name'));
 
-Future<List<List<String>>> _pump(WidgetTester tester) async {
+Future<List<List<String>>> _pump(
+  WidgetTester tester, {
+  List<Tag>? tags,
+  List<String> selected = const ['Etagere'],
+}) async {
   tester.view.physicalSize = const Size(1200, 2400);
   tester.view.devicePixelRatio = 1.0;
   addTearDown(tester.view.reset);
   final repo = MockTagRepository()
-    ..mockTags = [
-      Tag(id: 'plain', name: 'Etagere', count: 1),
-      Tag(id: 'accented', name: 'Étagère', count: 0),
-    ];
+    ..mockTags =
+        tags ??
+        [
+          Tag(id: 'plain', name: 'Etagere', count: 1),
+          Tag(id: 'accented', name: 'Étagère', count: 0),
+        ];
   final changes = <List<String>>[];
   await tester.pumpWidget(
     MultiProvider(
@@ -38,7 +44,7 @@ Future<List<List<String>>> _pump(WidgetTester tester) async {
       child: MaterialApp(
         home: Scaffold(
           body: HierarchicalTagSelector(
-            selectedTags: const ['Etagere'],
+            selectedTags: selected,
             onTagsChanged: (tags) => changes.add(List.of(tags)),
           ),
         ),
@@ -99,6 +105,53 @@ void main() {
     await tester.tap(recent);
     await tester.pumpAndSettle();
     expect(changes.last, ['Etagere', 'Étagère']);
+  });
+
+  group('a book filed under a name no shelf carries exactly', () {
+    // As the core lists them: "polar" goes to "Polar", "etagere" differs
+    // from "Étagère" by its accents and keeps a row of its own.
+    final tags = [
+      Tag(id: 'polar', name: 'Polar', count: 1),
+      Tag(id: 'accented', name: 'Étagère', count: 0),
+      Tag(id: 'legacy:-1', name: 'etagere', count: 1),
+    ];
+
+    testWidgets('the picker checks the shelf that differs by case alone, and '
+        'Done keeps the book on it', (tester) async {
+      final handle = tester.ensureSemantics();
+      final changes = await _pump(
+        tester,
+        tags: tags,
+        selected: const ['polar', 'etagere'],
+      );
+
+      await tester.tap(find.byKey(const Key('addShelfChip')));
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getSemantics(_row('Polar')),
+        containsSemantics(hasCheckedState: true, isChecked: true),
+      );
+      // Accents stay apart: "etagere" is not "Étagère".
+      expect(
+        tester.getSemantics(_row('Étagère')),
+        containsSemantics(hasCheckedState: true, isChecked: false),
+      );
+
+      await tester.tap(find.text('Done'));
+      await tester.pumpAndSettle();
+      expect(changes.last, unorderedEquals(['Polar', 'etagere']));
+      handle.dispose();
+    });
+
+    testWidgets('its shelf is not offered again as recent', (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'recent_shelf_names': ['Polar'],
+      });
+      await _pump(tester, tags: tags, selected: const ['polar']);
+
+      expect(find.byKey(const ValueKey('recentShelf:Polar')), findsNothing);
+    });
   });
 
   testWidgets('a name taken up to case and accents still offers no "Create"', (

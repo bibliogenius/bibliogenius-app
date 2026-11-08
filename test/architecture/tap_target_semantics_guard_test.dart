@@ -3603,6 +3603,44 @@ void main() {
       expect(find.text('Fjord'), findsNothing);
     });
 
+    testWidgets('a book filed here in another case shows here, as its count '
+        'says', (tester) async {
+      await _render(
+        tester,
+        page('Living room'),
+        books: [...books, filed('p6', 'Small rug', ' living ROOM ')],
+      );
+
+      expect(find.text('Small rug'), findsWidgets);
+      expect(find.text('Sofa novel'), findsNothing);
+    });
+
+    testWidgets('two shelves differing by case alone each keep their own '
+        'books, as the core counts them', (tester) async {
+      await _render(
+        tester,
+        _Probe(
+          'place',
+          '/shelves?tag=Polar',
+          size: _tallPhone,
+          tags: [
+            ...tags,
+            Tag(id: 'pa', name: 'Polar', count: 1),
+            Tag(id: 'pb', name: 'POLAR', count: 1),
+          ],
+        ),
+        books: [
+          ...books,
+          filed('q1', 'Exact rug', 'Polar'),
+          // No shelf carries "polar": the first in name order, "POLAR", does.
+          filed('q2', 'Folded rug', 'polar'),
+        ],
+      );
+
+      expect(find.text('Exact rug'), findsWidgets);
+      expect(find.text('Folded rug'), findsNothing);
+    });
+
     testWidgets('the section title says no number: the head has the count', (
       tester,
     ) async {

@@ -46,6 +46,7 @@ import '../utils/book_filters.dart';
 import '../utils/bulk_shelving.dart';
 import '../utils/book_sort.dart';
 import '../utils/book_status.dart';
+import '../utils/shelf_spelling.dart';
 
 enum ViewMode {
   coverGrid, // Netflix style
@@ -1656,9 +1657,11 @@ class _BookListScreenState extends State<BookListScreen>
       if (shelf != null && _isPlacePage) {
         // The page of a shelf: its sub-shelves are cards above, the grid holds
         // what is filed right here. The tree of a shelf stays the filter of
-        // the books tab.
+        // the books tab. Whatever the case, as the core counts it.
+        final spelling = ShelfSpelling(_allTags.map((tag) => tag.name));
         shelfPredicate = (book) =>
-            book.subjects?.any((s) => s.trim() == shelf.name) ?? false;
+            book.subjects?.any((s) => spelling.shelfOf(s) == shelf.name) ??
+            false;
       } else if (shelf != null && _allTags.isNotEmpty) {
         // Get all matching tag names (this tag + descendants)
         final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);
