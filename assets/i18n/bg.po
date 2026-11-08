@@ -12591,3 +12591,11 @@ msgstr "Организиране на полиците"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "Плъзнете полица върху друга, за да я подредите в нея (на телефон: продължително докосване). Менюто „…“ прави същото с клавиатура и екранен четец."
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ Внимание: това нулиране ще се приложи на всички ваши устройства."
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "Първо това устройство ще излезе от вашия акаунт, така че другите ви устройства запазват данните си. То ще остане в списъка с устройства на акаунта: премахнете го от друго устройство."

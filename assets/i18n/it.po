@@ -12584,3 +12584,11 @@ msgstr "Organizza gli scaffali"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "Trascina uno scaffale su un altro per sistemarlo dentro (sul telefono, tieni premuto). Il menu «…» fa lo stesso con tastiera e lettore di schermo."
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ Attenzione: questo ripristino verrà applicato su tutti i tuoi dispositivi."
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "Questo dispositivo verrà prima disconnesso dal tuo account, così gli altri dispositivi conserveranno i loro dati. Resterà nell'elenco dei dispositivi dell'account: rimuovilo da un altro dispositivo."

@@ -12459,3 +12459,11 @@ msgstr "Organizar las estanterías"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "Arrastre una estantería sobre otra para colocarla dentro (en el teléfono, mantenga pulsado). El menú «…» hace lo mismo con teclado y lector de pantalla."
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ Atención: este restablecimiento se aplicará en todos tus dispositivos."
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "Primero se cerrará la sesión de este dispositivo en tu cuenta, para que tus otros dispositivos conserven sus datos. Seguirá en la lista de dispositivos de la cuenta: quítalo desde otro dispositivo."

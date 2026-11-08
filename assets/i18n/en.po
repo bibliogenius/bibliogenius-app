@@ -12606,3 +12606,11 @@ msgstr "Organize shelves"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "Drag a shelf onto another to file it inside (on a phone, press and hold). The \"…\" menu does the same by keyboard and screen reader."
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ Warning: this reset will apply to all your devices."
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "This device will first be signed out of your account, so your other devices keep their data. It will stay in the account's device list: remove it from another device."

@@ -12591,3 +12591,11 @@ msgstr "Rafları düzenle"
 #. Organize shelves screen, under its title: Drag a shelf onto another to file it inside (on a phone, press and hold). The "…" menu does the same by keyboard and screen reader.
 msgid "organize_hint"
 msgstr "Bir rafı başka bir rafın içine koymak için üzerine sürükleyin (telefonda basılı tutun). \"…\" menüsü aynısını klavye ve ekran okuyucuyla yapar."
+
+#. Settings > Reset: warning on the partial-reset confirmation when the account is installed on other devices
+msgid "reset_applies_to_all_devices"
+msgstr "⚠️ Dikkat: Bu sıfırlama tüm cihazlarınızda uygulanacak."
+
+#. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
+msgid "reset_full_signs_out_device"
+msgstr "Bu cihazın önce hesabınızdaki oturumu kapatılacak, böylece diğer cihazlarınız verilerini korur. Cihaz, hesabın cihaz listesinde kalacak: onu başka bir cihazdan kaldırın."

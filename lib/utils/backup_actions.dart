@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as io;
 
+import 'package:dio/dio.dart' show Response;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -821,9 +822,7 @@ class BackupActions {
   }
 
   static Future<void> _confirmAndResetBooks(BuildContext context) async {
-    final warning = await otherDevicesWarning(
-      context.read<AccountSyncProvider>(),
-    );
+    final warning = await _otherDevicesWarning(context);
     if (!context.mounted) return;
 
     final confirmed = await _showConfirmationDialog(
@@ -841,9 +840,7 @@ class BackupActions {
   ) async {
     final themeProvider = context.read<ThemeProvider>();
     final collectionsEnabled = themeProvider.collectionsEnabled;
-    final warning = await otherDevicesWarning(
-      context.read<AccountSyncProvider>(),
-    );
+    final warning = await _otherDevicesWarning(context);
     if (!context.mounted) return;
 
     final confirmed = await _showConfirmationDialog(
@@ -857,10 +854,18 @@ class BackupActions {
   }
 
   static Future<void> _confirmAndResetAll(BuildContext context) async {
+    // Local read, no network: whether the reset will sign this device out.
+    final accountSync = context.read<AccountSyncProvider>();
+    await accountSync.refreshStatus();
+    if (!context.mounted) return;
+    final signOutNotice = accountSync.signedIn
+        ? '\n\n${TranslationService.translate(context, 'reset_full_signs_out_device')}'
+        : '';
+
     final confirmed = await _showConfirmationDialog(
       context,
       'Réinitialisation complète ?',
-      '⚠️ ATTENTION : Cette action supprimera TOUTES vos données (livres, étagères, collections, paramètres). L\'application reviendra à son état initial. Cette action est IRRÉVERSIBLE.',
+      '⚠️ ATTENTION : Cette action supprimera TOUTES vos données (livres, étagères, collections, paramètres). L\'application reviendra à son état initial. Cette action est IRRÉVERSIBLE.$signOutNotice',
       isDestructive: true,
     );
     if (confirmed == true && context.mounted) {
@@ -868,21 +873,35 @@ class BackupActions {
     }
   }
 
-  /// Warning prefix for the partial resets, empty unless the account is
-  /// installed on other devices: their deletions replicate through account
-  /// sync like any other edit. When the device list cannot be fetched
-  /// (offline), a signed-in device warns anyway rather than stay silent.
+  /// Translated warning prefix for the partial resets, empty when they stay
+  /// on this device.
+  static Future<String> _otherDevicesWarning(BuildContext context) async {
+    final accountSync = context.read<AccountSyncProvider>();
+    final warning =
+        '${TranslationService.translate(context, 'reset_applies_to_all_devices')}\n\n';
+    // The device list comes from the network: without the overlay, an offline
+    // tap looks ignored until the request times out.
+    _showLoading(context);
+    try {
+      return await resetReachesOtherDevices(accountSync) ? warning : '';
+    } finally {
+      _hideLoading();
+    }
+  }
+
+  /// Whether a partial reset reaches other devices: true when the account is
+  /// installed on another one, since deletions replicate through account sync
+  /// like any other edit. When the device list cannot be fetched (offline), a
+  /// signed-in device answers true rather than stay silent.
   @visibleForTesting
-  static Future<String> otherDevicesWarning(
+  static Future<bool> resetReachesOtherDevices(
     AccountSyncProvider accountSync,
   ) async {
-    const warning =
-        '⚠️ Attention, cette réinitialisation s\'appliquera sur tous les appareils.\n\n';
     await accountSync.refreshStatus();
-    if (!accountSync.signedIn) return '';
+    if (!accountSync.signedIn) return false;
     await accountSync.refreshDevices();
-    if (accountSync.error != null) return warning;
-    return accountSync.devices.any((d) => !d.isSelf) ? warning : '';
+    if (accountSync.error != null) return true;
+    return accountSync.devices.any((d) => !d.isSelf);
   }
 
   /// Sign this device out of the account before a full reset, so the wipe
@@ -895,15 +914,24 @@ class BackupActions {
   ) async {
     await accountSync.refreshStatus();
     if (accountSync.error != null) {
-      throw Exception('statut du compte illisible (${accountSync.error})');
+      throw Exception('account status unreadable (${accountSync.error})');
     }
     if (!accountSync.signedIn) return;
     await accountSync.logout();
     if (accountSync.error != null || accountSync.signedIn) {
-      throw Exception(
-        'déconnexion du compte impossible (${accountSync.error})',
-      );
+      throw Exception('account sign-out failed (${accountSync.error})');
     }
+  }
+
+  /// `ApiService.resetApp` reports an FFI failure as a 500 response instead of
+  /// throwing: turn it into an exception so a failed reset takes the error
+  /// path instead of announcing success.
+  @visibleForTesting
+  static void ensureResetSucceeded(Response<dynamic> response) {
+    if (response.statusCode == 200) return;
+    final data = response.data;
+    final message = data is Map ? data['message'] : null;
+    throw Exception(message ?? 'reset failed (HTTP ${response.statusCode})');
   }
 
   static Future<bool?> _showConfirmationDialog(
@@ -1030,7 +1058,7 @@ class BackupActions {
     _showLoading(context);
     try {
       await signOutBeforeFullReset(accountSync);
-      await apiService.resetApp();
+      ensureResetSucceeded(await apiService.resetApp());
       await authService.clearAll();
       await themeProvider.resetSetup();
 
