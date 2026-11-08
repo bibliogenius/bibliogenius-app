@@ -891,13 +891,16 @@ class BackupActions {
 
   /// Whether a partial reset reaches other devices: true when the account is
   /// installed on another one, since deletions replicate through account sync
-  /// like any other edit. When the device list cannot be fetched (offline), a
-  /// signed-in device answers true rather than stay silent.
+  /// like any other edit. When the account status cannot be read, or the
+  /// device list cannot be fetched (offline), it answers true rather than stay
+  /// silent: a failed status read keeps the last known status, which may be
+  /// stale.
   @visibleForTesting
   static Future<bool> resetReachesOtherDevices(
     AccountSyncProvider accountSync,
   ) async {
     await accountSync.refreshStatus();
+    if (accountSync.error != null) return true;
     if (!accountSync.signedIn) return false;
     await accountSync.refreshDevices();
     if (accountSync.error != null) return true;

@@ -79,6 +79,13 @@ void main() {
       ffi.devicesError = Exception('offline');
       expect(await BackupActions.resetReachesOtherDevices(provider), isTrue);
     });
+
+    test('is true when the account status cannot be read', () async {
+      // The provider keeps its last known status on a failed read, here the
+      // initial signed-out one: the reset must not trust it and stay silent.
+      ffi.statusError = Exception('db locked');
+      expect(await BackupActions.resetReachesOtherDevices(provider), isTrue);
+    });
   });
 
   group('signOutBeforeFullReset', () {
