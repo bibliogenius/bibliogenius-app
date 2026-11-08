@@ -12599,3 +12599,15 @@ msgstr "⚠️ Dikkat: Bu sıfırlama tüm cihazlarınızda uygulanacak."
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "Bu cihazın önce hesabınızdaki oturumu kapatılacak, böylece diğer cihazlarınız verilerini korur. Cihaz, hesabın cihaz listesinde kalacak: onu başka bir cihazdan kaldırın."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "Sonunda uygulama kapanacak. Sıfırdan başlamak için simgesinden yeniden açın."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "Sıfırlama tamamlandı"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "Aşağıdaki düğmeyle uygulamayı kapatın, ardından simgesinden yeniden açın. Sıfırlama böylece tamamlanır."

@@ -12467,3 +12467,15 @@ msgstr "⚠️ Atención: este restablecimiento se aplicará en todos tus dispos
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "Primero se cerrará la sesión de este dispositivo en tu cuenta, para que tus otros dispositivos conserven sus datos. Seguirá en la lista de dispositivos de la cuenta: quítalo desde otro dispositivo."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "Al final, la aplicación se cerrará. Vuelve a abrirla desde su icono para empezar de cero."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "Restablecimiento completado"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "Cierra la aplicación con el botón de abajo y vuelve a abrirla desde su icono. Así se termina el restablecimiento."

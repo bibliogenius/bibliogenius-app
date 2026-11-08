@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io' as io;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -12,6 +11,7 @@ import '../services/auth_service.dart';
 import '../services/backup_prefs_whitelist.dart';
 import '../services/backup_scheduler_service.dart';
 import '../services/translation_service.dart';
+import '../utils/app_restart.dart';
 import '../src/rust/api/frb.dart' as rust;
 
 /// 7-step wizard that drives a full `.bgbackup` restore (ADR-037 §5).
@@ -397,8 +397,7 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
     // user relaunches manually. Avoids the in-process global state surgery
     // (OnceLock<DatabaseConnection>, OnceCell<CryptoService>, mDNS
     // refcounts) that would otherwise be required to swap the live DB.
-    if (kIsWeb) return;
-    io.exit(0);
+    closeAppForRestart();
   }
 
   // ---------------------------------------------------------------------------

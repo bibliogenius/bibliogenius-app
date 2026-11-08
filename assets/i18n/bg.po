@@ -12599,3 +12599,15 @@ msgstr "⚠️ Внимание: това нулиране ще се прило�
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "Първо това устройство ще излезе от вашия акаунт, така че другите ви устройства запазват данните си. То ще остане в списъка с устройства на акаунта: премахнете го от друго устройство."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "Накрая приложението ще се затвори. Отворете го отново от иконата му, за да започнете отначало."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "Нулирането завърши"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "Затворете приложението с бутона по-долу, след което го отворете отново от иконата му. Така нулирането приключва."

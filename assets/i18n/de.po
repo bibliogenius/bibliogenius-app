@@ -12468,3 +12468,15 @@ msgstr "⚠️ Achtung: Dieses Zurücksetzen gilt für alle Ihre Geräte."
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "Dieses Gerät wird zuerst von Ihrem Konto abgemeldet, damit Ihre anderen Geräte ihre Daten behalten. Es bleibt in der Geräteliste des Kontos: Entfernen Sie es von einem anderen Gerät aus."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "Am Ende wird die App geschlossen. Öffnen Sie sie über ihr Symbol erneut, um neu zu beginnen."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "Zurücksetzen abgeschlossen"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "Schließen Sie die App mit der Schaltfläche unten und öffnen Sie sie dann über ihr Symbol erneut. Damit wird das Zurücksetzen abgeschlossen."

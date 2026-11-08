@@ -12614,3 +12614,15 @@ msgstr "⚠️ Warning: this reset will apply to all your devices."
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "This device will first be signed out of your account, so your other devices keep their data. It will stay in the account's device list: remove it from another device."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "At the end, the app will close. Reopen it from its icon to start again."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "Reset complete"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "Close the app with the button below, then reopen it from its icon. This finishes the reset."

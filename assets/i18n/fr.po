@@ -12609,3 +12609,15 @@ msgstr "⚠️ Attention, cette réinitialisation s'appliquera sur tous les appa
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "Cet appareil sera d'abord déconnecté de votre compte : vos autres appareils conservent leurs données. Il restera dans la liste des appareils du compte ; retirez-le depuis un autre appareil."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "À la fin, l'application se fermera. Rouvrez-la depuis son icône pour repartir de zéro."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "Réinitialisation terminée"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "Fermez l'application avec le bouton ci-dessous, puis rouvrez-la depuis son icône. C'est ce qui termine la réinitialisation."

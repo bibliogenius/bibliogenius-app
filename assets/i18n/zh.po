@@ -12608,3 +12608,15 @@ msgstr "⚠️ 注意：此重置将应用于您的所有设备。"
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "此设备将先退出您的账号登录，因此您的其他设备会保留其数据。此设备仍会留在账号的设备列表中，请从另一台设备上将其移除。"
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "最后应用将关闭。请从图标重新打开它以从头开始。"
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "重置完成"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "请用下方按钮关闭应用，然后从图标重新打开。这样才能完成重置。"

@@ -12608,3 +12608,15 @@ msgstr "⚠️ 주의: 이 재설정은 모든 기기에 적용됩니다."
 #. Settings > Reset: full-reset confirmation note for a device signed in to an account (it is signed out first)
 msgid "reset_full_signs_out_device"
 msgstr "이 기기는 먼저 계정에서 로그아웃되므로 다른 기기의 데이터는 그대로 유지됩니다. 이 기기는 계정의 기기 목록에 남아 있으니 다른 기기에서 제거하세요."
+
+#. Settings > Reset: full-reset confirmation note, the app closes at the end and must be reopened
+msgid "reset_full_closes_app"
+msgstr "마지막에 앱이 닫힙니다. 처음부터 다시 시작하려면 아이콘에서 다시 여세요."
+
+#. Settings > Reset: title of the dialog that ends a full reset
+msgid "reset_full_done_title"
+msgstr "재설정 완료"
+
+#. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
+msgid "reset_full_restart_hint"
+msgstr "아래 버튼으로 앱을 닫은 다음 아이콘에서 다시 여세요. 그러면 재설정이 완료됩니다."

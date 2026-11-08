@@ -26,8 +26,10 @@ import '../services/backup_prefs_whitelist.dart';
 import '../services/mdns_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as rust;
+import 'app_restart.dart';
 import 'share_origin.dart';
 import '../widgets/passphrase_strength_meter.dart';
+import '../widgets/restart_required_dialog.dart';
 
 enum _MobileExportChoice { save, share }
 
@@ -861,11 +863,14 @@ class BackupActions {
     final signOutNotice = accountSync.signedIn
         ? '\n\n${TranslationService.translate(context, 'reset_full_signs_out_device')}'
         : '';
+    final closesAppNotice = appRestartRequired
+        ? '\n\n${TranslationService.translate(context, 'reset_full_closes_app')}'
+        : '';
 
     final confirmed = await _showConfirmationDialog(
       context,
       'Réinitialisation complète ?',
-      '⚠️ ATTENTION : Cette action supprimera TOUTES vos données (livres, étagères, collections, paramètres). L\'application reviendra à son état initial. Cette action est IRRÉVERSIBLE.$signOutNotice',
+      '⚠️ ATTENTION : Cette action supprimera TOUTES vos données (livres, étagères, collections, paramètres). L\'application reviendra à son état initial. Cette action est IRRÉVERSIBLE.$signOutNotice$closesAppNotice',
       isDestructive: true,
     );
     if (confirmed == true && context.mounted) {
@@ -1057,6 +1062,9 @@ class BackupActions {
     final refreshNotifier = context.read<BookRefreshNotifier>();
     final messenger = ScaffoldMessenger.of(context);
     final router = GoRouter.of(context);
+    // Captured now: the reset sends the router back to setup, which may
+    // unmount this context before the restart dialog opens.
+    final rootNavigator = Navigator.of(context, rootNavigator: true);
 
     _showLoading(context);
     try {
@@ -1072,6 +1080,17 @@ class BackupActions {
       refreshNotifier.refresh();
 
       _hideLoading();
+      if (appRestartRequired) {
+        // The engine still holds the previous identity and library_uuid in
+        // memory: anything sealed before a relaunch would be undecryptable
+        // under the new library_uuid on the next launch.
+        if (rootNavigator.mounted) {
+          await showRestartRequiredDialog(rootNavigator.context);
+        } else {
+          closeAppForRestart();
+        }
+        return;
+      }
       messenger.showSnackBar(
         const SnackBar(
           content: Text('Application réinitialisée avec succès.'),
