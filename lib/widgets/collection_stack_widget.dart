@@ -11,6 +11,7 @@ import '../utils/collection_display.dart';
 import 'book_cover_card.dart';
 import 'book_cover_grid.dart';
 import 'cached_book_cover.dart';
+import 'cover_grid_delegate.dart';
 import 'favorite_ribbon.dart';
 import 'selectable_book_tile.dart';
 
@@ -1085,11 +1086,9 @@ class CollectionGroupGrid extends StatelessWidget {
         newBadgeIsInformative([for (final g in groups) ...g.books]);
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: maxCoverExtent,
+      gridDelegate: CoverGridDelegate(
+        maxCoverExtent: maxCoverExtent,
         childAspectRatio: 0.72,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
       ),
       itemCount: groups.length,
       itemBuilder: (context, index) {
