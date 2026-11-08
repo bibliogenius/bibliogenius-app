@@ -1562,10 +1562,7 @@ class _BookListScreenState extends State<BookListScreen>
   Tag? get _openShelf {
     final current = _currentShelf;
     if (current != null) return current;
-    final name = _tagFilter;
-    if (name == null) return null;
-    return _allTags.where((t) => t.name == name).firstOrNull ??
-        Tag.byName(_allTags, name);
+    return Tag.shelfNamed(_allTags, _tagFilter);
   }
 
   /// Makes the open shelf read in its saved order, and resolves to whether

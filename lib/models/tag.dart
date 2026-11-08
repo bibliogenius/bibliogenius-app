@@ -316,6 +316,15 @@ class Tag {
     return null;
   }
 
+  /// The shelf a link or a filter named [name] opens: the one carrying it
+  /// exactly, else [byName]. Two shelves may differ by case alone, and the
+  /// exact one is the one the page shows.
+  static Tag? shelfNamed(List<Tag> allTags, String? name) {
+    if (name == null) return null;
+    return allTags.where((t) => t.name == name).firstOrNull ??
+        byName(allTags, name);
+  }
+
   /// First-level tags: no parent, or one that reads as none (see
   /// [effectiveParentId]). In [compareShelves] order.
   static List<Tag> getRootTags(List<Tag> allTags) =>

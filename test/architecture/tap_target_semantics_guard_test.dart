@@ -575,6 +575,9 @@ class _Harness {
   /// The query of the field in the library header, for the route below.
   final headerQuery = ValueNotifier<String>('');
 
+  /// What the scan button handed its route: the camera itself is not here.
+  Object? scanExtra;
+
   Widget app(String location) {
     final router = GoRouter(
       initialLocation: location,
@@ -632,6 +635,13 @@ class _Harness {
               pageBuilder: (_, state) => NoTransitionPage(
                 child: LibraryScreen.forShelvesUri(state.uri),
               ),
+            ),
+            GoRoute(
+              path: '/scan',
+              builder: (_, state) {
+                scanExtra = state.extra;
+                return const Scaffold();
+              },
             ),
             GoRoute(
               path: '/collections',
@@ -3519,6 +3529,40 @@ void main() {
               as Map<String, dynamic>;
       expect(extra['shelfId'], 'Kitchen');
       expect(extra['shelfName'], 'Kitchen');
+    });
+
+    group('beside a shelf that differs from it by case alone', () {
+      final twins = [...tags, Tag(id: 's7', name: 'novels', count: 1)];
+      final withTwin = [...books, filed('p9', 'Lower novel', 'novels')];
+      _Probe twinPage() => _Probe(
+        'place',
+        '/shelves?tag=novels',
+        size: _tallPhone,
+        tags: twins,
+      );
+
+      testWidgets('adding files on the shelf the page shows', (tester) async {
+        await _render(tester, twinPage(), books: withTwin);
+        expect(tester.widget<Text>(name).data, 'novels');
+
+        await _tap(tester, find.byIcon(Icons.add).last);
+
+        final extra =
+            GoRouterState.of(tester.element(find.byType(AddBookScreen))).extra!
+                as Map<String, dynamic>;
+        expect(extra['shelfId'], 'novels');
+        expect(extra['shelfName'], 'novels');
+      });
+
+      testWidgets('scanning does the same', (tester) async {
+        final harness = await _render(tester, twinPage(), books: withTwin);
+
+        await _tap(tester, find.byIcon(Icons.qr_code_scanner));
+
+        final extra = harness.scanExtra! as Map<String, dynamic>;
+        expect(extra['shelfId'], 'novels');
+        expect(extra['shelfName'], 'novels');
+      });
     });
 
     testWidgets('a first-level shelf: its name and counts, back to the shelves', (

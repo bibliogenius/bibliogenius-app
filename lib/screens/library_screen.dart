@@ -233,7 +233,8 @@ class _LibraryScreenState extends State<LibraryScreen>
   /// the name of the link would make a second shelf.
   String? get _openShelfName {
     final requested = widget.shelfTagFilter;
-    return Tag.byName(_knownTags ?? const [], requested)?.name ?? requested;
+    return Tag.shelfNamed(_knownTags ?? const [], requested)?.name ??
+        requested;
   }
 
   void _closeSearch() {
