@@ -12480,6 +12480,10 @@ msgstr "Rafları filtrele"
 msgid "shelf_already_exists"
 msgstr "zaten var"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "Bir raf adı en fazla %d karakter olabilir."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "zaten var, {path} içinde"

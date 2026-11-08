@@ -12489,6 +12489,10 @@ msgstr "책장 필터"
 msgid "shelf_already_exists"
 msgstr "이미 있습니다"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "책장 이름은 최대 %d자입니다."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "이미 있습니다 ({path} 안)"

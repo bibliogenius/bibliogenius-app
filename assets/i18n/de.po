@@ -12349,6 +12349,10 @@ msgstr "Regale filtern"
 msgid "shelf_already_exists"
 msgstr "existiert bereits"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "Ein Regalname hat höchstens %d Zeichen."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "existiert bereits, in {path}"

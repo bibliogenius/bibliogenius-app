@@ -117,6 +117,8 @@ Future<bool> moveShelf(
 }) async {
   final repo = Provider.of<TagRepository>(context, listen: false);
   final messenger = ScaffoldMessenger.of(context);
+  // Translated now: the context may be gone once the write or Undo fails.
+  final failed = TranslationService.translate(context, 'error_update');
   final String movedId;
   try {
     final parentId = (await shelfWithRow(repo, parent))?.id;
@@ -135,7 +137,7 @@ Future<bool> moveShelf(
     // Replaces an Undo still up rather than queueing behind it.
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(e.toString())));
+      ..showSnackBar(SnackBar(content: Text(failed)));
     return false;
   }
   if (!context.mounted) return true;
@@ -153,7 +155,7 @@ Future<bool> moveShelf(
     final shown = AppSnackBar.undoable(
       context,
       text,
-      onUndo: () => _undoMove(repo, messenger, movedId, undo),
+      onUndo: () => _undoMove(repo, messenger, movedId, undo, failed),
     );
     undo.onShown?.call(shown);
   }
@@ -166,12 +168,14 @@ Future<bool> moveShelf(
 /// parent, while the message was up. A rename is kept; a parent gone (or
 /// one with no row) leaves the first level, where the tree shows a shelf
 /// whose parent is missing. A shelf that got its row from the move keeps
-/// it: deleting the row would take the name off its books.
+/// it: deleting the row would take the name off its books. A failure shows
+/// [failedMessage].
 Future<void> _undoMove(
   TagRepository repo,
   ScaffoldMessengerState messenger,
   String movedId,
   ShelfMoveUndo undo,
+  String failedMessage,
 ) async {
   try {
     final tags = await repo.getTags();
@@ -189,10 +193,10 @@ Future<void> _undoMove(
   } catch (e) {
     // The core refuses a parent that has become one of the shelf's own
     // sub-shelves meanwhile.
-    debugPrint('Move shelf: undo failed: ${e.runtimeType}');
+    debugPrint('Move shelf: undo failed: $e');
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(SnackBar(content: Text(e.toString())));
+      ..showSnackBar(SnackBar(content: Text(failedMessage)));
     return;
   }
   undo.onUndone();

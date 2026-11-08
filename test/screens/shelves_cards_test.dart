@@ -25,11 +25,15 @@ import 'package:bibliogenius/widgets/shelf_thumbnail.dart';
 class _Repo implements TagRepository {
   List<Tag> tags;
   int unshelved = 0;
+  bool failReads = false;
 
   _Repo(this.tags);
 
   @override
-  Future<List<Tag>> getTags() async => tags;
+  Future<List<Tag>> getTags() async {
+    if (failReads) throw Exception('database is locked');
+    return tags;
+  }
 
   @override
   Future<int> countUnshelvedBooks() async => unshelved;
@@ -61,6 +65,8 @@ const _catalogue = {
     'to_shelve_count': '%d book on no shelf',
     'to_shelve_count_plural': '%d books on no shelf',
     'to_shelve_hide': 'Hide "To shelve" until more books need shelving',
+    'error_loading_page': 'Error loading page',
+    'retry': 'Retry',
   },
 };
 
@@ -156,6 +162,17 @@ void main() {
   /// Whether two cards share a row.
   bool columns2(WidgetTester tester, String a, String b) =>
       tester.getTopLeft(_card(a)).dy == tester.getTopLeft(_card(b)).dy;
+
+  testWidgets('shelves that cannot load say so in a sentence', (tester) async {
+    repo.failReads = true;
+    await pump(tester);
+
+    expect(find.text('Error loading page'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.textContaining('database is locked'), findsNothing);
+    // Not in English whatever the language.
+    expect(find.text('Error loading shelves'), findsNothing);
+  });
 
   group('the grid', () {
     const cases = [

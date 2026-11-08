@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../data/repositories/tag_repository.dart';
@@ -6,6 +7,7 @@ import '../models/tag.dart';
 import '../services/quick_action_registry.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
+import '../utils/shelf_name_rules.dart';
 import 'configurable_action_card.dart';
 import '../screens/invite_screen.dart';
 
@@ -445,16 +447,10 @@ class QuickActionsSheet extends StatelessWidget {
                                 'e.g. Science Fiction',
                             border: const OutlineInputBorder(),
                           ),
-                          validator: (value) {
-                            if (value == null || value.trim().isEmpty) {
-                              return TranslationService.translate(
-                                    stateContext,
-                                    'field_required',
-                                  ) ??
-                                  'This field is required';
-                            }
-                            return null;
-                          },
+                          maxLength: maxShelfNameLength,
+                          maxLengthEnforcement: MaxLengthEnforcement.none,
+                          validator: (value) =>
+                              shelfNameError(stateContext, value, shelves),
                         ),
                         if (AppConstants.enableHierarchicalTags &&
                             shelves.isNotEmpty) ...[
@@ -519,6 +515,10 @@ class QuickActionsSheet extends StatelessWidget {
                                 'shelf_created',
                               ) ??
                               'Shelf created';
+                          final failedText = TranslationService.translate(
+                            context,
+                            'tag_creation_error',
+                          );
 
                           Navigator.pop(dialogContext);
                           Navigator.pop(context);
@@ -528,19 +528,16 @@ class QuickActionsSheet extends StatelessWidget {
                               controller.text.trim(),
                               parentId: selectedParentId,
                             );
+                            // The theme's bar: its text is vetted on it,
+                            // white on green or red is not.
                             messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(successText),
-                                backgroundColor: Colors.green,
-                              ),
+                              SnackBar(content: Text(successText)),
                             );
                             onShelfCreated?.call();
                           } catch (e) {
+                            debugPrint('Quick actions: shelf not created: $e');
                             messenger.showSnackBar(
-                              SnackBar(
-                                content: Text(e.toString()),
-                                backgroundColor: Colors.red,
-                              ),
+                              SnackBar(content: Text(failedText)),
                             );
                           }
                         }

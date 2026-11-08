@@ -12489,6 +12489,10 @@ msgstr "筛选书架"
 msgid "shelf_already_exists"
 msgstr "已存在"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "书架名称最多 %d 个字符。"
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "已存在，位于 {path}"

@@ -26,12 +26,15 @@ class _RecordingTagRepository implements TagRepository {
   final List<Tag> deleted = [];
   int reads = 0;
   int unshelved = 0;
+  bool failReads = false;
+  bool failDeletes = false;
 
   _RecordingTagRepository(this.tags);
 
   @override
   Future<List<Tag>> getTags() async {
     reads++;
+    if (failReads) throw Exception(_raw);
     return tags;
   }
 
@@ -51,13 +54,20 @@ class _RecordingTagRepository implements TagRepository {
 
   @override
   Future<void> deleteShelf(Tag tag) async {
+    if (failDeletes) throw Exception(_raw);
     deleted.add(tag);
     tags = tags.where((t) => t.id != tag.id).toList();
   }
 }
 
+/// What the core says when a call fails: never for the reader's eyes.
+const _raw = 'database is locked';
+
 const _catalogue = {
   'en': {
+    'error_loading_page': 'Error loading page',
+    'error_generic': 'An error occurred',
+    'retry': 'Retry',
     'shelves': 'Shelves',
     'all_shelves': 'All shelves',
     'book': 'book',
@@ -207,6 +217,32 @@ void main() {
 
     expect(repo.deleted.map((t) => t.name), ['Thriller']);
     expect(find.text('Thriller'), findsNothing);
+  });
+
+  testWidgets('a tree that cannot load says so in a sentence', (tester) async {
+    repo.failReads = true;
+    await pump(tester);
+
+    expect(find.text('Error loading page'), findsOneWidget);
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.textContaining(_raw), findsNothing);
+  });
+
+  testWidgets('a deletion that fails says so in a sentence, and the shelf '
+      'comes back', (tester) async {
+    await pump(tester);
+    repo.failDeletes = true;
+
+    await tester.tap(find.byTooltip('Actions for Thriller'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete shelf'));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 6));
+    await tester.pumpAndSettle();
+
+    expect(find.text('An error occurred'), findsOneWidget);
+    expect(find.textContaining(_raw), findsNothing);
+    expect(find.text('Thriller'), findsOneWidget);
   });
 
   testWidgets('a book change elsewhere reloads the tree and keeps what the '

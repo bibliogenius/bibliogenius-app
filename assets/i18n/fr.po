@@ -12490,6 +12490,10 @@ msgstr "Filtrer les étagères"
 msgid "shelf_already_exists"
 msgstr "existe déjà"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "Un nom d'étagère compte %d caractères au plus."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "existe déjà, dans {path}"

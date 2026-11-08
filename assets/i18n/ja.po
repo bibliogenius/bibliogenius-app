@@ -12489,6 +12489,10 @@ msgstr "本棚を絞り込む"
 msgid "shelf_already_exists"
 msgstr "既にあります"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "本棚の名前は%d文字までです。"
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "既にあります（{path} 内）"

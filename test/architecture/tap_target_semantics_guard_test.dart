@@ -5969,7 +5969,7 @@ void main() {
       await _letMessagesGo(tester);
     });
 
-    testWidgets('a deletion the core refuses comes back with its error, and '
+    testWidgets('a deletion the core refuses comes back with a message, and '
         'the next one keeps waiting on its Undo', (tester) async {
       final harness = await _render(tester, tree);
       harness.tags
@@ -5987,8 +5987,10 @@ void main() {
 
       await _letMessagesGo(tester);
       expect(harness.tags.deleted, ['Crime']);
-      // The error waited its turn.
-      expect(_messageText('core refused'), findsOneWidget);
+      // The error waited its turn, in words: the core's own stays in the
+      // logs.
+      expect(_messageText('An error occurred'), findsOneWidget);
+      expect(find.textContaining('core refused'), findsNothing);
       await _letMessagesGo(tester);
     });
 

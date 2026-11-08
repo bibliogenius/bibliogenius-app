@@ -12480,6 +12480,10 @@ msgstr "Филтриране на полиците"
 msgid "shelf_already_exists"
 msgstr "вече съществува"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "Името на полица може да е най-много %d знака."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "вече съществува, в {path}"

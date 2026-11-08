@@ -12473,6 +12473,10 @@ msgstr "Filtra gli scaffali"
 msgid "shelf_already_exists"
 msgstr "esiste già"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "Il nome di uno scaffale ha al massimo %d caratteri."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "esiste già, in {path}"

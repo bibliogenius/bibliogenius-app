@@ -8,6 +8,7 @@ import '../services/recent_shelves_store.dart';
 import '../services/shelf_rows.dart';
 import '../services/translation_service.dart';
 import '../utils/book_genres.dart';
+import '../utils/shelf_name_rules.dart';
 import '../utils/shelf_spelling.dart';
 import 'shelf_placement_tree.dart';
 import 'shelf_thumbnail.dart';
@@ -377,7 +378,7 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
 
   /// Creates [name] under [parent] (null: first level) and checks it.
   Future<void> _create(String name, Tag? parent) async {
-    if (name.isEmpty || _isCreating) return;
+    if (name.isEmpty || shelfNameTooLong(name) || _isCreating) return;
     setState(() => _isCreating = true);
     final repo = Provider.of<TagRepository>(context, listen: false);
     try {
@@ -441,6 +442,8 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
       if (!_selectedIds.contains(taken.id)) _toggleTag(taken);
       return;
     }
+    // The field says why nothing is offered.
+    if (shelfNameTooLong(_searchQuery)) return;
     _create(_searchQuery, null);
   }
 
@@ -670,7 +673,21 @@ class _ShelfPickerSheetState extends State<_ShelfPickerSheet> {
 
     return [
       const SizedBox(height: 4),
-      if (taken == null)
+      if (taken == null && shelfNameTooLong(_searchQuery))
+        // Searching goes on; only a shelf by that name is not offered.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+          child: Semantics(
+            liveRegion: true,
+            child: Text(
+              shelfNameTooLongMessage(context),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        )
+      else if (taken == null)
         _buildCreateBlock(theme)
       else ...[
         _buildRow(taken, subtitle: existsLine(taken)),

@@ -85,7 +85,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
   /// up to that number.
   int _toShelveDismissedAt = 0;
   bool _isLoading = true;
-  String? _error;
+  /// The last listing failed: its detail is in the logs, not on screen.
+  bool _failed = false;
   BookRefreshNotifier? _bookRefreshNotifier;
 
   /// Where the focus goes when the cross takes itself off the screen.
@@ -178,13 +179,14 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
         _shownCache = null;
         _unshelvedCount = unshelved;
         _toShelveDismissedAt = dismissedAt;
-        _error = null;
+        _failed = false;
         _isLoading = false;
       });
     } catch (e) {
+      debugPrint('ShelvesScreen: listing failed: $e');
       if (!mounted || generation != _actions.generation) return;
       setState(() {
-        _error = e.toString();
+        _failed = true;
         _isLoading = false;
       });
     }
@@ -369,8 +371,8 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    if (_error != null) {
-      return _buildErrorState(_error!);
+    if (_failed) {
+      return _buildErrorState();
     }
     final showToShelve = _unshelvedCount > _toShelveDismissedAt;
 
@@ -669,26 +671,24 @@ class _ShelvesScreenState extends State<ShelvesScreen> {
     );
   }
 
-  Widget _buildErrorState(String error) {
+  Widget _buildErrorState() {
+    final theme = Theme.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: theme.colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(
-              'Error loading shelves',
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(color: Colors.red),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error,
+              TranslationService.translate(context, 'error_loading_page'),
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.grey[600]),
+              style: theme.textTheme.titleLarge,
             ),
             const SizedBox(height: 24),
             ElevatedButton.icon(

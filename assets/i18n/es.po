@@ -12348,6 +12348,10 @@ msgstr "Filtrar estanterías"
 msgid "shelf_already_exists"
 msgstr "ya existe"
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr "El nombre de una estantería tiene como máximo %d caracteres."
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr "ya existe, en {path}"

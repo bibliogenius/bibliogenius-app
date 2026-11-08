@@ -38,7 +38,8 @@ class _OrganizeShelvesScreenState extends State<OrganizeShelvesScreen> {
 
   List<Tag> _allTags = [];
   bool _isLoading = true;
-  String? _error;
+  /// The last listing failed: its detail is in the logs, not on screen.
+  bool _failed = false;
 
   /// Something here changed what the screens behind show.
   bool _changed = false;
@@ -105,13 +106,14 @@ class _OrganizeShelvesScreenState extends State<OrganizeShelvesScreen> {
         _allTags = tags;
         _actions.listingLanded(generation);
         _shownCache = null;
-        _error = null;
+        _failed = false;
         _isLoading = false;
       });
     } catch (e) {
+      debugPrint('Organize shelves: listing failed: $e');
       if (!mounted || generation != _actions.generation) return;
       setState(() {
-        _error = e.toString();
+        _failed = true;
         _isLoading = false;
       });
     }
@@ -332,15 +334,17 @@ class _OrganizeShelvesScreenState extends State<OrganizeShelvesScreen> {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    final error = _error;
-    if (error != null) {
+    if (_failed) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(error, textAlign: TextAlign.center),
+              Text(
+                TranslationService.translate(context, 'error_loading_page'),
+                textAlign: TextAlign.center,
+              ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
                 onPressed: _loadTags,

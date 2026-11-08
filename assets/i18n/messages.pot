@@ -12421,6 +12421,10 @@ msgstr ""
 msgid "shelf_already_exists"
 msgstr ""
 
+#. A shelf name can be %d characters at most.
+msgid "shelf_name_too_long"
+msgstr ""
+
 #. already exists, in {path}
 msgid "shelf_already_exists_in"
 msgstr ""

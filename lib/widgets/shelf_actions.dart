@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../data/repositories/tag_repository.dart';
@@ -9,6 +10,7 @@ import '../providers/sort_preference_provider.dart';
 import '../services/shelf_rows.dart';
 import '../services/translation_service.dart';
 import '../utils/app_constants.dart';
+import '../utils/shelf_name_rules.dart';
 import 'app_snack_bar.dart';
 import 'delete_shelf_dialog.dart';
 
@@ -164,7 +166,11 @@ class ShelfActionsController extends ChangeNotifier
       if (context == null || !context.mounted) return;
       // Replacing the message of a deletion still waiting on its Undo
       // would send that one too: the error waits its turn.
-      AppSnackBar.error(context, e.toString(), queue: _pending != null);
+      AppSnackBar.error(
+        context,
+        TranslationService.translate(context, 'error_generic'),
+        queue: _pending != null,
+      );
       return;
     }
     if (!_disposed) {
@@ -214,24 +220,6 @@ class _PendingShelfDeletion {
   }
 }
 
-/// What is wrong with [value] as the name of a shelf among [tags], if anything.
-/// The shelf being renamed may keep its name in another case.
-String? _shelfNameError(
-  BuildContext context,
-  String? value,
-  List<Tag> tags, {
-  Tag? renaming,
-}) {
-  final name = value?.trim() ?? '';
-  if (name.isEmpty) {
-    return TranslationService.translate(context, 'field_required');
-  }
-  final others = tags.where((t) => t.name != renaming?.name).toList();
-  return shelfTakenBy(others, name) == null
-      ? null
-      : TranslationService.translate(context, 'shelf_already_exists');
-}
-
 /// Asks for a new name for [tag], writes it and offers Undo.
 ///
 /// [allTags] is the stored tree: the one shown moves the sub-shelves of a
@@ -268,7 +256,11 @@ void showRenameShelfDialog(
                   ),
                   border: const OutlineInputBorder(),
                 ),
-                validator: (value) => _shelfNameError(
+                maxLength: maxShelfNameLength,
+                // Counted, never cut: a longer name already there stays whole
+                // while edited, and the validator says what to do.
+                maxLengthEnforcement: MaxLengthEnforcement.none,
+                validator: (value) => shelfNameError(
                   dialogContext,
                   value,
                   allTags,
@@ -330,17 +322,31 @@ Future<void> _writeRename(
       context,
       'shelf_undo_name_taken',
     ).replaceAll('%s', tag.name);
+    final failed = TranslationService.translate(context, 'error_update');
     onUndoShown(
       AppSnackBar.undoable(
         context,
         TranslationService.translate(context, 'shelf_updated'),
-        onUndo: () =>
-            _undoRename(repo, messenger, row.id, tag.name, taken, onUndone),
+        onUndo: () => _undoRename(
+          repo,
+          messenger,
+          row.id,
+          tag.name,
+          taken,
+          failed,
+          onUndone,
+        ),
       ),
     );
     onRenamed(name);
   } catch (e) {
-    if (context.mounted) AppSnackBar.error(context, e.toString());
+    debugPrint('Shelf actions: rename failed: $e');
+    if (context.mounted) {
+      AppSnackBar.error(
+        context,
+        TranslationService.translate(context, 'error_update'),
+      );
+    }
   }
 }
 
@@ -348,13 +354,15 @@ Future<void> _writeRename(
 ///
 /// Read afresh: names are unique byte for byte, and one taken by another
 /// shelf since stays with it; the rename then holds, and the reader is
-/// told why. A move made meanwhile is kept.
+/// told why. A move made meanwhile is kept. The messages are translated
+/// beforehand: the context may be gone by the time Undo is tapped.
 Future<void> _undoRename(
   TagRepository repo,
   ScaffoldMessengerState messenger,
   String id,
   String previousName,
   String takenMessage,
+  String failedMessage,
   VoidCallback onUndone,
 ) async {
   try {
@@ -379,9 +387,8 @@ Future<void> _undoRename(
     debugPrint('Shelf actions: undo of a rename failed: ${e.runtimeType}');
     messenger
       ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
-      );
+      // The theme's bar: its text is vetted on it, white on red is not.
+      ..showSnackBar(SnackBar(content: Text(failedMessage)));
     return;
   }
   onUndone();
@@ -431,8 +438,10 @@ void showNewShelfDialog(
                       ),
                       border: const OutlineInputBorder(),
                     ),
+                    maxLength: maxShelfNameLength,
+                    maxLengthEnforcement: MaxLengthEnforcement.none,
                     validator: (value) =>
-                        _shelfNameError(context, value, shownTags),
+                        shelfNameError(context, value, shownTags),
                   ),
                   // Only if hierarchical tags are enabled and shelves exist.
                   if (AppConstants.enableHierarchicalTags &&
@@ -525,6 +534,12 @@ Future<void> _writeNewShelf(
     );
     onCreated();
   } catch (e) {
-    if (context.mounted) AppSnackBar.error(context, e.toString());
+    debugPrint('Shelf actions: creating a shelf failed: $e');
+    if (context.mounted) {
+      AppSnackBar.error(
+        context,
+        TranslationService.translate(context, 'tag_creation_error'),
+      );
+    }
   }
 }

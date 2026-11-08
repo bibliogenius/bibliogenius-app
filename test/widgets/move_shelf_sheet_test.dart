@@ -75,6 +75,7 @@ void main() {
         'shelf_current_place': 'Current place',
         'shelf_moved_under': '{name} moved under {parent}',
         'shelf_moved_to_first_level': '{name} moved to the first level',
+        'error_update': 'Update failed',
       },
     });
   });
@@ -137,7 +138,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.textContaining('moved'), findsNothing);
-    expect(find.textContaining('refused'), findsOneWidget);
+    expect(find.text('Update failed'), findsOneWidget);
+    // The core's own error stays in the logs.
+    expect(find.textContaining('refused'), findsNothing);
     expect(results, [false]);
   });
 }
