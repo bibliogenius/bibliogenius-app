@@ -453,10 +453,12 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     final entries = _visibleEntries(children);
     final forbidden = _forbiddenIds;
     // Each item keyed by its shelf, so that a reload during a drag keeps
-    // the element of the row in hand instead of handing it another shelf.
+    // the element of the row in hand instead of handing it another shelf,
+    // and a rename keeps the row, and the focus on it. Not by name, which a
+    // rename changes, nor by a `legacy:` id, which every listing renumbers.
     final indexOfKey = <String, int>{
       for (var i = 0; i < entries.length; i++)
-        _itemKey(entries[i].tag.id): i,
+        _itemKey(entries[i].tag.stableKey): i,
     };
 
     // The zone lies over the tree rather than in it: a list that made room
@@ -487,7 +489,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
                         _position = Scrollable.maybeOf(context)?.position;
                         final entry = entries[index];
                         return KeyedSubtree(
-                          key: ValueKey(_itemKey(entry.tag.id)),
+                          key: ValueKey(_itemKey(entry.tag.stableKey)),
                           child: _buildRow(
                             entry,
                             hasChildren:
@@ -515,8 +517,8 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
     );
   }
 
-  static String _itemKey(String? shelfId) =>
-      shelfId == null ? 'shelfTreeItem:header' : 'shelfTreeItem:$shelfId';
+  static String _itemKey(String? shelfKey) =>
+      shelfKey == null ? 'shelfTreeItem:header' : 'shelfTreeItem:$shelfKey';
 
   Widget _buildSearchField() {
     return Padding(
@@ -626,7 +628,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
         final saysDrag = hovered || tag.id == _dragged?.id;
         final fullSubtitle = _subtitle(entry, counts, hovered: hovered);
         Widget row = ShelfTreeRow(
-          key: ValueKey('shelfTreeRow:${tag.name}'),
+          key: ValueKey('shelfTreeRow:${tag.stableKey}'),
           name: tag.name,
           depth: entry.depth,
           subtitle: foldable
@@ -764,7 +766,7 @@ class _ShelfTreeViewState extends State<ShelfTreeView> {
       onDragStarted: () => _onDragStarted(tag),
       onDragEnd: (_) => _onDragEnded(),
       child: IconButton(
-        key: ValueKey('shelfTreeHandle:${tag.name}'),
+        key: ValueKey('shelfTreeHandle:${tag.stableKey}'),
         icon: const Icon(Icons.drag_indicator),
         tooltip: _t('move_shelf_named').replaceAll('{name}', tag.name),
         onPressed: () => widget.onMoveRequested(tag),

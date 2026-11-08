@@ -891,12 +891,28 @@ Future<void> _openShelfPicker(WidgetTester tester) async {
   await _tap(tester, add);
 }
 
+/// Whether [widget] carries a key of the tree starting with [prefix]. The
+/// tree keys its rows by shelf, not by name: a rename keeps the row.
+bool _keyedAs(Widget widget, String prefix) =>
+    widget.key is ValueKey<String> &&
+    (widget.key! as ValueKey<String>).value.startsWith(prefix);
+
 /// The row of the shelves tab tree for the shelf named [name].
-Finder _treeRow(String name) => find.byKey(ValueKey('shelfTreeRow:$name'));
+Finder _treeRow(String name, {bool skipOffstage = true}) =>
+    find.byWidgetPredicate(
+      (w) =>
+          w is ShelfTreeRow &&
+          w.name == name &&
+          _keyedAs(w, 'shelfTreeRow:'),
+      skipOffstage: skipOffstage,
+    );
 
 /// The drag handle of that row, also its "Move <name>" button.
-Finder _treeHandle(String name) =>
-    find.byKey(ValueKey('shelfTreeHandle:$name'));
+Finder _treeHandle(String name, {bool skipOffstage = true}) => find.descendant(
+  of: _treeRow(name, skipOffstage: skipOffstage),
+  matching: find.byWidgetPredicate((w) => _keyedAs(w, 'shelfTreeHandle:')),
+  skipOffstage: skipOffstage,
+);
 
 /// The drop zone a drag shows at the head of the tree.
 final _firstLevelZone = find.byKey(const Key('shelfTreeFirstLevelZone'));
@@ -2982,7 +2998,7 @@ void main() {
       // Held at the bottom edge: the list scrolls the picked row out of
       // its cache, which unmounts it.
       final mounted = find.byKey(
-        const ValueKey('shelfTreeHandle:Shelf 01'),
+        const ValueKey('shelfTreeHandle:m1'),
         skipOffstage: false,
       );
       final list = tester.getRect(find.byKey(const Key('shelfTreeList')));
@@ -5088,7 +5104,7 @@ void main() {
 
         await pick(tester, 'Organize shelves');
 
-        expect(find.byKey(const ValueKey('shelfTreeRow:Crime')), findsOneWidget);
+        expect(_treeRow('Crime'), findsOneWidget);
       });
 
       testWidgets('deleting goes up to the parent at once, without the shelf '

@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bibliogenius/models/tag.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/widgets/shelf_tree_view.dart';
+import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
 
 /// The tree on its own, outside the library tab: there the list scrolls by
 /// itself, with no NestedScrollView around it to absorb the edge scroll.
@@ -57,7 +58,7 @@ void main() {
     ]);
     // Mounted, on screen or in the list's cache.
     final handle = find.byKey(
-      const ValueKey('shelfTreeHandle:Shelf 001'),
+      const ValueKey('shelfTreeHandle:m1'),
       skipOffstage: false,
     );
 
@@ -90,7 +91,9 @@ void main() {
       for (var i = 1; i <= 200; i++)
         Tag(id: 'm$i', name: 'Shelf ${'$i'.padLeft(3, '0')}', count: 1),
     ]);
-    Finder row(String name) => find.byKey(ValueKey('shelfTreeRow:$name'));
+    Finder row(String name) => find.byWidgetPredicate(
+      (w) => w is ShelfTreeRow && w.name == name,
+    );
 
     final finger = await tester.startGesture(
       tester.getCenter(row('Shelf 001')),

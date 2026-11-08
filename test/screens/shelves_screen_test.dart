@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,7 @@ import 'package:bibliogenius/providers/ownership_preference_provider.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/screens/organize_shelves_screen.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/widgets/shelf_tree_rows.dart';
 
 /// The shelves tab tree: what a shelf row tells the reader, what its tap
 /// does, and when the tree reloads.
@@ -46,8 +48,16 @@ class _RecordingTagRepository implements TagRepository {
       Tag(id: 'new', name: name, parentId: parentId, count: 0);
 
   @override
-  Future<Tag> updateTag(String uuid, String name, {String? parentId}) async =>
-      Tag(id: uuid, name: name, parentId: parentId, count: 0);
+  Future<Tag> updateTag(String uuid, String name, {String? parentId}) async {
+    final renamed = Tag(id: uuid, name: name, parentId: parentId, count: 0);
+    tags = [
+      for (final t in tags)
+        t.id == uuid
+            ? Tag(id: uuid, name: name, parentId: parentId, count: t.count)
+            : t,
+    ];
+    return renamed;
+  }
 
   @override
   Future<void> deleteTag(String uuid) async {}
@@ -87,6 +97,10 @@ const _catalogue = {
     'delete': 'Delete',
     'cancel': 'Cancel',
     'edit_shelf': 'Edit',
+    'update': 'Update',
+    'shelf_name': 'Shelf name',
+    'shelf_updated': 'Shelf updated',
+    'action_undo': 'Undo',
     'scan_into_shelf': 'Scan into this shelf',
     'back': 'Back',
     'view': 'View',
@@ -217,6 +231,61 @@ void main() {
 
     expect(repo.deleted.map((t) => t.name), ['Thriller']);
     expect(find.text('Thriller'), findsNothing);
+  });
+
+  /// Presses [key] until the focus sits on the control showing [target].
+  Future<void> moveFocusTo(
+    WidgetTester tester,
+    Finder target,
+    LogicalKeyboardKey key,
+  ) async {
+    bool focused() {
+      final node = FocusManager.instance.primaryFocus;
+      // A scope holds the whole menu or dialog: not yet one control.
+      if (node == null || node is FocusScopeNode) return false;
+      return find
+          .descendant(
+            of: find.byElementPredicate((e) => e == node.context),
+            matching: target,
+          )
+          .evaluate()
+          .isNotEmpty;
+    }
+
+    for (var i = 0; i < 10 && !focused(); i++) {
+      await tester.sendKeyEvent(key);
+      await tester.pumpAndSettle();
+    }
+    expect(focused(), isTrue, reason: 'the keyboard reaches $target');
+  }
+
+  // The row was keyed by its name: a rename built a new one, and the focus
+  // the dialog handed back went to a node that no longer existed.
+  testWidgets('a rename from the keyboard leaves the focus on the renamed '
+      'row', (tester) async {
+    await pump(tester);
+    final menu = find.descendant(
+      of: find.byTooltip('Actions for Roman'),
+      matching: find.byIcon(Icons.more_vert),
+    );
+    Focus.of(tester.element(menu)).requestFocus();
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    await moveFocusTo(tester, find.text('Edit'), LogicalKeyboardKey.arrowDown);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    // The name field has the focus: typing replaces the name.
+    await tester.enterText(find.byType(TextFormField), 'Romans');
+    await moveFocusTo(tester, find.text('Update'), LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Romans'), findsOneWidget);
+    final focused = FocusManager.instance.primaryFocus?.context;
+    expect(focused, isNotNull);
+    final row = focused!.findAncestorWidgetOfExactType<ShelfTreeRow>();
+    expect(row?.name, 'Romans', reason: 'the focus stays on its row');
   });
 
   testWidgets('a tree that cannot load says so in a sentence', (tester) async {
