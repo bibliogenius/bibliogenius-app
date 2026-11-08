@@ -3746,6 +3746,66 @@ void main() {
       expect(find.text('#Novels'), findsOneWidget);
     });
 
+    group('under a search of the library', () {
+      final field = find.byType(TextField);
+      final results = find.byKey(const Key('wholeLibraryResultsHeading'));
+      final emptyResult = find.byType(PremiumEmptyState);
+
+      /// Searches from the Books tab, then opens the shelf: the field of the
+      /// header carries the query there, as it does in the app.
+      Future<void> searchThenOpen(WidgetTester tester, String query) async {
+        await _render(
+          tester,
+          _Probe('books', '/books', size: _tallPhone, tags: tags),
+          books: books,
+        );
+        await _tap(tester, find.byIcon(Icons.search).first);
+        await tester.enterText(field, query);
+        await tester.pump(const Duration(milliseconds: 350));
+        await _settle(tester);
+        GoRouter.of(
+          tester.element(find.byType(LibraryScreen)),
+        ).go('/shelves?tag=Living+room');
+        await _settle(tester);
+      }
+
+      testWidgets('its results are titled as the whole library\'s, under the '
+          'head, without the sub-shelf cards', (tester) async {
+        await searchThenOpen(tester, 'lamp');
+
+        expect(tester.widget<Text>(name).data, 'Living room');
+        expect(
+          find.descendant(
+            of: results,
+            matching: find.text('Results in the whole library'),
+          ),
+          findsOneWidget,
+        );
+        expect(tester.getSemantics(results).flagsCollection.isHeader, isTrue);
+        expect(heading, findsNothing);
+        expect(subCard('Novels'), findsNothing);
+        expect(find.byKey(const Key('subShelvesMarker')), findsNothing);
+        // The head still counts them: they are still there.
+        expect(find.textContaining('1 sub-shelf'), findsWidgets);
+        expect(find.text('Old lamp'), findsWidgets);
+      });
+
+      testWidgets('an empty result keeps the title, and leaving the search '
+          'brings the shelf back', (tester) async {
+        await searchThenOpen(tester, 'zzzzzz');
+
+        expect(emptyResult, findsOneWidget);
+        expect(results, findsOneWidget);
+        expect(subCard('Novels'), findsNothing);
+
+        await _tap(tester, find.text('Reset'));
+
+        expect(results, findsNothing);
+        expect(heading, findsOneWidget);
+        expect(subCard('Novels'), findsOneWidget);
+      });
+    });
+
     group('its reset pill', () {
       final reset = find.text('Reset');
       final mixed = [

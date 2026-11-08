@@ -12579,6 +12579,10 @@ msgstr "Ocultar \"Para organizar\" até os próximos livros a organizar"
 msgid "shelved_here"
 msgstr "Organizados aqui"
 
+#. Results in the whole library
+msgid "whole_library_results"
+msgstr "Resultados em toda a biblioteca"
+
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "Ainda não há nada aqui. Adicione um livro ou crie uma subprateleira."

@@ -28,6 +28,9 @@ class ShelfPlace {
   /// Out of the way while the books of the shelf are being reordered.
   final bool hidden;
 
+  /// The sub-shelf cards, not their count, while a search runs.
+  final bool subShelvesHidden;
+
   /// Whether the shelf is known from a listing that landed on this page. Before
   /// that nothing can be done to it safely: deleting a shelf taken for one with
   /// no row would strip its name from the books and keep the row.
@@ -50,6 +53,7 @@ class ShelfPlace {
     required this.booksOf,
     required this.subShelvesOf,
     required this.hidden,
+    this.subShelvesHidden = false,
     required this.canAct,
     this.tintSlot,
     this.flight,
@@ -97,7 +101,7 @@ class ShelfPlaceSlivers extends StatelessWidget {
       sliver: SliverMainAxisGroup(
         slivers: [
           SliverToBoxAdapter(child: ShelfPlaceHeader(place: place)),
-          if (place.subShelves.isNotEmpty) ...[
+          if (place.subShelves.isNotEmpty && !place.subShelvesHidden) ...[
             // The section's landmark for screen readers, with nothing on screen:
             // the head announces the sub-shelves and the cards speak for
             // themselves. A sliver with no height, or a node with no surface,

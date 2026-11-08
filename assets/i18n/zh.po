@@ -12585,6 +12585,10 @@ msgstr "隐藏“待整理”，直到有新的待整理图书"
 msgid "shelved_here"
 msgstr "放在这里"
 
+#. Results in the whole library
+msgid "whole_library_results"
+msgstr "整个图书馆中的结果"
+
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "这里还没有内容。添加一本图书，或创建一个子书架。"

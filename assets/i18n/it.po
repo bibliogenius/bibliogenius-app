@@ -12569,6 +12569,10 @@ msgstr "Nascondi «Da sistemare» fino ai prossimi libri da sistemare"
 msgid "shelved_here"
 msgstr "Sistemati qui"
 
+#. Results in the whole library
+msgid "whole_library_results"
+msgstr "Risultati in tutta la biblioteca"
+
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "Ancora niente qui. Aggiungi un libro o crea un sottoscaffale."

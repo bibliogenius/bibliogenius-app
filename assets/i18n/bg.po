@@ -12576,6 +12576,10 @@ msgstr "Скриване на „За подреждане“ до следва�
 msgid "shelved_here"
 msgstr "Подредени тук"
 
+#. Results in the whole library
+msgid "whole_library_results"
+msgstr "Резултати в цялата библиотека"
+
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "Тук още няма нищо. Добавете книга или създайте подполица."

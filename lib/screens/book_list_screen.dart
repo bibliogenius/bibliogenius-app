@@ -603,6 +603,7 @@ class _BookListScreenState extends State<BookListScreen>
 
               if (widget.unshelvedOnly) _buildToShelveHeader(),
               if (_showsShelvedHere) _buildShelvedHere(),
+              if (_showsWholeLibraryResults) _buildWholeLibraryResults(),
               if (!_placeIsEmpty &&
                   !_placeHasNoOwnBooks &&
                   (_isSelecting || !_showsShelvedHere))
@@ -1195,6 +1196,9 @@ class _BookListScreenState extends State<BookListScreen>
       booksOf: (tag) => aggregatedCountForScope(tag, shown, scope),
       subShelvesOf: (tag) => Tag.getDirectChildren(tag.id, shown).length,
       hidden: _isReordering,
+      // A search shows the whole library's books: cards to walk into the
+      // shelf's own would read as part of its results.
+      subShelvesHidden: _searchQuery.isNotEmpty,
       canAct: _placeListed && listed,
       tintSlot: ShelfCard.placeTintSlot(inView, shown: shown, all: _allTags),
       flight: widget.fanFlight,
@@ -1316,6 +1320,27 @@ class _BookListScreenState extends State<BookListScreen>
       !_placeIsEmpty &&
       !_placeHasNoOwnBooks &&
       _searchQuery.isEmpty;
+
+  /// A search on the page of a shelf scans the whole library (ADR-063): its
+  /// results say so where "Shelved here" stood, an empty one too.
+  bool get _showsWholeLibraryResults =>
+      _isPlacePage && !_isReordering && _searchQuery.isNotEmpty;
+
+  Widget _buildWholeLibraryResults() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 6),
+      child: Semantics(
+        key: const Key('wholeLibraryResultsHeading'),
+        header: true,
+        child: Text(
+          TranslationService.translate(context, 'whole_library_results'),
+          style: Theme.of(
+            context,
+          ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
 
   /// The title of the shelf's books and their sort and filter pills, on one
   /// row. Where the grid of cards falls to one column, there is no room for

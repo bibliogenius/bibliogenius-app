@@ -12586,6 +12586,10 @@ msgstr "Masquer « À ranger » jusqu'aux prochains livres à ranger"
 msgid "shelved_here"
 msgstr "Rangés ici"
 
+#. Results in the whole library
+msgid "whole_library_results"
+msgstr "Résultats dans toute la bibliothèque"
+
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "Rien ici pour l'instant. Ajoutez un livre, ou créez une sous-étagère."

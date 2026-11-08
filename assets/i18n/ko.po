@@ -12585,6 +12585,10 @@ msgstr "정리할 책이 더 생길 때까지 \"정리할 책\" 숨기기"
 msgid "shelved_here"
 msgstr "여기 있는 책"
 
+#. Results in the whole library
+msgid "whole_library_results"
+msgstr "전체 라이브러리의 검색 결과"
+
 #. Shelf page, a shelf with neither book nor sub-shelf: Nothing here yet. Add a book, or create a sub-shelf.
 msgid "shelf_empty_hint"
 msgstr "아직 아무것도 없습니다. 책을 추가하거나 하위 책장을 만드세요."
