@@ -624,6 +624,22 @@ void main() {
           expect(gradient.begin, Alignment.topLeft);
           expect(gradient.end, Alignment.bottomRight);
         });
+
+        test(
+          '$name $hex: the ink holds 4.5:1 at both ends of the gradient',
+          () {
+            for (final end in AppDesign.shelfGradient(
+              tint.ground,
+              brightness,
+            ).colors) {
+              expect(
+                contrastRatio(tint.ink, end),
+                greaterThanOrEqualTo(4.5),
+                reason: 'on ${end.toARGB32().toRadixString(16)}',
+              );
+            }
+          },
+        );
       }
     });
 
