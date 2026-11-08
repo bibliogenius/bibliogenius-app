@@ -2506,7 +2506,8 @@ class _BookListScreenState extends State<BookListScreen>
           // 4. Reset Filters Button - visible when any filter is active. On the
           // page of a shelf only the status is one: the shelf is the page and
           // the ownership axis a preference. A query in the field of the header
-          // is never one: that field has its own way out.
+          // alone does not show it, that field has its own way out; on the
+          // Books tab a reset still empties it with the rest.
           if (_isPlacePage
               ? _selectedStatus != null
               : _selectedStatus != null ||
@@ -2866,18 +2867,26 @@ class _BookListScreenState extends State<BookListScreen>
       context.go('/shelves');
       return;
     }
+    // The Books tab starts afresh, the query of the header with it: only the
+    // screen that owns the field can empty it.
+    final closeHeader = widget.externalSearchQuery == null
+        ? null
+        : widget.onCloseHeaderSearch;
     setState(() {
       _selectedStatus = null;
       // The ownership axis is a preference, not a filter: see 'clear' above.
       _tagFilter = null;
       _currentShelf = null;
-      if (clearHeaderQuery || widget.externalSearchQuery == null) {
+      if (clearHeaderQuery ||
+          widget.externalSearchQuery == null ||
+          closeHeader != null) {
         _searchQuery = '';
         _isSearching = false;
         _searchController.clear();
       }
       _filterBooks();
     });
+    closeHeader?.call();
   }
 
   /// Single, compact view-mode control that unfolds a menu of the available

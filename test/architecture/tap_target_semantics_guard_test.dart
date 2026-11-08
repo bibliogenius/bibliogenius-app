@@ -607,6 +607,7 @@ class _Harness {
               builder: (_, _) => BookListScreen(
                 isTabView: true,
                 externalSearchQuery: headerQuery,
+                onCloseHeaderSearch: () => headerQuery.value = '',
               ),
             ),
             GoRoute(
@@ -3944,6 +3945,34 @@ void main() {
         });
       });
 
+      testWidgets('on the Books tab, the pill empties the field of the header '
+          'along with the filters', (tester) async {
+        final field = find.byType(TextField);
+        await _render(
+          tester,
+          _Probe('books', '/books', size: _tallPhone, tags: tags),
+          books: mixed,
+        );
+        await _tap(tester, find.byIcon(Icons.search).first);
+        await tester.enterText(field, 'Being');
+        await tester.pump(const Duration(milliseconds: 350));
+        await _settle(tester);
+        await filterOnReading(tester);
+        await tester.dragUntilVisible(
+          reset,
+          find.byType(SingleChildScrollView).first,
+          const Offset(-80, 0),
+        );
+
+        await _tap(tester, reset);
+
+        // The field closes empty, as when the search is left by its cross.
+        expect(field, findsNothing);
+        expect(find.text('Waiting'), findsWidgets);
+        expect(find.text('Elsewhere'), findsWidgets);
+        expect(reset, findsNothing);
+      });
+
       testWidgets('on the Books tab, the button of an empty result empties the '
           'field of the header too', (tester) async {
         final field = find.byType(TextField);
@@ -3999,7 +4028,7 @@ void main() {
           expect(reset, findsNothing);
         });
 
-        testWidgets('clearing a status leaves the query where the field has it', (
+        testWidgets('a reset clears the status and the query of the header', (
           tester,
         ) async {
           final harness = await searched(tester);
@@ -4012,9 +4041,9 @@ void main() {
           );
           await _tap(tester, reset);
 
-          expect(harness.headerQuery.value, 'Being');
+          expect(harness.headerQuery.value, '');
           expect(find.text('Being read'), findsWidgets);
-          expect(find.text('Waiting'), findsNothing);
+          expect(find.text('Waiting'), findsWidgets);
           expect(reset, findsNothing);
         });
 
