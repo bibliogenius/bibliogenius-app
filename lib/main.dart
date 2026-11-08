@@ -128,11 +128,17 @@ import 'package:flutter/gestures.dart';
 import 'screens/collection/collection_detail_screen.dart';
 import 'models/collection.dart';
 
+/// Lets a mouse drag scroll lists on desktop, on top of touch.
+///
+/// The trackpad must stay in the set: since Flutter 3.3 a two-finger swipe
+/// arrives as pan/zoom events that scrollables only honour for drag devices,
+/// so leaving it out disables trackpad scrolling on every screen.
 class AppScrollBehavior extends MaterialScrollBehavior {
   @override
   Set<PointerDeviceKind> get dragDevices => {
     PointerDeviceKind.touch,
     PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
   };
 }
 
