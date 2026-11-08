@@ -270,6 +270,9 @@ final RegExp _spreadsheetNumber = RegExp(r'^\d+(\.\d+)?([eE][+-]?\d+)?$');
 /// Everything an ISBN is not made of.
 final RegExp _notIsbnCharacter = RegExp(r'[^\dXx]');
 
+/// Any letter, in any script, but the ISBN-10 check character.
+final RegExp _letterOtherThanX = RegExp(r'[^\P{L}Xx]', unicode: true);
+
 /// Outcome of cleaning one imported ISBN cell.
 ///
 /// [isbn] is the value to store, null when the cell holds none. [rejected] is
@@ -298,10 +301,15 @@ ImportedIsbn cleanImportedIsbn(String? raw) {
     final number = double.tryParse(value);
     if (number != null) value = number.toStringAsFixed(0);
   }
+  // A letter other than the check character is not formatting: the cell
+  // holds a label, a note, or the reference of the site the file came from
+  // (Babelio writes SI1035858976 for a book without ISBN, whose ten digits
+  // passed for an ISBN-10). Only the checksum-backed search below may read it.
+  final hasOtherLetters = value.contains(_letterOtherThanX);
   value = value.replaceAll(_notIsbnCharacter, '');
   if (value.isEmpty) return (isbn: null, rejected: false);
   value = value.toUpperCase();
-  if (value.length == 10 || value.length == 13) {
+  if (!hasOtherLetters && (value.length == 10 || value.length == 13)) {
     return (isbn: value, rejected: false);
   }
   final embedded = _findEmbeddedIsbn(raw);
