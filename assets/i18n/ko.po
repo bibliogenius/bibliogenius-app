@@ -7460,6 +7460,9 @@ msgstr "플레이"
 msgid "memory_game_not_enough_books"
 msgstr "플레이하려면 표지가 있는 책이 3권 이상 필요합니다. 서재에 책을 더 추가하세요!"
 
+msgid "memory_game_covers_unavailable"
+msgstr "이 레벨에 필요한 표지를 충분히 불러오지 못했습니다. 연결을 확인하거나 더 쉬운 레벨을 선택하세요."
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr "쉬움"

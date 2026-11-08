@@ -5928,6 +5928,9 @@ msgstr "Играй"
 msgid "memory_game_not_enough_books"
 msgstr "Необходими са поне 3 книги с корица, за да играете. Добавете още книги в библиотеката си!"
 
+msgid "memory_game_covers_unavailable"
+msgstr "Не можаха да се заредят достатъчно корици за това ниво. Проверете връзката си или изберете по-лесно ниво."
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr "Лесно"

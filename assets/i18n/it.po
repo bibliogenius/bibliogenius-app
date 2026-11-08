@@ -7274,6 +7274,9 @@ msgstr "Gioca"
 msgid "memory_game_not_enough_books"
 msgstr "Servono almeno 3 libri con copertina per giocare. Aggiungi più libri alla tua biblioteca!"
 
+msgid "memory_game_covers_unavailable"
+msgstr "Non è stato possibile caricare abbastanza copertine per questo livello. Controlla la connessione o scegli un livello più facile."
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr "Facile"

@@ -8,7 +8,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 part 'frb.freezed.dart';
 
-// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `beacon_sync_failure`, `build_hub_catalog`, `catalog_key_store`, `catalog_key_wrap_for`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `get_all_tags_in`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `identity_library_uuid`, `identity_x25519_secret`, `install_panic_hook`, `keep_previous_log`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_reader_anomaly`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `update_tag_in`, `upsert_directory_catalog_cache`
+// These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `beacon_sync_failure`, `build_hub_catalog`, `catalog_key_store`, `catalog_key_wrap_for`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `get_all_tags_in`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `identity_library_uuid`, `identity_x25519_secret`, `install_panic_hook`, `keep_previous_log`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_reader_anomaly`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `to_frb_memory_card`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `update_tag_in`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `ServerStartDecision`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -930,7 +930,7 @@ Future<List<String>> memoryGameAvailableDifficulties() =>
     RustLib.instance.api.crateApiFrbMemoryGameAvailableDifficulties();
 
 /// Set up a new memory game with the given difficulty
-Future<List<FrbMemoryCard>> memoryGameSetup({required String difficulty}) =>
+Future<FrbMemoryDeal> memoryGameSetup({required String difficulty}) =>
     RustLib.instance.api.crateApiFrbMemoryGameSetup(difficulty: difficulty);
 
 /// Submit a completed game and get the score back
@@ -3114,6 +3114,29 @@ class FrbMemoryCard {
           bookId == other.bookId &&
           title == other.title &&
           coverUrl == other.coverUrl;
+}
+
+/// A dealt memory board plus its stand-in books (FFI-safe)
+class FrbMemoryDeal {
+  /// Two cards per selected book, shuffled.
+  final List<FrbMemoryCard> cards;
+
+  /// Other books with a distinct cover, in random order, to replace a
+  /// pair whose cover fails to draw on this device.
+  final List<FrbMemoryCard> reserve;
+
+  const FrbMemoryDeal({required this.cards, required this.reserve});
+
+  @override
+  int get hashCode => cards.hashCode ^ reserve.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbMemoryDeal &&
+          runtimeType == other.runtimeType &&
+          cards == other.cards &&
+          reserve == other.reserve;
 }
 
 /// A leaderboard entry (FFI-safe)

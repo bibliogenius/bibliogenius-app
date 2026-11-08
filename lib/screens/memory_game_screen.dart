@@ -49,6 +49,8 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
   @override
   void dispose() {
     _provider.removeListener(_onProviderChanged);
+    // Every way out (app bar, system back, drawer) ends here.
+    _provider.abandonPendingDeal();
     super.dispose();
   }
 
@@ -128,6 +130,10 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
             return const Center(child: CircularProgressIndicator());
           }
 
+          if (provider.coversUnavailable) {
+            return _buildCoversUnavailable(provider);
+          }
+
           if (provider.error != null) {
             return _buildError(provider);
           }
@@ -164,6 +170,38 @@ class _MemoryGameScreenState extends State<MemoryGameScreen> {
             child: Text(TranslationService.translate(context, 'button_retry')),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCoversUnavailable(MemoryGameProvider provider) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.image_not_supported_outlined,
+              size: 48,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              TranslationService.translate(
+                context,
+                'memory_game_covers_unavailable',
+              ),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            FilledButton(
+              onPressed: provider.resetToSetup,
+              child: Text(TranslationService.translate(context, 'back')),
+            ),
+          ],
+        ),
       ),
     );
   }

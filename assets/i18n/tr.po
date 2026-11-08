@@ -7258,6 +7258,9 @@ msgstr "Oyna"
 msgid "memory_game_not_enough_books"
 msgstr "Oynamak için kapağı olan en az 3 kitap gerekir. Kütüphanenize daha fazla kitap ekleyin!"
 
+msgid "memory_game_covers_unavailable"
+msgstr "Bu seviye için yeterli kapak yüklenemedi. Bağlantınızı kontrol edin veya daha kolay bir seviye seçin."
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr "Kolay"

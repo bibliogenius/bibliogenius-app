@@ -6385,6 +6385,9 @@ msgstr "Jugar"
 msgid "memory_game_not_enough_books"
 msgstr "Necesitas al menos 3 libros con portada para jugar. ¡Añade más libros a tu biblioteca!"
 
+msgid "memory_game_covers_unavailable"
+msgstr "No se han podido cargar suficientes portadas para este nivel. Comprueba tu conexión o elige un nivel más fácil."
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr "Fácil"

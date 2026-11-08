@@ -259,6 +259,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbMemoryCard dco_decode_frb_memory_card(dynamic raw);
 
   @protected
+  FrbMemoryDeal dco_decode_frb_memory_deal(dynamic raw);
+
+  @protected
   FrbMemoryLeaderboardEntry dco_decode_frb_memory_leaderboard_entry(
     dynamic raw,
   );
@@ -894,6 +897,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbMemoryCard sse_decode_frb_memory_card(SseDeserializer deserializer);
+
+  @protected
+  FrbMemoryDeal sse_decode_frb_memory_deal(SseDeserializer deserializer);
 
   @protected
   FrbMemoryLeaderboardEntry sse_decode_frb_memory_leaderboard_entry(
@@ -1706,6 +1712,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_frb_memory_card(FrbMemoryCard self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_frb_memory_deal(FrbMemoryDeal self, SseSerializer serializer);
 
   @protected
   void sse_encode_frb_memory_leaderboard_entry(

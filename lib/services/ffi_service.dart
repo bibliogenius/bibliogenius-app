@@ -921,7 +921,7 @@ class FfiService {
   }
 
   /// Set up a new game: returns shuffled card pairs
-  Future<List<frb.FrbMemoryCard>> setupMemoryGame(String difficulty) async {
+  Future<frb.FrbMemoryDeal> setupMemoryGame(String difficulty) async {
     try {
       return await frb.memoryGameSetup(difficulty: difficulty);
     } catch (e) {

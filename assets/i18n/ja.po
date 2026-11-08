@@ -7460,6 +7460,9 @@ msgstr "プレイ"
 msgid "memory_game_not_enough_books"
 msgstr "プレイするには表紙付きの本が3冊以上必要です。ライブラリに本を追加してください！"
 
+msgid "memory_game_covers_unavailable"
+msgstr "このレベルに必要な数の表紙を読み込めませんでした。接続を確認するか、より簡単なレベルを選んでください。"
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr "初級"

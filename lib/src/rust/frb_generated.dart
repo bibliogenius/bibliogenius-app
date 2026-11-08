@@ -562,7 +562,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<void> crateApiFrbMemoryGameResetScores();
 
-  Future<List<FrbMemoryCard>> crateApiFrbMemoryGameSetup({
+  Future<FrbMemoryDeal> crateApiFrbMemoryGameSetup({
     required String difficulty,
   });
 
@@ -5569,7 +5569,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "memory_game_reset_scores", argNames: []);
 
   @override
-  Future<List<FrbMemoryCard>> crateApiFrbMemoryGameSetup({
+  Future<FrbMemoryDeal> crateApiFrbMemoryGameSetup({
     required String difficulty,
   }) {
     return handler.executeNormal(
@@ -5585,7 +5585,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_list_frb_memory_card,
+          decodeSuccessData: sse_decode_frb_memory_deal,
           decodeErrorData: sse_decode_String,
         ),
         constMeta: kCrateApiFrbMemoryGameSetupConstMeta,
@@ -9433,6 +9433,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FrbMemoryDeal dco_decode_frb_memory_deal(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return FrbMemoryDeal(
+      cards: dco_decode_list_frb_memory_card(arr[0]),
+      reserve: dco_decode_list_frb_memory_card(arr[1]),
+    );
+  }
+
+  @protected
   FrbMemoryLeaderboardEntry dco_decode_frb_memory_leaderboard_entry(
     dynamic raw,
   ) {
@@ -11629,6 +11641,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       title: var_title,
       coverUrl: var_coverUrl,
     );
+  }
+
+  @protected
+  FrbMemoryDeal sse_decode_frb_memory_deal(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_cards = sse_decode_list_frb_memory_card(deserializer);
+    var var_reserve = sse_decode_list_frb_memory_card(deserializer);
+    return FrbMemoryDeal(cards: var_cards, reserve: var_reserve);
   }
 
   @protected
@@ -13997,6 +14017,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.bookId, serializer);
     sse_encode_String(self.title, serializer);
     sse_encode_String(self.coverUrl, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_memory_deal(
+    FrbMemoryDeal self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_frb_memory_card(self.cards, serializer);
+    sse_encode_list_frb_memory_card(self.reserve, serializer);
   }
 
   @protected

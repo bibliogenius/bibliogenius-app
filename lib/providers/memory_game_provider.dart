@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 
 import '../models/memory_game.dart';
 import '../services/ffi_service.dart';
+import '../services/memory_cover_check.dart';
+import '../src/rust/api/frb.dart' as frb show FrbMemoryCard, FrbMemoryDeal;
 import '../src/rust/api/frb.dart' show subscribeLeaderboardChanges;
 
 /// Phases of the memory game lifecycle.
@@ -16,12 +18,27 @@ enum GamePhase { setup, playing, matchCheck, complete }
 /// error counting, and scoring.
 class MemoryGameProvider extends ChangeNotifier {
   final FfiService _ffi = FfiService();
+  final CoverCheck _isCoverDrawable;
+  final Future<frb.FrbMemoryDeal> Function(String difficulty) _dealGame;
+
+  MemoryGameProvider({
+    CoverCheck? coverCheck,
+    Future<frb.FrbMemoryDeal> Function(String difficulty)? dealGame,
+  }) : _isCoverDrawable = coverCheck ?? isCoverDrawable,
+       _dealGame = dealGame ?? FfiService().setupMemoryGame;
+
+  /// Bumped by every deal and every reset. Checking covers can take seconds,
+  /// during which the player may leave or restart: a deal whose generation
+  /// is no longer current is dropped instead of starting a game nobody sees.
+  int _dealGeneration = 0;
+  bool _dealInFlight = false;
 
   // --- Setup state ---
   List<String> _availableDifficulties = [];
   String? _selectedDifficulty;
   bool _isLoading = false;
   String? _error;
+  bool _coversUnavailable = false;
 
   // --- Game state ---
   GamePhase _phase = GamePhase.setup;
@@ -56,6 +73,9 @@ class MemoryGameProvider extends ChangeNotifier {
   String? get selectedDifficulty => _selectedDifficulty;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  /// True when too few covers draw on this device for the chosen difficulty.
+  bool get coversUnavailable => _coversUnavailable;
   GamePhase get phase => _phase;
   List<MemoryCard> get cards => _cards;
   int get matchedPairs => _matchedPairs;
@@ -123,22 +143,26 @@ class MemoryGameProvider extends ChangeNotifier {
   /// Start a new game with the selected difficulty.
   Future<void> startGame() async {
     if (_selectedDifficulty == null) return;
+    final generation = ++_dealGeneration;
+    _dealInFlight = true;
 
     _isLoading = true;
     _error = null;
+    _coversUnavailable = false;
     notifyListeners();
 
     try {
-      final frbCards = await _ffi.setupMemoryGame(_selectedDifficulty!);
-      _cards = frbCards
-          .map(
-            (c) => MemoryCard(
-              bookId: c.bookId,
-              title: c.title,
-              coverUrl: c.coverUrl,
-            ),
-          )
-          .toList();
+      final deal = await _dealGame(_selectedDifficulty!);
+      MemoryCard toCard(frb.FrbMemoryCard c) =>
+          MemoryCard(bookId: c.bookId, title: c.title, coverUrl: c.coverUrl);
+      // Checked before the timer starts, so the wait costs no score.
+      final cards = await keepDrawablePairs(
+        cards: deal.cards.map(toCard).toList(),
+        reserve: deal.reserve.map(toCard).toList(),
+        isDrawable: _isCoverDrawable,
+      );
+      if (generation != _dealGeneration) return;
+      _cards = cards;
       _totalPairs = _cards.length ~/ 2;
       _matchedPairs = 0;
       _errors = 0;
@@ -156,12 +180,21 @@ class MemoryGameProvider extends ChangeNotifier {
         _elapsedSeconds = _stopwatch.elapsedMilliseconds / 1000.0;
         notifyListeners();
       });
+    } on NotEnoughDrawableCoversException catch (e) {
+      if (generation != _dealGeneration) return;
+      _coversUnavailable = true;
+      debugPrint('MemoryGameProvider: startGame: $e');
     } catch (e) {
+      if (generation != _dealGeneration) return;
       _error = e.toString();
       debugPrint('MemoryGameProvider: startGame error: $e');
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      // A superseded deal leaves the loading state to the current one.
+      if (generation == _dealGeneration) {
+        _dealInFlight = false;
+        _isLoading = false;
+        notifyListeners();
+      }
     }
   }
 
@@ -457,8 +490,21 @@ class MemoryGameProvider extends ChangeNotifier {
     await _loadCachedScores();
   }
 
+  /// Drops a deal still checking its covers, so it never starts a game once
+  /// the screen is gone. Silent: called while the widget tree is torn down,
+  /// where notifying listeners is not allowed.
+  void abandonPendingDeal() {
+    if (!_dealInFlight) return;
+    _dealGeneration++;
+    _dealInFlight = false;
+    _isLoading = false;
+  }
+
   /// Reset to setup phase for a new game.
   void resetToSetup() {
+    _dealGeneration++;
+    _dealInFlight = false;
+    _isLoading = false;
     _stopwatch.stop();
     _stopwatch.reset();
     _displayTimer?.cancel();
@@ -472,6 +518,7 @@ class MemoryGameProvider extends ChangeNotifier {
     _elapsedSeconds = 0;
     _lastScore = null;
     _error = null;
+    _coversUnavailable = false;
     _personalRank = null;
     _isNewPersonalBest = false;
     notifyListeners();
@@ -488,6 +535,7 @@ class MemoryGameProvider extends ChangeNotifier {
     _elapsedSeconds = 0;
     _lastScore = null;
     _error = null;
+    _coversUnavailable = false;
     _personalRank = null;
     _isNewPersonalBest = false;
     notifyListeners();

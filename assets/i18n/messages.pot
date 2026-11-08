@@ -6641,6 +6641,9 @@ msgstr ""
 msgid "memory_game_not_enough_books"
 msgstr ""
 
+msgid "memory_game_covers_unavailable"
+msgstr ""
+
 #. Memory Game - Easy difficulty
 msgid "memory_game_easy"
 msgstr ""
