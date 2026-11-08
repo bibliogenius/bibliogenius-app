@@ -94,7 +94,9 @@ le profil `ImportSource.babelio` :
 - Certaines cellules ISBN contiennent un identifiant interne Babelio
   (`SIE89210_5239`) ou un ASIN Amazon (`978B00M5MRLY4`) : elles sont rejetées
   comme ISBN et comptées dans le rapport d'import, le livre est importé sans
-  ISBN.
+  ISBN. C'est vrai aussi quand les chiffres restants ont la longueur d'un ISBN
+  (`SI1035858976`) : une lettre autre que la clé `X` suffit à écarter la
+  cellule, sauf si elle contient un ISBN complet à la clé valide.
 
 ## Ajouter un nouveau format
 

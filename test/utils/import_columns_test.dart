@@ -244,6 +244,20 @@ void main() {
       );
     });
 
+    test('a source identifier is rejected, not read as an ISBN', () {
+      // Babelio writes its own reference in the ISBN column of a book without
+      // ISBN. Its digits alone are ten long: they passed for an ISBN-10.
+      expect(cleanImportedIsbn('SI1035858976'), (isbn: null, rejected: true));
+      expect(cleanImportedIsbn('SIE293945_579'), (isbn: null, rejected: true));
+      // 978 followed by an Amazon ASIN.
+      expect(cleanImportedIsbn('978B00M5MRLY4'), (isbn: null, rejected: true));
+      // A label in front of a real ISBN still finds it.
+      expect(
+        cleanImportedIsbn('ISBN 978-2-264-02484-8'),
+        (isbn: '9782264024848', rejected: false),
+      );
+    });
+
     test('a number found among other content must pass its checksum', () {
       // Right length, wrong check digit: picked out of a noisy cell, it is a
       // guess, and a guessed ISBN is worse than none.
