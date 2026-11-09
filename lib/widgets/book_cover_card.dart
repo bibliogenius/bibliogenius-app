@@ -57,12 +57,22 @@ class BookCoverCard extends StatelessWidget {
   /// Ribbon body width at cover scale (the collection card uses 14).
   static const double _ribbonWidth = 12;
 
+  /// Ribbon body width and right inset on a tiny cover (see [_tinyWidth]),
+  /// so the ribbon stays clear of the badges stacked on the left.
+  static const double _tinyRibbonWidth = 9;
+  static const double _tinyRibbonRight = 3;
+
   /// Right inset of the tappable reading-status pill: when the ribbon
   /// holds the corner, the pill steps left of it so the two never overlap
   /// (the ribbon is an indicator, the pill stays tappable).
-  double get _statusRight => isFavorite
-      ? 8.0 + FavoriteRibbon.boxWidthFor(_ribbonWidth) + 4.0
-      : 8.0;
+  double get _statusRight =>
+      isFavorite ? 8.0 + FavoriteRibbon.boxWidthFor(_ribbonWidth) + 4.0 : 8.0;
+
+  /// Below this width (six covers per phone row at the smallest cover
+  /// size) the two badges no longer fit side by side: the reading-status
+  /// icon moves under the ownership badge, on the left, and both sit closer
+  /// to the edge.
+  static const double _tinyWidth = 72;
 
   Color _getColorFromSeed(BuildContext context, int seed) {
     final isDark =
@@ -136,8 +146,8 @@ class BookCoverCard extends StatelessWidget {
 
                 if (badgeMark != OwnershipMark.none)
                   Positioned(
-                    top: 8,
-                    left: 8,
+                    top: box.maxWidth < _tinyWidth ? 4 : 8,
+                    left: box.maxWidth < _tinyWidth ? 4 : 8,
                     child: OwnershipBadge(mark: badgeMark),
                   ),
 
@@ -158,8 +168,15 @@ class BookCoverCard extends StatelessWidget {
                 // with an ellipsis so it can never overflow the cover.
                 if (hasReadingStatus(book.readingStatus))
                   Positioned(
-                    top: 8,
-                    right: _statusRight,
+                    // Tiny: under the ownership badge (19 px) when there is
+                    // one, left of the ribbon's corner in any case.
+                    top: box.maxWidth >= _tinyWidth
+                        ? 8
+                        : badgeMark != OwnershipMark.none
+                        ? 4 + 19 + 4
+                        : 4,
+                    left: box.maxWidth < _tinyWidth ? 4 : null,
+                    right: box.maxWidth < _tinyWidth ? null : _statusRight,
                     child: Builder(
                       builder: (context) {
                         final useInventoryStatuses = Provider.of<ThemeProvider>(
@@ -280,22 +297,28 @@ class BookCoverCard extends StatelessWidget {
     // not clip and adds no layout size, so grids keep their geometry. The
     // shape alone must not carry the state (Rule A1): like OwnershipBadge,
     // the marker announces itself with a translated label.
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        card,
-        Positioned(
-          top: -FavoriteRibbon.overhangFor(_ribbonWidth),
-          right: 8,
-          child: Semantics(
-            label: TranslationService.translate(
-              context,
-              'favorite_marker_label',
+    return LayoutBuilder(
+      builder: (context, box) {
+        final tiny = box.maxWidth < _tinyWidth;
+        final ribbonWidth = tiny ? _tinyRibbonWidth : _ribbonWidth;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            card,
+            Positioned(
+              top: -FavoriteRibbon.overhangFor(ribbonWidth),
+              right: tiny ? _tinyRibbonRight : 8,
+              child: Semantics(
+                label: TranslationService.translate(
+                  context,
+                  'favorite_marker_label',
+                ),
+                child: FavoriteRibbon(width: ribbonWidth),
+              ),
             ),
-            child: const FavoriteRibbon(width: _ribbonWidth),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 

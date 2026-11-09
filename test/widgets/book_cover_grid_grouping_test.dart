@@ -154,8 +154,8 @@ void main() {
     tester,
   ) async {
     SharedPreferences.setMockInitialValues({});
-    // A 360 dp phone: the grid is 328 px wide inside its padding, which fits
-    // 2 columns of 150 px covers, so two rows hold 4 books, not 6.
+    // A 360 dp phone: medium covers take 3 columns there (Flutter's
+    // max-extent rule alone would give 2), so two rows hold 6 books.
     tester.view.physicalSize = const Size(360, 4000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -174,7 +174,7 @@ void main() {
       ),
     );
 
-    expect(find.byType(BookCoverCard), findsNWidgets(4));
+    expect(find.byType(BookCoverCard), findsNWidgets(6));
   });
 
   testWidgets('"See all" names its count when it opens more books', (

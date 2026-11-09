@@ -88,8 +88,9 @@ class BookCoverGrid extends StatelessWidget {
   /// the gesture.
   final void Function(Book book)? onBookLongPress;
 
-  /// Maximum width of a cover; the grid fits as many columns as it allows.
-  final double maxCoverExtent;
+  /// Cover size step (see `ThemeProvider.homeCoverExtentSteps`); the
+  /// column count comes from [coverGridColumns].
+  final double coverSize;
 
   /// Splits the grid into titled sections by reading status (see
   /// [groupBooksByReadingStatus]). Each status section shows at most
@@ -116,7 +117,7 @@ class BookCoverGrid extends StatelessWidget {
     this.favoriteIds,
     this.selectedIds,
     this.onBookLongPress,
-    this.maxCoverExtent = 150,
+    this.coverSize = 150,
     this.groupByReadingStatus = false,
     this.onSeeAllStatus,
     this.seeAllCount,
@@ -143,8 +144,9 @@ class BookCoverGrid extends StatelessWidget {
     }
 
     final gridDelegate = CoverGridDelegate(
-      maxCoverExtent: maxCoverExtent, // Controls the width of items
+      coverSize: coverSize,
       childAspectRatio: 0.65, // Standard book ratio (width / height)
+      phone: coverGridIsPhone(context),
     );
     // Evaluated once on the whole list, never per section: a section made
     // only of fresh books must keep its bands.

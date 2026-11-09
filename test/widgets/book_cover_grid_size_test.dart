@@ -1,14 +1,19 @@
 import 'package:bibliogenius/models/book.dart';
+import 'package:bibliogenius/models/collection.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/widgets/book_cover_card.dart';
 import 'package:bibliogenius/widgets/book_cover_grid.dart';
+import 'package:bibliogenius/widgets/collection_stack_widget.dart';
+import 'package:bibliogenius/widgets/favorite_ribbon.dart';
+import 'package:bibliogenius/widgets/not_owned_treatment.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// The home page cover size (Settings > Theme): the grid's maximum tile width
-// follows the setting, and the setting survives a restart.
+// The home page cover size (Settings > Theme): the grid's column count
+// follows the setting, the smallest size holds up on a phone, and the
+// setting survives a restart.
 void main() {
   late ThemeProvider provider;
 
@@ -31,7 +36,7 @@ void main() {
             body: BookCoverGrid(
               books: books,
               onBookTap: (_) {},
-              maxCoverExtent: extent,
+              coverSize: extent,
             ),
           ),
         ),
@@ -92,7 +97,7 @@ void main() {
             body: BookCoverGrid(
               books: [...crowded, ...books],
               onBookTap: (_) {},
-              maxCoverExtent: ThemeProvider.homeCoverExtentSteps.first,
+              coverSize: ThemeProvider.homeCoverExtentSteps.first,
               favoriteIds: {for (final b in crowded) b.id!},
               showNewBadge: true,
             ),
@@ -107,6 +112,140 @@ void main() {
     final seventh = tester.getTopLeft(find.byType(BookCoverCard).at(6));
     expect(sixth.dy, first.dy, reason: 'six covers on the first row');
     expect(seventh.dy, greaterThan(first.dy));
+  });
+
+  final small = ThemeProvider.homeCoverExtentSteps.first;
+
+  void phoneScreen(WidgetTester tester, double width) {
+    tester.view.physicalSize = Size(width, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+  }
+
+  bool overlaps(Rect a, Rect b) =>
+      a.intersect(b).width > 0.5 && a.intersect(b).height > 0.5;
+
+  for (final width in <double>[320, 360, 393]) {
+    testWidgets('small at $width dp: a not-owned book keeps both badges apart '
+        'and inside the cover', (tester) async {
+      phoneScreen(tester, width);
+      final notOwned = [
+        for (var i = 0; i < 6; i++)
+          Book(
+            id: 'n$i',
+            title: 'Not mine $i',
+            author: 'Author',
+            owned: false,
+            readingStatus: 'read',
+          ),
+      ];
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ThemeProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: Scaffold(
+              body: BookCoverGrid(
+                books: notOwned,
+                onBookTap: (_) {},
+                coverSize: small,
+                favoriteIds: {'n0'},
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+      for (var i = 0; i < 2; i++) {
+        final card = find.byType(BookCoverCard).at(i);
+        final cover = tester.getRect(card);
+        final owned = tester.getRect(
+          find.descendant(of: card, matching: find.byType(OwnershipBadge)),
+        );
+        final status = tester.getRect(
+          find.descendant(of: card, matching: find.byType(Tooltip)),
+        );
+        expect(overlaps(owned, status), isFalse, reason: 'card $i');
+        if (i == 0) {
+          // The favorite ribbon keeps the right-hand corner, clear of both.
+          final ribbon = tester.getRect(
+            find.descendant(of: card, matching: find.byType(FavoriteRibbon)),
+          );
+          expect(overlaps(ribbon, owned), isFalse, reason: 'ribbon');
+          expect(overlaps(ribbon, status), isFalse, reason: 'ribbon');
+        }
+        expect(cover.contains(status.topLeft), isTrue, reason: 'card $i');
+        expect(cover.contains(status.bottomRight), isTrue, reason: 'card $i');
+      }
+    });
+
+    testWidgets('small at $width dp: the collections grid does not overflow', (
+      tester,
+    ) async {
+      phoneScreen(tester, width);
+      Book book(String id) =>
+          Book(id: id, title: 'Volume $id', author: 'Author', owned: true);
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ThemeProvider>.value(
+          value: provider,
+          child: MaterialApp(
+            home: Scaffold(
+              body: CollectionGroupGrid(
+                groups: [
+                  for (var c = 0; c < 6; c++)
+                    CollectionGroup(
+                      collection: Collection(
+                        id: 'c$c',
+                        name: 'Series $c',
+                        source: 'series',
+                        createdAt: '2026-01-01',
+                        updatedAt: '2026-01-01',
+                      ),
+                      books: [book('${c}a'), book('${c}b'), book('${c}c')],
+                    ),
+                ],
+                onBookTap: (_) {},
+                coverSize: small,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('small rows stay far enough apart for the favorite ribbon', (
+    tester,
+  ) async {
+    phoneScreen(tester, 375);
+    await tester.pumpWidget(
+      ChangeNotifierProvider<ThemeProvider>.value(
+        value: provider,
+        child: MaterialApp(
+          home: Scaffold(
+            body: BookCoverGrid(
+              books: [
+                for (var i = 0; i < 12; i++)
+                  Book(id: 'f$i', title: 'Fav $i', author: 'A', owned: true),
+              ],
+              onBookTap: (_) {},
+              coverSize: small,
+              favoriteIds: {for (var i = 0; i < 12; i++) 'f$i'},
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final above = tester.getRect(find.byType(BookCoverCard).at(0));
+    final below = tester.getRect(find.byType(BookCoverCard).at(6));
+    // The ribbon of the cover below overhangs its top edge.
+    expect(
+      below.top - above.bottom,
+      greaterThanOrEqualTo(FavoriteRibbon.overhangFor(12)),
+    );
   });
 
   test('cover size is persisted', () async {
