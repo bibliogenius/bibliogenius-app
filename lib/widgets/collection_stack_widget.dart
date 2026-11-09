@@ -188,6 +188,9 @@ class _StackedCovers extends StatelessWidget {
 
   static const double emblemWidth = 12;
 
+  /// Narrowest front cover that shows the "Collection" tag.
+  static const double _minTagCoverWidth = 72;
+
   const _StackedCovers({
     required this.covers,
     required this.bookCount,
@@ -245,10 +248,21 @@ class _StackedCovers extends StatelessWidget {
               ),
 
             // "Collection" tag, anchored to the top-right of the front cover.
+            // About 60 px wide: on a narrower cover (smallest size on a
+            // phone) it would spill onto the next tile, so only a screen
+            // reader gets it; the stack and the count still say "collection".
             Positioned(
               top: (availH - coverH) / 2 + 4,
               right: (availW - coverW) / 2 + 4,
-              child: Container(
+              child: coverW < _minTagCoverWidth
+                  ? Semantics(
+                      label: TranslationService.translate(
+                        context,
+                        'collection_tag',
+                      ),
+                      child: const SizedBox.shrink(),
+                    )
+                  : Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
                   color: Colors.blue.withValues(alpha: 0.85),
@@ -971,24 +985,35 @@ class _ProgressOverlay extends StatelessWidget {
                 ),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(width: 48, child: _buildBar(progress, isComplete)),
-                  const SizedBox(width: 6),
-                  Text(
-                    '$owned/$total',
-                    style: TextStyle(
-                      color: isComplete
-                          ? const Color(0xFF6EE7B7)
-                          : Colors.white.withValues(alpha: 0.88),
-                      fontSize: 9,
-                      fontWeight: FontWeight.w700,
-                      height: 1,
-                      letterSpacing: -0.2,
-                    ),
+              child: LayoutBuilder(
+                // On the narrowest covers (320 dp phone) even the count can
+                // miss a fraction of a pixel: scale it down rather than clip.
+                builder: (context, box) => FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // The bar and the count need about 80 px; on a narrower
+                      // cover the count alone stays.
+                      if (box.maxWidth >= 80) ...[
+                        SizedBox(width: 48, child: _buildBar(progress, isComplete)),
+                        const SizedBox(width: 6),
+                      ],
+                      Text(
+                        '$owned/$total',
+                        style: TextStyle(
+                          color: isComplete
+                              ? const Color(0xFF6EE7B7)
+                              : Colors.white.withValues(alpha: 0.88),
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          height: 1,
+                          letterSpacing: -0.2,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -1063,8 +1088,9 @@ class CollectionGroupGrid extends StatelessWidget {
   /// library). Null disables the gesture; stacks do not react to it.
   final void Function(Book book)? onBookLongPress;
 
-  /// Maximum width of a tile; the grid fits as many columns as it allows.
-  final double maxCoverExtent;
+  /// Cover size step (see `ThemeProvider.homeCoverExtentSteps`); the
+  /// column count comes from [coverGridColumns].
+  final double coverSize;
 
   const CollectionGroupGrid({
     super.key,
@@ -1073,7 +1099,7 @@ class CollectionGroupGrid extends StatelessWidget {
     this.showNewBadge,
     this.favoriteIds,
     this.onBookLongPress,
-    this.maxCoverExtent = 150,
+    this.coverSize = 150,
   });
 
   @override
@@ -1087,8 +1113,9 @@ class CollectionGroupGrid extends StatelessWidget {
     return GridView.builder(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
       gridDelegate: CoverGridDelegate(
-        maxCoverExtent: maxCoverExtent,
+        coverSize: coverSize,
         childAspectRatio: 0.72,
+        phone: coverGridIsPhone(context),
       ),
       itemCount: groups.length,
       itemBuilder: (context, index) {

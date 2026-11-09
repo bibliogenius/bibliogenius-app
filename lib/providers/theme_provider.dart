@@ -257,9 +257,9 @@ class ThemeProvider with ChangeNotifier {
   bool _carouselHiddenPeerLib = false;
   bool get carouselHiddenPeerLib => _carouselHiddenPeerLib;
 
-  // Maximum width of a cover in the library's grids (home page). The grid
-  // fits as many columns as this width allows, so a smaller value means
-  // smaller covers and more of them per row.
+  // Cover size of the library's grids (home page): small, medium, large.
+  // The values (once maximum widths in px) are steps; the column count of
+  // each comes from coverGridColumns (widgets/cover_grid_delegate.dart).
   static const List<double> homeCoverExtentSteps = [110, 150, 200];
   static const double _homeCoverExtentDefault = 150;
   double _homeCoverExtent = _homeCoverExtentDefault;

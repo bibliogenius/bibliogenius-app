@@ -3760,7 +3760,7 @@ class _BookListScreenState extends State<BookListScreen>
             favoriteIds: favoriteIds,
             selectedIds: _selectedIds,
             onBookLongPress: _isReordering ? null : _enterSelection,
-            maxCoverExtent: coverExtent,
+            coverSize: coverExtent,
             groupByReadingStatus: shouldGroupByReadingStatus(
               enabled: groupByReadingStatus,
               inventoryStatuses: inventoryStatuses,
@@ -3807,7 +3807,7 @@ class _BookListScreenState extends State<BookListScreen>
             showNewBadge: newBadgeIsInformative(_books),
             favoriteIds: favoriteIds,
             onBookLongPress: _enterSelection,
-            maxCoverExtent: coverExtent,
+            coverSize: coverExtent,
           ),
         );
     }
