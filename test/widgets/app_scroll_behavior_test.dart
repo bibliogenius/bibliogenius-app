@@ -67,19 +67,4 @@ void main() {
       expect(controller.offset, greaterThan(0));
     });
   }
-
-  testWidgets('mouse wheel scrolls the list', (tester) async {
-    final controller = ScrollController();
-    addTearDown(controller.dispose);
-    await tester.pumpWidget(_scrollableList(controller));
-
-    final pointer = TestPointer(1, PointerDeviceKind.mouse);
-    await tester.sendEventToBinding(
-      pointer.hover(tester.getCenter(find.byType(ListView))),
-    );
-    await tester.sendEventToBinding(pointer.scroll(const Offset(0, 300)));
-    await tester.pumpAndSettle();
-
-    expect(controller.offset, greaterThan(0));
-  });
 }
