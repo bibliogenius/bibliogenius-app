@@ -270,6 +270,14 @@ final RegExp _spreadsheetNumber = RegExp(r'^\d+(\.\d+)?([eE][+-]?\d+)?$');
 /// Everything an ISBN is not made of.
 final RegExp _notIsbnCharacter = RegExp(r'[^\dXx]');
 
+/// A leading `ISBN`, `ISBN-10` or `ISBN-13` label and the separators around
+/// it. "10" or "13" belongs to the label only when no digit follows:
+/// "ISBN 1300000000" is an ISBN that starts with 13.
+final RegExp _isbnLabel = RegExp(
+  r'^isbn[-\s]*(?:1[03](?!\d))?[\s:]*',
+  caseSensitive: false,
+);
+
 /// Any letter, in any script, but the ISBN-10 check character.
 final RegExp _letterOtherThanX = RegExp(r'[^\P{L}Xx]', unicode: true);
 
@@ -284,16 +292,24 @@ typedef ImportedIsbn = ({String? isbn, bool rejected});
 /// Clean one ISBN cell from an imported file.
 ///
 /// Strips the Goodreads `="..."` armour (the CSV parser already ate the
-/// quotes, so only the `=` survives) and every formatting character, then
-/// keeps the value only if it has the length of an ISBN. The checksum is not
-/// required: real shelves hold mistyped ISBNs, and the edit form warns about
-/// those without refusing them. Length is the line: a 17-digit run is a
-/// mis-split line, never a book.
+/// quotes, so only the `=` survives), a leading `ISBN` / `ISBN-10` /
+/// `ISBN-13` label and every formatting character, then keeps the value only
+/// if it has the length of an ISBN. For a cell that holds an ISBN alone, the
+/// checksum is not required: real shelves hold mistyped ISBNs, and the edit
+/// form warns about those without refusing them. Length is the line: a
+/// 17-digit run is a mis-split line, never a book.
+///
+/// A cell that holds anything else (a note, a price, the reference of the
+/// site the file came from) is read only by [_findEmbeddedIsbn], which does
+/// require the checksum.
 ImportedIsbn cleanImportedIsbn(String? raw) {
   if (raw == null) return (isbn: null, rejected: false);
   var value = raw.trim();
   if (value.startsWith('=')) value = value.substring(1);
   value = value.replaceAll('"', '').trim();
+  // The label is not a letter of the value, whatever separates the digits
+  // after it. Same rule as the engine's normalize_isbn.
+  value = value.replaceFirst(_isbnLabel, '');
   // A spreadsheet that treated the column as a number writes 9.782253140191E12
   // or 9782253140191.0; both are the same 13 digits.
   if (_spreadsheetNumber.hasMatch(value) &&
@@ -302,7 +318,7 @@ ImportedIsbn cleanImportedIsbn(String? raw) {
     if (number != null) value = number.toStringAsFixed(0);
   }
   // A letter other than the check character is not formatting: the cell
-  // holds a label, a note, or the reference of the site the file came from
+  // holds a note, or the reference of the site the file came from
   // (Babelio writes SI1035858976 for a book without ISBN, whose ten digits
   // passed for an ISBN-10). Only the checksum-backed search below may read it.
   final hasOtherLetters = value.contains(_letterOtherThanX);

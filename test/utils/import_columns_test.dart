@@ -171,7 +171,11 @@ void main() {
 
     test('a Goodreads armoured cell keeps its leading equals sign', () {
       // The quotes are consumed here; cleanImportedIsbn removes the "=".
-      expect(parseCsvLine('x,="9782264024848",y'), ['x', '=9782264024848', 'y']);
+      expect(parseCsvLine('x,="9782264024848",y'), [
+        'x',
+        '=9782264024848',
+        'y',
+      ]);
     });
   });
 
@@ -185,63 +189,66 @@ void main() {
     });
 
     test('strips the Goodreads armour and formatting', () {
-      expect(
-        cleanImportedIsbn('="9782264024848"'),
-        (isbn: '9782264024848', rejected: false),
-      );
-      expect(
-        cleanImportedIsbn('=9782264024848'),
-        (isbn: '9782264024848', rejected: false),
-      );
-      expect(
-        cleanImportedIsbn('978-2-264-02484-8'),
-        (isbn: '9782264024848', rejected: false),
-      );
-      expect(cleanImportedIsbn('226402484x'), (isbn: '226402484X', rejected: false));
+      expect(cleanImportedIsbn('="9782264024848"'), (
+        isbn: '9782264024848',
+        rejected: false,
+      ));
+      expect(cleanImportedIsbn('=9782264024848'), (
+        isbn: '9782264024848',
+        rejected: false,
+      ));
+      expect(cleanImportedIsbn('978-2-264-02484-8'), (
+        isbn: '9782264024848',
+        rejected: false,
+      ));
+      expect(cleanImportedIsbn('226402484x'), (
+        isbn: '226402484X',
+        rejected: false,
+      ));
     });
 
     test('reads a spreadsheet number back into its digits', () {
-      expect(
-        cleanImportedIsbn('9.782253140191E12'),
-        (isbn: '9782253140191', rejected: false),
-      );
-      expect(
-        cleanImportedIsbn('9782253140191.0'),
-        (isbn: '9782253140191', rejected: false),
-      );
+      expect(cleanImportedIsbn('9.782253140191E12'), (
+        isbn: '9782253140191',
+        rejected: false,
+      ));
+      expect(cleanImportedIsbn('9782253140191.0'), (
+        isbn: '9782253140191',
+        rejected: false,
+      ));
     });
 
     test('a run of digits that is not an ISBN is rejected, not stored', () {
       // What a semicolon-separated line became once its digits were glued:
       // the ISBN followed by the year.
-      expect(
-        cleanImportedIsbn('Yvain;;9782070793693;Gallimard;2017'),
-        (isbn: null, rejected: true),
-      );
+      expect(cleanImportedIsbn('Yvain;;9782070793693;Gallimard;2017'), (
+        isbn: null,
+        rejected: true,
+      ));
       expect(cleanImportedIsbn('12345'), (isbn: null, rejected: true));
     });
 
     test('finds the ISBN in a cell that carries something else as well', () {
       // A label whose digits used to be glued onto the ISBN.
-      expect(
-        cleanImportedIsbn('ISBN-10: 3518368540'),
-        (isbn: '3518368540', rejected: false),
-      );
+      expect(cleanImportedIsbn('ISBN-10: 3518368540'), (
+        isbn: '3518368540',
+        rejected: false,
+      ));
       // A binding note and a price, as library catalogues export them.
-      expect(
-        cleanImportedIsbn('978-3-518-36854-1 (kart.) : EUR 12.00'),
-        (isbn: '9783518368541', rejected: false),
-      );
+      expect(cleanImportedIsbn('978-3-518-36854-1 (kart.) : EUR 12.00'), (
+        isbn: '9783518368541',
+        rejected: false,
+      ));
       // Both forms of the same book: the first one is kept.
-      expect(
-        cleanImportedIsbn('3518368540, 9783518368541'),
-        (isbn: '3518368540', rejected: false),
-      );
+      expect(cleanImportedIsbn('3518368540, 9783518368541'), (
+        isbn: '3518368540',
+        rejected: false,
+      ));
       // The stray "x" of the note no longer counts as a check character.
-      expect(
-        cleanImportedIsbn('9783518368541 Lex.'),
-        (isbn: '9783518368541', rejected: false),
-      );
+      expect(cleanImportedIsbn('9783518368541 Lex.'), (
+        isbn: '9783518368541',
+        rejected: false,
+      ));
     });
 
     test('a source identifier is rejected, not read as an ISBN', () {
@@ -252,38 +259,70 @@ void main() {
       // 978 followed by an Amazon ASIN.
       expect(cleanImportedIsbn('978B00M5MRLY4'), (isbn: null, rejected: true));
       // A label in front of a real ISBN still finds it.
-      expect(
-        cleanImportedIsbn('ISBN 978-2-264-02484-8'),
-        (isbn: '9782264024848', rejected: false),
-      );
+      expect(cleanImportedIsbn('ISBN 978-2-264-02484-8'), (
+        isbn: '9782264024848',
+        rejected: false,
+      ));
+    });
+
+    test('an ISBN label is not a letter of the value', () {
+      // Whatever separates the digits after the label, as the engine reads
+      // it: the label goes first, then the cell is an ISBN like any other.
+      for (final cell in [
+        'ISBN9782070368228',
+        'ISBN 978 2 07 036822 8',
+        'ISBN 978.2.07.036822.8',
+        'ISBN 978–2–07–036822–8', // en dash
+        'isbn-13 : 9782070368228',
+      ]) {
+        expect(cleanImportedIsbn(cell), (
+          isbn: '9782070368228',
+          rejected: false,
+        ), reason: cell);
+      }
+      // The "10" of the label is not the head of the number.
+      expect(cleanImportedIsbn('ISBN-10: 3518368540'), (
+        isbn: '3518368540',
+        rejected: false,
+      ));
+      // A labelled ISBN is held to what an unlabelled one is: a wrong check
+      // digit is kept, as the edit form keeps it, not rejected.
+      expect(cleanImportedIsbn('ISBN 9782264024849'), (
+        isbn: '9782264024849',
+        rejected: false,
+      ));
+      expect(cleanImportedIsbn('ISBN-10: 3518368541'), (
+        isbn: '3518368541',
+        rejected: false,
+      ));
     });
 
     test('a number found among other content must pass its checksum', () {
       // Right length, wrong check digit: picked out of a noisy cell, it is a
       // guess, and a guessed ISBN is worse than none.
-      expect(
-        cleanImportedIsbn('ISBN-10: 3518368541'),
-        (isbn: null, rejected: true),
-      );
-      expect(
-        cleanImportedIsbn('Inv. 2017-0001234567'),
-        (isbn: null, rejected: true),
-      );
+      expect(cleanImportedIsbn('3518368541 Lex.'), (
+        isbn: null,
+        rejected: true,
+      ));
+      expect(cleanImportedIsbn('Inv. 2017-0001234567'), (
+        isbn: null,
+        rejected: true,
+      ));
       // The tail or the head of a longer hyphenated number is not a number
       // of its own, even when its checksum happens to hold.
-      expect(
-        cleanImportedIsbn('Inv. 2017-0001234560'),
-        (isbn: null, rejected: true),
-      );
-      expect(
-        cleanImportedIsbn('Inv. 0001234560-2017'),
-        (isbn: null, rejected: true),
-      );
+      expect(cleanImportedIsbn('Inv. 2017-0001234560'), (
+        isbn: null,
+        rejected: true,
+      ));
+      expect(cleanImportedIsbn('Inv. 0001234560-2017'), (
+        isbn: null,
+        rejected: true,
+      ));
       // Alone in its cell, the same mistyped ISBN is still kept as before.
-      expect(
-        cleanImportedIsbn('3518368541'),
-        (isbn: '3518368541', rejected: false),
-      );
+      expect(cleanImportedIsbn('3518368541'), (
+        isbn: '3518368541',
+        rejected: false,
+      ));
     });
   });
 
@@ -303,7 +342,10 @@ void main() {
       // A stray double quote in a title, or a truncated download. Without a
       // bound, the rest of the file lands in one record and imports as a
       // single book whose title carries every remaining line.
-      final lines = <String>['titre;auteurs;isbn', '"Le Petit Prince;Saint-Ex;978'];
+      final lines = <String>[
+        'titre;auteurs;isbn',
+        '"Le Petit Prince;Saint-Ex;978',
+      ];
       for (var i = 0; i < 40; i++) {
         lines.add('Livre $i;Auteur $i;978000000000$i');
       }
