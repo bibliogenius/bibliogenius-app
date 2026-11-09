@@ -96,7 +96,11 @@ le profil `ImportSource.babelio` :
   comme ISBN et comptées dans le rapport d'import, le livre est importé sans
   ISBN. C'est vrai aussi quand les chiffres restants ont la longueur d'un ISBN
   (`SI1035858976`) : une lettre autre que la clé `X` suffit à écarter la
-  cellule, sauf si elle contient un ISBN complet à la clé valide.
+  cellule. Une étiquette `ISBN`, `ISBN-10` ou `ISBN-13` en tête de cellule ne
+  compte pas comme une lettre. Seule exception : un ISBN complet, à la clé
+  valide, séparé du reste par un espace ou une ponctuation
+  (`978-3-518-36854-1 (kart.)`). Collé à des lettres (`SI9782070368228`), il
+  est écarté lui aussi.
 
 ## Ajouter un nouveau format
 
