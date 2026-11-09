@@ -42,6 +42,32 @@ void main() {
     expect(controller.offset, greaterThan(0));
   });
 
+  // A drag scrolls for every kind the SDK accepts by default, plus the mouse
+  // the app adds: an Apple Pencil or S Pen (stylus, and its eraser end) and
+  // Android VoiceAccess (unknown) must keep scrolling.
+  for (final kind in const [
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.invertedStylus,
+    PointerDeviceKind.unknown,
+  ]) {
+    testWidgets('${kind.name} drag scrolls the list', (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(_scrollableList(controller));
+
+      await tester.drag(
+        find.byType(ListView),
+        const Offset(0, -300),
+        kind: kind,
+      );
+      await tester.pumpAndSettle();
+
+      expect(controller.offset, greaterThan(0));
+    });
+  }
+
   testWidgets('mouse wheel scrolls the list', (tester) async {
     final controller = ScrollController();
     addTearDown(controller.dispose);
