@@ -35,8 +35,9 @@ class _FakeApi extends ApiService {
   Future<Response> requestBookByUrl(
     String peerUrl,
     String isbn,
-    String title,
-  ) async {
+    String title, {
+    String? bookId,
+  }) async {
     lastBorrowRequest = (peerUrl, isbn, title);
     return Response(
       requestOptions: RequestOptions(path: '/api/peers/request_by_url'),

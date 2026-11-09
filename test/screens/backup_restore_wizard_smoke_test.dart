@@ -33,8 +33,11 @@ void main() {
         'languageCode',
         'country',
         'hub_contact_info',
+        'hub_contact_audience',
         'hub_local_location_city_id',
         'hub_local_location_city_country',
+        'shelf_order_ids',
+        'to_shelve_dismissed_count',
       }),
     );
   });
