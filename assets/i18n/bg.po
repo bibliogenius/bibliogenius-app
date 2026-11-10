@@ -12638,3 +12638,67 @@ msgstr "Нулирането завърши"
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr "Затворете приложението с бутона по-долу, след което го отворете отново от иконата му. Така нулирането приключва."
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr "Уеб"
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr "Вземи корицата от уеб страница"
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr "Корица от уеб страница"
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr "Поставете адреса на страницата на книгата в сайта на издателя или адреса на самото изображение на корицата."
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr "Адрес на страницата или изображението"
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr "Вземи"
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr "Корицата се изтегля"
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr "Въведете пълен адрес, който започва с https://"
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr "Този адрес сочи към локална мрежа и не може да се използва."
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr "Сайтът е недостъпен. Проверете връзката си и опитайте отново."
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr "Сайтът пренасочва твърде много пъти."
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr "Сайтът отказа заявката или страницата не съществува."
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr "Страницата или изображението е твърде голямо."
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr "На тази страница не е намерено изображение на корица. Опитайте с адреса на самото изображение."
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr "Този формат на изображение не се поддържа. Използвайте JPEG, PNG, WebP или GIF."
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr "Изображението не можа да бъде прочетено."

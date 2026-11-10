@@ -12638,3 +12638,67 @@ msgstr "Sıfırlama tamamlandı"
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr "Aşağıdaki düğmeyle uygulamayı kapatın, ardından simgesinden yeniden açın. Sıfırlama böylece tamamlanır."
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr "Web"
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr "Kapağı bir web sayfasından al"
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr "Web sayfasından kapak"
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr "Kitabın yayınevi sitesindeki sayfasının adresini ya da kapak görselinin adresini yapıştırın."
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr "Sayfa veya görsel adresi"
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr "Al"
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr "Kapak alınıyor"
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr "https:// ile başlayan tam bir adres girin."
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr "Bu adres yerel bir ağı gösteriyor ve kullanılamaz."
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr "Siteye ulaşılamadı. Bağlantınızı kontrol edip yeniden deneyin."
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr "Site çok fazla yönlendirme yapıyor."
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr "Site isteği reddetti ya da sayfa mevcut değil."
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr "Sayfa veya görsel çok büyük."
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr "Bu sayfada kapak görseli bulunamadı. Görselin kendi adresini deneyin."
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr "Bu görsel biçimi desteklenmiyor. JPEG, PNG, WebP veya GIF görseli kullanın."
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr "Görsel okunamadı."

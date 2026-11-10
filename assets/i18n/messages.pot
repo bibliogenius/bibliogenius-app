@@ -12579,3 +12579,67 @@ msgstr ""
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr ""
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr ""
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr ""
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr ""
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr ""
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr ""
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr ""
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr ""
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr ""
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr ""
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr ""
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr ""
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr ""
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr ""
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr ""
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr ""
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr ""

@@ -14,10 +14,12 @@ import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/recent_shelves_store.dart';
 import '../services/translation_service.dart';
+import '../services/web_cover_service.dart';
 import '../services/milestone_celebration.dart';
 import '../utils/ownership_actions.dart';
 import '../utils/cover_camera_helper.dart';
 import '../widgets/cover_scan_tips_dialog.dart';
+import '../widgets/web_cover_dialog.dart';
 import '../widgets/cached_book_cover.dart';
 import '../providers/theme_provider.dart';
 import '../utils/book_status.dart';
@@ -1581,6 +1583,49 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
   }
 
+  /// Takes the cover from a web page the user points at. The fetched image
+  /// is saved as this book's cover file, exactly like a photo, then its web
+  /// address is recorded for a later hand-over to Open Library.
+  Future<void> _pickCoverFromWeb() async {
+    final bookId = widget.book.id!;
+    final pick = await showWebCoverDialog(context, bookId: bookId);
+    if (pick == null || !mounted) return;
+
+    _evictCoverFromCache(_displayCoverUrl);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    try {
+      await bookRepo.updateBook(bookId, {'cover_url': pick.path});
+    } catch (e, st) {
+      debugPrint('[WEB-COVER] edit._pickCoverFromWeb: $e\n$st');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            TranslationService.translate(context, 'error_updating_book'),
+          ),
+        ),
+      );
+      return;
+    }
+    await WebCoverService().recordOrigin(bookId, pick.imageUrl);
+
+    if (!mounted) return;
+    context.read<HubDirectoryProvider>()
+      ..markCatalogDirty()
+      ..syncCatalogIfDirty();
+    setState(() {
+      _coverUrl = pick.path;
+      _coverVersion++;
+    });
+    _hasChanges = true;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(TranslationService.translate(context, 'cover_updated')),
+      ),
+    );
+  }
+
   Widget _buildCoverSection() {
     final displayUrl = _displayCoverUrl;
     final hasCover = displayUrl != null && displayUrl.isNotEmpty;
@@ -1653,23 +1698,27 @@ class _EditBookScreenState extends State<EditBookScreen> {
                   if (CoverCameraHelper.isCameraAvailable)
                     _buildCoverAction(
                       icon: Icons.camera_alt_outlined,
-                      label:
-                          TranslationService.translate(
-                            context,
-                            'cover_take_photo_short',
-                          ) ??
-                          'Photo',
+                      label: TranslationService.translate(
+                        context,
+                        'cover_take_photo_short',
+                      ),
                       onTap: _takePhoto,
                     ),
                   _buildCoverAction(
                     icon: Icons.photo_library_outlined,
-                    label:
-                        TranslationService.translate(
-                          context,
-                          'cover_choose_short',
-                        ) ??
-                        'Gallery',
+                    label: TranslationService.translate(
+                      context,
+                      'cover_choose_short',
+                    ),
                     onTap: _pickCoverFromFile,
+                  ),
+                  _buildCoverAction(
+                    icon: Icons.language,
+                    label: TranslationService.translate(
+                      context,
+                      'cover_from_web_short',
+                    ),
+                    onTap: _pickCoverFromWeb,
                   ),
                 ],
               ),

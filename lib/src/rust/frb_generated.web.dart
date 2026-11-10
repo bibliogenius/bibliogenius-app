@@ -347,6 +347,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbTrackProgress dco_decode_frb_track_progress(dynamic raw);
 
   @protected
+  FrbWebCover dco_decode_frb_web_cover(dynamic raw);
+
+  @protected
   FrbWishlistProvider dco_decode_frb_wishlist_provider(dynamic raw);
 
   @protected
@@ -1005,6 +1008,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbTrackProgress sse_decode_frb_track_progress(SseDeserializer deserializer);
+
+  @protected
+  FrbWebCover sse_decode_frb_web_cover(SseDeserializer deserializer);
 
   @protected
   FrbWishlistProvider sse_decode_frb_wishlist_provider(
@@ -1862,6 +1868,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     FrbTrackProgress self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_frb_web_cover(FrbWebCover self, SseSerializer serializer);
 
   @protected
   void sse_encode_frb_wishlist_provider(

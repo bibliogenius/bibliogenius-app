@@ -493,6 +493,29 @@ Future<FrbCoverSearchResult> searchAllCoversByTitle({
   enableGoogle: enableGoogle,
 );
 
+/// Fetch the cover of the book shown at `url`, a publisher's book page or the
+/// image itself. The bytes are returned unprocessed: the app runs them through
+/// its cover photo pipeline before saving.
+///
+/// On failure the error is a stable code (`invalid_url`, `blocked_address`,
+/// `network`, `too_many_redirects`, `http_status`, `too_large`,
+/// `no_image_found`, `unsupported_image`) for the app to translate.
+///
+/// FFI only, with no Axum route on purpose: an HTTP endpoint that fetches an
+/// arbitrary URL would let any peer make this device issue requests.
+Future<FrbWebCover> fetchCoverFromWebPage({required String url}) =>
+    RustLib.instance.api.crateApiFrbFetchCoverFromWebPage(url: url);
+
+/// Record that the cover file just saved for `book_id` came from `image_url`,
+/// so it can later be offered to Open Library by address. Device-local.
+Future<void> recordWebCoverOrigin({
+  required String bookId,
+  required String imageUrl,
+}) => RustLib.instance.api.crateApiFrbRecordWebCoverOrigin(
+  bookId: bookId,
+  imageUrl: imageUrl,
+);
+
 /// Look up book metadata by ISBN from external sources (BNF, Inventaire, OpenLibrary, etc.).
 /// Used by the metadata refresh feature to let users preview and cherry-pick fields.
 Future<FrbBookMetadata?> lookupBookMetadata({
@@ -3838,6 +3861,25 @@ class FrbTrackProgress {
           progress == other.progress &&
           current == other.current &&
           nextThreshold == other.nextThreshold;
+}
+
+/// A cover found on a web page: the raw image bytes and the image's address.
+class FrbWebCover {
+  final Uint8List bytes;
+  final String imageUrl;
+
+  const FrbWebCover({required this.bytes, required this.imageUrl});
+
+  @override
+  int get hashCode => bytes.hashCode ^ imageUrl.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbWebCover &&
+          runtimeType == other.runtimeType &&
+          bytes == other.bytes &&
+          imageUrl == other.imageUrl;
 }
 
 /// A cached peer/directory book matching a wishlist entry.

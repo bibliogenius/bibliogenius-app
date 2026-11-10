@@ -12647,3 +12647,67 @@ msgstr "重置完成"
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr "请用下方按钮关闭应用，然后从图标重新打开。这样才能完成重置。"
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr "网页"
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr "从网页获取封面"
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr "从网页获取封面"
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr "粘贴出版社网站上该书页面的地址，或封面图片本身的地址。"
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr "页面或图片地址"
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr "获取"
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr "正在获取封面"
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr "请输入以 https:// 开头的完整地址。"
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr "此地址指向本地网络，无法使用。"
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr "无法访问该网站。请检查网络连接后重试。"
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr "该网站重定向次数过多。"
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr "该网站拒绝了请求，或页面不存在。"
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr "页面或图片过大。"
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr "此页面上未找到封面图片。请尝试使用图片本身的地址。"
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr "不支持此图片格式。请使用 JPEG、PNG、WebP 或 GIF 图片。"
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr "无法读取该图片。"

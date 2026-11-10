@@ -12647,3 +12647,67 @@ msgstr "재설정 완료"
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr "아래 버튼으로 앱을 닫은 다음 아이콘에서 다시 여세요. 그러면 재설정이 완료됩니다."
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr "웹"
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr "웹 페이지에서 표지 가져오기"
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr "웹 페이지에서 표지 가져오기"
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr "출판사 사이트의 책 페이지 주소나 표지 이미지 자체의 주소를 붙여 넣으세요."
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr "페이지 또는 이미지 주소"
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr "가져오기"
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr "표지를 가져오는 중"
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr "https://로 시작하는 전체 주소를 입력하세요."
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr "이 주소는 로컬 네트워크를 가리키므로 사용할 수 없습니다."
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr "사이트에 연결할 수 없습니다. 연결을 확인하고 다시 시도하세요."
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr "사이트가 너무 많이 리디렉션합니다."
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr "사이트가 요청을 거부했거나 페이지가 없습니다."
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr "페이지나 이미지가 너무 큽니다."
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr "이 페이지에서 표지 이미지를 찾을 수 없습니다. 이미지 자체의 주소로 시도해 보세요."
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr "지원하지 않는 이미지 형식입니다. JPEG, PNG, WebP 또는 GIF 이미지를 사용하세요."
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr "이미지를 읽을 수 없습니다."

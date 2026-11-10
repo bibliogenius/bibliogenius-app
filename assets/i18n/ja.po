@@ -12647,3 +12647,67 @@ msgstr "リセットが完了しました"
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr "下のボタンでアプリを閉じてから、アイコンからもう一度開いてください。これでリセットが完了します。"
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr "Web"
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr "Webページから表紙を取得"
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr "Webページから表紙を取得"
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr "出版社サイトの本のページのアドレス、または表紙画像そのもののアドレスを貼り付けてください。"
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr "ページまたは画像のアドレス"
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr "取得"
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr "表紙を取得しています"
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr "https:// で始まる完全なアドレスを入力してください。"
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr "このアドレスはローカルネットワークを指しているため使用できません。"
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr "サイトに接続できません。接続を確認して、もう一度お試しください。"
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr "サイトのリダイレクトが多すぎます。"
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr "サイトがリクエストを拒否したか、ページが存在しません。"
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr "ページまたは画像が大きすぎます。"
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr "このページに表紙画像が見つかりません。画像そのもののアドレスをお試しください。"
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr "この画像形式には対応していません。JPEG、PNG、WebP、GIF の画像を使用してください。"
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr "画像を読み込めませんでした。"

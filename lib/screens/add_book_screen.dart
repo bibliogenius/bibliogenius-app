@@ -10,11 +10,13 @@ import 'package:go_router/go_router.dart';
 import '../data/repositories/book_repository.dart';
 import '../utils/cover_camera_helper.dart';
 import '../widgets/cover_scan_tips_dialog.dart';
+import '../widgets/web_cover_dialog.dart';
 import '../data/repositories/collection_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../services/api_service.dart';
 import '../services/recent_shelves_store.dart';
 import '../services/translation_service.dart';
+import '../services/web_cover_service.dart';
 import '../services/sync_service.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/flash_message_provider.dart';
@@ -71,6 +73,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   String? _readingStatus; // Initialized in didChangeDependencies
   String? _coverUrl;
   String? _tempCoverPath;
+
+  /// The cover taken from a web page, while it is still the temp cover: its
+  /// address is recorded once the file gets the new book's id.
+  WebCoverPick? _webCover;
   List<dynamic>? _authorsData;
   bool _isFetchingDetails = false;
   bool _isSaving = false;
@@ -468,12 +474,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
           newBookId,
         );
         if (newPath != null && newBookId != null) {
-          await bookRepo.updateBook(
-            newBookId,
-            {'cover_url': newPath},
-          );
+          await bookRepo.updateBook(newBookId, {'cover_url': newPath});
+          // Only when the temp file is still the web cover: a photo taken
+          // afterwards replaced it under another temp name.
+          final webCover = _webCover;
+          if (webCover != null && webCover.path == _tempCoverPath) {
+            await WebCoverService().recordOrigin(newBookId, webCover.imageUrl);
+          }
         }
         _tempCoverPath = null;
+        _webCover = null;
       }
 
       // Update collections if any are selected
@@ -1864,6 +1874,16 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
+  Future<void> _pickCoverFromWeb() async {
+    final pick = await showWebCoverDialog(context);
+    if (pick == null || !mounted) return;
+    setState(() {
+      _tempCoverPath = pick.path;
+      _coverUrl = pick.path;
+      _webCover = pick;
+    });
+  }
+
   Future<void> _pickCoverFromFile() async {
     try {
       final targetPath = await CoverCameraHelper.pickFromGalleryAndSave();
@@ -2002,6 +2022,15 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             ) ??
                             'Choose from files',
                         onPressed: isLoading ? null : _pickCoverFromFile,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.language, size: 20),
+                        tooltip: TranslationService.translate(
+                          context,
+                          'cover_from_web_tooltip',
+                        ),
+                        onPressed: isLoading ? null : _pickCoverFromWeb,
                         visualDensity: VisualDensity.compact,
                       ),
                     ],

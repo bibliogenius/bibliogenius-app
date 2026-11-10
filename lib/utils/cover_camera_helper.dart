@@ -11,6 +11,18 @@ import 'package:uuid/uuid.dart';
 
 import '../services/device_service.dart';
 
+/// Thrown when an image declares more pixels than the cover pipeline agrees
+/// to decode. Nothing is written then.
+class CoverImageTooLargeException implements Exception {
+  final int width;
+  final int height;
+
+  const CoverImageTooLargeException(this.width, this.height);
+
+  @override
+  String toString() => 'CoverImageTooLargeException(${width}x$height)';
+}
+
 class CoverCameraHelper {
   /// Target max width (px) for stored cover thumbnails. Matches the Rust
   /// serve-side resize in `utils/cover_image.rs` so local files and peer
@@ -32,6 +44,14 @@ class CoverCameraHelper {
   /// in the Rust pipeline.
   @visibleForTesting
   static const int targetMaxBytes = 50 * 1024;
+
+  /// Largest image, in pixels, the pipeline agrees to decode. A compressed
+  /// file can declare far more pixels than its size suggests (a flat image
+  /// compresses to almost nothing), and the decoder allocates 4 bytes per
+  /// pixel: covers fetched from the web are not trusted to stay small. 50 MP
+  /// is above any phone's default photo or document scan.
+  @visibleForTesting
+  static const int maxSourcePixels = 50 * 1000 * 1000;
 
   /// Quality fallback ladder, mirrored from `utils/cover_image.rs::QUALITY_STEPS`.
   static const List<int> _qualitySteps = [targetQuality, 75, 65];
@@ -185,22 +205,49 @@ class CoverCameraHelper {
   /// sources, which would otherwise leave 300+ KB files on disk.
   static Future<String?> _saveToCovers(XFile? picked, String? bookId) async {
     if (picked == null) return null;
+    final raw = await File(picked.path).readAsBytes();
+    return saveBytesToCovers(raw, bookId: bookId);
+  }
 
+  /// Runs [raw] (any format the `image` package decodes: JPEG, PNG, WebP,
+  /// GIF...) through the cover pipeline and saves it into covers/, under the
+  /// same naming rule as a photo. Used for covers fetched from a web page, so
+  /// they end up exactly like a photographed one.
+  ///
+  /// Throws [FormatException] when [raw] is not a decodable image, and
+  /// [CoverImageTooLargeException] when it declares more than
+  /// [maxSourcePixels]; nothing is written then.
+  static Future<String> saveBytesToCovers(
+    Uint8List raw, {
+    String? bookId,
+  }) async {
     final appDir = await getApplicationSupportDirectory();
-    final coversDir = Directory('${appDir.path}/covers');
+    return writeCoverFile(
+      Directory('${appDir.path}/covers'),
+      raw,
+      bookId: bookId,
+    );
+  }
+
+  /// [saveBytesToCovers] with the covers directory as a parameter, so tests
+  /// can point it at a temporary directory.
+  @visibleForTesting
+  static Future<String> writeCoverFile(
+    Directory coversDir,
+    Uint8List raw, {
+    String? bookId,
+  }) async {
+    // Decoding a full-resolution scan in pure Dart takes long enough to
+    // freeze the UI, so it runs off the main isolate.
+    final processed = await Isolate.run(() => _encodeCoverJpeg(raw));
+
     if (!await coversDir.exists()) {
       await coversDir.create(recursive: true);
     }
-
     final fileName = bookId != null
         ? '$bookId.jpg'
         : 'temp_${const Uuid().v4()}.jpg';
     final targetPath = '${coversDir.path}/$fileName';
-
-    final raw = await File(picked.path).readAsBytes();
-    // Decoding a full-resolution scan in pure Dart takes long enough to
-    // freeze the UI, so it runs off the main isolate.
-    final processed = await Isolate.run(() => _encodeCoverJpeg(raw));
     await File(targetPath).writeAsBytes(processed, flush: true);
     return targetPath;
   }
@@ -213,15 +260,34 @@ class CoverCameraHelper {
   static Future<Uint8List> encodeCoverJpegForTest(Uint8List raw) =>
       _encodeCoverJpeg(raw);
 
-  static Future<Uint8List> _encodeCoverJpeg(Uint8List raw) async {
-    final decoded = img.decodeImage(raw);
+  /// Decodes the first frame of [raw], refusing an image over
+  /// [maxSourcePixels] before allocating any pixel. Only the first frame: each
+  /// frame of an animated GIF or WebP can pass the cap on its own while
+  /// hundreds of them add up to gigabytes, and a cover is a still image.
+  @visibleForTesting
+  static img.Image decodeCoverSource(Uint8List raw) {
+    final decoder = img.findDecoderForData(raw);
+    final info = decoder?.startDecode(raw);
+    if (info != null && info.width * info.height > maxSourcePixels) {
+      throw CoverImageTooLargeException(info.width, info.height);
+    }
+    final decoded = decoder?.decode(raw, frame: 0);
     if (decoded == null) {
       throw const FormatException('Could not decode picked image');
     }
+    return decoded;
+  }
+
+  static Future<Uint8List> _encodeCoverJpeg(Uint8List raw) async {
+    final decoded = decodeCoverSource(raw);
 
     // Apply EXIF rotation so portrait shots don't end up sideways on disk.
     final oriented = img.bakeOrientation(decoded);
-    final fitted = _fitWithin(oriented, targetMaxWidth, targetMaxHeight);
+    // Flattened once small: a full-size canvas would double the memory of a
+    // large transparent source.
+    final fitted = _flattenOnWhite(
+      _fitWithin(oriented, targetMaxWidth, targetMaxHeight),
+    );
 
     Uint8List? smallest;
     for (final quality in _qualitySteps) {
@@ -238,6 +304,17 @@ class CoverCameraHelper {
     // None of the quality steps fit — return the smallest produced. The
     // Rust serve-side resize will trim further if needed.
     return smallest!;
+  }
+
+  /// Lays an image with transparency on a white canvas. JPEG has no alpha
+  /// channel and the encoder drops it, which turns transparent areas black:
+  /// the usual case being a publisher's PNG cover floating on a transparent
+  /// background. Opaque images are returned untouched.
+  static img.Image _flattenOnWhite(img.Image src) {
+    if (!src.hasAlpha) return src;
+    final canvas = img.Image(width: src.width, height: src.height);
+    img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
+    return img.compositeImage(canvas, src);
   }
 
   /// Returns [src] downscaled so it fits within [maxW]x[maxH] while

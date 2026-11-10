@@ -520,6 +520,26 @@ class FfiService {
     }
   }
 
+  // ============ Cover From A Web Page ============
+
+  /// Fetch the cover of the book shown at [url] (a publisher page or the
+  /// image itself). Unlike the searches above, failures are not swallowed:
+  /// the Rust side throws a stable error code (a `String`, such as
+  /// `no_image_found`) that the caller turns into a message.
+  Future<frb.FrbWebCover> fetchCoverFromWebPage(String url) =>
+      frb.fetchCoverFromWebPage(url: url);
+
+  /// Remember that the cover file just saved for [bookId] came from
+  /// [imageUrl]. Best effort: losing it only means Open Library will later
+  /// not be offered that address.
+  Future<void> recordWebCoverOrigin(String bookId, String imageUrl) async {
+    try {
+      await frb.recordWebCoverOrigin(bookId: bookId, imageUrl: imageUrl);
+    } catch (e) {
+      debugPrint('FFI recordWebCoverOrigin error: $e');
+    }
+  }
+
   // ============ Multi-Cover Search ============
 
   /// Search ALL enabled cover sources in parallel for a given ISBN.

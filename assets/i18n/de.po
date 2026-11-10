@@ -12507,3 +12507,67 @@ msgstr "Zurücksetzen abgeschlossen"
 #. Settings > Reset: body of the dialog that ends a full reset, its button closes the app
 msgid "reset_full_restart_hint"
 msgstr "Schließen Sie die App mit der Schaltfläche unten und öffnen Sie sie dann über ihr Symbol erneut. Damit wird das Zurücksetzen abgeschlossen."
+
+#. Book form > Cover: short label of the button that takes the cover from a web page
+msgid "cover_from_web_short"
+msgstr "Web"
+
+#. Add book > Cover: tooltip of the button that takes the cover from a web page
+msgid "cover_from_web_tooltip"
+msgstr "Cover von einer Webseite holen"
+
+#. Cover from a web page dialog: title
+msgid "web_cover_dialog_title"
+msgstr "Cover von einer Webseite"
+
+#. Cover from a web page dialog: explanation above the address field
+msgid "web_cover_dialog_help"
+msgstr "Füge die Adresse der Buchseite auf der Website des Verlags ein oder die Adresse des Coverbilds selbst."
+
+#. Cover from a web page dialog: label of the address field
+msgid "web_cover_dialog_field"
+msgstr "Adresse der Seite oder des Bilds"
+
+#. Cover from a web page dialog: button that fetches the cover
+msgid "web_cover_dialog_fetch"
+msgstr "Holen"
+
+#. Cover from a web page dialog: screen reader announcement while the cover is fetched
+msgid "web_cover_dialog_loading"
+msgstr "Cover wird geladen"
+
+#. Cover from a web page: the address is not a full https address
+msgid "web_cover_error_invalid_url"
+msgstr "Gib eine vollständige Adresse ein, die mit https:// beginnt."
+
+#. Cover from a web page: the address points to a local network
+msgid "web_cover_error_blocked_address"
+msgstr "Diese Adresse verweist auf ein lokales Netzwerk und kann nicht verwendet werden."
+
+#. Cover from a web page: the site could not be reached
+msgid "web_cover_error_network"
+msgstr "Die Website ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut."
+
+#. Cover from a web page: the site redirects too many times
+msgid "web_cover_error_too_many_redirects"
+msgstr "Die Website leitet zu oft weiter."
+
+#. Cover from a web page: the site answered with an error
+msgid "web_cover_error_http_status"
+msgstr "Die Website hat die Anfrage abgelehnt, oder die Seite existiert nicht."
+
+#. Cover from a web page: the page or image exceeds the size limit
+msgid "web_cover_error_too_large"
+msgstr "Die Seite oder das Bild ist zu groß."
+
+#. Cover from a web page: the page declares no cover image
+msgid "web_cover_error_no_image_found"
+msgstr "Auf dieser Seite wurde kein Coverbild gefunden. Versuche es mit der Adresse des Bilds selbst."
+
+#. Cover from a web page: the image format is not supported
+msgid "web_cover_error_unsupported_image"
+msgstr "Dieses Bildformat wird nicht unterstützt. Verwende ein JPEG-, PNG-, WebP- oder GIF-Bild."
+
+#. Cover from a web page: the image could not be decoded
+msgid "web_cover_error_unreadable_image"
+msgstr "Das Bild konnte nicht gelesen werden."
