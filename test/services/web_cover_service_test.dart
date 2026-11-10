@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -11,7 +12,7 @@ void main() {
     Object? fetchError,
     Object? saveError,
     void Function(String url)? onFetch,
-    void Function(String? bookId)? onSave,
+    void Function()? onSave,
   }) {
     return WebCoverService(
       fetch: (url) async {
@@ -19,25 +20,25 @@ void main() {
         if (fetchError != null) throw fetchError;
         return (bytes: bytes, imageUrl: 'https://cdn.example.org/42.jpg');
       },
-      save: (b, {bookId}) async {
-        onSave?.call(bookId);
+      save: (b) async {
+        onSave?.call();
         if (saveError != null) throw saveError;
-        return '/covers/${bookId ?? 'temp_x'}.jpg';
+        return '/covers/temp_x.jpg';
       },
     );
   }
 
   test('saves the fetched cover and keeps its web address', () async {
     String? fetched;
-    String? savedFor;
+    var saved = false;
     final pick = await service(
       onFetch: (u) => fetched = u,
-      onSave: (id) => savedFor = id,
-    ).fetchAndSave('  https://www.example.org/livre/42  ', bookId: 'book-1');
+      onSave: () => saved = true,
+    ).fetchAndSave('  https://www.example.org/livre/42  ');
 
     expect(fetched, 'https://www.example.org/livre/42', reason: 'trimmed');
-    expect(savedFor, 'book-1');
-    expect(pick.path, '/covers/book-1.jpg');
+    expect(saved, isTrue);
+    expect(pick.path, '/covers/temp_x.jpg', reason: 'a preview, never final');
     expect(pick.imageUrl, 'https://cdn.example.org/42.jpg');
   });
 
@@ -86,6 +87,32 @@ void main() {
         saveError: const CoverImageTooLargeException(20000, 20000),
       ).fetchAndSave('https://x.org/a'),
       throwsA(isA<WebCoverException>().having((e) => e.code, 'code', 'too_large')),
+    );
+  });
+
+  test('turns any other save failure into a message, never a hang', () async {
+    for (final error in <Object>[
+      const UnsupportedCoverImageException('animated WebP'),
+      RangeError('corrupt'),
+      const FileSystemException('disk full'),
+    ]) {
+      await expectLater(
+        service(saveError: error).fetchAndSave('https://x.org/a'),
+        throwsA(isA<WebCoverException>()),
+        reason: '$error',
+      );
+    }
+    await expectLater(
+      service(
+        saveError: const UnsupportedCoverImageException('animated WebP'),
+      ).fetchAndSave('https://x.org/a'),
+      throwsA(
+        isA<WebCoverException>().having(
+          (e) => e.code,
+          'code',
+          'unsupported_image',
+        ),
+      ),
     );
   });
 

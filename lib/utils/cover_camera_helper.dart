@@ -23,6 +23,17 @@ class CoverImageTooLargeException implements Exception {
   String toString() => 'CoverImageTooLargeException(${width}x$height)';
 }
 
+/// Thrown for an image the pipeline cannot vouch for before decoding it (an
+/// animated WebP from the web). Nothing is written then.
+class UnsupportedCoverImageException implements Exception {
+  final String reason;
+
+  const UnsupportedCoverImageException(this.reason);
+
+  @override
+  String toString() => 'UnsupportedCoverImageException($reason)';
+}
+
 class CoverCameraHelper {
   /// Target max width (px) for stored cover thumbnails. Matches the Rust
   /// serve-side resize in `utils/cover_image.rs` so local files and peer
@@ -45,13 +56,12 @@ class CoverCameraHelper {
   @visibleForTesting
   static const int targetMaxBytes = 50 * 1024;
 
-  /// Largest image, in pixels, the pipeline agrees to decode. A compressed
-  /// file can declare far more pixels than its size suggests (a flat image
-  /// compresses to almost nothing), and the decoder allocates 4 bytes per
-  /// pixel: covers fetched from the web are not trusted to stay small. 50 MP
-  /// is above any phone's default photo or document scan.
-  @visibleForTesting
-  static const int maxSourcePixels = 50 * 1000 * 1000;
+  /// Largest image, in pixels, decoded when it comes from the web. A small
+  /// compressed file can declare far more pixels than its size suggests (a
+  /// flat image compresses to almost nothing), and the decoder allocates 4
+  /// bytes per pixel. A book cover rarely exceeds 3 MP. Photos and gallery
+  /// files are the user's own and stay uncapped.
+  static const int webMaxSourcePixels = 25 * 1000 * 1000;
 
   /// Quality fallback ladder, mirrored from `utils/cover_image.rs::QUALITY_STEPS`.
   static const List<int> _qualitySteps = [targetQuality, 75, 65];
@@ -174,11 +184,15 @@ class CoverCameraHelper {
     final file = File(tempPath);
     if (!await file.exists()) return null;
 
-    final dir = file.parent.path;
-    final newPath = '$dir/$bookId.jpg';
+    final newPath = coverPathBeside(tempPath, bookId);
     await file.rename(newPath);
     return newPath;
   }
+
+  /// The final path of [bookId]'s cover, in the directory of [siblingPath]
+  /// (typically a temp cover): `<dir>/<bookId>.jpg`.
+  static String coverPathBeside(String siblingPath, String bookId) =>
+      '${File(siblingPath).parent.path}/$bookId.jpg';
 
   /// Deletes a temp cover file (e.g. when the user cancels adding a book).
   static Future<void> cleanupTempCover(String? path) async {
@@ -214,18 +228,22 @@ class CoverCameraHelper {
   /// same naming rule as a photo. Used for covers fetched from a web page, so
   /// they end up exactly like a photographed one.
   ///
-  /// Throws [FormatException] when [raw] is not a decodable image, and
-  /// [CoverImageTooLargeException] when it declares more than
-  /// [maxSourcePixels]; nothing is written then.
+  /// [maxPixels] caps the source for untrusted bytes, see
+  /// [decodeCoverSource]. Throws [FormatException] when [raw] is not a
+  /// decodable image, [CoverImageTooLargeException] or
+  /// [UnsupportedCoverImageException] when it fails the cap; nothing is
+  /// written then.
   static Future<String> saveBytesToCovers(
     Uint8List raw, {
     String? bookId,
+    int? maxPixels,
   }) async {
     final appDir = await getApplicationSupportDirectory();
     return writeCoverFile(
       Directory('${appDir.path}/covers'),
       raw,
       bookId: bookId,
+      maxPixels: maxPixels,
     );
   }
 
@@ -236,10 +254,13 @@ class CoverCameraHelper {
     Directory coversDir,
     Uint8List raw, {
     String? bookId,
+    int? maxPixels,
   }) async {
     // Decoding a full-resolution scan in pure Dart takes long enough to
     // freeze the UI, so it runs off the main isolate.
-    final processed = await Isolate.run(() => _encodeCoverJpeg(raw));
+    final processed = await Isolate.run(
+      () => _encodeCoverJpeg(raw, maxPixels),
+    );
 
     if (!await coversDir.exists()) {
       await coversDir.create(recursive: true);
@@ -258,18 +279,21 @@ class CoverCameraHelper {
   /// synthetic bytes without going through `image_picker`.
   @visibleForTesting
   static Future<Uint8List> encodeCoverJpegForTest(Uint8List raw) =>
-      _encodeCoverJpeg(raw);
+      _encodeCoverJpeg(raw, null);
 
-  /// Decodes the first frame of [raw], refusing an image over
-  /// [maxSourcePixels] before allocating any pixel. Only the first frame: each
-  /// frame of an animated GIF or WebP can pass the cap on its own while
-  /// hundreds of them add up to gigabytes, and a cover is a still image.
+  /// Decodes the first frame of [raw]: a cover is a still image, and the
+  /// frames of an animation add up.
+  ///
+  /// With [maxPixels] (untrusted bytes), the image is refused before any
+  /// pixel is allocated when its canvas or any declared frame exceeds the
+  /// cap. An animated WebP is refused outright: each frame's real size sits in
+  /// its own bitstream, out of reach of the header read.
   @visibleForTesting
-  static img.Image decodeCoverSource(Uint8List raw) {
+  static img.Image decodeCoverSource(Uint8List raw, {int? maxPixels}) {
     final decoder = img.findDecoderForData(raw);
     final info = decoder?.startDecode(raw);
-    if (info != null && info.width * info.height > maxSourcePixels) {
-      throw CoverImageTooLargeException(info.width, info.height);
+    if (info != null && maxPixels != null) {
+      _checkDeclaredSize(info, maxPixels);
     }
     final decoded = decoder?.decode(raw, frame: 0);
     if (decoded == null) {
@@ -278,11 +302,29 @@ class CoverCameraHelper {
     return decoded;
   }
 
-  static Future<Uint8List> _encodeCoverJpeg(Uint8List raw) async {
-    final decoded = decodeCoverSource(raw);
+  static void _checkDeclaredSize(img.DecodeInfo info, int maxPixels) {
+    if (info is img.WebPInfo && info.numFrames > 1) {
+      throw const UnsupportedCoverImageException('animated WebP');
+    }
+    final sizes = <(int, int)>[
+      (info.width, info.height),
+      if (info is img.GifInfo) ...info.frames.map((f) => (f.width, f.height)),
+      if (info is img.PngInfo) ...info.frames.map((f) => (f.width, f.height)),
+    ];
+    for (final (w, h) in sizes) {
+      if (w * h > maxPixels) throw CoverImageTooLargeException(w, h);
+    }
+  }
+
+  static Future<Uint8List> _encodeCoverJpeg(Uint8List raw, int? maxPixels) async {
+    final decoded = decodeCoverSource(raw, maxPixels: maxPixels);
 
     // Apply EXIF rotation so portrait shots don't end up sideways on disk.
-    final oriented = img.bakeOrientation(decoded);
+    // bakeOrientation always copies the image, so only when there is one.
+    final ifd = decoded.exif.imageIfd;
+    final oriented = ifd.hasOrientation && ifd.orientation != 1
+        ? img.bakeOrientation(decoded)
+        : decoded;
     // Flattened once small: a full-size canvas would double the memory of a
     // large transparent source.
     final fitted = _flattenOnWhite(

@@ -12702,3 +12702,15 @@ msgstr "Този формат на изображение не се поддър
 #. Cover from a web page: the image could not be decoded
 msgid "web_cover_error_unreadable_image"
 msgstr "Изображението не можа да бъде прочетено."
+
+#. Cover from a web page dialog: button that keeps the previewed cover
+msgid "web_cover_use"
+msgstr "Използвай тази корица"
+
+#. Cover from a web page dialog: button that drops the preview and asks for another address
+msgid "web_cover_try_another"
+msgstr "Опитай друг адрес"
+
+#. Cover from a web page dialog: screen reader label of the previewed cover
+msgid "web_cover_preview_label"
+msgstr "Корица, намерена на страницата"

@@ -1508,34 +1508,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
       await bookRepo.updateBook(widget.book.id!, {'cover_url': path});
 
       if (!mounted) return;
-      context.read<HubDirectoryProvider>()
-        ..markCatalogDirty()
-        ..syncCatalogIfDirty();
-      setState(() {
-        _coverUrl = path;
-        _coverVersion++;
-      });
-      _hasChanges = true;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'cover_photo_saved') ??
-                'Cover photo saved',
-          ),
-        ),
-      );
+      _showLocalCover(path, 'cover_photo_saved');
     } catch (e, st) {
       debugPrint('[COVER-PHOTO-ERROR] edit._takePhoto: $e\n$st');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'cover_photo_error') ??
-                'Could not take photo',
-          ),
-        ),
-      );
+      _showCoverError('cover_photo_error');
     }
   }
 
@@ -1552,77 +1528,81 @@ class _EditBookScreenState extends State<EditBookScreen> {
       await bookRepo.updateBook(widget.book.id!, {'cover_url': targetPath});
 
       if (!mounted) return;
-      context.read<HubDirectoryProvider>()
-        ..markCatalogDirty()
-        ..syncCatalogIfDirty();
-      setState(() {
-        _coverUrl = targetPath;
-        _coverVersion++;
-      });
-      _hasChanges = true;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'cover_updated') ??
-                'Cover updated',
-          ),
-        ),
-      );
+      _showLocalCover(targetPath, 'cover_updated');
     } catch (e, st) {
       debugPrint('[COVER-PHOTO-ERROR] edit._pickCoverFromFile: $e\n$st');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'cover_photo_error') ??
-                'Could not take photo',
-          ),
-        ),
-      );
+      _showCoverError('cover_photo_error');
     }
   }
 
-  /// Takes the cover from a web page the user points at. The fetched image
-  /// is saved as this book's cover file, exactly like a photo, then its web
-  /// address is recorded for a later hand-over to Open Library.
+  /// Takes the cover from a web page the user points at, after a preview in
+  /// the dialog. The book's cover file is replaced only once the database has
+  /// accepted the new path, so a failure leaves the previous cover intact.
   Future<void> _pickCoverFromWeb() async {
     final bookId = widget.book.id!;
-    final pick = await showWebCoverDialog(context, bookId: bookId);
-    if (pick == null || !mounted) return;
-
-    _evictCoverFromCache(_displayCoverUrl);
-    final bookRepo = Provider.of<BookRepository>(context, listen: false);
-    try {
-      await bookRepo.updateBook(bookId, {'cover_url': pick.path});
-    } catch (e, st) {
-      debugPrint('[WEB-COVER] edit._pickCoverFromWeb: $e\n$st');
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            TranslationService.translate(context, 'error_updating_book'),
-          ),
-        ),
-      );
+    final service = WebCoverService();
+    final pick = await showWebCoverDialog(context, service: service);
+    if (pick == null) return;
+    if (!mounted) {
+      await service.discard(pick);
       return;
     }
-    await WebCoverService().recordOrigin(bookId, pick.imageUrl);
+
+    final previous = _coverUrl;
+    final finalPath = CoverCameraHelper.coverPathBeside(pick.path, bookId);
+    final bookRepo = Provider.of<BookRepository>(context, listen: false);
+    var databaseUpdated = false;
+    try {
+      await bookRepo.updateBook(bookId, {'cover_url': finalPath});
+      databaseUpdated = true;
+      final renamed = await CoverCameraHelper.renameTempCover(
+        pick.path,
+        bookId,
+      );
+      if (renamed == null) {
+        throw FileSystemException('Preview file is gone', pick.path);
+      }
+    } catch (e, st) {
+      debugPrint('[WEB-COVER] edit._pickCoverFromWeb: $e\n$st');
+      if (databaseUpdated) {
+        try {
+          await bookRepo.updateBook(bookId, {'cover_url': previous});
+        } catch (e) {
+          debugPrint('[WEB-COVER] could not restore the previous cover: $e');
+        }
+      }
+      await service.discard(pick);
+      _showCoverError('error_updating_book');
+      return;
+    }
+    await service.recordOrigin(bookId, pick.imageUrl);
 
     if (!mounted) return;
+    _evictCoverFromCache(finalPath);
+    _showLocalCover(finalPath, 'cover_updated');
+  }
+
+  /// Shows a local cover file just saved for this book, and lets the hub
+  /// directory know the catalog changed.
+  void _showLocalCover(String path, String messageKey) {
     context.read<HubDirectoryProvider>()
       ..markCatalogDirty()
       ..syncCatalogIfDirty();
     setState(() {
-      _coverUrl = pick.path;
+      _coverUrl = path;
       _coverVersion++;
     });
     _hasChanges = true;
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(TranslationService.translate(context, 'cover_updated')),
-      ),
+      SnackBar(content: Text(TranslationService.translate(context, messageKey))),
+    );
+  }
+
+  void _showCoverError(String messageKey) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(TranslationService.translate(context, messageKey))),
     );
   }
 

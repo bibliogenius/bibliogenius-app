@@ -12711,3 +12711,15 @@ msgstr "この画像形式には対応していません。JPEG、PNG、WebP、G
 #. Cover from a web page: the image could not be decoded
 msgid "web_cover_error_unreadable_image"
 msgstr "画像を読み込めませんでした。"
+
+#. Cover from a web page dialog: button that keeps the previewed cover
+msgid "web_cover_use"
+msgstr "この表紙を使う"
+
+#. Cover from a web page dialog: button that drops the preview and asks for another address
+msgid "web_cover_try_another"
+msgstr "別のアドレスを試す"
+
+#. Cover from a web page dialog: screen reader label of the previewed cover
+msgid "web_cover_preview_label"
+msgstr "ページで見つかった表紙"

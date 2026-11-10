@@ -1856,11 +1856,8 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (!await showCoverScanTipsIfNeeded(context)) return;
     try {
       final path = await CoverCameraHelper.takePhotoAndSave();
-      if (path == null || !mounted) return;
-      setState(() {
-        _tempCoverPath = path;
-        _coverUrl = path;
-      });
+      if (path == null) return;
+      _useTempCover(path);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1876,11 +1873,25 @@ class _AddBookScreenState extends State<AddBookScreen> {
 
   Future<void> _pickCoverFromWeb() async {
     final pick = await showWebCoverDialog(context);
-    if (pick == null || !mounted) return;
+    if (pick == null) return;
+    _useTempCover(pick.path, webCover: pick);
+  }
+
+  /// Shows a temp cover file just saved, deleting the previous temp cover:
+  /// each new attempt would otherwise leave one behind in covers/.
+  void _useTempCover(String path, {WebCoverPick? webCover}) {
+    if (!mounted) {
+      CoverCameraHelper.cleanupTempCover(path);
+      return;
+    }
+    final previous = _tempCoverPath;
+    if (previous != null && previous != path) {
+      CoverCameraHelper.cleanupTempCover(previous);
+    }
     setState(() {
-      _tempCoverPath = pick.path;
-      _coverUrl = pick.path;
-      _webCover = pick;
+      _tempCoverPath = path;
+      _coverUrl = path;
+      _webCover = webCover;
     });
   }
 
@@ -1888,12 +1899,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     try {
       final targetPath = await CoverCameraHelper.pickFromGalleryAndSave();
       if (targetPath == null) return;
-
-      if (!mounted) return;
-      setState(() {
-        _tempCoverPath = targetPath;
-        _coverUrl = targetPath;
-      });
+      _useTempCover(targetPath);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

@@ -3,10 +3,11 @@ import 'package:flutter/foundation.dart';
 import '../utils/cover_camera_helper.dart';
 import 'ffi_service.dart';
 
-/// A cover fetched from a web page and saved into covers/.
+/// A cover fetched from a web page and saved into covers/ under a temp name,
+/// for the user to preview before it replaces anything.
 @immutable
 class WebCoverPick {
-  /// Local file, `<bookId>.jpg` or a temp name while the book has no id.
+  /// The temp file, `temp_<uuid>.jpg`.
   final String path;
 
   /// The image's web address, to record as the cover's origin.
@@ -17,9 +18,9 @@ class WebCoverPick {
 
 /// Why no cover could be taken from the page.
 class WebCoverException implements Exception {
-  /// Error codes the Rust side returns, plus `unreadable_image` when the
-  /// bytes passed its format check but the cover pipeline could not decode
-  /// them. Anything else is reported as `network`.
+  /// Error codes the Rust side returns, plus `too_large`, `unsupported_image`
+  /// and `unreadable_image` from the cover pipeline. An unknown code is
+  /// reported as `network`.
   static const knownCodes = {
     'invalid_url',
     'blocked_address',
@@ -46,8 +47,8 @@ class WebCoverException implements Exception {
 
 typedef WebCoverFetcher =
     Future<({Uint8List bytes, String imageUrl})> Function(String url);
-typedef WebCoverSaver =
-    Future<String> Function(Uint8List bytes, {String? bookId});
+typedef WebCoverSaver = Future<String> Function(Uint8List bytes);
+typedef WebCoverDiscarder = Future<void> Function(String path);
 
 /// Takes a book cover from a web page the user points at: the Rust side finds
 /// and downloads the image (public https only), then the bytes go through the
@@ -55,10 +56,21 @@ typedef WebCoverSaver =
 class WebCoverService {
   final WebCoverFetcher _fetch;
   final WebCoverSaver _save;
+  final WebCoverDiscarder _discard;
 
-  WebCoverService({WebCoverFetcher? fetch, WebCoverSaver? save})
-    : _fetch = fetch ?? _fetchViaFfi,
-      _save = save ?? CoverCameraHelper.saveBytesToCovers;
+  WebCoverService({
+    WebCoverFetcher? fetch,
+    WebCoverSaver? save,
+    WebCoverDiscarder? discard,
+  }) : _fetch = fetch ?? _fetchViaFfi,
+       _save = save ?? _saveCapped,
+       _discard = discard ?? CoverCameraHelper.cleanupTempCover;
+
+  static Future<String> _saveCapped(Uint8List bytes) =>
+      CoverCameraHelper.saveBytesToCovers(
+        bytes,
+        maxPixels: CoverCameraHelper.webMaxSourcePixels,
+      );
 
   static Future<({Uint8List bytes, String imageUrl})> _fetchViaFfi(
     String url,
@@ -67,9 +79,9 @@ class WebCoverService {
     return (bytes: cover.bytes, imageUrl: cover.imageUrl);
   }
 
-  /// Fetch the cover shown at [url] and save it, as `<bookId>.jpg` when
-  /// [bookId] is known. Throws [WebCoverException].
-  Future<WebCoverPick> fetchAndSave(String url, {String? bookId}) async {
+  /// Fetch the cover shown at [url] and save it under a temp name. Throws
+  /// [WebCoverException], whatever went wrong.
+  Future<WebCoverPick> fetchAndSave(String url) async {
     final ({Uint8List bytes, String imageUrl}) fetched;
     try {
       fetched = await _fetch(url.trim());
@@ -80,14 +92,22 @@ class WebCoverService {
       throw WebCoverException('network');
     }
     try {
-      final path = await _save(fetched.bytes, bookId: bookId);
+      final path = await _save(fetched.bytes);
       return WebCoverPick(path: path, imageUrl: fetched.imageUrl);
     } on CoverImageTooLargeException {
       throw WebCoverException('too_large');
-    } on FormatException {
+    } on UnsupportedCoverImageException {
+      throw WebCoverException('unsupported_image');
+    } catch (e) {
+      // A corrupt image (FormatException, RangeError from the decoder) or a
+      // full disk: the caller must always get an answer it can show.
+      debugPrint('[WEB-COVER] save failed: $e');
       throw WebCoverException('unreadable_image');
     }
   }
+
+  /// Delete a preview the user did not keep.
+  Future<void> discard(WebCoverPick pick) => _discard(pick.path);
 
   /// Record where the cover now saved for [bookId] came from. Call it once
   /// the file sits under its final `<bookId>.jpg` name.

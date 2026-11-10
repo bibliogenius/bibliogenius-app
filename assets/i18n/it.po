@@ -12695,3 +12695,15 @@ msgstr "Questo formato di immagine non è supportato. Usa un'immagine JPEG, PNG,
 #. Cover from a web page: the image could not be decoded
 msgid "web_cover_error_unreadable_image"
 msgstr "Impossibile leggere l'immagine."
+
+#. Cover from a web page dialog: button that keeps the previewed cover
+msgid "web_cover_use"
+msgstr "Usa questa copertina"
+
+#. Cover from a web page dialog: button that drops the preview and asks for another address
+msgid "web_cover_try_another"
+msgstr "Prova un altro indirizzo"
+
+#. Cover from a web page dialog: screen reader label of the previewed cover
+msgid "web_cover_preview_label"
+msgstr "Copertina trovata nella pagina"

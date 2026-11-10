@@ -197,7 +197,8 @@ void main() {
       expect(centre.g, lessThan(80));
     });
 
-    test('refuses an image whose dimensions would exhaust memory', () async {
+    test('refuses a web image whose dimensions would exhaust memory',
+        () async {
       // A tiny file can declare huge dimensions (a flat image compresses to
       // almost nothing): decoding it would allocate gigabytes.
       await expectLater(
@@ -205,10 +206,33 @@ void main() {
           dir,
           pngHeaderOnly(20000, 20000),
           bookId: 'book-1',
+          maxPixels: CoverCameraHelper.webMaxSourcePixels,
         ),
         throwsA(isA<CoverImageTooLargeException>()),
       );
       expect(await File('${dir.path}/book-1.jpg').exists(), isFalse);
+    });
+
+    test('leaves the user\'s own files uncapped', () {
+      // A large flatbed scan or a 108 MP photo picked from the gallery was
+      // accepted before the web cap existed and must stay so. The header-only
+      // fixture then fails in the decoder itself, never at the size check.
+      expect(
+        () => CoverCameraHelper.decodeCoverSource(pngHeaderOnly(12000, 9000)),
+        throwsA(isNot(isA<CoverImageTooLargeException>())),
+      );
+    });
+
+    test('refuses an animated WebP from the web', () {
+      // Each frame's real size is in its own bitstream: the header read
+      // cannot bound it.
+      expect(
+        () => CoverCameraHelper.decodeCoverSource(
+          animatedWebpHeaderOnly(),
+          maxPixels: CoverCameraHelper.webMaxSourcePixels,
+        ),
+        throwsA(isA<UnsupportedCoverImageException>()),
+      );
     });
 
     test('decodes only the first frame of an animation', () async {
@@ -274,4 +298,27 @@ Uint8List pngHeaderOnly(int width, int height) {
     ...chunk('IHDR', [...be32(width), ...be32(height), 8, 6, 0, 0, 0]),
     ...chunk('IEND', const []),
   ]);
+}
+
+/// A WebP made of a VP8X header flagged as animated, an ANIM chunk and two
+/// empty ANMF frames: enough for the decoder to report an animation.
+Uint8List animatedWebpHeaderOnly() {
+  List<int> le24(int v) => [v & 0xFF, v >> 8 & 0xFF, v >> 16 & 0xFF];
+  List<int> le32(int v) => [...le24(v), v >> 24 & 0xFF];
+  List<int> chunk(String type, List<int> data) => [
+    ...type.codeUnits,
+    ...le32(data.length),
+    ...data,
+    if (data.length.isOdd) 0,
+  ];
+
+  final frame = [...le24(0), ...le24(0), ...le24(0), ...le24(0), ...le24(100), 0];
+  final body = [
+    ...'WEBP'.codeUnits,
+    ...chunk('VP8X', [0x02, 0, 0, 0, ...le24(0), ...le24(0)]),
+    ...chunk('ANIM', [0, 0, 0, 0, 0, 0]),
+    ...chunk('ANMF', frame),
+    ...chunk('ANMF', frame),
+  ];
+  return Uint8List.fromList([...'RIFF'.codeUnits, ...le32(body.length), ...body]);
 }

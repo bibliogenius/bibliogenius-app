@@ -12711,3 +12711,15 @@ msgstr "不支持此图片格式。请使用 JPEG、PNG、WebP 或 GIF 图片。
 #. Cover from a web page: the image could not be decoded
 msgid "web_cover_error_unreadable_image"
 msgstr "无法读取该图片。"
+
+#. Cover from a web page dialog: button that keeps the previewed cover
+msgid "web_cover_use"
+msgstr "使用此封面"
+
+#. Cover from a web page dialog: button that drops the preview and asks for another address
+msgid "web_cover_try_another"
+msgstr "尝试其他地址"
+
+#. Cover from a web page dialog: screen reader label of the previewed cover
+msgid "web_cover_preview_label"
+msgstr "在页面上找到的封面"
