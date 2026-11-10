@@ -32,14 +32,19 @@ import '../widgets/borrow_request_sent_snack_bar.dart';
 class LibraryCatalogScreen extends StatefulWidget {
   final String nodeId;
 
-  const LibraryCatalogScreen({super.key, required this.nodeId});
+  /// Backend seam for widget tests; production uses the [FfiService]
+  /// singleton.
+  @visibleForTesting
+  final FfiService? ffi;
+
+  const LibraryCatalogScreen({super.key, required this.nodeId, this.ffi});
 
   @override
   State<LibraryCatalogScreen> createState() => _LibraryCatalogScreenState();
 }
 
 class _LibraryCatalogScreenState extends State<LibraryCatalogScreen> {
-  final FfiService _ffi = FfiService();
+  late final FfiService _ffi = widget.ffi ?? FfiService();
 
   HubProfile? _profile;
   List<FrbCatalogEntry> _entries = [];
@@ -470,6 +475,15 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
   @override
   void initState() {
     super.initState();
+    // A book without an ISBN arrives with an empty one. There is nothing to
+    // look up: an empty query can come back with an unrelated book, and its
+    // answer, cached under the shared empty key, would then stand in for
+    // every other ISBN-less book of this catalog. The entry's own data is
+    // all the sheet has to show.
+    if (widget.entry.isbn.trim().isEmpty) {
+      _loading = false;
+      return;
+    }
     if (widget.lookupCache.containsKey(widget.entry.isbn)) {
       _meta = widget.lookupCache[widget.entry.isbn];
       _loading = false;
@@ -584,8 +598,18 @@ class _BookDetailSheetState extends State<_BookDetailSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isLocal = widget.localIsbns.contains(widget.entry.isbn);
-    final coverUrl = _meta?['cover_url'];
+    // An empty ISBN names no book: once one ISBN-less book is added, matching
+    // on it would mark every other ISBN-less book as already held.
+    final isLocal =
+        widget.entry.isbn.trim().isNotEmpty &&
+        widget.localIsbns.contains(widget.entry.isbn);
+    // The owner's published cover first, as on the grid tile: the owner is
+    // the authority on their covers (see CoverUrlResolver.resolveForPeer).
+    // The looked-up one only fills in when they published none.
+    final ownerCover = widget.entry.coverUrl;
+    final coverUrl = (ownerCover != null && ownerCover.isNotEmpty)
+        ? ownerCover
+        : _meta?['cover_url'];
     final summary = _meta?['summary'];
     final publisher = _meta?['publisher'];
     final year = _meta?['publication_year'];
