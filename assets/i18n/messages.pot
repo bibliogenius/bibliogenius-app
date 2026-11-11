@@ -9598,6 +9598,18 @@ msgstr ""
 msgid "sort_direction_descending"
 msgstr ""
 
+#. Date the book was added to the library (sort field)
+msgid "sort_field_added_at"
+msgstr ""
+
+#. Date-added sort order: most recently added books first
+msgid "sort_added_newest_first"
+msgstr ""
+
+#. Date-added sort order: earliest added books first
+msgid "sort_added_oldest_first"
+msgstr ""
+
 #. Change sort direction
 msgid "tooltip_sort_direction"
 msgstr ""

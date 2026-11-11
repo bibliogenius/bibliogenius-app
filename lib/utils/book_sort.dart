@@ -6,7 +6,11 @@ import '../models/book.dart';
 /// `shelf_position` column). It only means something while a shelf is open:
 /// everywhere else the list falls back to author A-Z (see
 /// `book_list_screen.dart`).
-enum SortBy { author, title, shelf }
+///
+/// [addedAt] is when the book entered the library (`books.created_at`), not
+/// when it was last edited: it is how a reader finds the books an import just
+/// brought in.
+enum SortBy { author, title, addedAt, shelf }
 
 /// Direction of the primary ordering. Secondary keys are always ascending.
 enum SortDir { asc, desc }
@@ -46,6 +50,15 @@ int _compareByShelfPosition(Book a, Book b) {
   return ap.compareTo(bp);
 }
 
+/// A book with no date of addition comes after every dated one, whatever the
+/// direction: the caller applies the direction to dated pairs only.
+int _compareByAddedAt(Book a, Book b) {
+  final ad = a.addedAt;
+  final bd = b.addedAt;
+  if (ad == null || bd == null) return 0;
+  return ad.compareTo(bd);
+}
+
 /// Orders two books for the library list view.
 ///
 /// Rules:
@@ -55,6 +68,8 @@ int _compareByShelfPosition(Book a, Book b) {
 /// - When sorting by author, books with a missing or whitespace-only author
 ///   are always placed at the bottom, regardless of [dir]. Two empty-author
 ///   books fall through to the title secondary.
+/// - When sorting by date added, undated books are always at the bottom,
+///   and same-date books (or two undated ones) read by title A-Z.
 /// - The shelf order has no reverse: [dir] is ignored, and ties as well as
 ///   the unplaced tail read as the library does by default, author A-Z.
 int compareBooks(Book a, Book b, SortBy sortBy, SortDir dir) {
@@ -69,6 +84,16 @@ int compareBooks(Book a, Book b, SortBy sortBy, SortDir dir) {
     final bEmpty = _isAuthorEmpty(b.author);
     if (aEmpty && !bEmpty) return 1;
     if (!aEmpty && bEmpty) return -1;
+  }
+
+  if (sortBy == SortBy.addedAt) {
+    final aUndated = a.addedAt == null;
+    final bUndated = b.addedAt == null;
+    if (aUndated != bUndated) return aUndated ? 1 : -1;
+    var byDate = _compareByAddedAt(a, b);
+    if (dir == SortDir.desc) byDate = -byDate;
+    if (byDate != 0) return byDate;
+    return _compareByTitle(a, b);
   }
 
   final byTitle = sortBy == SortBy.title;

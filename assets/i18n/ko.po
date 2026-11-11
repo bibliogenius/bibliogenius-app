@@ -7176,6 +7176,18 @@ msgstr "오름차순 (A-Z)"
 msgid "sort_direction_descending"
 msgstr "내림차순 (Z-A)"
 
+#. Date the book was added to the library (sort field)
+msgid "sort_field_added_at"
+msgstr "추가한 날짜"
+
+#. Date-added sort order: most recently added books first
+msgid "sort_added_newest_first"
+msgstr "최신순"
+
+#. Date-added sort order: earliest added books first
+msgid "sort_added_oldest_first"
+msgstr "오래된순"
+
 #. Change sort direction
 msgid "tooltip_sort_direction"
 msgstr "정렬 방향 변경"

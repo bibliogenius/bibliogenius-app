@@ -6219,6 +6219,18 @@ msgstr "Croissant (A-Z)"
 msgid "sort_direction_descending"
 msgstr "Décroissant (Z-A)"
 
+#. Date the book was added to the library (sort field)
+msgid "sort_field_added_at"
+msgstr "Date d'ajout"
+
+#. Date-added sort order: most recently added books first
+msgid "sort_added_newest_first"
+msgstr "récents d'abord"
+
+#. Date-added sort order: earliest added books first
+msgid "sort_added_oldest_first"
+msgstr "anciens d'abord"
+
 #. Change sort direction
 msgid "tooltip_sort_direction"
 msgstr "Changer le sens du tri"

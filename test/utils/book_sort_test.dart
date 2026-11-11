@@ -226,4 +226,68 @@ void main() {
       expect(books.map((b) => b.title).toList(), ['First', 'Second']);
     });
   });
+
+  group('sortWith - date added', () {
+    Book added(String title, String? iso) =>
+        Book(title: title, addedAt: iso == null ? null : DateTime.parse(iso));
+
+    test('descending puts the most recent first', () {
+      final books = [
+        added('Old', '2025-01-01T10:00:00Z'),
+        added('Newest', '2026-11-10T10:00:00Z'),
+        added('Middle', '2026-03-01T10:00:00Z'),
+      ];
+      books.sortWith(SortBy.addedAt, SortDir.desc);
+      expect(books.map((b) => b.title).toList(), ['Newest', 'Middle', 'Old']);
+    });
+
+    test('ascending puts the oldest first', () {
+      final books = [
+        added('Newest', '2026-11-10T10:00:00Z'),
+        added('Old', '2025-01-01T10:00:00Z'),
+      ];
+      books.sortWith(SortBy.addedAt, SortDir.asc);
+      expect(books.map((b) => b.title).toList(), ['Old', 'Newest']);
+    });
+
+    test('a batch import keeps its arrival order (sub-second stamps)', () {
+      final books = [
+        added('Second', '2026-11-10T10:00:00.200000Z'),
+        added('First', '2026-11-10T10:00:00.100000Z'),
+        added('Third', '2026-11-10T10:00:00.300000Z'),
+      ];
+      books.sortWith(SortBy.addedAt, SortDir.desc);
+      expect(books.map((b) => b.title).toList(), ['Third', 'Second', 'First']);
+    });
+
+    test('books without a date come last in both directions', () {
+      for (final dir in SortDir.values) {
+        final books = [
+          added('Undated', null),
+          added('Dated', '2026-01-01T00:00:00Z'),
+        ];
+        books.sortWith(SortBy.addedAt, dir);
+        expect(books.map((b) => b.title).toList(), [
+          'Dated',
+          'Undated',
+        ], reason: 'direction $dir');
+      }
+    });
+
+    test('same date falls back to title A-Z, even when descending', () {
+      final books = [
+        added('Zebra', '2026-01-01T00:00:00Z'),
+        added('Apple', '2026-01-01T00:00:00Z'),
+        added('Undated B', null),
+        added('Undated A', null),
+      ];
+      books.sortWith(SortBy.addedAt, SortDir.desc);
+      expect(books.map((b) => b.title).toList(), [
+        'Apple',
+        'Zebra',
+        'Undated A',
+        'Undated B',
+      ]);
+    });
+  });
 }

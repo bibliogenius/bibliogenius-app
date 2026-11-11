@@ -7176,6 +7176,18 @@ msgstr "升序（A-Z）"
 msgid "sort_direction_descending"
 msgstr "降序（Z-A）"
 
+#. Date the book was added to the library (sort field)
+msgid "sort_field_added_at"
+msgstr "添加日期"
+
+#. Date-added sort order: most recently added books first
+msgid "sort_added_newest_first"
+msgstr "最新优先"
+
+#. Date-added sort order: earliest added books first
+msgid "sort_added_oldest_first"
+msgstr "最早优先"
+
 #. Change sort direction
 msgid "tooltip_sort_direction"
 msgstr "更改排序方向"

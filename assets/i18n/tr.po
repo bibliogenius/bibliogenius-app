@@ -5265,6 +5265,18 @@ msgstr "Artan (A-Z)"
 msgid "sort_direction_descending"
 msgstr "Azalan (Z-A)"
 
+#. Date the book was added to the library (sort field)
+msgid "sort_field_added_at"
+msgstr "Eklenme tarihi"
+
+#. Date-added sort order: most recently added books first
+msgid "sort_added_newest_first"
+msgstr "en yeniler önce"
+
+#. Date-added sort order: earliest added books first
+msgid "sort_added_oldest_first"
+msgstr "en eskiler önce"
+
 #. Change sort direction
 msgid "tooltip_sort_direction"
 msgstr "Sıralama yönünü değiştir"

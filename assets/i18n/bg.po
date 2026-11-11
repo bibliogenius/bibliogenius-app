@@ -5212,6 +5212,18 @@ msgstr "Възходящ (А-Я)"
 msgid "sort_direction_descending"
 msgstr "Низходящ (Я-А)"
 
+#. Date the book was added to the library (sort field)
+msgid "sort_field_added_at"
+msgstr "Дата на добавяне"
+
+#. Date-added sort order: most recently added books first
+msgid "sort_added_newest_first"
+msgstr "първо най-новите"
+
+#. Date-added sort order: earliest added books first
+msgid "sort_added_oldest_first"
+msgstr "първо най-старите"
+
 #. Change sort direction
 msgid "tooltip_sort_direction"
 msgstr "Промяна на посоката на сортиране"

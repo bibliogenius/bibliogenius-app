@@ -60,6 +60,8 @@ enum _SortAction {
   authorDesc,
   titleAsc,
   titleDesc,
+  addedNewest,
+  addedOldest,
   shelfOrder,
   manualReorder,
 }
@@ -1611,6 +1613,7 @@ class _BookListScreenState extends State<BookListScreen>
   String _sortFieldKey(SortBy sortBy) => switch (sortBy) {
     SortBy.author => 'sort_field_author',
     SortBy.title => 'sort_field_title',
+    SortBy.addedAt => 'sort_field_added_at',
     SortBy.shelf => 'sort_shelf_order',
   };
 
@@ -3160,13 +3163,19 @@ class _BookListScreenState extends State<BookListScreen>
       _sortFieldKey(sortBy),
     );
     final sortByLabel = TranslationService.translate(context, 'sort_by_label');
-    // A hand-made order has no direction to announce.
-    final directionLabel = sortBy == SortBy.shelf
-        ? null
-        : TranslationService.translate(
-            context,
-            asc ? 'sort_direction_ascending' : 'sort_direction_descending',
-          );
+    // A hand-made order has no direction to announce; a date reads as old
+    // or recent, not as A-Z.
+    final directionLabel = switch (sortBy) {
+      SortBy.shelf => null,
+      SortBy.addedAt => TranslationService.translate(
+        context,
+        asc ? 'sort_added_oldest_first' : 'sort_added_newest_first',
+      ),
+      _ => TranslationService.translate(
+        context,
+        asc ? 'sort_direction_ascending' : 'sort_direction_descending',
+      ),
+    };
     final direction = directionLabel == null ? '' : ', $directionLabel';
 
     return Padding(
@@ -3240,6 +3249,11 @@ class _BookListScreenState extends State<BookListScreen>
       context,
       'sort_field_title',
     );
+    final addedLabel = TranslationService.translate(
+      context,
+      'sort_field_added_at',
+    );
+    String addedOrder(String key) => TranslationService.translate(context, key);
 
     PopupMenuItem<_SortAction> item({
       required _SortAction action,
@@ -3294,6 +3308,18 @@ class _BookListScreenState extends State<BookListScreen>
         icon: Icons.arrow_upward,
         selected: sortBy == SortBy.title && sortDir == SortDir.desc,
       ),
+      item(
+        action: _SortAction.addedNewest,
+        label: '$addedLabel (${addedOrder('sort_added_newest_first')})',
+        icon: Icons.schedule,
+        selected: sortBy == SortBy.addedAt && sortDir == SortDir.desc,
+      ),
+      item(
+        action: _SortAction.addedOldest,
+        label: '$addedLabel (${addedOrder('sort_added_oldest_first')})',
+        icon: Icons.history,
+        selected: sortBy == SortBy.addedAt && sortDir == SortDir.asc,
+      ),
     ];
 
     // The shelf order, and the manual reorder that writes it, only make
@@ -3342,6 +3368,12 @@ class _BookListScreenState extends State<BookListScreen>
         break;
       case _SortAction.titleDesc:
         sortPref.setFieldSort(SortBy.title, SortDir.desc, shelfId: shelfId);
+        break;
+      case _SortAction.addedNewest:
+        sortPref.setFieldSort(SortBy.addedAt, SortDir.desc, shelfId: shelfId);
+        break;
+      case _SortAction.addedOldest:
+        sortPref.setFieldSort(SortBy.addedAt, SortDir.asc, shelfId: shelfId);
         break;
       case _SortAction.shelfOrder:
         _followShelfOrder().then((follows) {

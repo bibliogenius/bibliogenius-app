@@ -30,6 +30,17 @@ void main() {
     expect(provider.sortDir, SortDir.desc);
   });
 
+  test('restores the date-added sort', () async {
+    SharedPreferences.setMockInitialValues({
+      'library_sort_by': 'addedAt',
+      'library_sort_dir': 'desc',
+    });
+    final provider = SortPreferenceProvider();
+    await provider.load();
+    expect(provider.sortBy, SortBy.addedAt);
+    expect(provider.sortDir, SortDir.desc);
+  });
+
   test('ignores unknown persisted values and falls back to defaults', () async {
     SharedPreferences.setMockInitialValues({
       'library_sort_by': 'author_surname',
