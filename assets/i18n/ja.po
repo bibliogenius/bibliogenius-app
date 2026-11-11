@@ -12731,3 +12731,7 @@ msgstr "次の画像"
 #. Cover from a web page dialog: shown when no further image of the page could be displayed
 msgid "web_cover_no_more_images"
 msgstr "このページの他の画像は表示できませんでした。"
+
+#. Cover from a web page dialog: button that shows the image seen before
+msgid "web_cover_previous_image"
+msgstr "前の画像"

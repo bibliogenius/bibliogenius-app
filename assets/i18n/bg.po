@@ -12722,3 +12722,7 @@ msgstr "Следващо изображение"
 #. Cover from a web page dialog: shown when no further image of the page could be displayed
 msgid "web_cover_no_more_images"
 msgstr "Не може да се покаже друго изображение от тази страница."
+
+#. Cover from a web page dialog: button that shows the image seen before
+msgid "web_cover_previous_image"
+msgstr "Предишно изображение"

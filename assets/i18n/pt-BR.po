@@ -12725,3 +12725,7 @@ msgstr "Próxima imagem"
 #. Cover from a web page dialog: shown when no further image of the page could be displayed
 msgid "web_cover_no_more_images"
 msgstr "Nenhuma outra imagem desta página pôde ser exibida."
+
+#. Cover from a web page dialog: button that shows the image seen before
+msgid "web_cover_previous_image"
+msgstr "Imagem anterior"

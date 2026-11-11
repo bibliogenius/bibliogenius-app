@@ -26,6 +26,7 @@ void main() {
         'web_cover_try_another': 'Try another address',
         'web_cover_preview_label': 'Cover found on the page',
         'web_cover_next_image': 'Next image',
+        'web_cover_previous_image': 'Previous image',
         'web_cover_no_more_images': 'No other image',
         'cancel': 'Cancel',
       },
@@ -204,24 +205,72 @@ void main() {
     expect(find.byType(AlertDialog), findsOneWidget);
   });
 
-  testWidgets('steps to the next image and drops the one it replaces', (
+  testWidgets('steps to the next image, and drops the others on keeping', (
     tester,
   ) async {
     final opened = await openDialog(tester, found);
     await fetchAddress(tester);
+    expect(find.text('Previous image'), findsNothing, reason: 'first image');
 
     await tester.tap(find.text('Next image'));
     await tester.pumpAndSettle();
-    expect(opened.discarded, ['/covers/temp_1.jpg']);
-
     await tester.tap(find.text('Next image'));
     await tester.pumpAndSettle();
     expect(find.text('Next image'), findsNothing, reason: 'last candidate');
+    expect(opened.discarded, isEmpty, reason: 'kept for going back');
 
     await tester.tap(find.text('Use this cover'));
     await tester.pumpAndSettle();
     expect(opened.results.single!.imageUrl, page.last);
     expect(opened.results.single!.path, '/covers/temp_3.jpg');
+    expect(opened.discarded, ['/covers/temp_1.jpg', '/covers/temp_2.jpg']);
+  });
+
+  testWidgets('goes back to an image already seen, without fetching it', (
+    tester,
+  ) async {
+    final fetched = <String>[];
+    final opened = await openDialog(
+      tester,
+      found,
+      fetchImage: (url) async {
+        fetched.add(url);
+        return (bytes: Uint8List(4), imageUrl: url, candidates: <String>[]);
+      },
+    );
+    await fetchAddress(tester);
+    await tester.tap(find.text('Next image'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Previous image'));
+    await tester.pumpAndSettle();
+    expect(find.text('Previous image'), findsNothing);
+
+    // Forward again: the second image comes from the history.
+    await tester.tap(find.text('Next image'));
+    await tester.pumpAndSettle();
+    expect(fetched, [page[1]], reason: 'each candidate fetched once');
+
+    await tester.tap(find.text('Previous image'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Use this cover'));
+    await tester.pumpAndSettle();
+    expect(opened.results.single!.imageUrl, page.first);
+    expect(opened.discarded, ['/covers/temp_2.jpg']);
+  });
+
+  testWidgets('drops every preview shown when the dialog is left', (
+    tester,
+  ) async {
+    final opened = await openDialog(tester, found);
+    await fetchAddress(tester);
+    await tester.tap(find.text('Next image'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(opened.results.single, isNull);
+    expect(opened.discarded, ['/covers/temp_1.jpg', '/covers/temp_2.jpg']);
   });
 
   testWidgets('skips a candidate that fails and says when none is left', (

@@ -40,34 +40,45 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   bool _loading = false;
   String? _errorKey;
 
-  /// The fetched cover, shown for confirmation. Nothing outside this dialog
-  /// knows about it until the user keeps it.
-  WebCoverPick? _preview;
+  /// The covers shown so far, in order, and which one is on screen. Kept so
+  /// "previous image" is instant; nothing outside this dialog knows about
+  /// them until the user keeps one.
+  List<WebCoverPick> _shown = [];
+  int _position = 0;
   bool _kept = false;
+
+  WebCoverPick? get _preview => _shown.isEmpty ? null : _shown[_position];
 
   /// Candidates one tap of "next image" tries before giving the hand back:
   /// each try may take up to the engine's deadline, during which the dialog
   /// cannot be dismissed.
   static const _triesPerStep = 3;
 
-  /// The page's usable images, best first, and the next one to try.
+  /// The page's usable images, best first, and the next one to fetch.
   List<String> _candidates = const [];
   int _nextToTry = 0;
 
   /// Set once stepping ran out of images that could be shown.
   bool _noMoreImages = false;
 
-  bool get _hasNextImage => _nextToTry < _candidates.length;
+  bool get _hasPreviousImage => _position > 0;
+  bool get _hasNextImage =>
+      _position < _shown.length - 1 || _nextToTry < _candidates.length;
 
   @override
   void dispose() {
-    // However the dialog closes (cancel, barrier, back), a preview that was
-    // not kept must not stay on disk.
-    final preview = _preview;
-    if (preview != null && !_kept) widget.service.discard(preview);
+    // However the dialog closes (cancel, barrier, back), the previews that
+    // were not kept must not stay on disk.
+    _discardShown(except: _kept ? _preview : null);
     _controller.dispose();
     _focus.dispose();
     super.dispose();
+  }
+
+  void _discardShown({WebCoverPick? except}) {
+    for (final pick in _shown) {
+      if (!identical(pick, except)) widget.service.discard(pick);
+    }
   }
 
   Future<void> _fetch() async {
@@ -96,7 +107,8 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     setState(() {
       _loading = false;
       _errorKey = errorKey;
-      _preview = pick;
+      _shown = [?pick];
+      _position = 0;
       _candidates = pick?.candidates ?? const [];
       _nextToTry = pick == null ? 0 : _candidates.indexOf(pick.imageUrl) + 1;
       _noMoreImages = false;
@@ -114,10 +126,23 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     }
   }
 
-  /// Shows the page's next image that can be fetched, skipping those that
-  /// fail, at most [_triesPerStep] per tap; says so when none is left.
+  void _previousImage() {
+    if (_loading || !_hasPreviousImage) return;
+    setState(() {
+      _position--;
+      _noMoreImages = false;
+    });
+  }
+
+  /// Shows the next image: one already seen, or else the page's next image
+  /// that can be fetched, skipping those that fail, at most [_triesPerStep]
+  /// per tap; says so when none is left.
   Future<void> _nextImage() async {
     if (_loading || !_hasNextImage) return;
+    if (_position < _shown.length - 1) {
+      setState(() => _position++);
+      return;
+    }
     setState(() => _loading = true);
     WebCoverPick? next;
     final stop = (_nextToTry + _triesPerStep).clamp(0, _candidates.length);
@@ -134,12 +159,11 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       if (next != null) widget.service.discard(next);
       return;
     }
-    final previous = _preview;
-    if (next != null && previous != null) widget.service.discard(previous);
     setState(() {
       _loading = false;
       if (next != null) {
-        _preview = next;
+        _shown = [..._shown, next];
+        _position = _shown.length - 1;
         _nextToTry = index + 1;
       } else {
         _nextToTry = stop;
@@ -149,10 +173,10 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   }
 
   void _tryAnother() {
-    final preview = _preview;
-    if (preview != null) widget.service.discard(preview);
+    _discardShown();
     setState(() {
-      _preview = null;
+      _shown = [];
+      _position = 0;
       _candidates = const [];
       _noMoreImages = false;
     });
@@ -194,6 +218,11 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
               onPressed: _loading ? null : _tryAnother,
               child: Text(t('web_cover_try_another')),
             ),
+            if (_hasPreviousImage)
+              TextButton(
+                onPressed: _loading ? null : _previousImage,
+                child: Text(t('web_cover_previous_image')),
+              ),
             if (_hasNextImage)
               TextButton(
                 onPressed: _loading ? null : _nextImage,
