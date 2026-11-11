@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../providers/metadata_fill_provider.dart';
 import '../services/api_service.dart';
+import '../services/cover_enrichment_coordinator.dart';
 import '../services/ffi_service.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
@@ -38,6 +39,7 @@ class ImportActions {
   static Future<void> importCsv(BuildContext context) async {
     final apiService = context.read<ApiService>();
     final hubDirectory = context.read<HubDirectoryProvider>();
+    final coverEnrichment = context.read<CoverEnrichmentCoordinator>();
     final importFailedMsg = TranslationService.translate(
       context,
       'migration_import_failed',
@@ -131,6 +133,10 @@ class ImportActions {
       final int imported = data['imported'] ?? 0;
       if (imported > 0) {
         hubDirectory.markCatalogDirty();
+        // Look for the covers of the books that just arrived now, not at the
+        // next launch. Never awaited: it runs for as long as the import is
+        // large.
+        unawaited(coverEnrichment.run());
         // The banner that offers to repair an import reads a completeness stat
         // and a creation cluster, both measured at startup, when this library
         // was whatever it was before these books existed. Re-read them now, or

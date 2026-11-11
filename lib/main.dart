@@ -15,6 +15,7 @@ import 'services/auth_service.dart';
 import 'services/api_service.dart';
 import 'services/account_sync_scheduler.dart';
 import 'services/backup_scheduler_service.dart';
+import 'services/cover_enrichment_coordinator.dart';
 import 'services/sync_service.dart';
 import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
@@ -749,12 +750,22 @@ class MyApp extends StatelessWidget {
 
     // Enrich missing covers in background (async, don't block startup)
     final bookRefreshNotifier = BookRefreshNotifier();
-    apiService.enrichMissingCovers().then((count) {
-      if (count > 0) {
-        debugPrint('Enriched $count book covers');
+    // The directory provider is created with the first frame, after this
+    // sweep has started. A sweep that ends before it exists loses nothing:
+    // the provider is born with its catalog marked dirty and pushes at
+    // startup, covers included.
+    HubDirectoryProvider? hubDirectory;
+    final coverEnrichment = CoverEnrichmentCoordinator(
+      enrich: apiService.enrichMissingCovers,
+      onCoversFound: () {
         bookRefreshNotifier.refresh();
-      }
-    });
+        // Found covers are part of the published catalog: without this they
+        // only reached the hub with the next hand edit or keep-alive push.
+        hubDirectory?.markCatalogDirty();
+      },
+      onPublishTick: () => hubDirectory?.markCatalogDirty(),
+    );
+    unawaited(coverEnrichment.run());
 
     // Pre-warm leaderboard caches in background so scores are fresh when
     // the user opens a game leaderboard. Skip direct HTTP on cellular.
@@ -872,11 +883,13 @@ class MyApp extends StatelessWidget {
           dispose: (_, s) => s.dispose(),
         ),
         ChangeNotifierProvider<HubDirectoryProvider>(
-          create: (_) => HubDirectoryProvider(apiService: apiService)
-            ..loadHubEnabled()
-            ..loadContactInfo()
-            ..loadCustomFollowNames(),
+          create: (_) =>
+              hubDirectory = HubDirectoryProvider(apiService: apiService)
+                ..loadHubEnabled()
+                ..loadContactInfo()
+                ..loadCustomFollowNames(),
         ),
+        Provider<CoverEnrichmentCoordinator>.value(value: coverEnrichment),
         ChangeNotifierProvider<FlashMessageProvider>(
           create: (_) => FlashMessageProvider(),
         ),
