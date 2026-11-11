@@ -23,14 +23,21 @@ class SyncService {
   final bool Function() _isLanEnabled;
   final Future<List<ConnectivityResult>> Function() _checkConnectivity;
   final bool Function(String url) _isPeerDiscovered;
+  final DateTime Function() _now;
   final Map<String, _PeerBackoff> _backoff = {};
+
+  /// Peers whose sync has not returned yet. A relay sync can outlast several
+  /// rounds, and a second request for the same peer only fills its mailbox.
+  final Set<String> _inFlight = {};
 
   SyncService(
     this._apiService, {
     required bool Function() isLanEnabled,
     Future<List<ConnectivityResult>> Function()? checkConnectivity,
     bool Function(String url)? isPeerDiscovered,
+    DateTime Function()? now,
   }) : _isLanEnabled = isLanEnabled,
+       _now = now ?? DateTime.now,
        _checkConnectivity =
            checkConnectivity ?? (() => Connectivity().checkConnectivity()),
        _isPeerDiscovered = isPeerDiscovered ?? ((_) => false);
@@ -52,7 +59,6 @@ class SyncService {
       final response = await _apiService.getPeers();
       if (response.statusCode == 200) {
         final List peers = response.data['data'] ?? [];
-        final now = DateTime.now();
 
         // Check actual network type: skip direct LAN when not on WiFi/ethernet
         // (avoids 15s timeouts per peer on mobile data).
@@ -81,13 +87,18 @@ class SyncService {
             final url = peer['url'] as String;
             final name = peer['name'] ?? url;
 
+            if (_inFlight.contains(url)) {
+              debugPrint("Skipping peer $name (sync already running)");
+              return;
+            }
+
             // Skip peers still in backoff, unless mDNS currently sees the peer
             // on the LAN: a live announcement proves it is reachable now (e.g.
             // an iOS peer whose embedded server was suspended in the background
             // is back to the foreground), so a fresh discovery overrides the
             // backoff penalty and lets us retry immediately.
             final bo = _backoff[url];
-            if (bo != null && now.isBefore(bo.nextRetry)) {
+            if (bo != null && _now().isBefore(bo.nextRetry)) {
               if (_isPeerDiscovered(url)) {
                 _backoff.remove(url);
               } else {
@@ -98,19 +109,25 @@ class SyncService {
               }
             }
 
+            _inFlight.add(url);
             try {
               await _apiService.syncPeer(url, skipLan: skipLan);
               _backoff.remove(url);
               debugPrint("Synced peer $name");
             } catch (e) {
               final failures = (bo?.failures ?? 0) + 1;
+              // The penalty runs from the moment the failure is known: a
+              // relay sync fails long after it started, and a penalty counted
+              // from the start would already be over.
               _backoff[url] = _PeerBackoff(
                 failures: failures,
-                nextRetry: now.add(_PeerBackoff.backoffDuration(failures)),
+                nextRetry: _now().add(_PeerBackoff.backoffDuration(failures)),
               );
               debugPrint(
                 "Failed to sync peer $name (attempt $failures, next retry in ${_PeerBackoff.backoffDuration(failures).inSeconds}s): $e",
               );
+            } finally {
+              _inFlight.remove(url);
             }
           }),
         );
