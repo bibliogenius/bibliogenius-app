@@ -187,9 +187,17 @@ class WebCoverService {
   Future<void> discard(WebCoverPick pick) => _discard(pick.path);
 
   /// Record where the cover now saved for [bookId] came from. Call it once
-  /// the file sits under its final `<bookId>.jpg` name.
-  Future<void> recordOrigin(String bookId, String imageUrl) =>
-      _recordOrigin(bookId, imageUrl);
+  /// the file sits under its final `<bookId>.jpg` name. Best effort: the
+  /// cover is in place whatever happens here, so a failure is logged, never
+  /// thrown. Losing the origin only means Open Library will later not be
+  /// offered that address.
+  Future<void> recordOrigin(String bookId, String imageUrl) async {
+    try {
+      await _recordOrigin(bookId, imageUrl);
+    } catch (e) {
+      debugPrint('[WEB-COVER] could not record the origin of $bookId: $e');
+    }
+  }
 
   /// Makes a kept preview the cover of the existing book [bookId] and returns
   /// the cover's final path.
@@ -198,7 +206,7 @@ class WebCoverService {
   /// the final path, so a failed database write leaves the previous cover
   /// intact. If the file cannot be renamed afterwards, [previousCoverUrl] is
   /// stored back. On any failure the preview is deleted and the error
-  /// rethrown; on success the cover's web origin is recorded.
+  /// rethrown; on success the cover's web origin is recorded, best effort.
   Future<String> adoptForBook(
     WebCoverPick pick, {
     required String bookId,
@@ -224,7 +232,7 @@ class WebCoverService {
       await _discard(pick.path);
       rethrow;
     }
-    await _recordOrigin(bookId, pick.imageUrl);
+    await recordOrigin(bookId, pick.imageUrl);
     return finalPath;
   }
 }

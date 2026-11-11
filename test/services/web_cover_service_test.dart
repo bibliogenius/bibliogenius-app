@@ -182,7 +182,7 @@ void main() {
       List<String> discarded,
       List<String> origins,
     })
-    harness({bool renameFails = false}) {
+    harness({bool renameFails = false, bool originFails = false}) {
       final writes = <String?>[];
       final renamed = <String>[];
       final discarded = <String>[];
@@ -194,7 +194,10 @@ void main() {
           return '/covers/$bookId.jpg';
         },
         discard: (path) async => discarded.add(path),
-        recordOrigin: (bookId, url) async => origins.add('$bookId $url'),
+        recordOrigin: (bookId, url) async {
+          if (originFails) throw StateError('origin store down');
+          origins.add('$bookId $url');
+        },
       );
       return (
         service: service,
@@ -218,6 +221,31 @@ void main() {
       expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
       expect(h.origins, ['book-1 https://cdn.example.org/42.jpg']);
       expect(h.discarded, isEmpty);
+    });
+
+    test('keeps the new cover when only its origin cannot be recorded', () async {
+      // The cover is already in place: an origin that could not be stored is
+      // no reason to tell the user the update failed.
+      final h = harness(originFails: true);
+      final path = await h.service.adoptForBook(
+        pick,
+        bookId: 'book-1',
+        previousCoverUrl: 'https://old.example.org/a.jpg',
+        updateCoverUrl: (url) async => h.writes.add(url),
+      );
+      expect(path, '/covers/book-1.jpg');
+      expect(h.writes, ['/covers/book-1.jpg'], reason: 'nothing rolled back');
+      expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
+      expect(h.discarded, isEmpty);
+      expect(h.origins, isEmpty);
+    });
+
+    test('recordOrigin on its own never throws either', () async {
+      final h = harness(originFails: true);
+      await expectLater(
+        h.service.recordOrigin('book-1', 'https://cdn.example.org/42.jpg'),
+        completes,
+      );
     });
 
     test('puts the previous cover back when the file cannot be renamed', () async {
