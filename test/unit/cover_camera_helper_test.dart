@@ -281,6 +281,39 @@ void main() {
       expect(decoded.getPixel(30, 45).r, greaterThan(150), reason: 'frame 0');
     });
 
+    test('crops a 16-bit mockup and keeps a half-transparent edge', () async {
+      // 16-bit alpha runs to 65535: a raw threshold of 200 read the shadow as
+      // opaque. And a cover whose edge fades to 60 % opacity keeps that edge.
+      final src = img.Image(
+        width: 1200,
+        height: 1200,
+        numChannels: 4,
+        format: img.Format.uint16,
+      );
+      // Pixels written as is: fillRect would blend a translucent colour
+      // into the transparent canvas and leave its alpha at zero.
+      void paint(int x1, int y1, int x2, int y2, List<int> rgba) {
+        for (var y = y1; y <= y2; y++) {
+          for (var x = x1; x <= x2; x++) {
+            src.setPixelRgba(x, y, rgba[0], rgba[1], rgba[2], rgba[3]);
+          }
+        }
+      }
+
+      paint(240, 340, 659, 959, [0, 0, 0, 15000]); // shadow, about 23 %
+      paint(200, 300, 599, 899, [52000, 8000, 8000, 65535]);
+      paint(200, 300, 599, 309, [52000, 8000, 8000, 39000]); // 60 % edge
+      final path = await CoverCameraHelper.writeCoverFile(
+        dir,
+        Uint8List.fromList(img.encodePng(src)),
+        bookId: 'book-16',
+      );
+      final out = img.decodeJpg(await File(path).readAsBytes())!;
+      expect(out.width, CoverCameraHelper.targetMaxWidth);
+      expect(out.height, CoverCameraHelper.targetMaxHeight);
+      expect(out.getPixel(150, 1).r, greaterThan(150), reason: 'edge kept');
+    });
+
     test('crops a mockup down to the opaque cover', () async {
       // Shape of a publisher mockup: the cover floats on a transparent canvas
       // with a semi-transparent drop shadow. Kept whole, it shrinks to a small

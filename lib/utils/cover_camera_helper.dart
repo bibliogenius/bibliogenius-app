@@ -353,28 +353,31 @@ class CoverCameraHelper {
     return smallest!;
   }
 
-  /// Alpha from which a pixel counts as part of the cover: a mockup's drop
-  /// shadow is semi-transparent (well under this), the cover itself opaque.
-  static const int _opaqueAlpha = 200;
+  /// Opacity (0 to 1, whatever the bit depth) from which a pixel counts as
+  /// part of the cover. A mockup's drop shadow stays well under half opaque
+  /// (under 0.5 on a real one); a cover edge fading to translucent is kept.
+  static const double _coverOpacity = 0.5;
 
-  /// Crops an image with transparency to the box of its opaque pixels.
-  /// Publishers often show a cover floating on a transparent canvas with a
-  /// soft shadow; kept whole, the book shrinks to the middle of the
-  /// thumbnail. Only transparency is cropped, so the cover itself can never
-  /// be cut; an opaque image (every photo) is returned untouched, and so is
-  /// one with no opaque pixel at all.
+  /// Crops an image with transparency to the box of its pixels at least half
+  /// opaque. Publishers often show a cover floating on a transparent canvas
+  /// with a soft shadow; kept whole, the book shrinks to the middle of the
+  /// thumbnail. Only margins that are mostly transparent are cropped: a cover
+  /// part fainter than that would go too, which no real cover was seen to
+  /// have. An image without transparency (every photo) is returned
+  /// untouched, and so is one with no such pixel at all. Applies to gallery
+  /// files as well as web images.
   static img.Image _cropToOpaque(img.Image src) {
     if (!src.hasAlpha) return src;
     bool opaqueRow(int y) {
       for (var x = 0; x < src.width; x++) {
-        if (src.getPixel(x, y).a >= _opaqueAlpha) return true;
+        if (src.getPixel(x, y).aNormalized >= _coverOpacity) return true;
       }
       return false;
     }
 
     bool opaqueColumn(int x, int top, int bottom) {
       for (var y = top; y <= bottom; y++) {
-        if (src.getPixel(x, y).a >= _opaqueAlpha) return true;
+        if (src.getPixel(x, y).aNormalized >= _coverOpacity) return true;
       }
       return false;
     }
