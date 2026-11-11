@@ -37,6 +37,10 @@ class HouseholdProvider extends ChangeNotifier {
     return null;
   }
 
+  /// The user stepped back to the shared view on purpose (see
+  /// [leaveReader]), as opposed to a device that never chose.
+  bool get sharedViewChosen => _sharedViewChosen;
+
   bool get busy => _busy;
   bool get isLoaded => _loaded;
 
@@ -66,11 +70,17 @@ class HouseholdProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Adds a reader and makes them the reader of this device.
-  Future<bool> createReader(String name) => _run(() async {
-    await _ffi.createHouseholdReader(name);
-    await _rememberSharedViewChosen(false);
-  });
+  /// Adds a reader and resolves to them, null on failure. They become the
+  /// reader of this device only if nobody read here yet; otherwise the
+  /// current reader stays.
+  Future<FrbReader?> createReader(String name) async {
+    FrbReader? created;
+    final ok = await _run(() async {
+      created = await _ffi.createHouseholdReader(name);
+      await _rememberSharedViewChosen(false);
+    });
+    return ok ? created : null;
+  }
 
   Future<bool> selectReader(String readerId) => _run(() async {
     await _ffi.setCurrentHouseholdReader(readerId);

@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import '../providers/book_refresh_notifier.dart';
 import '../providers/household_provider.dart';
 import '../services/translation_service.dart';
-import '../src/rust/api/frb.dart' show FrbReadingImportReport;
+import '../src/rust/api/frb.dart' show FrbReader, FrbReadingImportReport;
 import '../theme/app_design.dart';
 import 'account_sync_summary_sheet.dart';
 import 'household_reader_name_dialog.dart';
@@ -124,7 +124,60 @@ class HouseholdReadersSection extends StatelessWidget {
           : 'household_add_reader',
     );
     if (name == null || !context.mounted) return;
-    await _apply(context, () => provider.createReader(name));
+    final readingHere = provider.currentReaderId;
+    final sharedViewChosen = provider.sharedViewChosen;
+    FrbReader? created;
+    await _apply(context, () async {
+      created = await provider.createReader(name);
+      return created != null;
+    });
+    final reader = created;
+    if (reader == null || !context.mounted) return;
+    // Judged after the reload: a reader deleted on another device left a
+    // stale id here, and the core then made the newcomer the reader.
+    final nowHere = provider.currentReaderId == reader.id;
+    if (!nowHere) {
+      // The device keeps its reader; the newcomer starts with an empty
+      // record. One tap makes them the reader here instead.
+      _showReaderNotice(
+        context,
+        'household_reader_added',
+        reader.name,
+        actionKey: 'household_reader_choose',
+        onAction: () => _apply(context, () => provider.selectReader(reader.id)),
+      );
+    } else if (readingHere != null || sharedViewChosen) {
+      // The device left a reader, or a shared view chosen on purpose, for an
+      // empty record: say so, with the way back. A device that never chose
+      // (the newcomer is creating themselves) needs no word.
+      _showReaderNotice(
+        context,
+        'household_reader_now_here',
+        reader.name,
+        actionKey: 'household_leave_reader',
+        onAction: () => _apply(context, provider.leaveReader),
+      );
+    }
+  }
+
+  /// A notice about whose readings this device shows. It carries an action,
+  /// which also keeps it on screen while assistive navigation is on.
+  void _showReaderNotice(
+    BuildContext context,
+    String messageKey,
+    String name, {
+    required String actionKey,
+    required VoidCallback onAction,
+  }) {
+    String t(String key, [Map<String, String>? params]) =>
+        TranslationService.translate(context, key, params: params);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 8),
+        content: Text(t(messageKey, {'name': name})),
+        action: SnackBarAction(label: t(actionKey), onPressed: onAction),
+      ),
+    );
   }
 
   Future<void> _rename(BuildContext context, String id, String current) async {
@@ -246,13 +299,13 @@ class HouseholdReadersSection extends StatelessWidget {
   }
 
   /// Every list on screen shows the reading state of the current reader, so
-  /// a change of reader has to reach them all.
-  Future<void> _apply(
+  /// a change of reader has to reach them all. Resolves to the outcome.
+  Future<bool> _apply(
     BuildContext context,
     Future<bool> Function() action,
   ) async {
     final ok = await action();
-    if (!context.mounted) return;
+    if (!context.mounted) return ok;
     if (ok) {
       context.read<BookRefreshNotifier>().refresh();
     } else {
@@ -264,6 +317,7 @@ class HouseholdReadersSection extends StatelessWidget {
         ),
       );
     }
+    return ok;
   }
 }
 

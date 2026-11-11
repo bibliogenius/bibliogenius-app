@@ -11907,7 +11907,19 @@ msgstr "Mein Leseprofil anlegen"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "Leseprofil auf diesem Gerät hinzufügen"
+msgstr "Leseprofil hinzufügen"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "Leseprofil {name} hinzugefügt, mit leerem Lesestand. Dieses Gerät behält sein aktuelles Leseprofil."
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "Auswählen"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "{name} liest jetzt auf diesem Gerät, mit leerem Lesestand."
 
 #. Household readers
 msgid "household_name"

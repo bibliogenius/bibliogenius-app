@@ -48,8 +48,10 @@ class _FakeFfi extends FfiService {
   Future<FrbReader> createHouseholdReader(String name) async {
     _maybeFail();
     final reader = FrbReader(id: 'r${readers.length + 1}', name: name);
+    // The core rule: a new reader reads here only if nobody did, a reader
+    // deleted on another device counting as nobody.
+    if (!readers.any((r) => r.id == currentId)) currentId = reader.id;
     readers.add(reader);
-    currentId = reader.id;
     return reader;
   }
 
@@ -149,11 +151,22 @@ void main() {
     final provider = HouseholdProvider(ffi: ffi);
     await provider.load();
 
-    expect(await provider.createReader('Alice'), isTrue);
+    expect((await provider.createReader('Alice'))?.name, 'Alice');
     expect(provider.currentReader?.name, 'Alice');
 
     expect(await provider.renameReader('r1', 'Alicia'), isTrue);
     expect(provider.currentReader?.name, 'Alicia');
+  });
+
+  test('adding a second reader keeps the reader of this device', () async {
+    final ffi = _FakeFfi();
+    final provider = HouseholdProvider(ffi: ffi);
+    await provider.load();
+
+    expect(await provider.createReader('Bruno'), isNotNull);
+    expect(await provider.createReader('Alice'), isNotNull);
+    expect(provider.readers.map((r) => r.name), ['Bruno', 'Alice']);
+    expect(provider.currentReader?.name, 'Bruno');
   });
 
   test(

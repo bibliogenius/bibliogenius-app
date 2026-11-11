@@ -12319,7 +12319,19 @@ msgstr "自分の読者を作成"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "このデバイスに読者を追加"
+msgstr "読者を追加"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "{name} を追加しました。読書記録は空の状態から始まります。このデバイスの読者は変わりません。"
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "選択"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "{name} がこのデバイスで読む人になりました。読書記録は空の状態から始まります。"
 
 #. Household readers
 msgid "household_name"

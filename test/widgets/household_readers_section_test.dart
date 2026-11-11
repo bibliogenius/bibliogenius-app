@@ -44,6 +44,20 @@ class _FakeFfi extends FfiService {
     return null;
   }
 
+  int _created = 0;
+  bool createFails = false;
+
+  @override
+  Future<FrbReader> createHouseholdReader(String name) async {
+    if (createFails) throw 'refused';
+    final reader = FrbReader(id: 'new${++_created}', name: name);
+    // The core rule: a new reader reads here only if nobody did, a reader
+    // deleted on another device counting as nobody.
+    if (!readers.any((r) => r.id == currentId)) currentId = reader.id;
+    readers.add(reader);
+    return reader;
+  }
+
   @override
   Future<void> setCurrentHouseholdReader(String readerId) async {
     currentId = readerId;
@@ -78,6 +92,10 @@ void main() {
         'household_update_note': 'Update every device.',
         'household_create_me': 'Create my reader',
         'household_add_reader': 'Add a reader',
+        'household_reader_added': '{name} added, the reader stays.',
+        'household_reader_choose': 'Choose',
+        'household_reader_now_here': '{name} reads here now.',
+        'household_confirm': 'Create',
         'household_reads_here': 'Reads here',
         'household_pick_prompt': 'Tap a name.',
         'household_leave_reader': 'Back to the shared view',
@@ -195,6 +213,123 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  Future<void> addReader(
+    WidgetTester tester,
+    String button,
+    String name,
+  ) async {
+    await tester.tap(find.widgetWithText(OutlinedButton, button));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), name);
+    await tester.tap(find.widgetWithText(FilledButton, 'Create'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('adding a reader keeps the one reading here and says so', (
+    tester,
+  ) async {
+    final ffi = _FakeFfi()
+      ..readers.add(const FrbReader(id: 'r1', name: 'Bruno'))
+      ..currentId = 'r1';
+    final (household, _) = await pump(tester, ffi);
+
+    await addReader(tester, 'Add a reader', 'Alice');
+
+    // Alice joins the list, Bruno's readings stay on screen.
+    expect(find.text('Alice'), findsOneWidget);
+    expect(household.currentReader?.name, 'Bruno');
+    expect(find.text('Reads here'), findsOneWidget);
+    expect(find.text('Alice added, the reader stays.'), findsOneWidget);
+
+    // One tap makes her the reader of this device.
+    await tester.tap(find.widgetWithText(SnackBarAction, 'Choose'));
+    await tester.pumpAndSettle();
+    expect(household.currentReader?.name, 'Alice');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the first reader reads here at once, without a message', (
+    tester,
+  ) async {
+    final (household, refresh) = await pump(tester, _FakeFfi());
+    var refreshed = 0;
+    refresh.addListener(() => refreshed++);
+
+    await addReader(tester, 'Create my reader', 'Bruno');
+
+    expect(household.currentReader?.name, 'Bruno');
+    expect(refreshed, 1);
+    expect(find.byType(SnackBar), findsNothing);
+  });
+
+  testWidgets('a device that never chose a reader takes the new one quietly', (
+    tester,
+  ) async {
+    // The partner's device: Bruno came through sync, nobody picked yet.
+    final ffi = _FakeFfi()
+      ..readers.add(const FrbReader(id: 'r1', name: 'Bruno'));
+    final (household, _) = await pump(tester, ffi);
+
+    await addReader(tester, 'Add a reader', 'Alice');
+
+    expect(household.currentReader?.name, 'Alice');
+    expect(find.byType(SnackBar), findsNothing);
+  });
+
+  testWidgets(
+    'leaving the shared view by adding a reader is said, and undone',
+    (tester) async {
+      SharedPreferences.setMockInitialValues({
+        'household_shared_view_chosen': true,
+      });
+      final ffi = _FakeFfi()
+        ..readers.add(const FrbReader(id: 'r1', name: 'Bruno'));
+      final (household, _) = await pump(tester, ffi);
+
+      await addReader(tester, 'Add a reader', 'Alice');
+
+      expect(household.currentReader?.name, 'Alice');
+      expect(find.text('Alice reads here now.'), findsOneWidget);
+
+      await tester.tap(
+        find.widgetWithText(SnackBarAction, 'Back to the shared view'),
+      );
+      await tester.pumpAndSettle();
+      expect(household.currentReaderId, isNull);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('a reader deleted elsewhere gives way to the new one, said so', (
+    tester,
+  ) async {
+    final ffi = _FakeFfi()
+      ..readers.add(const FrbReader(id: 'r1', name: 'Bruno'))
+      ..currentId = 'r1';
+    final (household, _) = await pump(tester, ffi);
+    // Another device removes Bruno; this screen has not reloaded yet.
+    ffi.readers.clear();
+
+    await addReader(tester, 'Add a reader', 'Alice');
+
+    expect(household.currentReader?.name, 'Alice');
+    expect(find.text('Alice added, the reader stays.'), findsNothing);
+    expect(find.text('Alice reads here now.'), findsOneWidget);
+  });
+
+  testWidgets('a refused reader only shows the error', (tester) async {
+    final ffi = _FakeFfi()
+      ..readers.add(const FrbReader(id: 'r1', name: 'Bruno'))
+      ..currentId = 'r1'
+      ..createFails = true;
+    await pump(tester, ffi);
+
+    await addReader(tester, 'Add a reader', 'Alice');
+
+    expect(find.text('Failed'), findsOneWidget);
+    expect(find.textContaining('Alice'), findsNothing);
+  });
+
   testWidgets('readers show as people, the one reading here is marked', (
     tester,
   ) async {
@@ -241,7 +376,8 @@ void main() {
   testWidgets('importing readings needs a reader and reports what it did', (
     tester,
   ) async {
-    final ffi = _FakeFfi()..readers.add(const FrbReader(id: 'r1', name: 'Alice'));
+    final ffi = _FakeFfi()
+      ..readers.add(const FrbReader(id: 'r1', name: 'Alice'));
     final (household, refresh) = await pump(
       tester,
       ffi,

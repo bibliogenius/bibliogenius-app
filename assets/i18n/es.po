@@ -11906,7 +11906,19 @@ msgstr "Crear mi lector"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "Añadir un lector en este dispositivo"
+msgstr "Añadir un lector"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "Se ha añadido a {name}, con un historial de lectura vacío. Este dispositivo mantiene su lector actual."
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "Elegir"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "Ahora {name} lee en este dispositivo, con un historial de lectura vacío."
 
 #. Household readers
 msgid "household_name"

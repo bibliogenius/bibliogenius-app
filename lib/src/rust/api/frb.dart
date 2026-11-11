@@ -1807,8 +1807,9 @@ Future<List<FrbReader>> listHouseholdReaders() =>
 Future<FrbReader?> getCurrentHouseholdReader() =>
     RustLib.instance.api.crateApiFrbGetCurrentHouseholdReader();
 
-/// Add a reader to the household and make them the reader of this device. The
-/// first reader of a household inherits the reading state already on the books.
+/// Add a reader to the household. They become the reader of this device only
+/// if nobody reads here yet. The first reader of a household inherits the
+/// reading state already on the books.
 Future<FrbReader> createHouseholdReader({required String name}) =>
     RustLib.instance.api.crateApiFrbCreateHouseholdReader(name: name);
 

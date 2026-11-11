@@ -12319,7 +12319,19 @@ msgstr "创建我的读者"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "在此设备上添加读者"
+msgstr "添加读者"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "已添加 {name}，其阅读记录为空。此设备的读者保持不变。"
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "选择"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "现在由 {name} 在此设备上阅读，其阅读记录为空。"
 
 #. Household readers
 msgid "household_name"

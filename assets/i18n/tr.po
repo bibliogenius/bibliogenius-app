@@ -12038,7 +12038,19 @@ msgstr "Okuyucumu oluştur"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "Bu cihaza okuyucu ekle"
+msgstr "Okuyucu ekle"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "{name} boş bir okuma geçmişiyle eklendi. Bu cihaz mevcut okuyucusunu koruyor."
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "Seç"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "{name} artık bu cihazda okuyor, boş bir okuma geçmişiyle."
 
 #. Household readers
 msgid "household_name"

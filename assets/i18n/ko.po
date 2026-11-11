@@ -12319,7 +12319,19 @@ msgstr "내 독자 만들기"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "이 기기에 독자 추가"
+msgstr "독자 추가"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "{name}님이 빈 독서 기록으로 추가되었습니다. 이 기기의 독자는 그대로입니다."
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "선택"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "이제 {name}님이 이 기기에서 읽습니다. 독서 기록은 비어 있습니다."
 
 #. Household readers
 msgid "household_name"

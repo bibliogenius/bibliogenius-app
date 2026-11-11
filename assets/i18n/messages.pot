@@ -11907,6 +11907,18 @@ msgid "household_add_reader"
 msgstr ""
 
 #. Household readers
+msgid "household_reader_added"
+msgstr ""
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr ""
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr ""
+
+#. Household readers
 msgid "household_name"
 msgstr ""
 

@@ -12038,7 +12038,19 @@ msgstr "Създай моя читател"
 
 #. Household readers
 msgid "household_add_reader"
-msgstr "Добави читател на това устройство"
+msgstr "Добави читател"
+
+#. Household readers
+msgid "household_reader_added"
+msgstr "{name} вече е сред читателите, с празна история на четене. Това устройство запазва текущия си читател."
+
+#. Household readers
+msgid "household_reader_choose"
+msgstr "Изберете"
+
+#. Household readers
+msgid "household_reader_now_here"
+msgstr "{name} вече чете на това устройство, с празна история на четене."
 
 #. Household readers
 msgid "household_name"
