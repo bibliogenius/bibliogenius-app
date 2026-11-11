@@ -319,12 +319,14 @@ void main() {
     expect(seen, '9782290003299');
   });
 
-  testWidgets('tries a bounded number of candidates per tap', (tester) async {
-    // Each try may take up to the engine's deadline while the dialog cannot
-    // be dismissed: one tap must not walk the whole list.
+  testWidgets('one tap skips every failing candidate to the next image', (
+    tester,
+  ) async {
+    // The dialog can be left at any time, so a tap need not give up early:
+    // the cover may be the sixth image of the page.
     final many = List.generate(6, (i) => 'https://cdn.example.org/$i.jpg');
     final tried = <String>[];
-    await openDialog(
+    final opened = await openDialog(
       tester,
       (url, {isbn}) async =>
           (bytes: Uint8List(4), imageUrl: many.first, candidates: many),
@@ -338,14 +340,10 @@ void main() {
 
     await tester.tap(find.text('Next image'));
     await tester.pumpAndSettle();
-    expect(tried, many.sublist(1, 4));
-    expect(find.text('No other image'), findsNothing, reason: 'some are left');
-    expect(find.text('Next image'), findsOneWidget);
-
-    await tester.tap(find.text('Next image'));
-    await tester.pumpAndSettle();
     expect(tried, many.sublist(1));
+    expect(find.text('Next image'), findsNothing, reason: 'last candidate');
     await tester.tap(find.text('Use this cover'));
     await tester.pumpAndSettle();
+    expect(opened.results.single!.imageUrl, many.last);
   });
 }

@@ -49,11 +49,6 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
 
   WebCoverPick? get _preview => _shown.isEmpty ? null : _shown[_position];
 
-  /// Candidates one tap of "next image" tries before giving the hand back:
-  /// each try may take up to the engine's deadline, during which the dialog
-  /// cannot be dismissed.
-  static const _triesPerStep = 3;
-
   /// The page's usable images, best first, and the next one to fetch.
   List<String> _candidates = const [];
   int _nextToTry = 0;
@@ -135,8 +130,8 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   }
 
   /// Shows the next image: one already seen, or else the page's next image
-  /// that can be fetched, skipping those that fail, at most [_triesPerStep]
-  /// per tap; says so when none is left.
+  /// that can be fetched, skipping those that fail; says so when none is
+  /// left. The dialog can be left meanwhile, which stops the search.
   Future<void> _nextImage() async {
     if (_loading || !_hasNextImage) return;
     if (_position < _shown.length - 1) {
@@ -145,9 +140,8 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     }
     setState(() => _loading = true);
     WebCoverPick? next;
-    final stop = (_nextToTry + _triesPerStep).clamp(0, _candidates.length);
     var index = _nextToTry;
-    for (; index < stop; index++) {
+    for (; index < _candidates.length && mounted; index++) {
       try {
         next = await widget.service.fetchCandidateAndSave(_candidates[index]);
         break;
@@ -166,8 +160,8 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
         _position = _shown.length - 1;
         _nextToTry = index + 1;
       } else {
-        _nextToTry = stop;
-        _noMoreImages = !_hasNextImage;
+        _nextToTry = _candidates.length;
+        _noMoreImages = true;
       }
     });
   }
