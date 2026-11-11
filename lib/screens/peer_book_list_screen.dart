@@ -12,6 +12,7 @@ import '../models/book.dart';
 import '../utils/book_display.dart';
 import '../utils/borrow_eligibility.dart';
 import '../utils/library_mark.dart';
+import '../utils/page_drain.dart';
 import '../utils/cover_url_resolver.dart';
 import '../utils/isbn_validator.dart';
 import '../utils/search_text.dart';
@@ -888,8 +889,12 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   }
 
   /// Load the next page of books (infinite scroll).
-  Future<void> _loadMoreBooks() async {
-    if (_isLoadingMore || !_hasMorePages || !_isPeerOnline) return;
+  ///
+  /// Returns whether a page was actually appended. `false` means nothing
+  /// happened (a load is already in flight, nothing left, peer offline) or
+  /// the page failed: callers that loop must stop on it.
+  Future<bool> _loadMoreBooks() async {
+    if (_isLoadingMore || !_hasMorePages || !_isPeerOnline) return false;
 
     setState(() => _isLoadingMore = true);
     final api = Provider.of<ApiService>(context, listen: false);
@@ -902,7 +907,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
         limit: _pageSize,
       );
 
-      if (!mounted) return;
+      if (!mounted) return false;
 
       final parsed = _parsePaginatedResponse(res.data);
       final newBooks = parsed.booksData
@@ -934,17 +939,25 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
             )
             .catchError((_) {});
       }
+      // An empty page that still announces more would never end the loop.
+      return newBooks.isNotEmpty;
     } catch (e) {
       debugPrint('Load more books failed: $e');
       if (mounted) setState(() => _isLoadingMore = false);
+      return false;
     }
   }
 
   /// Eagerly load all remaining pages (for search completeness or background refresh).
-  Future<void> _loadAllRemainingBooks() async {
-    while (_hasMorePages && mounted && _isPeerOnline) {
-      await _loadMoreBooks();
-    }
+  ///
+  /// Stops as soon as a call loads nothing: when another load is already in
+  /// flight, [_loadMoreBooks] returns at once, and looping on it would spin
+  /// in microtasks and freeze the screen (see [loadPagesUntilDone]).
+  Future<void> _loadAllRemainingBooks() {
+    return loadPagesUntilDone(
+      hasMore: () => _hasMorePages && mounted && _isPeerOnline,
+      loadNext: _loadMoreBooks,
+    );
   }
 
   /// Full background refresh: replace current data with a fresh snapshot
@@ -1761,6 +1774,14 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
       // No hub — fall back to relay sync (ADR-012)
       if (mounted) setState(() => _isSyncing = false);
       _tryRelaySync(isManualSync: true);
+      return;
+    }
+
+    // Pages of the catalogue are already streaming in. Restarting from page 0
+    // now would replace the list under the running load, which would then
+    // append its later pages to the new list and leave a hole in it.
+    if (_isLoadingMore) {
+      debugPrint('Sync skipped: catalogue pages are already loading');
       return;
     }
 
