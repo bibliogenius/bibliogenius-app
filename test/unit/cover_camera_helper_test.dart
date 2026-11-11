@@ -168,11 +168,14 @@ void main() {
     );
 
     test('lays a transparent image on white, not on black', () async {
-      // Publisher sites often serve a PNG cover floating on a transparent
-      // canvas. JPEG has no alpha: dropping it naively turns that canvas
-      // black.
+      // JPEG has no alpha: dropping it naively turns transparent areas black.
+      // Opaque dots in the corners keep the canvas whole through the crop to
+      // opaque pixels, so the transparent area left is inside the cover.
       final src = img.Image(width: 300, height: 450, numChannels: 4);
       img.fill(src, color: img.ColorRgba8(0, 0, 0, 0));
+      for (final (x, y) in [(0, 0), (299, 0), (0, 449), (299, 449)]) {
+        src.setPixelRgba(x, y, 200, 30, 30, 255);
+      }
       img.fillRect(
         src,
         x1: 100,
@@ -276,6 +279,54 @@ void main() {
       final decoded = CoverCameraHelper.decodeCoverSource(gif);
       expect(decoded.numFrames, 1);
       expect(decoded.getPixel(30, 45).r, greaterThan(150), reason: 'frame 0');
+    });
+
+    test('crops a mockup down to the opaque cover', () async {
+      // Shape of a publisher mockup: the cover floats on a transparent canvas
+      // with a semi-transparent drop shadow. Kept whole, it shrinks to a small
+      // book in the middle of the thumbnail.
+      final src = img.Image(width: 1200, height: 1200, numChannels: 4);
+      img.fill(src, color: img.ColorRgba8(0, 0, 0, 0));
+      img.fillRect(
+        src,
+        x1: 240,
+        y1: 340,
+        x2: 659,
+        y2: 959,
+        color: img.ColorRgba8(0, 0, 0, 60),
+      );
+      img.fillRect(
+        src,
+        x1: 200,
+        y1: 300,
+        x2: 599,
+        y2: 899,
+        color: img.ColorRgba8(200, 30, 30, 255),
+      );
+      final path = await CoverCameraHelper.writeCoverFile(
+        dir,
+        Uint8List.fromList(img.encodePng(src)),
+        bookId: 'book-1',
+      );
+
+      final out = img.decodeJpg(await File(path).readAsBytes())!;
+      expect(out.width, CoverCameraHelper.targetMaxWidth);
+      expect(out.height, CoverCameraHelper.targetMaxHeight);
+      for (final (x, y) in [(5, 5), (294, 5), (5, 444), (294, 444)]) {
+        expect(out.getPixel(x, y).r, greaterThan(150), reason: 'cover at $x,$y');
+        expect(out.getPixel(x, y).g, lessThan(80), reason: 'not white at $x,$y');
+      }
+    });
+
+    test('leaves a fully transparent image to the white flattening', () async {
+      final src = img.Image(width: 200, height: 300, numChannels: 4);
+      img.fill(src, color: img.ColorRgba8(0, 0, 0, 0));
+      final path = await CoverCameraHelper.writeCoverFile(
+        dir,
+        Uint8List.fromList(img.encodePng(src)),
+      );
+      final out = img.decodeJpg(await File(path).readAsBytes())!;
+      expect(out.getPixel(10, 10).r, greaterThan(240));
     });
 
     test('uses a temp name while the book has no id yet', () async {

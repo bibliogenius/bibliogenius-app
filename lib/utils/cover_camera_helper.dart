@@ -325,9 +325,11 @@ class CoverCameraHelper {
     // Apply EXIF rotation so portrait shots don't end up sideways on disk.
     // bakeOrientation always copies the image, so only when there is one.
     final ifd = decoded.exif.imageIfd;
-    final oriented = ifd.hasOrientation && ifd.orientation != 1
-        ? img.bakeOrientation(decoded)
-        : decoded;
+    final oriented = _cropToOpaque(
+      ifd.hasOrientation && ifd.orientation != 1
+          ? img.bakeOrientation(decoded)
+          : decoded,
+    );
     // Flattened once small: a full-size canvas would double the memory of a
     // large transparent source.
     final fitted = _flattenOnWhite(
@@ -349,6 +351,55 @@ class CoverCameraHelper {
     // None of the quality steps fit — return the smallest produced. The
     // Rust serve-side resize will trim further if needed.
     return smallest!;
+  }
+
+  /// Alpha from which a pixel counts as part of the cover: a mockup's drop
+  /// shadow is semi-transparent (well under this), the cover itself opaque.
+  static const int _opaqueAlpha = 200;
+
+  /// Crops an image with transparency to the box of its opaque pixels.
+  /// Publishers often show a cover floating on a transparent canvas with a
+  /// soft shadow; kept whole, the book shrinks to the middle of the
+  /// thumbnail. Only transparency is cropped, so the cover itself can never
+  /// be cut; an opaque image (every photo) is returned untouched, and so is
+  /// one with no opaque pixel at all.
+  static img.Image _cropToOpaque(img.Image src) {
+    if (!src.hasAlpha) return src;
+    bool opaqueRow(int y) {
+      for (var x = 0; x < src.width; x++) {
+        if (src.getPixel(x, y).a >= _opaqueAlpha) return true;
+      }
+      return false;
+    }
+
+    bool opaqueColumn(int x, int top, int bottom) {
+      for (var y = top; y <= bottom; y++) {
+        if (src.getPixel(x, y).a >= _opaqueAlpha) return true;
+      }
+      return false;
+    }
+
+    var top = 0;
+    while (top < src.height && !opaqueRow(top)) {
+      top++;
+    }
+    if (top == src.height) return src;
+    var bottom = src.height - 1;
+    while (!opaqueRow(bottom)) {
+      bottom--;
+    }
+    var left = 0;
+    while (!opaqueColumn(left, top, bottom)) {
+      left++;
+    }
+    var right = src.width - 1;
+    while (!opaqueColumn(right, top, bottom)) {
+      right--;
+    }
+    final width = right - left + 1;
+    final height = bottom - top + 1;
+    if (width == src.width && height == src.height) return src;
+    return img.copyCrop(src, x: left, y: top, width: width, height: height);
   }
 
   /// Lays an image with transparency on a white canvas. JPEG has no alpha
