@@ -4,6 +4,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
 import '../providers/theme_provider.dart';
+import 'scaffold_with_nav.dart';
 
 /// Columns of the smallest cover size on a phone.
 const int coverGridPhoneSmallColumns = 6;
@@ -12,11 +13,10 @@ const int coverGridPhoneSmallColumns = 6;
 /// largest size can still show two covers side by side.
 const int coverGridPhoneMediumColumns = 3;
 
-/// Whether the screen is laid out as a phone: under the app's 600 px mobile
-/// breakpoint, below which there is no navigation rail. Read from the
-/// screen, not from the grid, which a rail would narrow on a wider window.
-bool coverGridIsPhone(BuildContext context) =>
-    MediaQuery.sizeOf(context).width < 600;
+/// Whether the screen is laid out as a phone: no navigation rail, same
+/// breakpoint as the shell ([usesNavigationRail]). Read from the screen, not
+/// from the grid, which a rail would narrow on a wider window.
+bool coverGridIsPhone(BuildContext context) => !usesNavigationRail(context);
 
 /// Horizontal gap between covers: tighter at the smallest size, where six
 /// covers share a phone row and 16 px gaps would eat a quarter of it. The
