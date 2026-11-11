@@ -1548,37 +1548,25 @@ class _EditBookScreenState extends State<EditBookScreen> {
       return;
     }
 
-    final previous = _coverUrl;
-    final finalPath = CoverCameraHelper.coverPathBeside(pick.path, bookId);
     final bookRepo = Provider.of<BookRepository>(context, listen: false);
-    var databaseUpdated = false;
+    final String finalPath;
     try {
-      await bookRepo.updateBook(bookId, {'cover_url': finalPath});
-      databaseUpdated = true;
-      final renamed = await CoverCameraHelper.renameTempCover(
-        pick.path,
-        bookId,
+      finalPath = await service.adoptForBook(
+        pick,
+        bookId: bookId,
+        previousCoverUrl: _coverUrl,
+        updateCoverUrl: (url) =>
+            bookRepo.updateBook(bookId, {'cover_url': url}),
       );
-      if (renamed == null) {
-        throw FileSystemException('Preview file is gone', pick.path);
-      }
     } catch (e, st) {
       debugPrint('[WEB-COVER] edit._pickCoverFromWeb: $e\n$st');
-      if (databaseUpdated) {
-        try {
-          await bookRepo.updateBook(bookId, {'cover_url': previous});
-        } catch (e) {
-          debugPrint('[WEB-COVER] could not restore the previous cover: $e');
-        }
-      }
-      await service.discard(pick);
       _showCoverError('error_updating_book');
       return;
     }
-    await service.recordOrigin(bookId, pick.imageUrl);
-
-    if (!mounted) return;
+    // The file is replaced whether or not this screen is still shown: the
+    // cached image of the old cover must go either way.
     _evictCoverFromCache(finalPath);
+    if (!mounted) return;
     _showLocalCover(finalPath, 'cover_updated');
   }
 

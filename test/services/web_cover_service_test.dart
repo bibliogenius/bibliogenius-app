@@ -121,4 +121,88 @@ void main() {
       expect(WebCoverException(code).translationKey, 'web_cover_error_$code');
     }
   });
+
+  group('adoptForBook', () {
+    const pick = WebCoverPick(
+      path: '/covers/temp_x.jpg',
+      imageUrl: 'https://cdn.example.org/42.jpg',
+    );
+
+    ({
+      WebCoverService service,
+      List<String?> writes,
+      List<String> renamed,
+      List<String> discarded,
+      List<String> origins,
+    })
+    harness({bool renameFails = false}) {
+      final writes = <String?>[];
+      final renamed = <String>[];
+      final discarded = <String>[];
+      final origins = <String>[];
+      final service = WebCoverService(
+        rename: (temp, bookId) async {
+          if (renameFails) return null;
+          renamed.add('$temp -> $bookId');
+          return '/covers/$bookId.jpg';
+        },
+        discard: (path) async => discarded.add(path),
+        recordOrigin: (bookId, url) async => origins.add('$bookId $url'),
+      );
+      return (
+        service: service,
+        writes: writes,
+        renamed: renamed,
+        discarded: discarded,
+        origins: origins,
+      );
+    }
+
+    test('stores the path, then replaces the file, then records the origin', () async {
+      final h = harness();
+      final path = await h.service.adoptForBook(
+        pick,
+        bookId: 'book-1',
+        previousCoverUrl: 'https://old.example.org/a.jpg',
+        updateCoverUrl: (url) async => h.writes.add(url),
+      );
+      expect(path, '/covers/book-1.jpg');
+      expect(h.writes, ['/covers/book-1.jpg']);
+      expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
+      expect(h.origins, ['book-1 https://cdn.example.org/42.jpg']);
+      expect(h.discarded, isEmpty);
+    });
+
+    test('puts the previous cover back when the file cannot be renamed', () async {
+      final h = harness(renameFails: true);
+      await expectLater(
+        h.service.adoptForBook(
+          pick,
+          bookId: 'book-1',
+          previousCoverUrl: 'https://old.example.org/a.jpg',
+          updateCoverUrl: (url) async => h.writes.add(url),
+        ),
+        throwsA(isA<FileSystemException>()),
+      );
+      expect(h.writes, ['/covers/book-1.jpg', 'https://old.example.org/a.jpg']);
+      expect(h.discarded, ['/covers/temp_x.jpg']);
+      expect(h.origins, isEmpty);
+    });
+
+    test('touches no file when the database refuses the path', () async {
+      final h = harness();
+      await expectLater(
+        h.service.adoptForBook(
+          pick,
+          bookId: 'book-1',
+          previousCoverUrl: null,
+          updateCoverUrl: (url) async => throw StateError('db down'),
+        ),
+        throwsA(isA<StateError>()),
+      );
+      expect(h.renamed, isEmpty, reason: 'the old cover file is intact');
+      expect(h.discarded, ['/covers/temp_x.jpg']);
+      expect(h.origins, isEmpty);
+    });
+  });
 }

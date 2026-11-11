@@ -233,6 +233,31 @@ void main() {
         ),
         throwsA(isA<UnsupportedCoverImageException>()),
       );
+      // One frame is enough to carry a bitstream bigger than the canvas.
+      expect(
+        () => CoverCameraHelper.decodeCoverSource(
+          animatedWebpHeaderOnly(frames: 1),
+          maxPixels: CoverCameraHelper.webMaxSourcePixels,
+        ),
+        throwsA(isA<UnsupportedCoverImageException>()),
+      );
+    });
+
+    test('lays a grey image with transparency on white too', () async {
+      // Grey + alpha is two channels: the white canvas used to ignore its
+      // alpha, and transparent areas came out black.
+      final src = img.Image(width: 300, height: 450, numChannels: 2);
+      img.fill(src, color: img.ColorRgba8(0, 0, 0, 0));
+      for (final (x, y) in [(0, 0), (299, 0), (0, 449), (299, 449)]) {
+        src.setPixelRgba(x, y, 90, 90, 90, 255);
+      }
+      final path = await CoverCameraHelper.writeCoverFile(
+        dir,
+        Uint8List.fromList(img.encodePng(src)),
+        bookId: 'grey',
+      );
+      final out = img.decodeJpg(await File(path).readAsBytes())!;
+      expect(out.getPixel(150, 225).r, greaterThan(240));
     });
 
     test('decodes only the first frame of an animation', () async {
@@ -302,7 +327,7 @@ Uint8List pngHeaderOnly(int width, int height) {
 
 /// A WebP made of a VP8X header flagged as animated, an ANIM chunk and two
 /// empty ANMF frames: enough for the decoder to report an animation.
-Uint8List animatedWebpHeaderOnly() {
+Uint8List animatedWebpHeaderOnly({int frames = 2}) {
   List<int> le24(int v) => [v & 0xFF, v >> 8 & 0xFF, v >> 16 & 0xFF];
   List<int> le32(int v) => [...le24(v), v >> 24 & 0xFF];
   List<int> chunk(String type, List<int> data) => [
@@ -317,8 +342,7 @@ Uint8List animatedWebpHeaderOnly() {
     ...'WEBP'.codeUnits,
     ...chunk('VP8X', [0x02, 0, 0, 0, ...le24(0), ...le24(0)]),
     ...chunk('ANIM', [0, 0, 0, 0, 0, 0]),
-    ...chunk('ANMF', frame),
-    ...chunk('ANMF', frame),
+    for (var i = 0; i < frames; i++) ...chunk('ANMF', frame),
   ];
   return Uint8List.fromList([...'RIFF'.codeUnits, ...le32(body.length), ...body]);
 }

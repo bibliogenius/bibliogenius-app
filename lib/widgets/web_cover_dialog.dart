@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 
 import '../services/translation_service.dart';
 import '../services/web_cover_service.dart';
@@ -78,7 +79,17 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       _errorKey = errorKey;
       _preview = pick;
     });
-    if (errorKey != null) _focus.requestFocus();
+    if (errorKey != null) {
+      _focus.requestFocus();
+    } else {
+      // The preview replaces the address field: a screen reader would
+      // otherwise not say that the cover has arrived.
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        TranslationService.translate(context, 'web_cover_preview_label'),
+        Directionality.of(context),
+      );
+    }
   }
 
   void _tryAnother() {
@@ -97,11 +108,9 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   Widget build(BuildContext context) {
     String t(String key) => TranslationService.translate(context, key);
     final preview = _preview;
-    // While a fetch runs the dialog cannot be dismissed: its result would
-    // land after the user had left.
-    return PopScope(
-      canPop: !_loading,
-      child: AlertDialog(
+    // The dialog can be left at any time, a fetch included: a result landing
+    // after that is deleted (see the !mounted branch of _fetch).
+    return AlertDialog(
         scrollable: true,
         title: Semantics(
           header: true,
@@ -112,7 +121,7 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             : _buildPreview(preview, t),
         actions: [
           TextButton(
-            onPressed: _loading ? null : () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context).pop(),
             child: Text(t('cancel')),
           ),
           if (preview == null)
@@ -128,7 +137,6 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             FilledButton(onPressed: _keep, child: Text(t('web_cover_use'))),
           ],
         ],
-      ),
     );
   }
 

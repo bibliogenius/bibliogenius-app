@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 
 import '../utils/cover_camera_helper.dart';
@@ -49,6 +51,13 @@ typedef WebCoverFetcher =
     Future<({Uint8List bytes, String imageUrl})> Function(String url);
 typedef WebCoverSaver = Future<String> Function(Uint8List bytes);
 typedef WebCoverDiscarder = Future<void> Function(String path);
+typedef WebCoverRenamer =
+    Future<String?> Function(String tempPath, String bookId);
+typedef WebCoverOriginRecorder =
+    Future<void> Function(String bookId, String imageUrl);
+
+/// Writes a book's `cover_url` (null clears it).
+typedef CoverUrlUpdater = Future<void> Function(String? coverUrl);
 
 /// Takes a book cover from a web page the user points at: the Rust side finds
 /// and downloads the image (public https only), then the bytes go through the
@@ -57,14 +66,23 @@ class WebCoverService {
   final WebCoverFetcher _fetch;
   final WebCoverSaver _save;
   final WebCoverDiscarder _discard;
+  final WebCoverRenamer _rename;
+  final WebCoverOriginRecorder _recordOrigin;
 
   WebCoverService({
     WebCoverFetcher? fetch,
     WebCoverSaver? save,
     WebCoverDiscarder? discard,
+    WebCoverRenamer? rename,
+    WebCoverOriginRecorder? recordOrigin,
   }) : _fetch = fetch ?? _fetchViaFfi,
        _save = save ?? _saveCapped,
-       _discard = discard ?? CoverCameraHelper.cleanupTempCover;
+       _discard = discard ?? CoverCameraHelper.cleanupTempCover,
+       _rename = rename ?? CoverCameraHelper.renameTempCover,
+       _recordOrigin = recordOrigin ?? _recordOriginViaFfi;
+
+  static Future<void> _recordOriginViaFfi(String bookId, String imageUrl) =>
+      FfiService().recordWebCoverOrigin(bookId, imageUrl);
 
   static Future<String> _saveCapped(Uint8List bytes) =>
       CoverCameraHelper.saveBytesToCovers(
@@ -112,5 +130,42 @@ class WebCoverService {
   /// Record where the cover now saved for [bookId] came from. Call it once
   /// the file sits under its final `<bookId>.jpg` name.
   Future<void> recordOrigin(String bookId, String imageUrl) =>
-      FfiService().recordWebCoverOrigin(bookId, imageUrl);
+      _recordOrigin(bookId, imageUrl);
+
+  /// Makes a kept preview the cover of the existing book [bookId] and returns
+  /// the cover's final path.
+  ///
+  /// The book's cover file is replaced only once [updateCoverUrl] has stored
+  /// the final path, so a failed database write leaves the previous cover
+  /// intact. If the file cannot be renamed afterwards, [previousCoverUrl] is
+  /// stored back. On any failure the preview is deleted and the error
+  /// rethrown; on success the cover's web origin is recorded.
+  Future<String> adoptForBook(
+    WebCoverPick pick, {
+    required String bookId,
+    required String? previousCoverUrl,
+    required CoverUrlUpdater updateCoverUrl,
+  }) async {
+    final finalPath = CoverCameraHelper.coverPathBeside(pick.path, bookId);
+    var databaseUpdated = false;
+    try {
+      await updateCoverUrl(finalPath);
+      databaseUpdated = true;
+      if (await _rename(pick.path, bookId) == null) {
+        throw FileSystemException('Preview file is gone', pick.path);
+      }
+    } catch (_) {
+      if (databaseUpdated) {
+        try {
+          await updateCoverUrl(previousCoverUrl);
+        } catch (e) {
+          debugPrint('[WEB-COVER] could not restore the previous cover: $e');
+        }
+      }
+      await _discard(pick.path);
+      rethrow;
+    }
+    await _recordOrigin(bookId, pick.imageUrl);
+    return finalPath;
+  }
 }

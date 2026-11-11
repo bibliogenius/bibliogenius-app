@@ -58,10 +58,11 @@ class CoverCameraHelper {
 
   /// Largest image, in pixels, decoded when it comes from the web. A small
   /// compressed file can declare far more pixels than its size suggests (a
-  /// flat image compresses to almost nothing), and the decoder allocates 4
-  /// bytes per pixel. A book cover rarely exceeds 3 MP. Photos and gallery
-  /// files are the user's own and stay uncapped.
-  static const int webMaxSourcePixels = 25 * 1000 * 1000;
+  /// flat image compresses to almost nothing), and the decoder allocates up
+  /// to 8 bytes per pixel (16-bit RGBA PNG): 12 MP stays under 100 MB. A book
+  /// cover rarely exceeds 3 MP. Mirrored by `WEB_MAX_SOURCE_PIXELS` in the
+  /// engine. Photos and gallery files are the user's own and stay uncapped.
+  static const int webMaxSourcePixels = 12 * 1000 * 1000;
 
   /// Quality fallback ladder, mirrored from `utils/cover_image.rs::QUALITY_STEPS`.
   static const List<int> _qualitySteps = [targetQuality, 75, 65];
@@ -303,7 +304,9 @@ class CoverCameraHelper {
   }
 
   static void _checkDeclaredSize(img.DecodeInfo info, int maxPixels) {
-    if (info is img.WebPInfo && info.numFrames > 1) {
+    // hasAnimation, not a frame count: a single animation frame already
+    // carries its own bitstream, sized independently of the canvas.
+    if (info is img.WebPInfo && info.hasAnimation) {
       throw const UnsupportedCoverImageException('animated WebP');
     }
     final sizes = <(int, int)>[
@@ -354,9 +357,14 @@ class CoverCameraHelper {
   /// background. Opaque images are returned untouched.
   static img.Image _flattenOnWhite(img.Image src) {
     if (!src.hasAlpha) return src;
+    // As 8-bit RGBA: compositing ignores the alpha of a grey + alpha image
+    // (two channels), which then came out black.
+    final rgba = src.numChannels == 4 && src.format == img.Format.uint8
+        ? src
+        : src.convert(format: img.Format.uint8, numChannels: 4);
     final canvas = img.Image(width: src.width, height: src.height);
     img.fill(canvas, color: img.ColorRgb8(255, 255, 255));
-    return img.compositeImage(canvas, src);
+    return img.compositeImage(canvas, rgba);
   }
 
   /// Returns [src] downscaled so it fits within [maxW]x[maxH] while

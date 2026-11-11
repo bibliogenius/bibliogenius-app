@@ -130,18 +130,15 @@ void main() {
     expect(opened.results, isEmpty);
   });
 
-  testWidgets('cannot be dismissed while a fetch runs', (tester) async {
+  testWidgets('can be left while a fetch runs; a late result is deleted', (
+    tester,
+  ) async {
     final pending = Completer<({Uint8List bytes, String imageUrl})>();
     final opened = await openDialog(tester, (url) => pending.future);
 
     await tester.enterText(find.byType(TextField), 'https://example.org/livre');
     await tester.tap(find.text('Get cover'));
     await tester.pump();
-
-    final cancel = tester.widget<TextButton>(
-      find.widgetWithText(TextButton, 'Cancel'),
-    );
-    expect(cancel.onPressed, isNull);
     expect(find.byType(LinearProgressIndicator), findsOneWidget);
 
     // Read-only, not disabled: a disabled field drops the focus, and the user
@@ -150,16 +147,28 @@ void main() {
     expect(field.readOnly, isTrue);
     expect(field.enabled, isNot(isFalse));
 
-    // Back navigation is refused too.
-    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
-    await navigator.maybePop();
-    await tester.pump();
-    expect(find.byType(AlertDialog), findsOneWidget);
+    // A slow site must not hold the user: Cancel works during the fetch.
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(opened.results.single, isNull);
 
+    // The cover saved after the user left is not left on disk.
     pending.complete(await found(''));
     await tester.pumpAndSettle();
-    expect(find.text('Use this cover'), findsOneWidget);
-    expect(opened.results, isEmpty);
+    expect(opened.discarded, ['/covers/temp_1.jpg']);
+  });
+
+  testWidgets('announces the preview to screen readers', (tester) async {
+    await openDialog(tester, found);
+    tester.takeAnnouncements();
+    await tester.enterText(find.byType(TextField), 'https://example.org/livre');
+    await tester.tap(find.text('Get cover'));
+    await tester.pumpAndSettle();
+    expect(
+      tester.takeAnnouncements().map((a) => a.message),
+      contains('Cover found on the page'),
+    );
   });
 
   testWidgets('does nothing on an empty address', (tester) async {
