@@ -15,7 +15,15 @@ class WebCoverPick {
   /// The image's web address, to record as the cover's origin.
   final String imageUrl;
 
-  const WebCoverPick({required this.path, required this.imageUrl});
+  /// Every usable image of the page, best first, [imageUrl] included, for the
+  /// user to step through. Empty for a pick made by stepping.
+  final List<String> candidates;
+
+  const WebCoverPick({
+    required this.path,
+    required this.imageUrl,
+    this.candidates = const [],
+  });
 }
 
 /// Why no cover could be taken from the page.
@@ -47,8 +55,14 @@ class WebCoverException implements Exception {
   String toString() => 'WebCoverException($code)';
 }
 
+typedef FetchedWebCover = ({
+  Uint8List bytes,
+  String imageUrl,
+  List<String> candidates,
+});
 typedef WebCoverFetcher =
-    Future<({Uint8List bytes, String imageUrl})> Function(String url);
+    Future<FetchedWebCover> Function(String url, {String? isbn});
+typedef WebCoverImageFetcher = Future<FetchedWebCover> Function(String url);
 typedef WebCoverSaver = Future<String> Function(Uint8List bytes);
 typedef WebCoverDiscarder = Future<void> Function(String path);
 typedef WebCoverRenamer =
@@ -64,6 +78,7 @@ typedef CoverUrlUpdater = Future<void> Function(String? coverUrl);
 /// same pipeline as a cover photo, so the result is an ordinary local cover.
 class WebCoverService {
   final WebCoverFetcher _fetch;
+  final WebCoverImageFetcher _fetchImage;
   final WebCoverSaver _save;
   final WebCoverDiscarder _discard;
   final WebCoverRenamer _rename;
@@ -71,11 +86,13 @@ class WebCoverService {
 
   WebCoverService({
     WebCoverFetcher? fetch,
+    WebCoverImageFetcher? fetchImage,
     WebCoverSaver? save,
     WebCoverDiscarder? discard,
     WebCoverRenamer? rename,
     WebCoverOriginRecorder? recordOrigin,
   }) : _fetch = fetch ?? _fetchViaFfi,
+       _fetchImage = fetchImage ?? _fetchImageViaFfi,
        _save = save ?? _saveCapped,
        _discard = discard ?? CoverCameraHelper.cleanupTempCover,
        _rename = rename ?? CoverCameraHelper.renameTempCover,
@@ -90,28 +107,69 @@ class WebCoverService {
         maxPixels: CoverCameraHelper.webMaxSourcePixels,
       );
 
-  static Future<({Uint8List bytes, String imageUrl})> _fetchViaFfi(
-    String url,
-  ) async {
-    final cover = await FfiService().fetchCoverFromWebPage(url);
-    return (bytes: cover.bytes, imageUrl: cover.imageUrl);
+  static Future<FetchedWebCover> _fetchViaFfi(
+    String url, {
+    String? isbn,
+  }) async {
+    final cover = await FfiService().fetchCoverFromWebPage(url, isbn: isbn);
+    return (
+      bytes: cover.bytes,
+      imageUrl: cover.imageUrl,
+      candidates: cover.candidates,
+    );
   }
 
-  /// Fetch the cover shown at [url] and save it under a temp name. Throws
+  static Future<FetchedWebCover> _fetchImageViaFfi(String url) async {
+    final cover = await FfiService().fetchWebCoverImage(url);
+    return (
+      bytes: cover.bytes,
+      imageUrl: cover.imageUrl,
+      candidates: cover.candidates,
+    );
+  }
+
+  /// Fetch the cover shown at [url] and save it under a temp name. [isbn],
+  /// when the book has one, ranks the images named after it first. Throws
   /// [WebCoverException], whatever went wrong.
-  Future<WebCoverPick> fetchAndSave(String url) async {
-    final ({Uint8List bytes, String imageUrl}) fetched;
+  Future<WebCoverPick> fetchAndSave(String url, {String? isbn}) async {
+    final trimmed = isbn?.trim();
+    return _saveFetched(
+      await _guard(
+        () => _fetch(
+          url.trim(),
+          isbn: trimmed == null || trimmed.isEmpty ? null : trimmed,
+        ),
+      ),
+    );
+  }
+
+  /// Fetch one of a page's [WebCoverPick.candidates], when the user steps to
+  /// the next image, and save it under a temp name. Throws
+  /// [WebCoverException].
+  Future<WebCoverPick> fetchCandidateAndSave(String imageUrl) async =>
+      _saveFetched(await _guard(() => _fetchImage(imageUrl)));
+
+  static Future<FetchedWebCover> _guard(
+    Future<FetchedWebCover> Function() fetch,
+  ) async {
     try {
-      fetched = await _fetch(url.trim());
+      return await fetch();
     } on String catch (code) {
       throw WebCoverException(code);
     } catch (e) {
       debugPrint('[WEB-COVER] fetch failed: $e');
       throw WebCoverException('network');
     }
+  }
+
+  Future<WebCoverPick> _saveFetched(FetchedWebCover fetched) async {
     try {
       final path = await _save(fetched.bytes);
-      return WebCoverPick(path: path, imageUrl: fetched.imageUrl);
+      return WebCoverPick(
+        path: path,
+        imageUrl: fetched.imageUrl,
+        candidates: fetched.candidates,
+      );
     } on CoverImageTooLargeException {
       throw WebCoverException('too_large');
     } on UnsupportedCoverImageException {

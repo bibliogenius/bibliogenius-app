@@ -1541,7 +1541,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
   Future<void> _pickCoverFromWeb() async {
     final bookId = widget.book.id!;
     final service = WebCoverService();
-    final pick = await showWebCoverDialog(context, service: service);
+    final pick = await showWebCoverDialog(
+      context,
+      isbn: _isbnController.text,
+      service: service,
+    );
     if (pick == null) return;
     if (!mounted) {
       await service.discard(pick);

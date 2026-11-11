@@ -526,8 +526,13 @@ class FfiService {
   /// image itself). Unlike the searches above, failures are not swallowed:
   /// the Rust side throws a stable error code (a `String`, such as
   /// `no_image_found`) that the caller turns into a message.
-  Future<frb.FrbWebCover> fetchCoverFromWebPage(String url) =>
-      frb.fetchCoverFromWebPage(url: url);
+  Future<frb.FrbWebCover> fetchCoverFromWebPage(String url, {String? isbn}) =>
+      frb.fetchCoverFromWebPage(url: url, isbn: isbn);
+
+  /// Fetch one candidate listed by [fetchCoverFromWebPage], when the user
+  /// steps to the next image. Same error codes.
+  Future<frb.FrbWebCover> fetchWebCoverImage(String imageUrl) =>
+      frb.fetchWebCoverImage(imageUrl: imageUrl);
 
   /// Remember that the cover file just saved for [bookId] came from
   /// [imageUrl]. Best effort: losing it only means Open Library will later

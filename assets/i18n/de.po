@@ -12583,3 +12583,11 @@ msgstr "Andere Adresse versuchen"
 #. Cover from a web page dialog: screen reader label of the previewed cover
 msgid "web_cover_preview_label"
 msgstr "Auf der Seite gefundenes Cover"
+
+#. Cover from a web page dialog: button that shows the page's next image instead
+msgid "web_cover_next_image"
+msgstr "Nächstes Bild"
+
+#. Cover from a web page dialog: shown when no further image of the page could be displayed
+msgid "web_cover_no_more_images"
+msgstr "Kein weiteres Bild dieser Seite konnte angezeigt werden."

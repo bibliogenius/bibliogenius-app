@@ -1872,7 +1872,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
   }
 
   Future<void> _pickCoverFromWeb() async {
-    final pick = await showWebCoverDialog(context);
+    final pick = await showWebCoverDialog(
+      context,
+      isbn: _isbnController.text,
+    );
     if (pick == null) return;
     _useTempCover(pick.path, webCover: pick);
   }

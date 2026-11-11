@@ -12723,3 +12723,11 @@ msgstr "尝试其他地址"
 #. Cover from a web page dialog: screen reader label of the previewed cover
 msgid "web_cover_preview_label"
 msgstr "在页面上找到的封面"
+
+#. Cover from a web page dialog: button that shows the page's next image instead
+msgid "web_cover_next_image"
+msgstr "下一张图片"
+
+#. Cover from a web page dialog: shown when no further image of the page could be displayed
+msgid "web_cover_no_more_images"
+msgstr "无法显示此页面的其他图片。"

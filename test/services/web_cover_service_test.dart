@@ -11,14 +11,25 @@ void main() {
   WebCoverService service({
     Object? fetchError,
     Object? saveError,
-    void Function(String url)? onFetch,
+    void Function(String url, String? isbn)? onFetch,
     void Function()? onSave,
   }) {
     return WebCoverService(
-      fetch: (url) async {
-        onFetch?.call(url);
+      fetch: (url, {isbn}) async {
+        onFetch?.call(url, isbn);
         if (fetchError != null) throw fetchError;
-        return (bytes: bytes, imageUrl: 'https://cdn.example.org/42.jpg');
+        return (
+          bytes: bytes,
+          imageUrl: 'https://cdn.example.org/42.jpg',
+          candidates: [
+            'https://cdn.example.org/42.jpg',
+            'https://cdn.example.org/43.jpg',
+          ],
+        );
+      },
+      fetchImage: (url) async {
+        if (fetchError != null) throw fetchError;
+        return (bytes: bytes, imageUrl: url, candidates: <String>[]);
       },
       save: (b) async {
         onSave?.call();
@@ -32,7 +43,7 @@ void main() {
     String? fetched;
     var saved = false;
     final pick = await service(
-      onFetch: (u) => fetched = u,
+      onFetch: (u, _) => fetched = u,
       onSave: () => saved = true,
     ).fetchAndSave('  https://www.example.org/livre/42  ');
 
@@ -40,6 +51,36 @@ void main() {
     expect(saved, isTrue);
     expect(pick.path, '/covers/temp_x.jpg', reason: 'a preview, never final');
     expect(pick.imageUrl, 'https://cdn.example.org/42.jpg');
+    expect(pick.candidates, hasLength(2), reason: 'kept for stepping');
+  });
+
+  test('passes the ISBN on, and no ISBN for a blank field', () async {
+    final seen = <String?>[];
+    final s = service(onFetch: (_, isbn) => seen.add(isbn));
+    await s.fetchAndSave('https://x.org/a', isbn: ' 9782290003299 ');
+    await s.fetchAndSave('https://x.org/a', isbn: '   ');
+    await s.fetchAndSave('https://x.org/a');
+    expect(seen, ['9782290003299', null, null]);
+  });
+
+  test('saves a candidate the user stepped to', () async {
+    final pick = await service().fetchCandidateAndSave(
+      'https://cdn.example.org/43.jpg',
+    );
+    expect(pick.imageUrl, 'https://cdn.example.org/43.jpg');
+    expect(pick.path, '/covers/temp_x.jpg');
+    await expectLater(
+      service(
+        fetchError: 'unsupported_image',
+      ).fetchCandidateAndSave('https://cdn.example.org/43.jpg'),
+      throwsA(
+        isA<WebCoverException>().having(
+          (e) => e.code,
+          'code',
+          'unsupported_image',
+        ),
+      ),
+    );
   });
 
   test('turns a Rust error code into its message key', () async {

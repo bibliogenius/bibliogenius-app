@@ -12582,3 +12582,11 @@ msgstr "Probar otra dirección"
 #. Cover from a web page dialog: screen reader label of the previewed cover
 msgid "web_cover_preview_label"
 msgstr "Portada encontrada en la página"
+
+#. Cover from a web page dialog: button that shows the page's next image instead
+msgid "web_cover_next_image"
+msgstr "Imagen siguiente"
+
+#. Cover from a web page dialog: shown when no further image of the page could be displayed
+msgid "web_cover_no_more_images"
+msgstr "No se pudo mostrar ninguna otra imagen de esta página."

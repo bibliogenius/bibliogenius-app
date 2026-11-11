@@ -12723,3 +12723,11 @@ msgstr "다른 주소 시도"
 #. Cover from a web page dialog: screen reader label of the previewed cover
 msgid "web_cover_preview_label"
 msgstr "페이지에서 찾은 표지"
+
+#. Cover from a web page dialog: button that shows the page's next image instead
+msgid "web_cover_next_image"
+msgstr "다음 이미지"
+
+#. Cover from a web page dialog: shown when no further image of the page could be displayed
+msgid "web_cover_no_more_images"
+msgstr "이 페이지에서 표시할 수 있는 다른 이미지가 없습니다."
