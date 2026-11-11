@@ -12692,6 +12692,10 @@ msgstr "사이트에 연결할 수 없습니다. 연결을 확인하고 다시 �
 msgid "web_cover_error_too_many_redirects"
 msgstr "사이트가 너무 많이 리디렉션합니다."
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr "이 사이트는 자동 접근을 차단합니다. 브라우저에서 페이지를 열고 이미지 주소를 복사한 다음(표지를 마우스 오른쪽 버튼으로 클릭) 여기에 붙여 넣으세요."
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr "사이트가 요청을 거부했거나 페이지가 없습니다."

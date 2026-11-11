@@ -12698,6 +12698,10 @@ msgstr "The site could not be reached. Check your connection and try again."
 msgid "web_cover_error_too_many_redirects"
 msgstr "The site redirects too many times."
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr "This site blocks automated access. Open the page in your browser, copy the image address (right-click the cover) and paste it here."
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr "The site refused the request, or the page does not exist."

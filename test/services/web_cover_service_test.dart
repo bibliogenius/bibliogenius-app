@@ -157,6 +157,12 @@ void main() {
     );
   });
 
+  test('a site that turns away automated clients keeps its own code', () {
+    // Not folded into `network`: its message tells the user to copy the
+    // image address from their browser instead.
+    expect(WebCoverException('blocked_by_site').code, 'blocked_by_site');
+  });
+
   test('every known code has a stable message key', () {
     for (final code in WebCoverException.knownCodes) {
       expect(WebCoverException(code).translationKey, 'web_cover_error_$code');

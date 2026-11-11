@@ -12692,6 +12692,10 @@ msgstr "无法访问该网站。请检查网络连接后重试。"
 msgid "web_cover_error_too_many_redirects"
 msgstr "该网站重定向次数过多。"
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr "该网站阻止自动访问。请在浏览器中打开页面，复制图片地址（右键点击封面），然后粘贴到这里。"
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr "该网站拒绝了请求，或页面不存在。"

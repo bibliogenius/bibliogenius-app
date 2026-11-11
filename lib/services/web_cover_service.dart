@@ -36,6 +36,7 @@ class WebCoverException implements Exception {
     'blocked_address',
     'network',
     'too_many_redirects',
+    'blocked_by_site',
     'http_status',
     'too_large',
     'no_image_found',

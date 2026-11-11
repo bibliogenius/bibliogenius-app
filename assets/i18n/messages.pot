@@ -12624,6 +12624,10 @@ msgstr ""
 msgid "web_cover_error_too_many_redirects"
 msgstr ""
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr ""
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr ""

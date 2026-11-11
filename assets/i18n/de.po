@@ -12552,6 +12552,10 @@ msgstr "Die Website ist nicht erreichbar. Prüfe deine Verbindung und versuche e
 msgid "web_cover_error_too_many_redirects"
 msgstr "Die Website leitet zu oft weiter."
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr "Diese Website blockiert automatische Zugriffe. Öffnen Sie die Seite in Ihrem Browser, kopieren Sie die Bildadresse (Rechtsklick auf das Cover) und fügen Sie sie hier ein."
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr "Die Website hat die Anfrage abgelehnt, oder die Seite existiert nicht."

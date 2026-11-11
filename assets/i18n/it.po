@@ -12676,6 +12676,10 @@ msgstr "Il sito non è raggiungibile. Controlla la connessione e riprova."
 msgid "web_cover_error_too_many_redirects"
 msgstr "Il sito reindirizza troppe volte."
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr "Questo sito blocca gli accessi automatici. Apri la pagina nel browser, copia l'indirizzo dell'immagine (clic destro sulla copertina) e incollalo qui."
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr "Il sito ha rifiutato la richiesta, oppure la pagina non esiste."

@@ -12683,6 +12683,10 @@ msgstr "Сайтът е недостъпен. Проверете връзкат�
 msgid "web_cover_error_too_many_redirects"
 msgstr "Сайтът пренасочва твърде много пъти."
 
+#. Cover from a web page: the site turns away automated clients (HTTP 401, 403 or 429)
+msgid "web_cover_error_blocked_by_site"
+msgstr "Този сайт блокира автоматичния достъп. Отворете страницата в браузъра си, копирайте адреса на изображението (десен бутон върху корицата) и го поставете тук."
+
 #. Cover from a web page: the site answered with an error
 msgid "web_cover_error_http_status"
 msgstr "Сайтът отказа заявката или страницата не съществува."
