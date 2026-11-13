@@ -6,17 +6,20 @@ import '../providers/book_note_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../widgets/book_note_tile.dart';
+import '../widgets/book_notes_export_sheet.dart';
 import '../widgets/speech_note_button.dart';
 
 /// Dedicated screen showing all reading notes for a book.
 class BookNotesScreen extends StatefulWidget {
   final String bookId;
   final String bookTitle;
+  final String? bookAuthor;
 
   const BookNotesScreen({
     super.key,
     required this.bookId,
     required this.bookTitle,
+    this.bookAuthor,
   });
 
   @override
@@ -138,7 +141,34 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
     final t = TranslationService.translate;
 
     return Scaffold(
-      appBar: AppBar(title: Text(t(context, 'notes_section_title'))),
+      appBar: AppBar(
+        title: Text(t(context, 'notes_section_title')),
+        actions: [
+          Consumer<BookNoteProvider>(
+            builder: (context, provider, _) {
+              // The provider is shared with the book page: hide the export
+              // while it loads, while it is keyed to another book, or after
+              // a failed load (it then still holds the previous book's notes).
+              final ready =
+                  !provider.isLoading &&
+                  provider.error == null &&
+                  provider.currentBookId == widget.bookId &&
+                  provider.notes.isNotEmpty;
+              if (!ready) return const SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.ios_share),
+                tooltip: t(context, 'notes_export'),
+                onPressed: () => BookNotesExportSheet.show(
+                  context,
+                  title: widget.bookTitle,
+                  author: widget.bookAuthor,
+                  notes: provider.notes,
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: Consumer<BookNoteProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading) {

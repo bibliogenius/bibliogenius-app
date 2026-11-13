@@ -1084,6 +1084,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                       _BookNotesSection(
                         bookId: book.id!,
                         bookTitle: book.title,
+                        bookAuthor: book.author,
                       ),
                     // "You might also like" closes the page: local-library
                     // books similar to this one (ADR-059). Lazy,
@@ -4007,8 +4008,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 class _BookNotesSection extends StatefulWidget {
   final String bookId;
   final String bookTitle;
+  final String? bookAuthor;
 
-  const _BookNotesSection({required this.bookId, required this.bookTitle});
+  const _BookNotesSection({
+    required this.bookId,
+    required this.bookTitle,
+    this.bookAuthor,
+  });
 
   @override
   State<_BookNotesSection> createState() => _BookNotesSectionState();
@@ -4273,17 +4279,21 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
                       onDelete: () => _deleteNote(note),
                     ),
                   ),
-              if (provider.notes.length > _previewLimit)
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () => context.push(
-                      '/books/${widget.bookId}/notes',
-                      extra: {'bookTitle': widget.bookTitle},
-                    ),
-                    child: Text(t(context, 'view_all_notes')),
+              // Shown from the first note, not only past the preview limit:
+              // the full notes screen is where the notes are exported.
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => context.push(
+                    '/books/${widget.bookId}/notes',
+                    extra: {
+                      'bookTitle': widget.bookTitle,
+                      'bookAuthor': widget.bookAuthor,
+                    },
                   ),
+                  child: Text(t(context, 'view_all_notes')),
                 ),
+              ),
             ],
             const SizedBox(height: 16),
           ],

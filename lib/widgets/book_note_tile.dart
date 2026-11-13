@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import '../models/book_note.dart';
 import '../services/translation_service.dart';
 
 /// Displays a single reading note.
-/// Tap to edit, swipe left to delete.
+/// Tap to edit, swipe left to delete, long-press to copy.
+///
+/// Copying goes through a long-press menu rather than selectable text:
+/// SelectableText and SelectionArea both claim the horizontal touch drag,
+/// which took swipe-to-delete away from the text (most of the card). To copy
+/// a passage only, the edit dialog's text field already allows selection.
 class BookNoteTile extends StatelessWidget {
   final BookNote note;
   final VoidCallback? onEdit;
@@ -29,9 +36,32 @@ class BookNoteTile extends StatelessWidget {
     return '${dt.day}/${dt.month}/${dt.year}';
   }
 
+  Future<void> _copyNote(BuildContext context) async {
+    final confirmation = TranslationService.translate(context, 'note_copied');
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    await Clipboard.setData(ClipboardData(text: note.content));
+    messenger?.showSnackBar(SnackBar(content: Text(confirmation)));
+  }
+
+  Future<void> _showActions(BuildContext context) async {
+    final copyLabel = TranslationService.translate(context, 'note_copy_action');
+    final copy = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: ListTile(
+          leading: const Icon(Icons.copy),
+          title: Text(copyLabel),
+          onTap: () => Navigator.pop(ctx, true),
+        ),
+      ),
+    );
+    if (copy == true && context.mounted) await _copyNote(context);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final copyLabel = TranslationService.translate(context, 'note_copy_action');
 
     Widget card = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -46,6 +76,7 @@ class BookNoteTile extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(12),
           onTap: onEdit,
+          onLongPress: () => _showActions(context),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -128,6 +159,17 @@ class BookNoteTile extends StatelessWidget {
       );
     }
 
-    return Semantics(label: note.content, child: card);
+    // One merged node: the focused tile offers tap, long press (with its
+    // hint) and a direct copy action (VoiceOver rotor, TalkBack actions
+    // menu). The note text comes from the Text below, read once.
+    return MergeSemantics(
+      child: Semantics(
+        onLongPressHint: copyLabel,
+        customSemanticsActions: {
+          CustomSemanticsAction(label: copyLabel): () => _copyNote(context),
+        },
+        child: card,
+      ),
+    );
   }
 }

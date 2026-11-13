@@ -124,6 +124,10 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // Shelves folded in the shelves tab tree: how this device shows the tree,
   // not library data. Behind a const identifier, unseen by the drift test.
   'shelf_tree_collapsed', // ShelfIdSetStore.collapsed
+  // Last format picked when exporting a book's notes: a habit of this
+  // device, not library data. Behind a const identifier, unseen by the
+  // drift test.
+  'book_notes_export_format', // kBookNotesExportFormatPrefKey
 
   // Onboarding / install state (mirrored in DB or device-specific).
   'isSetupComplete',

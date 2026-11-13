@@ -9252,6 +9252,34 @@ msgstr "Страница"
 msgid "view_all_notes"
 msgstr "Преглед на всички бележки"
 
+#. Export the reading notes of a book (tooltip and sheet title)
+msgid "notes_export"
+msgstr "Експортиране на бележките"
+
+#. Notes export format: plain text
+msgid "notes_export_plain_text"
+msgstr "Обикновен текст"
+
+#. Notes export format: Markdown
+msgid "notes_export_markdown"
+msgstr "Markdown"
+
+#. Copy the exported notes to the clipboard
+msgid "notes_export_copy"
+msgstr "Копиране"
+
+#. Confirmation after copying the exported notes
+msgid "notes_export_copied"
+msgstr "Бележките са копирани"
+
+#. Long-press menu and screen reader action: copy one note
+msgid "note_copy_action"
+msgstr "Копиране на бележката"
+
+#. Confirmation after copying one note
+msgid "note_copied"
+msgstr "Бележката е копирана"
+
 #. Confirmation before deleting a note
 msgid "delete_note_confirm"
 msgstr "Да се изтрие ли тази бележка?"

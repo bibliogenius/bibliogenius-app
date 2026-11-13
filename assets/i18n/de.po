@@ -8824,6 +8824,34 @@ msgstr "Eine Notiz diktieren"
 msgid "view_all_notes"
 msgstr "Alle Notizen ansehen"
 
+#. Export the reading notes of a book (tooltip and sheet title)
+msgid "notes_export"
+msgstr "Notizen exportieren"
+
+#. Notes export format: plain text
+msgid "notes_export_plain_text"
+msgstr "Nur Text"
+
+#. Notes export format: Markdown
+msgid "notes_export_markdown"
+msgstr "Markdown"
+
+#. Copy the exported notes to the clipboard
+msgid "notes_export_copy"
+msgstr "Kopieren"
+
+#. Confirmation after copying the exported notes
+msgid "notes_export_copied"
+msgstr "Notizen kopiert"
+
+#. Long-press menu and screen reader action: copy one note
+msgid "note_copy_action"
+msgstr "Notiz kopieren"
+
+#. Confirmation after copying one note
+msgid "note_copied"
+msgstr "Notiz kopiert"
+
 #. View profile
 msgid "view_profile"
 msgstr "Profil ansehen"

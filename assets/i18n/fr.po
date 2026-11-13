@@ -9285,6 +9285,34 @@ msgstr "Page"
 msgid "view_all_notes"
 msgstr "Voir toutes les notes"
 
+#. Export the reading notes of a book (tooltip and sheet title)
+msgid "notes_export"
+msgstr "Exporter les notes"
+
+#. Notes export format: plain text
+msgid "notes_export_plain_text"
+msgstr "Texte brut"
+
+#. Notes export format: Markdown
+msgid "notes_export_markdown"
+msgstr "Markdown"
+
+#. Copy the exported notes to the clipboard
+msgid "notes_export_copy"
+msgstr "Copier"
+
+#. Confirmation after copying the exported notes
+msgid "notes_export_copied"
+msgstr "Notes copiées"
+
+#. Long-press menu and screen reader action: copy one note
+msgid "note_copy_action"
+msgstr "Copier la note"
+
+#. Confirmation after copying one note
+msgid "note_copied"
+msgstr "Note copiée"
+
 #. Confirmation before deleting a note
 msgid "delete_note_confirm"
 msgstr "Supprimer cette note ?"

@@ -1363,12 +1363,14 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   builder: (context, state) {
                     final extra = state.extra as Map<String, dynamic>?;
                     final bookTitle = extra?['bookTitle'] as String? ?? '';
+                    final bookAuthor = extra?['bookAuthor'] as String?;
                     // Notes are a book-scoped sub-resource keyed by the book uuid
                     // (the route param).
                     final bookUuid = state.pathParameters['id'] ?? '';
                     return BookNotesScreen(
                       bookId: bookUuid,
                       bookTitle: bookTitle,
+                      bookAuthor: bookAuthor,
                     );
                   },
                 ),
