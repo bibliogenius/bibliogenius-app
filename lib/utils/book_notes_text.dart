@@ -12,7 +12,9 @@ enum BookNotesExportFormat { plainText, markdown }
 /// Formats [notes] under a header made of [title] and [author].
 ///
 /// Notes come out in the order of [notes]: pass the list as the screen shows
-/// it. An empty title or author is left out rather than printed as a blank
+/// it. A note's page comes before its text, as the locator that introduces
+/// it; after the text, a Markdown reader cannot tell which quote it belongs
+/// to. An empty title or author is left out rather than printed as a blank
 /// line. In Markdown, every character that Markdown would interpret is
 /// escaped, so a note renders exactly as it was typed.
 String formatBookNotes({
@@ -29,16 +31,16 @@ String formatBookNotes({
         [cleanTitle, cleanAuthor].where((s) => s.isNotEmpty).join('\n'),
       for (final note in notes)
         [
-          _normalizeLineEndings(note.content),
           if (note.page != null) _pageLabel(note.page!),
+          _normalizeLineEndings(note.content),
         ].join('\n'),
     ],
     BookNotesExportFormat.markdown => [
       if (cleanTitle.isNotEmpty) '# ${_escapeInline(cleanTitle)}',
       if (cleanAuthor.isNotEmpty) '*${_escapeInline(cleanAuthor)}*',
       for (final note in notes) ...[
-        _markdownQuote(note.content),
         if (note.page != null) _pageLabel(note.page!),
+        _markdownQuote(note.content),
       ],
     ],
   };

@@ -36,11 +36,11 @@ void main() {
         'Le Petit Prince\n'
         'Antoine de Saint-Exupéry\n'
         '\n'
-        'Second written, shown first\n'
         'p. 42\n'
+        'Second written, shown first\n'
         '\n'
-        'First written\n'
-        'p. 7\n',
+        'p. 7\n'
+        'First written\n',
       );
     });
 
@@ -52,7 +52,7 @@ void main() {
     });
 
     test('a book without an author has no author line', () {
-      const expected = 'Le Petit Prince\n\nA note\np. 3\n';
+      const expected = 'Le Petit Prince\n\np. 3\nA note\n';
       expect(
         plain(author: null, notes: [_note(1, 'A note', page: 3)]),
         expected,
@@ -114,13 +114,13 @@ void main() {
         '\n'
         '*Antoine de Saint-Exupéry*\n'
         '\n'
-        '> Second written, shown first\n'
-        '\n'
         'p. 42\n'
         '\n'
-        '> First written\n'
+        '> Second written, shown first\n'
         '\n'
-        'p. 7\n',
+        'p. 7\n'
+        '\n'
+        '> First written\n',
       );
     });
 
@@ -134,7 +134,7 @@ void main() {
     test('a book without an author has no author line', () {
       expect(
         md(author: null, notes: [_note(1, 'A note', page: 3)]),
-        '# Le Petit Prince\n\n> A note\n\np. 3\n',
+        '# Le Petit Prince\n\np. 3\n\n> A note\n',
       );
     });
 

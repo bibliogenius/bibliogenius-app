@@ -95,7 +95,7 @@ void main() {
     expect(
       clipboard.text,
       'Le Petit Prince\nAntoine de Saint-Exupéry\n\n'
-      'Newest *note*\np. 9\n\nOldest note\n',
+      'p. 9\nNewest *note*\n\nOldest note\n',
     );
     expect(find.text('Notes copied'), findsOneWidget);
     expect(find.text('Export notes'), findsNothing);
