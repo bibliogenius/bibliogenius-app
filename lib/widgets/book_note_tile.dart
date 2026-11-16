@@ -5,8 +5,68 @@ import 'package:flutter/services.dart';
 import '../models/book_note.dart';
 import '../services/translation_service.dart';
 
+/// Asks the reader to confirm deleting a note. Every way of deleting a
+/// note (swipe, action menu, screen reader action, edit dialog) goes through
+/// this single confirmation.
+Future<bool> confirmBookNoteDeletion(BuildContext context) async {
+  final theme = Theme.of(context);
+  final confirm = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: Text(TranslationService.translate(context, 'delete_note_confirm')),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(ctx, false),
+          child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
+        ),
+        FilledButton(
+          onPressed: () => Navigator.pop(ctx, true),
+          style: FilledButton.styleFrom(
+            backgroundColor: theme.colorScheme.error,
+          ),
+          child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
+        ),
+      ],
+    ),
+  );
+  return confirm == true;
+}
+
+/// "Delete" button for a note's edit dialog. Keyboard users cannot reach the
+/// tile's long-press menu (keyboard activation is a tap, which opens the
+/// editor), so the editor offers deletion too. On confirmation, closes the
+/// edit dialog without saving, then calls [onDelete]; cancelling leaves the
+/// edit dialog open.
+class BookNoteDeleteAction extends StatelessWidget {
+  final VoidCallback onDelete;
+
+  const BookNoteDeleteAction({super.key, required this.onDelete});
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        foregroundColor: Theme.of(context).colorScheme.error,
+      ),
+      onPressed: () async {
+        if (!await confirmBookNoteDeletion(context)) return;
+        if (!context.mounted) return;
+        Navigator.pop(context, false);
+        onDelete();
+      },
+      child: Text(TranslationService.translate(context, 'delete')),
+    );
+  }
+}
+
+enum _NoteAction { copy, delete }
+
 /// Displays a single reading note.
-/// Tap to edit, swipe left to delete, long-press to copy.
+/// Tap to edit, swipe left to delete, long-press or right-click for the
+/// action menu (copy, delete).
+///
+/// Deletion does not rely on the swipe alone: nothing on screen announces
+/// it, and on desktop a trackpad scroll does not trigger it.
 ///
 /// Copying goes through a long-press menu rather than selectable text:
 /// SelectableText and SelectionArea both claim the horizontal touch drag,
@@ -43,25 +103,50 @@ class BookNoteTile extends StatelessWidget {
     messenger?.showSnackBar(SnackBar(content: Text(confirmation)));
   }
 
+  Future<void> _deleteNote(BuildContext context) async {
+    if (await confirmBookNoteDeletion(context)) onDelete!();
+  }
+
   Future<void> _showActions(BuildContext context) async {
     final copyLabel = TranslationService.translate(context, 'note_copy_action');
-    final copy = await showModalBottomSheet<bool>(
+    final deleteLabel = TranslationService.translate(context, 'delete');
+    final action = await showModalBottomSheet<_NoteAction>(
       context: context,
       builder: (ctx) => SafeArea(
-        child: ListTile(
-          leading: const Icon(Icons.copy),
-          title: Text(copyLabel),
-          onTap: () => Navigator.pop(ctx, true),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.copy),
+              title: Text(copyLabel),
+              onTap: () => Navigator.pop(ctx, _NoteAction.copy),
+            ),
+            if (onDelete != null)
+              ListTile(
+                leading: const Icon(Icons.delete_outline),
+                title: Text(deleteLabel),
+                onTap: () => Navigator.pop(ctx, _NoteAction.delete),
+              ),
+          ],
         ),
       ),
     );
-    if (copy == true && context.mounted) await _copyNote(context);
+    if (!context.mounted) return;
+    switch (action) {
+      case _NoteAction.copy:
+        await _copyNote(context);
+      case _NoteAction.delete:
+        await _deleteNote(context);
+      case null:
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final copyLabel = TranslationService.translate(context, 'note_copy_action');
+    final deleteLabel = TranslationService.translate(context, 'delete');
 
     Widget card = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -77,6 +162,7 @@ class BookNoteTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           onTap: onEdit,
           onLongPress: () => _showActions(context),
+          onSecondaryTap: () => _showActions(context),
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Column(
@@ -120,30 +206,7 @@ class BookNoteTile extends StatelessWidget {
       card = Dismissible(
         key: ValueKey(note.id),
         direction: DismissDirection.endToStart,
-        confirmDismiss: (_) async {
-          final confirm = await showDialog<bool>(
-            context: context,
-            builder: (ctx) => AlertDialog(
-              title: Text(
-                TranslationService.translate(context, 'delete_note_confirm'),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(ctx, false),
-                  child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
-                ),
-                FilledButton(
-                  onPressed: () => Navigator.pop(ctx, true),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: theme.colorScheme.error,
-                  ),
-                  child: Text(MaterialLocalizations.of(ctx).okButtonLabel),
-                ),
-              ],
-            ),
-          );
-          return confirm == true;
-        },
+        confirmDismiss: (_) => confirmBookNoteDeletion(context),
         onDismissed: (_) => onDelete!(),
         background: Container(
           alignment: Alignment.centerRight,
@@ -160,13 +223,18 @@ class BookNoteTile extends StatelessWidget {
     }
 
     // One merged node: the focused tile offers tap, long press (with its
-    // hint) and a direct copy action (VoiceOver rotor, TalkBack actions
-    // menu). The note text comes from the Text below, read once.
+    // hint) and direct copy and delete actions (VoiceOver rotor, TalkBack
+    // actions menu). The note text comes from the Text below, read once.
+    // The Dismissible only adds unnamed scroll actions, so Delete is
+    // announced once.
     return MergeSemantics(
       child: Semantics(
         onLongPressHint: copyLabel,
         customSemanticsActions: {
           CustomSemanticsAction(label: copyLabel): () => _copyNote(context),
+          if (onDelete != null)
+            CustomSemanticsAction(label: deleteLabel): () =>
+                _deleteNote(context),
         },
         child: card,
       ),

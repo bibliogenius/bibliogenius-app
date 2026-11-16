@@ -4092,6 +4092,7 @@ class _BookNotesSectionState extends State<_BookNotesSection> {
           ],
         ),
         actions: [
+          BookNoteDeleteAction(onDelete: () => _deleteNote(note)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),

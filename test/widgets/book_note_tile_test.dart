@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,8 @@ import 'package:bibliogenius/widgets/book_note_tile.dart';
 /// A single note can be copied from a long-press menu, and from a screen
 /// reader action, without taking away "tap to edit" or "swipe to delete"
 /// (selectable text took the swipe away from the text, see the tile docs).
+/// Deleting must not depend on the swipe either: on desktop a trackpad does
+/// not trigger it, so the same menu and the edit dialog offer Delete.
 
 const _content = 'A sentence worth keeping\non two lines';
 
@@ -50,6 +53,7 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     TranslationService.setPoTranslationsForTest({
       'en': {
+        'delete': 'Delete',
         'delete_note_confirm': 'Delete this note?',
         'note_copy_action': 'Copy note',
         'note_copied': 'Note copied',
@@ -189,5 +193,167 @@ void main() {
 
     expect(deletes, 0);
     expect(find.text(_content), findsOneWidget);
+  });
+
+  /// The custom screen reader actions the tile node offers, by label.
+  List<CustomSemanticsAction> customActions(WidgetTester tester) {
+    final data = tester
+        .getSemantics(find.byType(BookNoteTile))
+        .getSemanticsData();
+    return (data.customSemanticsActionIds ?? const <int>[])
+        .map(CustomSemanticsAction.getAction)
+        .whereType<CustomSemanticsAction>()
+        .toList();
+  }
+
+  testWidgets('the long-press menu offers Delete, which asks first', (
+    tester,
+  ) async {
+    var deletes = 0;
+    await pump(tester, onEdit: () {}, onDelete: () => deletes++);
+
+    await tester.longPress(find.text(_content));
+    await tester.pumpAndSettle();
+    expect(find.text('Copy note'), findsOneWidget);
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Delete this note?'), findsOneWidget);
+    expect(deletes, 0);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(deletes, 1);
+  });
+
+  testWidgets('cancelling Delete from the menu keeps the note', (tester) async {
+    var deletes = 0;
+    await pump(tester, onEdit: () {}, onDelete: () => deletes++);
+
+    await tester.longPress(find.text(_content));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(deletes, 0);
+    expect(find.text(_content), findsOneWidget);
+  });
+
+  testWidgets('without onDelete, neither the menu nor screen readers offer '
+      'Delete', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pump(tester, onEdit: () {});
+
+    expect(customActions(tester).where((a) => a.label == 'Delete'), isEmpty);
+
+    await tester.longPress(find.text(_content));
+    await tester.pumpAndSettle();
+    expect(find.text('Copy note'), findsOneWidget);
+    expect(find.text('Delete'), findsNothing);
+    semantics.dispose();
+  });
+
+  testWidgets('a right click opens the same menu, without editing', (
+    tester,
+  ) async {
+    var edits = 0;
+    await pump(tester, onEdit: () => edits++, onDelete: () {});
+
+    await tester.tap(find.text(_content), buttons: kSecondaryMouseButton);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Copy note'), findsOneWidget);
+    expect(find.text('Delete'), findsOneWidget);
+    expect(edits, 0);
+  });
+
+  testWidgets('screen readers get Delete as one custom action, which asks '
+      'first', (tester) async {
+    final semantics = tester.ensureSemantics();
+    var deletes = 0;
+    await pump(tester, onEdit: () {}, onDelete: () => deletes++);
+
+    final delete = customActions(
+      tester,
+    ).where((a) => a.label == 'Delete').toList();
+    expect(delete, hasLength(1), reason: 'announced once, not twice');
+
+    tester.binding.performSemanticsAction(
+      SemanticsActionEvent(
+        type: SemanticsAction.customAction,
+        viewId: tester.view.viewId,
+        nodeId: tester.getSemantics(find.byType(BookNoteTile)).id,
+        arguments: CustomSemanticsAction.getIdentifier(delete.single),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Delete this note?'), findsOneWidget);
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+
+    expect(deletes, 1);
+    semantics.dispose();
+  });
+
+  group('BookNoteDeleteAction in the edit dialog', () {
+    Future<void> openEditDialog(
+      WidgetTester tester, {
+      required VoidCallback onDelete,
+    }) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => ThemeProvider(),
+          child: MaterialApp(
+            home: Builder(
+              builder: (context) => TextButton(
+                onPressed: () => showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Edit note'),
+                    actions: [BookNoteDeleteAction(onDelete: onDelete)],
+                  ),
+                ),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('confirming closes the dialog and deletes the note', (
+      tester,
+    ) async {
+      var deletes = 0;
+      await openEditDialog(tester, onDelete: () => deletes++);
+
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      expect(find.text('Delete this note?'), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+
+      expect(deletes, 1);
+      expect(find.text('Edit note'), findsNothing);
+    });
+
+    testWidgets('cancelling keeps the dialog open and the note', (
+      tester,
+    ) async {
+      var deletes = 0;
+      await openEditDialog(tester, onDelete: () => deletes++);
+
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(deletes, 0);
+      expect(find.text('Edit note'), findsOneWidget);
+    });
   });
 }

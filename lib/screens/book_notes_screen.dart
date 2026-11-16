@@ -107,6 +107,7 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
           ],
         ),
         actions: [
+          BookNoteDeleteAction(onDelete: () => _deleteNote(note)),
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: Text(MaterialLocalizations.of(ctx).cancelButtonLabel),
