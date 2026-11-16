@@ -202,6 +202,16 @@ platform :mac do
       backend_dir = File.join(app, 'Contents/Resources/backend')
       UI.user_error!("App bundle missing: #{app}") unless File.exist?(File.join(app, 'Contents/Info.plist'))
 
+      # The sandboxed backend takes its identity from an Info.plist that build.rs
+      # embeds; without it the MCP helper traps before main. Binaries left over
+      # from an older build (skip_rust:true) lack it, so refuse them here.
+      [backend_arm, backend_x64].each do |bin|
+        embedded = `launchctl plist __TEXT,__info_plist '#{bin}' 2>&1`
+        unless embedded.include?('com.bibliogenius.app.mcp-helper')
+          UI.user_error!("#{bin} has no embedded Info.plist; rebuild without skip_rust:true")
+        end
+      end
+
       # Inject the universal Rust backend binary.
       FileUtils.mkdir_p(backend_dir)
       sh('lipo', '-create', backend_arm, backend_x64, '-output', File.join(backend_dir, 'bibliogenius'))
