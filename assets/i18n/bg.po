@@ -9304,6 +9304,10 @@ msgstr "Редактиране на бележката"
 msgid "tooltip_add_note"
 msgstr "Добавяне на бележка"
 
+#. Hint under the add-note field on a computer: Enter sends the note
+msgid "note_newline_hint"
+msgstr "Shift+Enter за нов ред"
+
 #. Tooltip for delete note button
 msgid "tooltip_delete_note"
 msgstr "Изтриване на бележката"

@@ -9384,6 +9384,10 @@ msgstr "メモを編集"
 msgid "tooltip_add_note"
 msgstr "メモを追加"
 
+#. Hint under the add-note field on a computer: Enter sends the note
+msgid "note_newline_hint"
+msgstr "Shift+Enterで改行"
+
 #. Tooltip for delete note button
 msgid "tooltip_delete_note"
 msgstr "メモを削除"

@@ -8812,6 +8812,10 @@ msgstr "Red actualizada"
 msgid "tooltip_add_note"
 msgstr "Agregar una nota"
 
+#. Hint under the add-note field on a computer: Enter sends the note
+msgid "note_newline_hint"
+msgstr "Mayús+Intro para saltar de línea"
+
 #. Clear book loan duration tooltip
 msgid "tooltip_clear_book_loan_duration"
 msgstr "Restablecer a la duracion por defecto"

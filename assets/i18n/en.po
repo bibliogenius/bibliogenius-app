@@ -9342,6 +9342,10 @@ msgstr "Edit note"
 msgid "tooltip_add_note"
 msgstr "Add a note"
 
+#. Hint under the add-note field on a computer: Enter sends the note
+msgid "note_newline_hint"
+msgstr "Shift+Enter for a new line"
+
 #. Tooltip for delete note button
 msgid "tooltip_delete_note"
 msgstr "Delete note"

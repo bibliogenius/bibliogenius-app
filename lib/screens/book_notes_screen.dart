@@ -5,9 +5,9 @@ import '../models/book_note.dart';
 import '../providers/book_note_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
+import '../widgets/book_note_quick_add_bar.dart';
 import '../widgets/book_note_tile.dart';
 import '../widgets/book_notes_export_sheet.dart';
-import '../widgets/speech_note_button.dart';
 
 /// Dedicated screen showing all reading notes for a book.
 class BookNotesScreen extends StatefulWidget {
@@ -184,102 +184,13 @@ class _BookNotesScreenState extends State<BookNotesScreen> {
                   horizontal: 16,
                   vertical: 8,
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 64,
-                      child: TextField(
-                        controller: _pageController,
-                        keyboardType: TextInputType.number,
-                        textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          hintText: 'p.',
-                          isDense: true,
-                          prefixIcon: Icon(
-                            Icons.bookmark_outline,
-                            size: 16,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withAlpha(100),
-                          ),
-                          prefixIconConstraints: const BoxConstraints(
-                            minWidth: 24,
-                            minHeight: 0,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withAlpha(60),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withAlpha(60),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        controller: _contentController,
-                        textInputAction: TextInputAction.send,
-                        maxLength: maxNoteContentLength,
-                        maxLines: null,
-                        onSubmitted: (_) => _addNote(),
-                        decoration: InputDecoration(
-                          hintText: t(context, 'add_note_placeholder'),
-                          hintStyle: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withAlpha(100),
-                              ),
-                          isDense: true,
-                          counterText: '',
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withAlpha(60),
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.outline.withAlpha(60),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (context.watch<ThemeProvider>().speechToTextEnabled)
-                      SpeechNoteButton(controller: _contentController),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      onPressed: _addNote,
-                      icon: const Icon(Icons.send),
-                      tooltip: t(context, 'tooltip_add_note'),
-                    ),
-                  ],
+                child: BookNoteQuickAddBar(
+                  contentController: _contentController,
+                  pageController: _pageController,
+                  dictationEnabled: context
+                      .watch<ThemeProvider>()
+                      .speechToTextEnabled,
+                  onSubmit: _addNote,
                 ),
               ),
               const Divider(height: 1),

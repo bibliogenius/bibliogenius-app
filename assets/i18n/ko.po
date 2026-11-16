@@ -9384,6 +9384,10 @@ msgstr "노트 편집"
 msgid "tooltip_add_note"
 msgstr "노트 추가"
 
+#. Hint under the add-note field on a computer: Enter sends the note
+msgid "note_newline_hint"
+msgstr "Shift+Enter로 줄 바꿈"
+
 #. Tooltip for delete note button
 msgid "tooltip_delete_note"
 msgstr "노트 삭제"

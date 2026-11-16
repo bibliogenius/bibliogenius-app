@@ -9364,6 +9364,10 @@ msgstr "Modifica nota"
 msgid "tooltip_add_note"
 msgstr "Aggiungi una nota"
 
+#. Hint under the add-note field on a computer: Enter sends the note
+msgid "note_newline_hint"
+msgstr "Maiusc+Invio per andare a capo"
+
 #. Tooltip for delete note button
 msgid "tooltip_delete_note"
 msgstr "Elimina nota"

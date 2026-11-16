@@ -5,6 +5,12 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 
+/// What goes between the note so far and the dictated words: a space after
+/// a word, nothing at the start of a line or of an empty note.
+@visibleForTesting
+String dictationSeparator(String current) =>
+    current.isEmpty || RegExp(r'\s$').hasMatch(current) ? '' : ' ';
+
 /// A microphone button that appends speech-to-text results to a [TextEditingController].
 ///
 /// Handles initialization, permission requests, listening state,
@@ -69,7 +75,7 @@ class _SpeechNoteButtonState extends State<SpeechNoteButton> {
         onResult: (result) {
           if (result.finalResult && result.recognizedWords.isNotEmpty) {
             final current = widget.controller.text;
-            final sep = current.isNotEmpty && !current.endsWith(' ') ? ' ' : '';
+            final sep = dictationSeparator(current);
             widget.controller.text = '$current$sep${result.recognizedWords}';
             widget.controller.selection = TextSelection.fromPosition(
               TextPosition(offset: widget.controller.text.length),
