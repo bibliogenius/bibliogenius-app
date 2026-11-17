@@ -12777,3 +12777,39 @@ msgstr "No other image could be shown from this page."
 #. Cover from a web page dialog: button that shows the image seen before
 msgid "web_cover_previous_image"
 msgstr "Previous image"
+
+#. Cover from a web page dialog: shown while the book's cover is looked for on its publisher's site, as the dialog opens
+msgid "publisher_cover_searching"
+msgstr "Looking for the cover on the publisher's site…"
+
+#. Cover from a web page dialog: under the preview of a cover found on the publisher's site; {site} is the site's address, such as gallimard.fr
+msgid "publisher_cover_found_on"
+msgstr "Found on {site}"
+
+#. Cover from a web page dialog: the publisher's site cannot be searched because the book's ISBN is not valid
+msgid "publisher_cover_error_invalid_isbn"
+msgstr "This book's ISBN is not valid, so its publisher's site cannot be searched."
+
+#. Cover from a web page dialog: no site is known for the book's publisher
+msgid "publisher_cover_error_no_site"
+msgstr "No site is known for this book's publisher."
+
+#. Cover from a web page dialog: the publisher's site answered, but does not show the book
+msgid "publisher_cover_error_not_found"
+msgstr "The publisher's site does not show this book."
+
+#. Cover from a web page dialog: the publisher's site turns automatic requests away
+msgid "publisher_cover_error_blocked_by_site"
+msgstr "The publisher's site does not accept automatic searches."
+
+#. Cover from a web page dialog: the publisher's site did not answer
+msgid "publisher_cover_error_network"
+msgstr "The publisher's site did not answer. Try again later."
+
+#. Cover from a web page dialog: the book's page was found, but the site's rules forbid taking its cover
+msgid "publisher_cover_error_image_forbidden"
+msgstr "The book's page was found, but the publisher's site does not allow its cover to be taken."
+
+#. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
+msgid "publisher_cover_error_no_image_found"
+msgstr "The book's page on the publisher's site has no usable cover."

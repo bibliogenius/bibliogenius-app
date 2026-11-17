@@ -12631,3 +12631,39 @@ msgstr "Kein weiteres Bild dieser Seite konnte angezeigt werden."
 #. Cover from a web page dialog: button that shows the image seen before
 msgid "web_cover_previous_image"
 msgstr "Vorheriges Bild"
+
+#. Cover from a web page dialog: shown while the book's cover is looked for on its publisher's site, as the dialog opens
+msgid "publisher_cover_searching"
+msgstr "Cover wird auf der Website des Verlags gesucht…"
+
+#. Cover from a web page dialog: under the preview of a cover found on the publisher's site; {site} is the site's address, such as gallimard.fr
+msgid "publisher_cover_found_on"
+msgstr "Gefunden auf {site}"
+
+#. Cover from a web page dialog: the publisher's site cannot be searched because the book's ISBN is not valid
+msgid "publisher_cover_error_invalid_isbn"
+msgstr "Die ISBN dieses Buches ist ungültig, daher kann die Website des Verlags nicht durchsucht werden."
+
+#. Cover from a web page dialog: no site is known for the book's publisher
+msgid "publisher_cover_error_no_site"
+msgstr "Für den Verlag dieses Buches ist keine Website bekannt."
+
+#. Cover from a web page dialog: the publisher's site answered, but does not show the book
+msgid "publisher_cover_error_not_found"
+msgstr "Die Website des Verlags führt dieses Buch nicht."
+
+#. Cover from a web page dialog: the publisher's site turns automatic requests away
+msgid "publisher_cover_error_blocked_by_site"
+msgstr "Die Website des Verlags lässt keine automatischen Suchen zu."
+
+#. Cover from a web page dialog: the publisher's site did not answer
+msgid "publisher_cover_error_network"
+msgstr "Die Website des Verlags hat nicht geantwortet. Versuchen Sie es später erneut."
+
+#. Cover from a web page dialog: the book's page was found, but the site's rules forbid taking its cover
+msgid "publisher_cover_error_image_forbidden"
+msgstr "Die Seite des Buches wurde gefunden, aber die Website des Verlags erlaubt nicht, das Cover zu übernehmen."
+
+#. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
+msgid "publisher_cover_error_no_image_found"
+msgstr "Die Seite des Buches auf der Website des Verlags enthält kein verwendbares Cover."

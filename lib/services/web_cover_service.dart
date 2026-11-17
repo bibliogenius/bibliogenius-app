@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -19,10 +20,15 @@ class WebCoverPick {
   /// user to step through. Empty for a pick made by stepping.
   final List<String> candidates;
 
+  /// The publisher's site the cover was found on, as the engine's table names
+  /// it (`gallimard.fr`), when it came from [WebCoverService.findOnPublisherSiteAndSave].
+  final String? site;
+
   const WebCoverPick({
     required this.path,
     required this.imageUrl,
     this.candidates = const [],
+    this.site,
   });
 }
 
@@ -56,6 +62,68 @@ class WebCoverException implements Exception {
   String toString() => 'WebCoverException($code)';
 }
 
+/// Why no cover came from the book's publisher's site.
+class PublisherCoverException implements Exception {
+  /// Error codes the Rust side returns. An unknown code is reported as
+  /// `network`, which only invites the user to try again later.
+  static const knownCodes = {
+    'invalid_isbn',
+    'no_site',
+    'not_found',
+    'blocked_by_site',
+    'network',
+    'image_forbidden',
+    'no_image_found',
+  };
+
+  final String code;
+
+  PublisherCoverException(String code)
+    : code = knownCodes.contains(code) ? code : 'network';
+
+  /// The i18n key of the message shown to the user.
+  String get translationKey => 'publisher_cover_error_$code';
+
+  @override
+  String toString() => 'PublisherCoverException($code)';
+}
+
+/// What the engine needs to find a book's page on its publisher's site.
+typedef PublisherBook = ({
+  String isbn,
+  String title,
+  String authors,
+  String? publisher,
+});
+
+typedef FoundPublisherCover = ({
+  Uint8List bytes,
+  String imageUrl,
+  List<String> candidates,
+  String site,
+  String pageUrl,
+});
+typedef PublisherCoverFinder =
+    Future<FoundPublisherCover> Function(PublisherBook book);
+
+/// Runs one search per key at a time: an ask for a key whose search is still
+/// running gets that search's result instead of starting another.
+class SingleFlight<T> {
+  final _running = <String, Future<T>>{};
+
+  Future<T> run(String key, Future<T> Function() start) {
+    final running = _running[key];
+    if (running != null) return running;
+    final future = start();
+    _running[key] = future;
+    // Forgotten once done, failed included: a later ask searches again.
+    // ignore() keeps this bookkeeping branch from reporting the error, which
+    // reaches every caller through the returned future.
+    future.whenComplete(() => _running.remove(key)).ignore();
+    return future;
+  }
+}
+
 typedef FetchedWebCover = ({
   Uint8List bytes,
   String imageUrl,
@@ -84,6 +152,8 @@ class WebCoverService {
   final WebCoverDiscarder _discard;
   final WebCoverRenamer _rename;
   final WebCoverOriginRecorder _recordOrigin;
+  final PublisherCoverFinder _findOnPublisherSite;
+  final WebCoverImageFetcher _fetchPublisherImage;
 
   WebCoverService({
     WebCoverFetcher? fetch,
@@ -92,12 +162,50 @@ class WebCoverService {
     WebCoverDiscarder? discard,
     WebCoverRenamer? rename,
     WebCoverOriginRecorder? recordOrigin,
+    PublisherCoverFinder? findOnPublisherSite,
+    WebCoverImageFetcher? fetchPublisherImage,
   }) : _fetch = fetch ?? _fetchViaFfi,
        _fetchImage = fetchImage ?? _fetchImageViaFfi,
        _save = save ?? _saveCapped,
        _discard = discard ?? CoverCameraHelper.cleanupTempCover,
        _rename = rename ?? CoverCameraHelper.renameTempCover,
-       _recordOrigin = recordOrigin ?? _recordOriginViaFfi;
+       _recordOrigin = recordOrigin ?? _recordOriginViaFfi,
+       _findOnPublisherSite = findOnPublisherSite ?? _findViaFfi,
+       _fetchPublisherImage = fetchPublisherImage ?? _fetchPublisherImageViaFfi;
+
+  static Future<FetchedWebCover> _fetchPublisherImageViaFfi(String url) async {
+    final cover = await FfiService().fetchPublisherCoverImage(url);
+    return (
+      bytes: cover.bytes,
+      imageUrl: cover.imageUrl,
+      candidates: cover.candidates,
+    );
+  }
+
+  /// One engine search per book at a time: the dialog closed and opened again
+  /// on the same book joins the search still running instead of sending the
+  /// same requests to the publisher's site a second time.
+  static final _publisherSearches = SingleFlight<FoundPublisherCover>();
+
+  static Future<FoundPublisherCover> _findViaFfi(PublisherBook book) =>
+      _publisherSearches.run(
+        book.isbn.replaceAll(RegExp('[^0-9Xx]'), '').toUpperCase(),
+        () async {
+          final cover = await FfiService().findCoverOnPublisherSite(
+            isbn: book.isbn,
+            title: book.title,
+            authors: book.authors,
+            publisher: book.publisher,
+          );
+          return (
+            bytes: cover.bytes,
+            imageUrl: cover.imageUrl,
+            candidates: cover.candidates,
+            site: cover.site,
+            pageUrl: cover.pageUrl,
+          );
+        },
+      );
 
   static Future<void> _recordOriginViaFfi(String bookId, String imageUrl) =>
       FfiService().recordWebCoverOrigin(bookId, imageUrl);
@@ -144,11 +252,58 @@ class WebCoverService {
     );
   }
 
+  /// Look for [book]'s cover on its publisher's site (the engine finds the
+  /// book's page from its ISBN, and takes it only if the page states it), and
+  /// save it under a temp name. Throws [PublisherCoverException], whatever
+  /// went wrong: an image the app cannot use counts as no usable cover.
+  Future<WebCoverPick> findOnPublisherSiteAndSave(PublisherBook book) async {
+    final publisher = book.publisher?.trim();
+    final FoundPublisherCover found;
+    try {
+      found = await _findOnPublisherSite((
+        isbn: book.isbn.trim(),
+        title: book.title.trim(),
+        authors: book.authors.trim(),
+        publisher: publisher == null || publisher.isEmpty ? null : publisher,
+      ));
+    } on String catch (code) {
+      throw PublisherCoverException(code);
+    } catch (e) {
+      debugPrint('[WEB-COVER] publisher site search failed: $e');
+      throw PublisherCoverException('network');
+    }
+    try {
+      final pick = await _saveFetched((
+        bytes: found.bytes,
+        imageUrl: found.imageUrl,
+        candidates: found.candidates,
+      ));
+      return WebCoverPick(
+        path: pick.path,
+        imageUrl: pick.imageUrl,
+        candidates: pick.candidates,
+        site: found.site,
+      );
+    } on WebCoverException {
+      throw PublisherCoverException('no_image_found');
+    }
+  }
+
   /// Fetch one of a page's [WebCoverPick.candidates], when the user steps to
-  /// the next image, and save it under a temp name. Throws
-  /// [WebCoverException].
-  Future<WebCoverPick> fetchCandidateAndSave(String imageUrl) async =>
-      _saveFetched(await _guard(() => _fetchImage(imageUrl)));
+  /// the next image, and save it under a temp name. Candidates of a cover
+  /// found on a publisher's site ([fromPublisherSite]) go through the
+  /// engine's lookup rules: robots.txt, the pause between two requests to a
+  /// host, the site's Crawl-delay. Throws [WebCoverException].
+  Future<WebCoverPick> fetchCandidateAndSave(
+    String imageUrl, {
+    bool fromPublisherSite = false,
+  }) async => _saveFetched(
+    await _guard(
+      () => fromPublisherSite
+          ? _fetchPublisherImage(imageUrl)
+          : _fetchImage(imageUrl),
+    ),
+  );
 
   static Future<FetchedWebCover> _guard(
     Future<FetchedWebCover> Function() fetch,

@@ -1535,6 +1535,21 @@ class _EditBookScreenState extends State<EditBookScreen> {
     }
   }
 
+  /// What the publisher site search needs, from the form as it stands: the
+  /// name still in the author field counts.
+  PublisherBook _publisherBook() {
+    final pending = _authorAutocompleteController.text.trim();
+    return (
+      isbn: _isbnController.text,
+      title: _titleController.text,
+      authors: [
+        ..._authors,
+        if (pending.isNotEmpty && !_authors.contains(pending)) pending,
+      ].join(', '),
+      publisher: _publisherController.text,
+    );
+  }
+
   /// Takes the cover from a web page the user points at, after a preview in
   /// the dialog. The book's cover file is replaced only once the database has
   /// accepted the new path, so a failure leaves the previous cover intact.
@@ -1544,6 +1559,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
     final pick = await showWebCoverDialog(
       context,
       isbn: _isbnController.text,
+      book: _publisherBook(),
       service: service,
     );
     if (pick == null) return;

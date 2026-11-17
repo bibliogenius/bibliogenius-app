@@ -291,6 +291,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbProfileChangedEvent dco_decode_frb_profile_changed_event(dynamic raw);
 
   @protected
+  FrbPublisherCover dco_decode_frb_publisher_cover(dynamic raw);
+
+  @protected
   FrbPuzzleBoard dco_decode_frb_puzzle_board(dynamic raw);
 
   @protected
@@ -936,6 +939,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbProfileChangedEvent sse_decode_frb_profile_changed_event(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbPublisherCover sse_decode_frb_publisher_cover(
     SseDeserializer deserializer,
   );
 
@@ -1770,6 +1778,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_profile_changed_event(
     FrbProfileChangedEvent self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_publisher_cover(
+    FrbPublisherCover self,
     SseSerializer serializer,
   );
 

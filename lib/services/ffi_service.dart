@@ -534,6 +534,25 @@ class FfiService {
   Future<frb.FrbWebCover> fetchWebCoverImage(String imageUrl) =>
       frb.fetchWebCoverImage(imageUrl: imageUrl);
 
+  /// Look for a book's cover on its publisher's site, found from its ISBN.
+  /// Fails with a stable code (see [frb.findCoverOnPublisherSite]).
+  Future<frb.FrbPublisherCover> findCoverOnPublisherSite({
+    required String isbn,
+    required String title,
+    required String authors,
+    String? publisher,
+  }) => frb.findCoverOnPublisherSite(
+    isbn: isbn,
+    title: title,
+    authors: authors,
+    publisher: publisher,
+  );
+
+  /// Fetch one candidate listed by [findCoverOnPublisherSite], under the
+  /// same rules as the lookup.
+  Future<frb.FrbWebCover> fetchPublisherCoverImage(String imageUrl) =>
+      frb.fetchPublisherCoverImage(imageUrl: imageUrl);
+
   /// Remember that the cover file just saved for [bookId] came from
   /// [imageUrl]. Best effort: losing it only means Open Library will later
   /// not be offered that address.
