@@ -36,6 +36,7 @@ void main() {
             '{site}: page, try {attempt} of {of}',
         'publisher_cover_step_waiting': '{site} asks to wait: {seconds} s',
         'publisher_cover_show_found': 'Show the cover found on {site}',
+        'publisher_cover_step_cover': '{site}: fetching the cover',
       },
     });
   });
@@ -60,7 +61,7 @@ void main() {
     String? isbn,
     PublisherBook? book,
     PublisherCoverFinder? findOnPublisherSite,
-    WebCoverImageFetcher? fetchPublisherImage,
+    PublisherImageFetcher? fetchPublisherImage,
     bool settle = true,
   }) async {
     final results = <WebCoverPick?>[];
@@ -80,7 +81,8 @@ void main() {
               throw StateError('no publisher search expected'),
       fetchPublisherImage:
           fetchPublisherImage ??
-          (_) async => throw StateError('no publisher image expected'),
+          (_, {onStep}) async =>
+              throw StateError('no publisher image expected'),
     );
     await tester.pumpWidget(
       ChangeNotifierProvider<ThemeProvider>(
@@ -407,7 +409,7 @@ void main() {
         // The page's other images come through the lookup's rules
         // (robots.txt, pause, Crawl-delay), not the Web button's fetch.
         fetchImage: (_) async => throw StateError('not the Web fetch'),
-        fetchPublisherImage: (url) async {
+        fetchPublisherImage: (url, {onStep}) async {
           stepped.add(url);
           return (bytes: Uint8List(4), imageUrl: url, candidates: <String>[]);
         },
@@ -630,6 +632,45 @@ void main() {
       expect(opened.results.single, isNull);
       pending.complete(await foundOnSite(book));
       await tester.pumpAndSettle();
+    });
+
+    testWidgets('says what the next image of a publisher cover waits for', (
+      tester,
+    ) async {
+      final pending = Completer<FetchedWebCover>();
+      late void Function(PublisherLookupStep) step;
+      await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (b, {onStep}) => foundOnSite(b),
+        fetchPublisherImage: (url, {onStep}) {
+          step = onStep!;
+          return pending.future;
+        },
+      );
+      await tester.tap(find.text('Next image'));
+      await tester.pump();
+      step(
+        const PublisherLookupStep(
+          kind: 'waiting',
+          site: 'gallimard.fr',
+          seconds: 10,
+        ),
+      );
+      await tester.pump();
+      expect(find.text('gallimard.fr asks to wait: 10 s'), findsOneWidget);
+      step(const PublisherLookupStep(kind: 'cover', site: 'gallimard.fr'));
+      await tester.pump();
+      expect(find.text('gallimard.fr: fetching the cover'), findsOneWidget);
+
+      pending.complete((
+        bytes: Uint8List(4),
+        imageUrl: gallimard.last,
+        candidates: <String>[],
+      ));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('fetching the cover'), findsNothing);
     });
   });
 }

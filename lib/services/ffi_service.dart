@@ -551,8 +551,9 @@ class FfiService {
 
   /// Fetch one candidate listed by [findCoverOnPublisherSite], under the
   /// same rules as the lookup.
-  Future<frb.FrbWebCover> fetchPublisherCoverImage(String imageUrl) =>
-      frb.fetchPublisherCoverImage(imageUrl: imageUrl);
+  Stream<frb.FrbPublisherLookupEvent> fetchPublisherCoverImage(
+    String imageUrl,
+  ) => frb.fetchPublisherCoverImage(imageUrl: imageUrl);
 
   /// Remember that the cover file just saved for [bookId] came from
   /// [imageUrl]. Best effort: losing it only means Open Library will later
