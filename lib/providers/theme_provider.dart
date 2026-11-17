@@ -267,13 +267,25 @@ class ThemeProvider with ChangeNotifier {
   bool _carouselHiddenPeerLib = false;
   bool get carouselHiddenPeerLib => _carouselHiddenPeerLib;
 
-  // Cover size of the library's grids (home page): small, medium, large.
-  // The values (once maximum widths in px) are steps; the column count of
-  // each comes from coverGridColumns (widgets/cover_grid_delegate.dart).
-  static const List<double> homeCoverExtentSteps = [110, 150, 200];
-  static const double _homeCoverExtentDefault = 150;
-  double _homeCoverExtent = _homeCoverExtentDefault;
+  // Cover size of the library's grids (home page), set with a slider. The
+  // values (once maximum widths in px) are steps, one column apart: on a
+  // phone, six covers per row down to two. The column count of each comes
+  // from coverGridColumns (widgets/cover_grid_delegate.dart). 110, 150 and
+  // 200 were the former small, medium and large sizes and stay steps, so a
+  // saved size keeps its look.
+  static const List<double> homeCoverExtentSteps = [110, 120, 135, 150, 200];
+  static const double homeCoverExtentDefault = 150;
+  double _homeCoverExtent = homeCoverExtentDefault;
   double get homeCoverExtent => _homeCoverExtent;
+
+  /// The step of [homeCoverExtentSteps] closest to [extent].
+  static double nearestHomeCoverStep(double extent) {
+    var nearest = homeCoverExtentSteps.first;
+    for (final step in homeCoverExtentSteps) {
+      if ((step - extent).abs() < (nearest - extent).abs()) nearest = step;
+    }
+    return nearest;
+  }
 
   // Home page covers grid split into sections by reading status (reading,
   // read, to read, other). Off by default: one flat grid.
@@ -507,8 +519,9 @@ class ThemeProvider with ChangeNotifier {
     _shareGamificationStats = prefs.getBool('shareGamificationStats') ?? false;
     _carouselHiddenOwnLib = prefs.getBool('carousel_hidden_own_lib') ?? false;
     _carouselHiddenPeerLib = prefs.getBool('carousel_hidden_peer_lib') ?? false;
-    _homeCoverExtent =
-        prefs.getDouble('homeCoverExtent') ?? _homeCoverExtentDefault;
+    _homeCoverExtent = nearestHomeCoverStep(
+      prefs.getDouble('homeCoverExtent') ?? homeCoverExtentDefault,
+    );
     _groupByReadingStatus = prefs.getBool('groupByReadingStatus') ?? false;
     _showViewCount = prefs.getBool('showViewCount') ?? true;
     _collectionsEnabled = prefs.getBool('collectionsEnabled') ?? false;

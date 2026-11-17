@@ -6,26 +6,48 @@ import 'package:flutter/widgets.dart';
 import '../providers/theme_provider.dart';
 import 'scaffold_with_nav.dart';
 
-/// Columns of the smallest cover size on a phone.
-const int coverGridPhoneSmallColumns = 6;
-
-/// Fewest columns of the middle cover size on a phone: three, so that the
-/// largest size can still show two covers side by side.
-const int coverGridPhoneMediumColumns = 3;
+/// Fewest columns of the default cover size on a phone: three, so that the
+/// largest size can still show two covers side by side, and the smallest,
+/// one column more per step, six.
+const int coverGridPhoneDefaultColumns = 3;
 
 /// Whether the screen is laid out as a phone: no navigation rail, same
 /// breakpoint as the shell ([usesNavigationRail]). Read from the screen, not
 /// from the grid, which a rail would narrow on a wider window.
 bool coverGridIsPhone(BuildContext context) => !usesNavigationRail(context);
 
-/// Horizontal gap between covers: tighter at the smallest size, where six
-/// covers share a phone row and 16 px gaps would eat a quarter of it. The
-/// vertical gap stays 16 px at every size: the favorite ribbon overhangs a
-/// cover's top edge by about 15 px and must not reach the cover above.
+/// Tile ratio of the library covers grid (width / height): a standard book.
+const double coverGridAspectRatio = 0.65;
+
+/// Padding around the library covers grid, on each side.
+const double coverGridPadding = 16;
+
+/// Width of the library covers grid on this screen, as the home page lays
+/// it out: the window less the navigation rail, when there is one, and the
+/// grid's padding. Lets a screen other than the library (the cover size
+/// preview in Settings) draw the grid at its true column count.
+double coverGridWidthOf(BuildContext context) {
+  final rail = usesNavigationRail(context)
+      ? navRailMinWidth + navRailDividerWidth
+      : 0.0;
+  return math.max(
+    1.0,
+    MediaQuery.sizeOf(context).width - rail - 2 * coverGridPadding,
+  );
+}
+
+/// Horizontal gap between covers: tighter at the two smallest sizes, where
+/// five or six covers share a phone row and 16 px gaps would eat a quarter
+/// of it. The vertical gap stays 16 px at every size: the favorite ribbon
+/// overhangs a cover's top edge by about 15 px and must not reach the cover
+/// above.
 double coverGridCrossSpacing(
   double step, {
   List<double> steps = ThemeProvider.homeCoverExtentSteps,
-}) => step == steps.first ? 8 : 16;
+}) {
+  final index = steps.indexOf(step);
+  return index == 0 || index == 1 ? 8 : 16;
+}
 
 const double _mainAxisSpacing = 16;
 
@@ -33,17 +55,18 @@ const double _mainAxisSpacing = 16;
 /// [step], one of [ThemeProvider.homeCoverExtentSteps].
 ///
 /// The steps were first read as maximum cover widths with Flutter's rule,
-/// `ceil(width / (step + spacing))`. On a phone that rule gives two
-/// neighbouring sizes the same count: a 343 px grid (375 pt iPhone) fits 3
-/// columns at 110 as at 150. The count now comes from the middle size:
-/// - the middle size keeps that rule, with at least
-///   [coverGridPhoneMediumColumns] columns on a phone;
-/// - every smaller size has at least one column more than the next one up,
-///   and the smallest one [coverGridPhoneSmallColumns] on a phone;
+/// `ceil(width / (step + spacing))`. On a phone that rule gives neighbouring
+/// sizes the same count: a 343 px grid (375 pt iPhone) fits 3 columns at 110
+/// as at 150. The count now comes from the default size
+/// ([ThemeProvider.homeCoverExtentDefault]):
+/// - the default size keeps that rule, with at least
+///   [coverGridPhoneDefaultColumns] columns on a phone;
+/// - every smaller size has at least one column more than the next one up;
 /// - every larger size has at least one column less than the next one down,
 ///   never below one.
 ///
-/// A value outside the steps follows the plain rule.
+/// On a phone this gives one column per step, six covers per row down to
+/// two. A value outside the steps follows the plain rule.
 int coverGridColumns(
   double width,
   double step, {
@@ -58,15 +81,13 @@ int coverGridColumns(
   final index = steps.indexOf(step);
   if (index < 0) return raw(step);
 
-  final anchor = steps.length ~/ 2;
+  final defaultIndex = steps.indexOf(ThemeProvider.homeCoverExtentDefault);
+  final anchor = defaultIndex < 0 ? steps.length ~/ 2 : defaultIndex;
   var count = raw(steps[anchor]);
-  if (phone) count = math.max(count, coverGridPhoneMediumColumns);
+  if (phone) count = math.max(count, coverGridPhoneDefaultColumns);
   if (index < anchor) {
     for (var i = anchor - 1; i >= index; i--) {
       count = math.max(raw(steps[i]), count + 1);
-    }
-    if (index == 0 && phone) {
-      count = math.max(count, coverGridPhoneSmallColumns);
     }
   } else {
     for (var i = anchor + 1; i <= index; i++) {

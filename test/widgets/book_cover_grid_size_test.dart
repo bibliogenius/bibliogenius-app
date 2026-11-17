@@ -55,7 +55,7 @@ void main() {
     expect(small, lessThan(large));
   });
 
-  testWidgets('on a 375 pt phone the three sizes draw three widths', (
+  testWidgets('on a 375 pt phone every size draws a width of its own', (
     tester,
   ) async {
     // The width where "small" used to fall back to "medium": both fitted 3
@@ -66,8 +66,9 @@ void main() {
     final steps = ThemeProvider.homeCoverExtentSteps;
     final widths = [for (final e in steps) await tileWidth(tester, e)];
 
-    expect(widths[0], lessThan(widths[1]));
-    expect(widths[1], lessThan(widths[2]));
+    for (var i = 1; i < widths.length; i++) {
+      expect(widths[i], greaterThan(widths[i - 1]), reason: 'step $i');
+    }
   });
 
   testWidgets('six small covers fit a 360 dp phone row, badges and all', (
@@ -246,6 +247,13 @@ void main() {
       below.top - above.bottom,
       greaterThanOrEqualTo(FavoriteRibbon.overhangFor(12)),
     );
+  });
+
+  test('a saved size outside the steps snaps to the closest one', () async {
+    SharedPreferences.setMockInitialValues({'homeCoverExtent': 140.0});
+    final loaded = ThemeProvider();
+    await loaded.loadSettings();
+    expect(loaded.homeCoverExtent, 135);
   });
 
   test('cover size is persisted', () async {

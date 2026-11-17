@@ -9,11 +9,14 @@ import '../../providers/ownership_preference_provider.dart';
 import '../../utils/book_filters.dart';
 import '../../widgets/contextual_help_sheet.dart';
 import '../../themes/base/theme_registry.dart';
+import '../../widgets/cover_grid_delegate.dart';
+import '../../widgets/cover_size_preview.dart';
 import 'settings_scope.dart';
+import 'settings_step_slider.dart';
 import 'settings_widgets.dart';
 
-/// Display section: theme, text size, navigation style and what the home
-/// page shows.
+/// Display section: theme, text and cover sizes, navigation style and what
+/// the home page shows.
 class ThemeSettingsSection extends StatelessWidget {
   const ThemeSettingsSection({super.key});
 
@@ -58,6 +61,8 @@ class ThemeSettingsSection extends StatelessWidget {
               _buildThemeSelector(context, themeProvider),
               const SizedBox(height: 24),
               _buildTextScaleSlider(context, themeProvider),
+              const SizedBox(height: 24),
+              _buildCoverSizeSlider(context, themeProvider),
               const SizedBox(height: 24),
               _buildHomeDisplaySection(context, themeProvider),
               if (showNavStyle) ...[
@@ -304,128 +309,79 @@ class ThemeSettingsSection extends StatelessWidget {
       }
     }
 
-    String stepLabel(int index) {
-      switch (index) {
-        case 0:
-          return TranslationService.translate(context, 'text_size_small') ??
-              'Small';
-        case 1:
-          return TranslationService.translate(context, 'text_size_default') ??
-              'Default';
-        default:
-          return TranslationService.translate(context, 'text_size_large') ??
-              'Large';
-      }
-    }
+    String stepLabel(int index) =>
+        TranslationService.translate(context, switch (index) {
+          0 => 'text_size_small',
+          1 => 'text_size_default',
+          2 => 'text_size_large',
+          3 => 'text_size_larger',
+          _ => 'text_size_largest',
+        });
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          TranslationService.translate(context, 'text_size') ?? 'Text Size',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+    return SettingsStepSlider(
+      key: const Key('text_size_slider'),
+      title: TranslationService.translate(context, 'text_size'),
+      preview: Text(
+        'Aa',
+        style: TextStyle(
+          fontSize: 24 * steps[stepIndex],
+          fontWeight: FontWeight.w600,
+          color: Theme.of(context).colorScheme.primary,
         ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
-          ),
-          child: Column(
-            children: [
-              // Preview text
-              Text(
-                'Aa',
-                style: TextStyle(
-                  fontSize: 24 * steps[stepIndex],
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                stepLabel(stepIndex),
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color,
-                ),
-              ),
-              const SizedBox(height: 8),
-              // Slider
-              SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 4,
-                  thumbShape: const RoundSliderThumbShape(
-                    enabledThumbRadius: 8,
-                  ),
-                ),
-                child: Slider(
-                  value: stepIndex.toDouble(),
-                  min: 0,
-                  max: (steps.length - 1).toDouble(),
-                  divisions: steps.length - 1,
-                  activeColor: Theme.of(context).colorScheme.primary,
-                  onChanged: (value) {
-                    HapticFeedback.lightImpact();
-                    themeProvider.setTextScaleFactor(steps[value.round()]);
-                  },
-                ),
-              ),
-              // Min/max labels
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'A',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                    ),
-                    Text(
-                      'A',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Theme.of(context).textTheme.bodySmall?.color,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
+      ),
+      stepCount: steps.length,
+      index: stepIndex,
+      valueLabel: stepLabel,
+      onChanged: (index) => themeProvider.setTextScaleFactor(steps[index]),
+      smallMark: const Text('A', style: TextStyle(fontSize: 12)),
+      largeMark: const Text(
+        'A',
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+      ),
     );
   }
 
-  /// Home page display: the top strip (Activity / suggestions), the grouping
-  /// of the covers grid by reading status and the size of the covers.
+  /// Size of the covers in the library grids, on the same slider as the text
+  /// size. Each step is labelled with the covers a library row holds on this
+  /// screen, the measure that tells the steps apart.
+  Widget _buildCoverSizeSlider(
+    BuildContext context,
+    ThemeProvider themeProvider,
+  ) {
+    const steps = ThemeProvider.homeCoverExtentSteps;
+    final current = steps.indexOf(
+      ThemeProvider.nearestHomeCoverStep(themeProvider.homeCoverExtent),
+    );
+    final gridWidth = coverGridWidthOf(context);
+    final phone = coverGridIsPhone(context);
+
+    String stepLabel(int index) => TranslationService.translate(
+      context,
+      'home_cover_size_per_row',
+      params: {
+        'count': '${coverGridColumns(gridWidth, steps[index], phone: phone)}',
+      },
+    );
+
+    return SettingsStepSlider(
+      key: const Key('cover_size_slider'),
+      title: TranslationService.translate(context, 'home_cover_size'),
+      preview: CoverSizePreview(coverSize: steps[current]),
+      stepCount: steps.length,
+      index: current,
+      valueLabel: stepLabel,
+      onChanged: (index) => themeProvider.setHomeCoverExtent(steps[index]),
+      smallMark: const Icon(Icons.apps, size: 16),
+      largeMark: const Icon(Icons.crop_portrait, size: 22),
+    );
+  }
+
+  /// Home page display: the top strip (Activity / suggestions), the
+  /// ownership filter and how the covers grid is grouped.
   Widget _buildHomeDisplaySection(
     BuildContext context,
     ThemeProvider themeProvider,
   ) {
-    const sizeKeys = [
-      'home_cover_size_small',
-      'home_cover_size_medium',
-      'home_cover_size_large',
-    ];
-    const sizeIcons = [Icons.apps, Icons.grid_view, Icons.crop_portrait];
-    final steps = ThemeProvider.homeCoverExtentSteps;
-    // A stored value outside the steps snaps to the closest one.
-    var selected = steps.first;
-    for (final step in steps) {
-      if ((step - themeProvider.homeCoverExtent).abs() <
-          (selected - themeProvider.homeCoverExtent).abs()) {
-        selected = step;
-      }
-    }
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -532,30 +488,6 @@ class ThemeSettingsSection extends StatelessWidget {
             value: themeProvider.groupByReadingStatus,
             onChanged: themeProvider.setGroupByReadingStatus,
           ),
-        const SizedBox(height: 8),
-        Text(TranslationService.translate(context, 'home_cover_size')),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: double.infinity,
-          child: SegmentedButton<double>(
-            showSelectedIcon: false,
-            segments: [
-              for (var i = 0; i < steps.length; i++)
-                ButtonSegment<double>(
-                  value: steps[i],
-                  icon: Icon(sizeIcons[i]),
-                  label: Text(
-                    TranslationService.translate(context, sizeKeys[i]),
-                  ),
-                ),
-            ],
-            selected: {selected},
-            onSelectionChanged: (values) {
-              HapticFeedback.lightImpact();
-              themeProvider.setHomeCoverExtent(values.first);
-            },
-          ),
-        ),
       ],
     );
   }
