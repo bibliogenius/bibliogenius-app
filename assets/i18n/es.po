@@ -12553,7 +12553,7 @@ msgstr "Portada desde una página web"
 
 #. Cover from a web page dialog: explanation above the address field
 msgid "web_cover_dialog_help"
-msgstr "Pega la dirección de la página del libro en el sitio de la editorial, o la de la imagen de portada."
+msgstr "Pega la dirección de la imagen del libro, o la de una página web que contenga esa imagen."
 
 #. Cover from a web page dialog: label of the address field
 msgid "web_cover_dialog_field"
@@ -12666,3 +12666,35 @@ msgstr "Se encontró la página del libro, pero el sitio de la editorial no perm
 #. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
 msgid "publisher_cover_error_no_image_found"
 msgstr "La página del libro en el sitio de la editorial no tiene ninguna portada utilizable."
+
+#. Cover from a web page dialog, publisher site search: reading the site's robots.txt; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_step_rules"
+msgstr "{site}: leyendo las reglas del sitio…"
+
+#. Cover from a web page dialog, publisher site search: trying the book's page at an address built from its ISBN; {attempt} of at most {of}
+msgid "publisher_cover_step_product_page"
+msgstr "{site}: página del libro, intento {attempt} de {of}…"
+
+#. Cover from a web page dialog, publisher site search: using the site's own search
+msgid "publisher_cover_step_search"
+msgstr "{site}: buscando en el sitio…"
+
+#. Cover from a web page dialog, publisher site search: opening one of the search's results; {attempt} of at most {of}
+msgid "publisher_cover_step_search_result"
+msgstr "{site}: resultado {attempt} de {of}…"
+
+#. Cover from a web page dialog, publisher site search: reading the site map
+msgid "publisher_cover_step_site_map"
+msgstr "{site}: leyendo el mapa del sitio…"
+
+#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+msgid "publisher_cover_step_waiting"
+msgstr "{site} pide esperar entre dos páginas: quedan {seconds} s…"
+
+#. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
+msgid "publisher_cover_step_cover"
+msgstr "{site}: descargando la portada…"
+
+#. Cover from a web page dialog: button shown when the publisher's site gave a cover while the user was typing an address; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_show_found"
+msgstr "Ver la portada encontrada en {site}"

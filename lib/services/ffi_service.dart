@@ -534,9 +534,10 @@ class FfiService {
   Future<frb.FrbWebCover> fetchWebCoverImage(String imageUrl) =>
       frb.fetchWebCoverImage(imageUrl: imageUrl);
 
-  /// Look for a book's cover on its publisher's site, found from its ISBN.
-  /// Fails with a stable code (see [frb.findCoverOnPublisherSite]).
-  Future<frb.FrbPublisherCover> findCoverOnPublisherSite({
+  /// Look for a book's cover on its publisher's site, found from its ISBN:
+  /// the search's steps, then the cover or a stable error code (see
+  /// [frb.findCoverOnPublisherSite]).
+  Stream<frb.FrbPublisherLookupEvent> findCoverOnPublisherSite({
     required String isbn,
     required String title,
     required String authors,

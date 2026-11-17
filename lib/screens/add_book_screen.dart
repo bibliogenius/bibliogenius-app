@@ -1871,25 +1871,18 @@ class _AddBookScreenState extends State<AddBookScreen> {
     }
   }
 
-  /// What the publisher site search needs, from the form as it stands: the
-  /// name still in the author field counts.
-  PublisherBook _publisherBook() {
-    final pending = _authorController.text.trim();
-    return (
-      isbn: _isbnController.text,
-      title: _titleController.text,
-      authors: [
-        ..._authors,
-        if (pending.isNotEmpty && !_authors.contains(pending)) pending,
-      ].join(', '),
-      publisher: _publisherController.text,
-    );
-  }
+  /// What the publisher site search needs, from the form as it stands.
+  PublisherBook _publisherBook() => publisherBookFromForm(
+    isbn: _isbnController.text,
+    title: _titleController.text,
+    authors: _authors,
+    pendingAuthor: _authorController.text,
+    publisher: _publisherController.text,
+  );
 
   Future<void> _pickCoverFromWeb() async {
     final pick = await showWebCoverDialog(
       context,
-      isbn: _isbnController.text,
       book: _publisherBook(),
     );
     if (pick == null) return;

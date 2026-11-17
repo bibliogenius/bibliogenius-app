@@ -244,7 +244,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<FrbWebCover> crateApiFrbFetchWebCoverImage({required String imageUrl});
 
-  Future<FrbPublisherCover> crateApiFrbFindCoverOnPublisherSite({
+  Stream<FrbPublisherLookupEvent> crateApiFrbFindCoverOnPublisherSite({
     required String isbn,
     required String title,
     required String authors,
@@ -2567,42 +2567,50 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<FrbPublisherCover> crateApiFrbFindCoverOnPublisherSite({
+  Stream<FrbPublisherLookupEvent> crateApiFrbFindCoverOnPublisherSite({
     required String isbn,
     required String title,
     required String authors,
     String? publisher,
   }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(isbn, serializer);
-          sse_encode_String(title, serializer);
-          sse_encode_String(authors, serializer);
-          sse_encode_opt_String(publisher, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 54,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_frb_publisher_cover,
-          decodeErrorData: sse_decode_String,
+    final sink = RustStreamSink<FrbPublisherLookupEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_String(isbn, serializer);
+            sse_encode_String(title, serializer);
+            sse_encode_String(authors, serializer);
+            sse_encode_opt_String(publisher, serializer);
+            sse_encode_StreamSink_frb_publisher_lookup_event_Sse(
+              sink,
+              serializer,
+            );
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 54,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_String,
+          ),
+          constMeta: kCrateApiFrbFindCoverOnPublisherSiteConstMeta,
+          argValues: [isbn, title, authors, publisher, sink],
+          apiImpl: this,
         ),
-        constMeta: kCrateApiFrbFindCoverOnPublisherSiteConstMeta,
-        argValues: [isbn, title, authors, publisher],
-        apiImpl: this,
       ),
     );
+    return sink.stream;
   }
 
   TaskConstMeta get kCrateApiFrbFindCoverOnPublisherSiteConstMeta =>
       const TaskConstMeta(
         debugName: "find_cover_on_publisher_site",
-        argNames: ["isbn", "title", "authors", "publisher"],
+        argNames: ["isbn", "title", "authors", "publisher", "sink"],
       );
 
   @override
@@ -8694,6 +8702,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  RustStreamSink<FrbPublisherLookupEvent>
+  dco_decode_StreamSink_frb_publisher_lookup_event_Sse(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
+  }
+
+  @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
@@ -8757,6 +8772,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FrbNoIsbnCluster dco_decode_box_autoadd_frb_no_isbn_cluster(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_frb_no_isbn_cluster(raw);
+  }
+
+  @protected
+  FrbPublisherCover dco_decode_box_autoadd_frb_publisher_cover(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_frb_publisher_cover(raw);
+  }
+
+  @protected
+  FrbPublisherLookupStep dco_decode_box_autoadd_frb_publisher_lookup_step(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_frb_publisher_lookup_step(raw);
   }
 
   @protected
@@ -9800,6 +9829,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FrbPublisherLookupEvent dco_decode_frb_publisher_lookup_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FrbPublisherLookupEvent(
+      step: dco_decode_opt_box_autoadd_frb_publisher_lookup_step(arr[0]),
+      cover: dco_decode_opt_box_autoadd_frb_publisher_cover(arr[1]),
+      error: dco_decode_opt_String(arr[2]),
+    );
+  }
+
+  @protected
+  FrbPublisherLookupStep dco_decode_frb_publisher_lookup_step(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return FrbPublisherLookupStep(
+      kind: dco_decode_String(arr[0]),
+      site: dco_decode_String(arr[1]),
+      attempt: dco_decode_u_32(arr[2]),
+      of: dco_decode_u_32(arr[3]),
+      seconds: dco_decode_u_32(arr[4]),
+    );
+  }
+
+  @protected
   FrbPuzzleBoard dco_decode_frb_puzzle_board(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -10538,6 +10595,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FrbPublisherCover? dco_decode_opt_box_autoadd_frb_publisher_cover(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_frb_publisher_cover(raw);
+  }
+
+  @protected
+  FrbPublisherLookupStep? dco_decode_opt_box_autoadd_frb_publisher_lookup_step(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null
+        ? null
+        : dco_decode_box_autoadd_frb_publisher_lookup_step(raw);
+  }
+
+  @protected
   FrbReader? dco_decode_opt_box_autoadd_frb_reader(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_frb_reader(raw);
@@ -10690,6 +10765,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  RustStreamSink<FrbPublisherLookupEvent>
+  sse_decode_StreamSink_frb_publisher_lookup_event_Sse(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_list_prim_u_8_strict(deserializer);
@@ -10764,6 +10848,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_frb_no_isbn_cluster(deserializer));
+  }
+
+  @protected
+  FrbPublisherCover sse_decode_box_autoadd_frb_publisher_cover(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_frb_publisher_cover(deserializer));
+  }
+
+  @protected
+  FrbPublisherLookupStep sse_decode_box_autoadd_frb_publisher_lookup_step(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_frb_publisher_lookup_step(deserializer));
   }
 
   @protected
@@ -12057,6 +12157,44 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FrbPublisherLookupEvent sse_decode_frb_publisher_lookup_event(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_step = sse_decode_opt_box_autoadd_frb_publisher_lookup_step(
+      deserializer,
+    );
+    var var_cover = sse_decode_opt_box_autoadd_frb_publisher_cover(
+      deserializer,
+    );
+    var var_error = sse_decode_opt_String(deserializer);
+    return FrbPublisherLookupEvent(
+      step: var_step,
+      cover: var_cover,
+      error: var_error,
+    );
+  }
+
+  @protected
+  FrbPublisherLookupStep sse_decode_frb_publisher_lookup_step(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_String(deserializer);
+    var var_site = sse_decode_String(deserializer);
+    var var_attempt = sse_decode_u_32(deserializer);
+    var var_of = sse_decode_u_32(deserializer);
+    var var_seconds = sse_decode_u_32(deserializer);
+    return FrbPublisherLookupStep(
+      kind: var_kind,
+      site: var_site,
+      attempt: var_attempt,
+      of: var_of,
+      seconds: var_seconds,
+    );
+  }
+
+  @protected
   FrbPuzzleBoard sse_decode_frb_puzzle_board(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_bookId = sse_decode_String(deserializer);
@@ -13208,6 +13346,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FrbPublisherCover? sse_decode_opt_box_autoadd_frb_publisher_cover(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_frb_publisher_cover(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  FrbPublisherLookupStep? sse_decode_opt_box_autoadd_frb_publisher_lookup_step(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_frb_publisher_lookup_step(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   FrbReader? sse_decode_opt_box_autoadd_frb_reader(
     SseDeserializer deserializer,
   ) {
@@ -13437,6 +13601,23 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_StreamSink_frb_publisher_lookup_event_Sse(
+    RustStreamSink<FrbPublisherLookupEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_frb_publisher_lookup_event,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(utf8.encoder.convert(self), serializer);
@@ -13518,6 +13699,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_frb_no_isbn_cluster(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_frb_publisher_cover(
+    FrbPublisherCover self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_frb_publisher_cover(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_frb_publisher_lookup_step(
+    FrbPublisherLookupStep self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_frb_publisher_lookup_step(self, serializer);
   }
 
   @protected
@@ -14420,6 +14619,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_String(self.candidates, serializer);
     sse_encode_String(self.pageUrl, serializer);
     sse_encode_String(self.site, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_publisher_lookup_event(
+    FrbPublisherLookupEvent self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_box_autoadd_frb_publisher_lookup_step(self.step, serializer);
+    sse_encode_opt_box_autoadd_frb_publisher_cover(self.cover, serializer);
+    sse_encode_opt_String(self.error, serializer);
+  }
+
+  @protected
+  void sse_encode_frb_publisher_lookup_step(
+    FrbPublisherLookupStep self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.kind, serializer);
+    sse_encode_String(self.site, serializer);
+    sse_encode_u_32(self.attempt, serializer);
+    sse_encode_u_32(self.of, serializer);
+    sse_encode_u_32(self.seconds, serializer);
   }
 
   @protected
@@ -15370,6 +15593,32 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_frb_no_isbn_cluster(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_publisher_cover(
+    FrbPublisherCover? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_frb_publisher_cover(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_publisher_lookup_step(
+    FrbPublisherLookupStep? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_frb_publisher_lookup_step(self, serializer);
     }
   }
 

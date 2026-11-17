@@ -12685,7 +12685,7 @@ msgstr "Web sayfasından kapak"
 
 #. Cover from a web page dialog: explanation above the address field
 msgid "web_cover_dialog_help"
-msgstr "Kitabın yayınevi sitesindeki sayfasının adresini ya da kapak görselinin adresini yapıştırın."
+msgstr "Kitabın görselinin ya da bu görseli içeren bir web sayfasının adresini yapıştırın."
 
 #. Cover from a web page dialog: label of the address field
 msgid "web_cover_dialog_field"
@@ -12798,3 +12798,35 @@ msgstr "Kitabın sayfası bulundu, ancak yayınevinin sitesi kapağın alınmas�
 #. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
 msgid "publisher_cover_error_no_image_found"
 msgstr "Kitabın yayınevi sitesindeki sayfasında kullanılabilir bir kapak yok."
+
+#. Cover from a web page dialog, publisher site search: reading the site's robots.txt; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_step_rules"
+msgstr "{site}: sitenin kuralları okunuyor…"
+
+#. Cover from a web page dialog, publisher site search: trying the book's page at an address built from its ISBN; {attempt} of at most {of}
+msgid "publisher_cover_step_product_page"
+msgstr "{site}: kitabın sayfası, deneme {attempt}/{of}…"
+
+#. Cover from a web page dialog, publisher site search: using the site's own search
+msgid "publisher_cover_step_search"
+msgstr "{site}: sitede aranıyor…"
+
+#. Cover from a web page dialog, publisher site search: opening one of the search's results; {attempt} of at most {of}
+msgid "publisher_cover_step_search_result"
+msgstr "{site}: sonuç {attempt}/{of}…"
+
+#. Cover from a web page dialog, publisher site search: reading the site map
+msgid "publisher_cover_step_site_map"
+msgstr "{site}: site haritası okunuyor…"
+
+#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+msgid "publisher_cover_step_waiting"
+msgstr "{site} iki sayfa arasında beklemeyi istiyor: {seconds} sn kaldı…"
+
+#. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
+msgid "publisher_cover_step_cover"
+msgstr "{site}: kapak indiriliyor…"
+
+#. Cover from a web page dialog: button shown when the publisher's site gave a cover while the user was typing an address; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_show_found"
+msgstr "{site} üzerinde bulunan kapağı göster"

@@ -12739,3 +12739,35 @@ msgstr ""
 #. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
 msgid "publisher_cover_error_no_image_found"
 msgstr ""
+
+#. Cover from a web page dialog, publisher site search: reading the site's robots.txt; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_step_rules"
+msgstr ""
+
+#. Cover from a web page dialog, publisher site search: trying the book's page at an address built from its ISBN; {attempt} of at most {of}
+msgid "publisher_cover_step_product_page"
+msgstr ""
+
+#. Cover from a web page dialog, publisher site search: using the site's own search
+msgid "publisher_cover_step_search"
+msgstr ""
+
+#. Cover from a web page dialog, publisher site search: opening one of the search's results; {attempt} of at most {of}
+msgid "publisher_cover_step_search_result"
+msgstr ""
+
+#. Cover from a web page dialog, publisher site search: reading the site map
+msgid "publisher_cover_step_site_map"
+msgstr ""
+
+#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+msgid "publisher_cover_step_waiting"
+msgstr ""
+
+#. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
+msgid "publisher_cover_step_cover"
+msgstr ""
+
+#. Cover from a web page dialog: button shown when the publisher's site gave a cover while the user was typing an address; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_show_found"
+msgstr ""

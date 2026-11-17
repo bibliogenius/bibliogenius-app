@@ -12694,7 +12694,7 @@ msgstr "Webページから表紙を取得"
 
 #. Cover from a web page dialog: explanation above the address field
 msgid "web_cover_dialog_help"
-msgstr "出版社サイトの本のページのアドレス、または表紙画像そのもののアドレスを貼り付けてください。"
+msgstr "本の画像のアドレス、またはその画像を含むウェブページのアドレスを貼り付けてください。"
 
 #. Cover from a web page dialog: label of the address field
 msgid "web_cover_dialog_field"
@@ -12807,3 +12807,35 @@ msgstr "本のページは見つかりましたが、出版社のサイトは表
 #. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
 msgid "publisher_cover_error_no_image_found"
 msgstr "出版社のサイトの本のページに、使える表紙がありません。"
+
+#. Cover from a web page dialog, publisher site search: reading the site's robots.txt; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_step_rules"
+msgstr "{site}：サイトのルールを確認中…"
+
+#. Cover from a web page dialog, publisher site search: trying the book's page at an address built from its ISBN; {attempt} of at most {of}
+msgid "publisher_cover_step_product_page"
+msgstr "{site}：本のページ、試行 {attempt}/{of}…"
+
+#. Cover from a web page dialog, publisher site search: using the site's own search
+msgid "publisher_cover_step_search"
+msgstr "{site}：サイト内を検索中…"
+
+#. Cover from a web page dialog, publisher site search: opening one of the search's results; {attempt} of at most {of}
+msgid "publisher_cover_step_search_result"
+msgstr "{site}：検索結果 {attempt}/{of}…"
+
+#. Cover from a web page dialog, publisher site search: reading the site map
+msgid "publisher_cover_step_site_map"
+msgstr "{site}：サイトマップを確認中…"
+
+#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+msgid "publisher_cover_step_waiting"
+msgstr "{site} はページ間の待機を求めています：残り {seconds} 秒…"
+
+#. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
+msgid "publisher_cover_step_cover"
+msgstr "{site}：表紙を取得中…"
+
+#. Cover from a web page dialog: button shown when the publisher's site gave a cover while the user was typing an address; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_show_found"
+msgstr "{site} で見つかった表紙を表示"

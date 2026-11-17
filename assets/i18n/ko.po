@@ -12694,7 +12694,7 @@ msgstr "웹 페이지에서 표지 가져오기"
 
 #. Cover from a web page dialog: explanation above the address field
 msgid "web_cover_dialog_help"
-msgstr "출판사 사이트의 책 페이지 주소나 표지 이미지 자체의 주소를 붙여 넣으세요."
+msgstr "책 이미지의 주소나 그 이미지가 있는 웹 페이지의 주소를 붙여 넣으세요."
 
 #. Cover from a web page dialog: label of the address field
 msgid "web_cover_dialog_field"
@@ -12807,3 +12807,35 @@ msgstr "책 페이지를 찾았지만 출판사 사이트가 표지 가져오기
 #. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
 msgid "publisher_cover_error_no_image_found"
 msgstr "출판사 사이트의 책 페이지에 사용할 수 있는 표지가 없습니다."
+
+#. Cover from a web page dialog, publisher site search: reading the site's robots.txt; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_step_rules"
+msgstr "{site}: 사이트 규칙 확인 중…"
+
+#. Cover from a web page dialog, publisher site search: trying the book's page at an address built from its ISBN; {attempt} of at most {of}
+msgid "publisher_cover_step_product_page"
+msgstr "{site}: 책 페이지, 시도 {attempt}/{of}…"
+
+#. Cover from a web page dialog, publisher site search: using the site's own search
+msgid "publisher_cover_step_search"
+msgstr "{site}: 사이트 검색 중…"
+
+#. Cover from a web page dialog, publisher site search: opening one of the search's results; {attempt} of at most {of}
+msgid "publisher_cover_step_search_result"
+msgstr "{site}: 검색 결과 {attempt}/{of}…"
+
+#. Cover from a web page dialog, publisher site search: reading the site map
+msgid "publisher_cover_step_site_map"
+msgstr "{site}: 사이트맵 확인 중…"
+
+#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+msgid "publisher_cover_step_waiting"
+msgstr "{site}에서 페이지 사이에 대기를 요청합니다: {seconds}초 남음…"
+
+#. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
+msgid "publisher_cover_step_cover"
+msgstr "{site}: 표지 가져오는 중…"
+
+#. Cover from a web page dialog: button shown when the publisher's site gave a cover while the user was typing an address; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_show_found"
+msgstr "{site}에서 찾은 표지 보기"

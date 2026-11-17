@@ -32,6 +32,10 @@ void main() {
         'publisher_cover_searching': "Looking on the publisher's site",
         'publisher_cover_found_on': 'Found on {site}',
         'publisher_cover_error_no_site': "This publisher's site is not known",
+        'publisher_cover_step_product_page':
+            '{site}: page, try {attempt} of {of}',
+        'publisher_cover_step_waiting': '{site} asks to wait: {seconds} s',
+        'publisher_cover_show_found': 'Show the cover found on {site}',
       },
     });
   });
@@ -72,7 +76,8 @@ void main() {
       discard: (path) async => discarded.add(path),
       findOnPublisherSite:
           findOnPublisherSite ??
-          (_) async => throw StateError('no publisher search expected'),
+          (_, {onStep}) async =>
+              throw StateError('no publisher search expected'),
       fetchPublisherImage:
           fetchPublisherImage ??
           (_) async => throw StateError('no publisher image expected'),
@@ -384,7 +389,6 @@ void main() {
       imageUrl: gallimard.first,
       candidates: gallimard,
       site: 'gallimard.fr',
-      pageUrl: 'https://www.gallimard.fr/catalogue/9782070360024',
     );
 
     testWidgets('looks on the site as the dialog opens and previews it', (
@@ -396,7 +400,7 @@ void main() {
         tester,
         found,
         book: book,
-        findOnPublisherSite: (b) {
+        findOnPublisherSite: (b, {onStep}) {
           asked = b;
           return foundOnSite(b);
         },
@@ -431,7 +435,7 @@ void main() {
         tester,
         found,
         book: (isbn: '  ', title: 'Sans ISBN', authors: '', publisher: null),
-        findOnPublisherSite: (b) {
+        findOnPublisherSite: (b, {onStep}) {
           searches++;
           return foundOnSite(b);
         },
@@ -448,17 +452,87 @@ void main() {
         tester,
         found,
         book: book,
-        findOnPublisherSite: (_) async => throw 'no_site',
+        findOnPublisherSite: (_, {onStep}) async => throw 'no_site',
       );
       expect(find.text("This publisher's site is not known"), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.focusNode!.hasFocus, isTrue, reason: 'the way on');
 
       await fetchAddress(tester);
       expect(find.bySemanticsLabel('Cover found on the page'), findsOneWidget);
       expect(find.textContaining('Found on'), findsNothing);
+
+      // The search's failure no longer applies once an address gave a cover.
+      await tester.tap(find.text('Try another address'));
+      await tester.pumpAndSettle();
+      expect(find.text("This publisher's site is not known"), findsNothing);
+      await fetchAddress(tester);
       await tester.tap(find.text('Use this cover'));
       await tester.pumpAndSettle();
       expect(opened.results.single!.imageUrl, page.first);
+    });
+
+    testWidgets('an ISBN still being typed starts no search', (tester) async {
+      var searches = 0;
+      await openDialog(
+        tester,
+        found,
+        book: (isbn: '978207036', title: 'T', authors: '', publisher: null),
+        findOnPublisherSite: (b, {onStep}) {
+          searches++;
+          return foundOnSite(b);
+        },
+      );
+      expect(searches, 0);
+      expect(find.textContaining('ISBN'), findsNothing);
+    });
+
+    testWidgets('a cover found while an address is typed waits aside', (
+      tester,
+    ) async {
+      final pending = Completer<FoundPublisherCover>();
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (_, {onStep}) => pending.future,
+        settle: false,
+      );
+      await tester.enterText(find.byType(TextField), 'https://example.org/l');
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
+
+      // What the user types stays on screen.
+      expect(find.text('https://example.org/l'), findsOneWidget);
+      expect(find.bySemanticsLabel('Cover found on the page'), findsNothing);
+
+      await tester.tap(find.text('Show the cover found on gallimard.fr'));
+      await tester.pumpAndSettle();
+      expect(find.text('Found on gallimard.fr'), findsOneWidget);
+      await tester.tap(find.text('Use this cover'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single!.imageUrl, gallimard.first);
+      expect(opened.discarded, isEmpty);
+    });
+
+    testWidgets('a cover set aside and not shown is deleted on leaving', (
+      tester,
+    ) async {
+      final pending = Completer<FoundPublisherCover>();
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (_, {onStep}) => pending.future,
+        settle: false,
+      );
+      await tester.enterText(find.byType(TextField), 'https://example.org/l');
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(opened.discarded, ['/covers/temp_1.jpg']);
     });
 
     testWidgets('an address can be fetched during the search, and wins', (
@@ -469,7 +543,7 @@ void main() {
         tester,
         found,
         book: book,
-        findOnPublisherSite: (_) => pending.future,
+        findOnPublisherSite: (_, {onStep}) => pending.future,
         settle: false,
       );
       expect(find.text("Looking on the publisher's site"), findsOneWidget);
@@ -499,7 +573,7 @@ void main() {
         tester,
         found,
         book: book,
-        findOnPublisherSite: (_) => pending.future,
+        findOnPublisherSite: (_, {onStep}) => pending.future,
         settle: false,
       );
       await tester.tap(find.text('Cancel'));
@@ -509,6 +583,53 @@ void main() {
       pending.complete(await foundOnSite(book));
       await tester.pumpAndSettle();
       expect(opened.discarded, ['/covers/temp_1.jpg']);
+    });
+
+    testWidgets('says what the search is doing, and counts a wait down', (
+      tester,
+    ) async {
+      final pending = Completer<FoundPublisherCover>();
+      late void Function(PublisherLookupStep) step;
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (_, {onStep}) {
+          step = onStep!;
+          return pending.future;
+        },
+        settle: false,
+      );
+
+      step(
+        const PublisherLookupStep(
+          kind: 'product_page',
+          site: 'gallimard.fr',
+          attempt: 2,
+          of: 3,
+        ),
+      );
+      await tester.pump();
+      expect(find.text('gallimard.fr: page, try 2 of 3'), findsOneWidget);
+
+      step(
+        const PublisherLookupStep(
+          kind: 'waiting',
+          site: 'gallimard.fr',
+          seconds: 10,
+        ),
+      );
+      await tester.pump();
+      expect(find.text('gallimard.fr asks to wait: 10 s'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 3));
+      expect(find.text('gallimard.fr asks to wait: 7 s'), findsOneWidget);
+
+      // Left during the wait: the countdown stops with the dialog.
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single, isNull);
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
     });
   });
 }
