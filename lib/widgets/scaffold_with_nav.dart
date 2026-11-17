@@ -23,6 +23,11 @@ const double navRailBreakpoint = 600;
 bool usesNavigationRail(BuildContext context) =>
     MediaQuery.of(context).size.width > navRailBreakpoint;
 
+/// Width the side navigation rail takes at the least: the rail and the
+/// divider beside it. Long destination labels may widen the rail.
+const double navRailMinWidth = 88;
+const double navRailDividerWidth = 1;
+
 /// Returns a hamburger menu button if the drawer is available, null otherwise.
 /// Used by screens that show the drawer toggle on mobile.
 Widget? buildDrawerLeading(BuildContext context) {
@@ -75,7 +80,7 @@ class ScaffoldWithNav extends StatelessWidget {
                         ),
                         child: IntrinsicHeight(
                           child: NavigationRail(
-                            minWidth: 88,
+                            minWidth: navRailMinWidth,
                             backgroundColor: isDark
                                 ? theme.colorScheme.surface
                                 : null,
@@ -120,8 +125,8 @@ class ScaffoldWithNav extends StatelessWidget {
             if (useRail)
               ExcludeSemantics(
                 child: VerticalDivider(
-                  thickness: 1,
-                  width: 1,
+                  thickness: navRailDividerWidth,
+                  width: navRailDividerWidth,
                   color: theme.dividerColor,
                 ),
               ),

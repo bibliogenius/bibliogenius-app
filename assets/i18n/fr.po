@@ -6855,6 +6855,14 @@ msgstr "Normal"
 msgid "text_size_large"
 msgstr "Grand"
 
+#. Text size slider, fourth of five steps (after Large)
+msgid "text_size_larger"
+msgstr "Plus grand"
+
+#. Text size slider, largest of five steps
+msgid "text_size_largest"
+msgstr "Très grand"
+
 #. Small
 msgid "text_size_small"
 msgstr "Petit"
@@ -12373,17 +12381,9 @@ msgstr "Page d'accueil"
 msgid "home_cover_size"
 msgstr "Taille des vignettes"
 
-#. Small covers
-msgid "home_cover_size_small"
-msgstr "Petites"
-
-#. Medium covers
-msgid "home_cover_size_medium"
-msgstr "Moyennes"
-
-#. Large covers
-msgid "home_cover_size_large"
-msgstr "Grandes"
+#. Cover size slider in Display settings: covers in one row of the library grid; {count} is a number
+msgid "home_cover_size_per_row"
+msgstr "{count} couvertures par ligne"
 
 #. Home page section for books without a reading/read/to-read status
 msgid "books_group_other"

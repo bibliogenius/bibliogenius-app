@@ -5628,6 +5628,14 @@ msgstr "По подразбиране"
 msgid "text_size_large"
 msgstr "Голям"
 
+#. Text size slider, fourth of five steps (after Large)
+msgid "text_size_larger"
+msgstr "По-голям"
+
+#. Text size slider, largest of five steps
+msgid "text_size_largest"
+msgstr "Много голям"
+
 #. Small
 msgid "text_size_small"
 msgstr "Малък"
@@ -12252,17 +12260,9 @@ msgstr "Начална страница"
 msgid "home_cover_size"
 msgstr "Размер на кориците"
 
-#. Small covers
-msgid "home_cover_size_small"
-msgstr "Малки"
-
-#. Medium covers
-msgid "home_cover_size_medium"
-msgstr "Средни"
-
-#. Large covers
-msgid "home_cover_size_large"
-msgstr "Големи"
+#. Cover size slider in Display settings: covers in one row of the library grid; {count} is a number
+msgid "home_cover_size_per_row"
+msgstr "{count} корици на ред"
 
 #. Home page section for books without a reading/read/to-read status
 msgid "books_group_other"

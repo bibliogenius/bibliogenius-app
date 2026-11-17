@@ -145,7 +145,7 @@ class BookCoverGrid extends StatelessWidget {
 
     final gridDelegate = CoverGridDelegate(
       coverSize: coverSize,
-      childAspectRatio: 0.65, // Standard book ratio (width / height)
+      childAspectRatio: coverGridAspectRatio,
       phone: coverGridIsPhone(context),
     );
     // Evaluated once on the whole list, never per section: a section made
@@ -154,7 +154,7 @@ class BookCoverGrid extends StatelessWidget {
 
     if (!groupByReadingStatus) {
       return GridView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(coverGridPadding),
         gridDelegate: gridDelegate,
         itemCount: books.length,
         itemBuilder: (context, index) => _buildTile(books[index], newBadge),
@@ -174,7 +174,12 @@ class BookCoverGrid extends StatelessWidget {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            padding: const EdgeInsets.fromLTRB(
+              coverGridPadding,
+              0,
+              coverGridPadding,
+              8,
+            ),
             sliver: SliverLayoutBuilder(
               builder: (context, constraints) {
                 // The delegate's own column count, so the cap cuts exactly

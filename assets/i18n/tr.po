@@ -5681,6 +5681,14 @@ msgstr "Varsayılan"
 msgid "text_size_large"
 msgstr "Büyük"
 
+#. Text size slider, fourth of five steps (after Large)
+msgid "text_size_larger"
+msgstr "Daha büyük"
+
+#. Text size slider, largest of five steps
+msgid "text_size_largest"
+msgstr "Çok büyük"
+
 #. Small
 msgid "text_size_small"
 msgstr "Küçük"
@@ -12252,17 +12260,9 @@ msgstr "Ana sayfa"
 msgid "home_cover_size"
 msgstr "Kapak boyutu"
 
-#. Small covers
-msgid "home_cover_size_small"
-msgstr "Küçük"
-
-#. Medium covers
-msgid "home_cover_size_medium"
-msgstr "Orta"
-
-#. Large covers
-msgid "home_cover_size_large"
-msgstr "Büyük"
+#. Cover size slider in Display settings: covers in one row of the library grid; {count} is a number
+msgid "home_cover_size_per_row"
+msgstr "Satır başına {count} kapak"
 
 #. Home page section for books without a reading/read/to-read status
 msgid "books_group_other"
