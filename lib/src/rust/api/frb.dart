@@ -10,7 +10,7 @@ part 'frb.freezed.dart';
 
 // These functions are ignored because they are not marked as `pub`: `abort_stale_server_task`, `account_device_entry`, `account_devices_json`, `account_library_uuid`, `account_status_json`, `apply_fallback_preferences_to_modules`, `beacon_sync_failure`, `build_hub_catalog`, `catalog_key_store`, `catalog_key_wrap_for`, `check_achievements`, `covers_dir`, `db`, `decide_server_start`, `enrollment_restart_required`, `enrollment_status_json`, `ensure_account_session`, `entries_to_frb`, `fill_state`, `frb_book_into_update_payload`, `from_info`, `from_manifest`, `from_summary`, `get_all_tags_in`, `global_app_state`, `hub_catalog_error_code`, `hub_db`, `hub_directory_svc`, `hub_directory_sync_catalog_inner`, `identity_library_uuid`, `identity_x25519_secret`, `install_panic_hook`, `keep_previous_log`, `listener_still_serves`, `load_google_books_api_key`, `loan_due_reminder_text`, `loan_due_today_text`, `log_reader_anomaly`, `log_sync_failure`, `merge_api_keys`, `merge_directory_entry`, `modules_to_fallback_preferences`, `nudge_source_label`, `remember_server_task`, `rename_subject_in_books`, `runtime`, `server_start_lock`, `spawn_background_workers`, `store_account_session`, `to_frb_memory_card`, `track_to_frb`, `try_from_summary`, `undo_outcome_str`, `update_tag_in`, `upsert_directory_catalog_cache`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `AccountSession`, `ServerStartDecision`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `eq`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 /// Initialize the FFI backend with database at the given path
 /// Must be called before any other FFI functions
@@ -536,15 +536,18 @@ Future<void> recordWebCoverOrigin({
 /// `publisher` is the book's publisher field, to pick among the publishers of
 /// a shared prefix; `authors` helps the recipes that need the author's name.
 ///
-/// On failure the error is a stable code: `invalid_isbn`, `no_site` (no site
-/// known for this publisher), `not_found` (the site answered, without the
-/// book), `blocked_by_site`, `network` (a site did not answer: worth trying
-/// later), `image_forbidden` (the site does not let us have the cover),
-/// `no_image_found`.
+/// A stream: the lookup's steps (a site asking 10 s between two requests
+/// makes it last half a minute), then the cover, or an error with a stable
+/// code: `invalid_isbn`, `no_site` (no site known for this publisher),
+/// `not_found` (the site answered, without the book), `blocked_by_site`,
+/// `network` (a site did not answer: worth trying later), `image_forbidden`
+/// (the site does not let us have the cover), `no_image_found`. The outcome
+/// is an event rather than this function's result, which the generated Dart
+/// side does not await.
 ///
 /// FFI only, with no Axum route on purpose: a route would let any peer make
 /// this device send requests to publisher sites.
-Future<FrbPublisherCover> findCoverOnPublisherSite({
+Stream<FrbPublisherLookupEvent> findCoverOnPublisherSite({
   required String isbn,
   required String title,
   required String authors,
@@ -3487,6 +3490,73 @@ class FrbPublisherCover {
           candidates == other.candidates &&
           pageUrl == other.pageUrl &&
           site == other.site;
+}
+
+/// What [`find_cover_on_publisher_site`] sends: steps while it works, then
+/// exactly one `cover` or one `error`, the last event of the stream.
+class FrbPublisherLookupEvent {
+  final FrbPublisherLookupStep? step;
+  final FrbPublisherCover? cover;
+  final String? error;
+
+  const FrbPublisherLookupEvent({this.step, this.cover, this.error});
+
+  @override
+  int get hashCode => step.hashCode ^ cover.hashCode ^ error.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbPublisherLookupEvent &&
+          runtimeType == other.runtimeType &&
+          step == other.step &&
+          cover == other.cover &&
+          error == other.error;
+}
+
+/// One step of a publisher site lookup, for the app to say what is being
+/// done while the user waits.
+///
+/// `kind` is one of `rules` (reading robots.txt), `product_page` (trying the
+/// book's page at an address built from its ISBN: `attempt` of at most `of`),
+/// `search` (the site's own search), `search_result` (opening a result:
+/// `attempt` of at most `of`), `site_map`, `waiting` (the site asks for a
+/// pause: `seconds` left) and `cover` (the page is found, its cover is being
+/// fetched). `site` is the host without `www.`. Flattened to a string, like
+/// [`FrbCoverSourceStatus`].
+class FrbPublisherLookupStep {
+  final String kind;
+  final String site;
+  final int attempt;
+  final int of;
+  final int seconds;
+
+  const FrbPublisherLookupStep({
+    required this.kind,
+    required this.site,
+    required this.attempt,
+    required this.of,
+    required this.seconds,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      site.hashCode ^
+      attempt.hashCode ^
+      of.hashCode ^
+      seconds.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FrbPublisherLookupStep &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          site == other.site &&
+          attempt == other.attempt &&
+          of == other.of &&
+          seconds == other.seconds;
 }
 
 /// A generated puzzle board (FFI-safe)

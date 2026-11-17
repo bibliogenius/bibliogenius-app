@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 
 import '../utils/cover_camera_helper.dart';
+import '../utils/isbn_validator.dart';
 import 'ffi_service.dart';
 
 /// A cover fetched from a web page and saved into covers/ under a temp name,
@@ -96,31 +97,139 @@ typedef PublisherBook = ({
   String? publisher,
 });
 
+/// The book as a form shows it, for the publisher site search: the [authors]
+/// added, and the name still in the author field ([pendingAuthor]).
+PublisherBook publisherBookFromForm({
+  required String isbn,
+  required String title,
+  required List<String> authors,
+  required String pendingAuthor,
+  required String publisher,
+}) {
+  final pending = pendingAuthor.trim();
+  return (
+    isbn: isbn,
+    title: title,
+    authors: [
+      ...authors,
+      if (pending.isNotEmpty && !authors.contains(pending)) pending,
+    ].join(', '),
+    publisher: publisher,
+  );
+}
+
 typedef FoundPublisherCover = ({
   Uint8List bytes,
   String imageUrl,
   List<String> candidates,
   String site,
-  String pageUrl,
 });
+
+/// What a publisher site search is doing, for the dialog to say while the
+/// user waits: a site asking 10 s between two pages makes a search last half
+/// a minute, most of it waiting.
+@immutable
+class PublisherLookupStep {
+  /// `rules`, `product_page`, `search`, `search_result`, `site_map`,
+  /// `waiting` or `cover` (see the engine's `FrbPublisherLookupStep`).
+  final String kind;
+
+  /// The site, without `www.` (`gallimard.fr`).
+  final String site;
+
+  /// For `product_page` and `search_result`: try [attempt] of at most [of].
+  final int attempt;
+  final int of;
+
+  /// For `waiting`: the seconds left before the next request, when the step
+  /// was said ([saidAt]).
+  final int seconds;
+  final DateTime? saidAt;
+
+  const PublisherLookupStep({
+    required this.kind,
+    required this.site,
+    this.attempt = 0,
+    this.of = 0,
+    this.seconds = 0,
+    this.saidAt,
+  });
+
+  /// The seconds of a wait left at [now]: a dialog that joins a search late
+  /// hears its last step, said some time ago.
+  int secondsLeft(DateTime now) {
+    final said = saidAt;
+    if (said == null) return seconds;
+    final left = seconds - now.difference(said).inSeconds;
+    return left < 0 ? 0 : left;
+  }
+
+  /// The i18n key that says this step.
+  String get translationKey => 'publisher_cover_step_$kind';
+
+  @override
+  String toString() => 'PublisherLookupStep($kind, $site)';
+}
+
 typedef PublisherCoverFinder =
-    Future<FoundPublisherCover> Function(PublisherBook book);
+    Future<FoundPublisherCover> Function(
+      PublisherBook book, {
+      void Function(PublisherLookupStep step)? onStep,
+    });
 
 /// Runs one search per key at a time: an ask for a key whose search is still
-/// running gets that search's result instead of starting another.
-class SingleFlight<T> {
-  final _running = <String, Future<T>>{};
+/// running gets that search's result instead of starting another, and hears
+/// its progress ([S]) from the step it has reached.
+class SingleFlight<T, S> {
+  final _running = <String, _Flight<T, S>>{};
 
-  Future<T> run(String key, Future<T> Function() start) {
+  /// [start] runs the search, telling its progress to the function it gets.
+  Future<T> run(
+    String key,
+    Future<T> Function(void Function(S progress) report) start, {
+    void Function(S progress)? onProgress,
+  }) {
     final running = _running[key];
-    if (running != null) return running;
-    final future = start();
-    _running[key] = future;
+    if (running != null) {
+      running.listen(onProgress);
+      return running.future;
+    }
+    final flight = _Flight<T, S>()..listen(onProgress);
+    _running[key] = flight;
+    flight.future = start(flight.report);
     // Forgotten once done, failed included: a later ask searches again.
     // ignore() keeps this bookkeeping branch from reporting the error, which
     // reaches every caller through the returned future.
-    future.whenComplete(() => _running.remove(key)).ignore();
-    return future;
+    flight.future.whenComplete(() => _running.remove(key)).ignore();
+    return flight.future;
+  }
+
+  /// [listener] hears no more progress: its dialog is gone, the search may
+  /// go on for another.
+  void stopHearing(void Function(S progress) listener) {
+    for (final flight in _running.values) {
+      flight._listeners.remove(listener);
+    }
+  }
+}
+
+class _Flight<T, S> {
+  late final Future<T> future;
+  final _listeners = <void Function(S)>[];
+  S? _last;
+
+  void listen(void Function(S)? listener) {
+    if (listener == null) return;
+    _listeners.add(listener);
+    final last = _last;
+    if (last != null) listener(last);
+  }
+
+  void report(S progress) {
+    _last = progress;
+    for (final listener in List.of(_listeners)) {
+      listener(progress);
+    }
   }
 }
 
@@ -185,27 +294,65 @@ class WebCoverService {
   /// One engine search per book at a time: the dialog closed and opened again
   /// on the same book joins the search still running instead of sending the
   /// same requests to the publisher's site a second time.
-  static final _publisherSearches = SingleFlight<FoundPublisherCover>();
+  static final _publisherSearches =
+      SingleFlight<FoundPublisherCover, PublisherLookupStep>();
 
-  static Future<FoundPublisherCover> _findViaFfi(PublisherBook book) =>
-      _publisherSearches.run(
-        book.isbn.replaceAll(RegExp('[^0-9Xx]'), '').toUpperCase(),
-        () async {
-          final cover = await FfiService().findCoverOnPublisherSite(
-            isbn: book.isbn,
-            title: book.title,
-            authors: book.authors,
-            publisher: book.publisher,
-          );
-          return (
-            bytes: cover.bytes,
-            imageUrl: cover.imageUrl,
-            candidates: cover.candidates,
-            site: cover.site,
-            pageUrl: cover.pageUrl,
-          );
-        },
-      );
+  /// One search per book as asked: the ISBN in its canonical form (its
+  /// ISBN-10 and ISBN-13 are one book), and the fields the search uses, so a
+  /// publisher filled in since starts a new one.
+  @visibleForTesting
+  static String publisherSearchKey(PublisherBook book) => [
+    IsbnValidator.canonicalKey(book.isbn.trim()),
+    book.publisher?.trim().toLowerCase() ?? '',
+    book.title.trim().toLowerCase(),
+    book.authors.trim().toLowerCase(),
+  ].join('\u0000');
+
+  /// [listener], given to [findOnPublisherSiteAndSave], hears no more steps.
+  void stopHearingSteps(void Function(PublisherLookupStep step) listener) =>
+      _publisherSearches.stopHearing(listener);
+
+  /// The engine sends the search's steps, then the cover or an error code,
+  /// as the last event of its stream.
+  static Future<FoundPublisherCover> _findViaFfi(
+    PublisherBook book, {
+    void Function(PublisherLookupStep step)? onStep,
+  }) => _publisherSearches.run(publisherSearchKey(book), (report) async {
+    final events = FfiService().findCoverOnPublisherSite(
+      isbn: book.isbn,
+      title: book.title,
+      authors: book.authors,
+      publisher: book.publisher,
+    );
+    await for (final event in events) {
+      final step = event.step;
+      if (step != null) {
+        report(
+          PublisherLookupStep(
+            kind: step.kind,
+            site: step.site,
+            attempt: step.attempt,
+            of: step.of,
+            seconds: step.seconds,
+            saidAt: DateTime.now(),
+          ),
+        );
+        continue;
+      }
+      final cover = event.cover;
+      if (cover != null) {
+        return (
+          bytes: cover.bytes,
+          imageUrl: cover.imageUrl,
+          candidates: cover.candidates,
+          site: cover.site,
+        );
+      }
+      throw event.error ?? 'network';
+    }
+    // The stream ended without its outcome.
+    throw 'network';
+  }, onProgress: onStep);
 
   static Future<void> _recordOriginViaFfi(String bookId, String imageUrl) =>
       FfiService().recordWebCoverOrigin(bookId, imageUrl);
@@ -254,9 +401,16 @@ class WebCoverService {
 
   /// Look for [book]'s cover on its publisher's site (the engine finds the
   /// book's page from its ISBN, and takes it only if the page states it), and
-  /// save it under a temp name. Throws [PublisherCoverException], whatever
-  /// went wrong: an image the app cannot use counts as no usable cover.
-  Future<WebCoverPick> findOnPublisherSiteAndSave(PublisherBook book) async {
+  /// save it under a temp name. When the image found is one the app cannot
+  /// keep (too large, animated), the page's next images are tried, under the
+  /// lookup's rules. Throws [PublisherCoverException], whatever went wrong:
+  /// no image the app can keep counts as no usable cover.
+  ///
+  /// [onStep] hears what the search is doing.
+  Future<WebCoverPick> findOnPublisherSiteAndSave(
+    PublisherBook book, {
+    void Function(PublisherLookupStep step)? onStep,
+  }) async {
     final publisher = book.publisher?.trim();
     final FoundPublisherCover found;
     try {
@@ -265,28 +419,41 @@ class WebCoverService {
         title: book.title.trim(),
         authors: book.authors.trim(),
         publisher: publisher == null || publisher.isEmpty ? null : publisher,
-      ));
+      ), onStep: onStep);
     } on String catch (code) {
       throw PublisherCoverException(code);
     } catch (e) {
       debugPrint('[WEB-COVER] publisher site search failed: $e');
       throw PublisherCoverException('network');
     }
+    WebCoverPick picked(WebCoverPick pick) => WebCoverPick(
+      path: pick.path,
+      imageUrl: pick.imageUrl,
+      candidates: found.candidates,
+      site: found.site,
+    );
     try {
-      final pick = await _saveFetched((
-        bytes: found.bytes,
-        imageUrl: found.imageUrl,
-        candidates: found.candidates,
-      ));
-      return WebCoverPick(
-        path: pick.path,
-        imageUrl: pick.imageUrl,
-        candidates: pick.candidates,
-        site: found.site,
+      return picked(
+        await _saveFetched((
+          bytes: found.bytes,
+          imageUrl: found.imageUrl,
+          candidates: found.candidates,
+        )),
       );
-    } on WebCoverException {
-      throw PublisherCoverException('no_image_found');
+    } on WebCoverException catch (e) {
+      debugPrint('[WEB-COVER] publisher cover not kept: $e');
     }
+    final next = found.candidates.indexOf(found.imageUrl) + 1;
+    for (final url in found.candidates.skip(next)) {
+      try {
+        return picked(
+          await fetchCandidateAndSave(url, fromPublisherSite: true),
+        );
+      } on WebCoverException catch (e) {
+        debugPrint('[WEB-COVER] publisher candidate skipped: $e');
+      }
+    }
+    throw PublisherCoverException('no_image_found');
   }
 
   /// Fetch one of a page's [WebCoverPick.candidates], when the user steps to

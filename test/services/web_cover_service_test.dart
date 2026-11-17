@@ -310,7 +310,12 @@ void main() {
       void Function(PublisherBook book)? onFind,
     }) {
       return WebCoverService(
-        findOnPublisherSite: (b) async {
+        // The page's other images do not load either.
+        fetchPublisherImage: (url) async => throw 'network',
+        findOnPublisherSite: (b, {onStep}) async {
+          onStep?.call(
+            const PublisherLookupStep(kind: 'search', site: 'gallimard.fr'),
+          );
           onFind?.call(b);
           if (findError != null) throw findError;
           return (
@@ -321,8 +326,6 @@ void main() {
               'https://www.gallimard.fr/couv/autre.jpg',
             ],
             site: 'gallimard.fr',
-            pageUrl:
-                'https://www.gallimard.fr/catalogue/l-etranger/9782070360024',
           );
         },
         save: (b) async {
@@ -334,10 +337,12 @@ void main() {
 
     test('saves the cover found and says on which site', () async {
       PublisherBook? asked;
+      final steps = <PublisherLookupStep>[];
       final pick = await publisherService(
         onFind: (b) => asked = b,
-      ).findOnPublisherSiteAndSave(book);
+      ).findOnPublisherSiteAndSave(book, onStep: steps.add);
 
+      expect(steps.single.kind, 'search', reason: 'steps passed on');
       expect(asked!.isbn, '9782070360024', reason: 'trimmed');
       expect(asked!.title, "L'Étranger");
       expect(asked!.publisher, isNull, reason: 'a blank publisher is none');
@@ -401,42 +406,203 @@ void main() {
 
   group('SingleFlight', () {
     test('a second ask for the same key joins the search running', () async {
-      final flight = SingleFlight<int>();
+      final flight = SingleFlight<int, String>();
       final pending = Completer<int>();
       var starts = 0;
-      Future<int> start() {
+      Future<int> start(void Function(String) report) {
         starts++;
+        report('rules');
         return pending.future;
       }
 
-      final first = flight.run('9782070360024', start);
-      final second = flight.run('9782070360024', start);
+      final firstSteps = <String>[];
+      final secondSteps = <String>[];
+      final first = flight.run(
+        '9782070360024',
+        start,
+        onProgress: firstSteps.add,
+      );
+      final second = flight.run(
+        '9782070360024',
+        start,
+        onProgress: secondSteps.add,
+      );
       expect(starts, 1);
+      // Joining, the second hears the step already reached, then the next.
+      expect(secondSteps, ['rules']);
       pending.complete(7);
       expect(await first, 7);
       expect(await second, 7);
+      expect(firstSteps, ['rules']);
 
       // Once done, a new ask starts a new search.
-      await flight.run('9782070360024', () async {
+      await flight.run('9782070360024', (_) async {
         starts++;
         return 8;
       });
       expect(starts, 2);
     });
 
-    test('other keys run on their own, and a failure is not kept', () async {
-      final flight = SingleFlight<int>();
+    test('later steps reach everyone who joined', () async {
+      final flight = SingleFlight<int, String>();
       final pending = Completer<int>();
-      final a = flight.run('a', () => pending.future);
+      late void Function(String) report;
+      final a = <String>[];
+      final b = <String>[];
+      final first = flight.run('k', (r) {
+        report = r;
+        return pending.future;
+      }, onProgress: a.add);
+      final second = flight.run('k', (_) => pending.future, onProgress: b.add);
+      report('waiting');
+      expect(a, ['waiting']);
+      expect(b, ['waiting']);
+      pending.complete(1);
+      await Future.wait([first, second]);
+    });
+
+    test('other keys run on their own, and a failure is not kept', () async {
+      final flight = SingleFlight<int, String>();
+      final pending = Completer<int>();
+      final a = flight.run('a', (_) => pending.future);
       var otherStarted = false;
-      await flight.run('b', () async {
+      await flight.run('b', (_) async {
         otherStarted = true;
         return 1;
       });
       expect(otherStarted, isTrue);
       pending.completeError('network');
       await expectLater(a, throwsA('network'));
-      expect(await flight.run('a', () async => 2), 2);
+      expect(await flight.run('a', (_) async => 2), 2);
     });
+  });
+
+  group('publisher site, beyond the first image', () {
+    const first = 'https://www.gallimard.fr/couv/9782070360024.jpg';
+    const second = 'https://www.gallimard.fr/couv/autre.jpg';
+    const book = (
+      isbn: '9782070360024',
+      title: "L'Étranger",
+      authors: 'Albert Camus',
+      publisher: 'Gallimard',
+    );
+
+    WebCoverService service({
+      Set<String> unsavable = const {},
+      required List<String> fetched,
+    }) => WebCoverService(
+      findOnPublisherSite: (b, {onStep}) async => (
+        bytes: Uint8List.fromList(first.codeUnits),
+        imageUrl: first,
+        candidates: [first, second],
+        site: 'gallimard.fr',
+      ),
+      fetchPublisherImage: (url) async {
+        fetched.add(url);
+        return (
+          bytes: Uint8List.fromList(url.codeUnits),
+          imageUrl: url,
+          candidates: <String>[],
+        );
+      },
+      save: (b) async {
+        if (unsavable.contains(String.fromCharCodes(b))) {
+          throw const CoverImageTooLargeException(20000, 20000);
+        }
+        return '/covers/temp_p.jpg';
+      },
+    );
+
+    test('a first image the app cannot keep gives way to the next', () async {
+      final fetched = <String>[];
+      final pick = await service(
+        unsavable: {first},
+        fetched: fetched,
+      ).findOnPublisherSiteAndSave(book);
+      expect(fetched, [second], reason: 'through the lookup rules');
+      expect(pick.imageUrl, second);
+      expect(pick.candidates, [first, second]);
+      expect(pick.site, 'gallimard.fr');
+    });
+
+    test('no image the app can keep is no usable cover', () async {
+      final fetched = <String>[];
+      await expectLater(
+        service(
+          unsavable: {first, second},
+          fetched: fetched,
+        ).findOnPublisherSiteAndSave(book),
+        throwsA(
+          isA<PublisherCoverException>().having(
+            (e) => e.code,
+            'code',
+            'no_image_found',
+          ),
+        ),
+      );
+      expect(fetched, [second]);
+    });
+  });
+
+  group('publisher search key', () {
+    PublisherBook b(String isbn, {String? publisher}) =>
+        (isbn: isbn, title: 'T', authors: 'A', publisher: publisher);
+
+    test('the ISBN-10 and ISBN-13 of a book are one search', () {
+      expect(
+        WebCoverService.publisherSearchKey(b('2-07-036002-4')),
+        WebCoverService.publisherSearchKey(b('978-2-07-036002-4')),
+      );
+    });
+
+    test('a publisher filled in since is another search', () {
+      expect(
+        WebCoverService.publisherSearchKey(b('9782070360024')),
+        isNot(
+          WebCoverService.publisherSearchKey(
+            b('9782070360024', publisher: 'Gallimard'),
+          ),
+        ),
+      );
+    });
+  });
+
+  test('a wait heard late counts from when it was said', () {
+    final said = DateTime(2026, 11, 17, 20);
+    final step = PublisherLookupStep(
+      kind: 'waiting',
+      site: 'gallimard.fr',
+      seconds: 10,
+      saidAt: said,
+    );
+    expect(step.secondsLeft(said.add(const Duration(seconds: 8))), 2);
+    expect(step.secondsLeft(said.add(const Duration(seconds: 30))), 0);
+    expect(
+      const PublisherLookupStep(
+        kind: 'waiting',
+        site: 'gallimard.fr',
+        seconds: 10,
+      ).secondsLeft(said),
+      10,
+      reason: 'no time said: as announced',
+    );
+  });
+
+  test('a listener that stops hearing gets no more steps', () async {
+    final flight = SingleFlight<int, String>();
+    final pending = Completer<int>();
+    late void Function(String) report;
+    final heard = <String>[];
+    void listener(String step) => heard.add(step);
+    final search = flight.run('k', (r) {
+      report = r;
+      return pending.future;
+    }, onProgress: listener);
+    report('rules');
+    flight.stopHearing(listener);
+    report('search');
+    expect(heard, ['rules']);
+    pending.complete(1);
+    await search;
   });
 }

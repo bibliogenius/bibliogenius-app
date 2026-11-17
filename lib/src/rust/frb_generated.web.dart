@@ -47,6 +47,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   dco_decode_StreamSink_frb_profile_changed_event_Sse(dynamic raw);
 
   @protected
+  RustStreamSink<FrbPublisherLookupEvent>
+  dco_decode_StreamSink_frb_publisher_lookup_event_Sse(dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
 
   @protected
@@ -78,6 +82,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbNoIsbnCluster dco_decode_box_autoadd_frb_no_isbn_cluster(dynamic raw);
+
+  @protected
+  FrbPublisherCover dco_decode_box_autoadd_frb_publisher_cover(dynamic raw);
+
+  @protected
+  FrbPublisherLookupStep dco_decode_box_autoadd_frb_publisher_lookup_step(
+    dynamic raw,
+  );
 
   @protected
   FrbReader dco_decode_box_autoadd_frb_reader(dynamic raw);
@@ -292,6 +304,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbPublisherCover dco_decode_frb_publisher_cover(dynamic raw);
+
+  @protected
+  FrbPublisherLookupEvent dco_decode_frb_publisher_lookup_event(dynamic raw);
+
+  @protected
+  FrbPublisherLookupStep dco_decode_frb_publisher_lookup_step(dynamic raw);
 
   @protected
   FrbPuzzleBoard dco_decode_frb_puzzle_board(dynamic raw);
@@ -557,6 +575,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FrbNoIsbnCluster? dco_decode_opt_box_autoadd_frb_no_isbn_cluster(dynamic raw);
 
   @protected
+  FrbPublisherCover? dco_decode_opt_box_autoadd_frb_publisher_cover(
+    dynamic raw,
+  );
+
+  @protected
+  FrbPublisherLookupStep? dco_decode_opt_box_autoadd_frb_publisher_lookup_step(
+    dynamic raw,
+  );
+
+  @protected
   FrbReader? dco_decode_opt_box_autoadd_frb_reader(dynamic raw);
 
   @protected
@@ -635,6 +663,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<FrbPublisherLookupEvent>
+  sse_decode_StreamSink_frb_publisher_lookup_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
@@ -674,6 +708,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbNoIsbnCluster sse_decode_box_autoadd_frb_no_isbn_cluster(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbPublisherCover sse_decode_box_autoadd_frb_publisher_cover(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbPublisherLookupStep sse_decode_box_autoadd_frb_publisher_lookup_step(
     SseDeserializer deserializer,
   );
 
@@ -944,6 +988,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FrbPublisherCover sse_decode_frb_publisher_cover(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbPublisherLookupEvent sse_decode_frb_publisher_lookup_event(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbPublisherLookupStep sse_decode_frb_publisher_lookup_step(
     SseDeserializer deserializer,
   );
 
@@ -1293,6 +1347,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FrbPublisherCover? sse_decode_opt_box_autoadd_frb_publisher_cover(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FrbPublisherLookupStep? sse_decode_opt_box_autoadd_frb_publisher_lookup_step(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FrbReader? sse_decode_opt_box_autoadd_frb_reader(
     SseDeserializer deserializer,
   );
@@ -1383,6 +1447,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_frb_publisher_lookup_event_Sse(
+    RustStreamSink<FrbPublisherLookupEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
@@ -1430,6 +1500,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_frb_no_isbn_cluster(
     FrbNoIsbnCluster self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_frb_publisher_cover(
+    FrbPublisherCover self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_frb_publisher_lookup_step(
+    FrbPublisherLookupStep self,
     SseSerializer serializer,
   );
 
@@ -1784,6 +1866,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_frb_publisher_cover(
     FrbPublisherCover self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_publisher_lookup_event(
+    FrbPublisherLookupEvent self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_frb_publisher_lookup_step(
+    FrbPublisherLookupStep self,
     SseSerializer serializer,
   );
 
@@ -2219,6 +2313,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_frb_no_isbn_cluster(
     FrbNoIsbnCluster? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_publisher_cover(
+    FrbPublisherCover? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_frb_publisher_lookup_step(
+    FrbPublisherLookupStep? self,
     SseSerializer serializer,
   );
 
