@@ -311,7 +311,7 @@ void main() {
     }) {
       return WebCoverService(
         // The page's other images do not load either.
-        fetchPublisherImage: (url) async => throw 'network',
+        fetchPublisherImage: (url, {onStep}) async => throw 'network',
         findOnPublisherSite: (b, {onStep}) async {
           onStep?.call(
             const PublisherLookupStep(kind: 'search', site: 'gallimard.fr'),
@@ -409,7 +409,7 @@ void main() {
       final flight = SingleFlight<int, String>();
       final pending = Completer<int>();
       var starts = 0;
-      Future<int> start(void Function(String) report) {
+      Future<int> start(void Function(String) report, Future<void> _) {
         starts++;
         report('rules');
         return pending.future;
@@ -436,7 +436,7 @@ void main() {
       expect(firstSteps, ['rules']);
 
       // Once done, a new ask starts a new search.
-      await flight.run('9782070360024', (_) async {
+      await flight.run('9782070360024', (_, _) async {
         starts++;
         return 8;
       });
@@ -449,11 +449,15 @@ void main() {
       late void Function(String) report;
       final a = <String>[];
       final b = <String>[];
-      final first = flight.run('k', (r) {
+      final first = flight.run('k', (r, _) {
         report = r;
         return pending.future;
       }, onProgress: a.add);
-      final second = flight.run('k', (_) => pending.future, onProgress: b.add);
+      final second = flight.run(
+        'k',
+        (_, _) => pending.future,
+        onProgress: b.add,
+      );
       report('waiting');
       expect(a, ['waiting']);
       expect(b, ['waiting']);
@@ -464,16 +468,16 @@ void main() {
     test('other keys run on their own, and a failure is not kept', () async {
       final flight = SingleFlight<int, String>();
       final pending = Completer<int>();
-      final a = flight.run('a', (_) => pending.future);
+      final a = flight.run('a', (_, _) => pending.future);
       var otherStarted = false;
-      await flight.run('b', (_) async {
+      await flight.run('b', (_, _) async {
         otherStarted = true;
         return 1;
       });
       expect(otherStarted, isTrue);
       pending.completeError('network');
       await expectLater(a, throwsA('network'));
-      expect(await flight.run('a', (_) async => 2), 2);
+      expect(await flight.run('a', (_, _) async => 2), 2);
     });
   });
 
@@ -497,7 +501,7 @@ void main() {
         candidates: [first, second],
         site: 'gallimard.fr',
       ),
-      fetchPublisherImage: (url) async {
+      fetchPublisherImage: (url, {onStep}) async {
         fetched.add(url);
         return (
           bytes: Uint8List.fromList(url.codeUnits),
@@ -594,7 +598,7 @@ void main() {
     late void Function(String) report;
     final heard = <String>[];
     void listener(String step) => heard.add(step);
-    final search = flight.run('k', (r) {
+    final search = flight.run('k', (r, _) {
       report = r;
       return pending.future;
     }, onProgress: listener);
@@ -604,5 +608,29 @@ void main() {
     expect(heard, ['rules']);
     pending.complete(1);
     await search;
+  });
+
+  test('a search is abandoned once its last listener leaves', () async {
+    final flight = SingleFlight<int, String>();
+    final pending = Completer<int>();
+    late Future<void> abandoned;
+    var gone = false;
+    void a(String _) {}
+    void b(String _) {}
+    final first = flight.run('k', (_, whenAbandoned) {
+      abandoned = whenAbandoned..then((_) => gone = true);
+      return pending.future;
+    }, onProgress: a);
+    final second = flight.run('k', (_, _) => pending.future, onProgress: b);
+
+    flight.stopHearing(a);
+    await Future<void>.delayed(Duration.zero);
+    expect(gone, isFalse, reason: 'another dialog still waits for it');
+    flight.stopHearing(b);
+    await abandoned;
+    expect(gone, isTrue);
+
+    pending.complete(1);
+    await Future.wait([first, second]);
   });
 }

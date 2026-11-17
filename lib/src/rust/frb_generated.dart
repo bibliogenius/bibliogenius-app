@@ -238,7 +238,7 @@ abstract class RustLibApi extends BaseApi {
     String? isbn,
   });
 
-  Future<FrbWebCover> crateApiFrbFetchPublisherCoverImage({
+  Stream<FrbPublisherLookupEvent> crateApiFrbFetchPublisherCoverImage({
     required String imageUrl,
   });
 
@@ -2501,36 +2501,44 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<FrbWebCover> crateApiFrbFetchPublisherCoverImage({
+  Stream<FrbPublisherLookupEvent> crateApiFrbFetchPublisherCoverImage({
     required String imageUrl,
   }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(imageUrl, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 52,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_frb_web_cover,
-          decodeErrorData: sse_decode_String,
+    final sink = RustStreamSink<FrbPublisherLookupEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_String(imageUrl, serializer);
+            sse_encode_StreamSink_frb_publisher_lookup_event_Sse(
+              sink,
+              serializer,
+            );
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 52,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_String,
+          ),
+          constMeta: kCrateApiFrbFetchPublisherCoverImageConstMeta,
+          argValues: [imageUrl, sink],
+          apiImpl: this,
         ),
-        constMeta: kCrateApiFrbFetchPublisherCoverImageConstMeta,
-        argValues: [imageUrl],
-        apiImpl: this,
       ),
     );
+    return sink.stream;
   }
 
   TaskConstMeta get kCrateApiFrbFetchPublisherCoverImageConstMeta =>
       const TaskConstMeta(
         debugName: "fetch_publisher_cover_image",
-        argNames: ["imageUrl"],
+        argNames: ["imageUrl", "sink"],
       );
 
   @override

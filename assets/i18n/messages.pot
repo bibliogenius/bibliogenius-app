@@ -12767,3 +12767,7 @@ msgstr ""
 #. Cover from a web page dialog: button shown when the publisher's site gave a cover while the user was typing an address; {site} is the site, such as gallimard.fr
 msgid "publisher_cover_show_found"
 msgstr ""
+
+#. Cover from a web page dialog, publisher site search: waiting for another request to the same site to end; {site} is the site
+msgid "publisher_cover_step_queued"
+msgstr ""

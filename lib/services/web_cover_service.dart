@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 
 import '../utils/cover_camera_helper.dart';
 import '../utils/isbn_validator.dart';
+import '../src/rust/api/frb.dart' as frb;
 import 'ffi_service.dart';
 
 /// A cover fetched from a web page and saved into covers/ under a temp name,
@@ -184,9 +185,12 @@ class SingleFlight<T, S> {
   final _running = <String, _Flight<T, S>>{};
 
   /// [start] runs the search, telling its progress to the function it gets.
+  /// The future it gets completes once everyone who listened has stopped
+  /// ([stopHearing]): the search may stop then, nobody waits for it.
   Future<T> run(
     String key,
-    Future<T> Function(void Function(S progress) report) start, {
+    Future<T> Function(void Function(S progress) report, Future<void> abandoned)
+    start, {
     void Function(S progress)? onProgress,
   }) {
     final running = _running[key];
@@ -196,7 +200,7 @@ class SingleFlight<T, S> {
     }
     final flight = _Flight<T, S>()..listen(onProgress);
     _running[key] = flight;
-    flight.future = start(flight.report);
+    flight.future = start(flight.report, flight._abandoned.future);
     // Forgotten once done, failed included: a later ask searches again.
     // ignore() keeps this bookkeeping branch from reporting the error, which
     // reaches every caller through the returned future.
@@ -208,7 +212,11 @@ class SingleFlight<T, S> {
   /// go on for another.
   void stopHearing(void Function(S progress) listener) {
     for (final flight in _running.values) {
-      flight._listeners.remove(listener);
+      if (flight._listeners.remove(listener) &&
+          flight._listeners.isEmpty &&
+          !flight._abandoned.isCompleted) {
+        flight._abandoned.complete();
+      }
     }
   }
 }
@@ -216,6 +224,7 @@ class SingleFlight<T, S> {
 class _Flight<T, S> {
   late final Future<T> future;
   final _listeners = <void Function(S)>[];
+  final _abandoned = Completer<void>();
   S? _last;
 
   void listen(void Function(S)? listener) {
@@ -241,6 +250,13 @@ typedef FetchedWebCover = ({
 typedef WebCoverFetcher =
     Future<FetchedWebCover> Function(String url, {String? isbn});
 typedef WebCoverImageFetcher = Future<FetchedWebCover> Function(String url);
+
+/// Fetches one of a publisher cover's other images, telling the steps.
+typedef PublisherImageFetcher =
+    Future<FetchedWebCover> Function(
+      String url, {
+      void Function(PublisherLookupStep step)? onStep,
+    });
 typedef WebCoverSaver = Future<String> Function(Uint8List bytes);
 typedef WebCoverDiscarder = Future<void> Function(String path);
 typedef WebCoverRenamer =
@@ -262,7 +278,7 @@ class WebCoverService {
   final WebCoverRenamer _rename;
   final WebCoverOriginRecorder _recordOrigin;
   final PublisherCoverFinder _findOnPublisherSite;
-  final WebCoverImageFetcher _fetchPublisherImage;
+  final PublisherImageFetcher _fetchPublisherImage;
 
   WebCoverService({
     WebCoverFetcher? fetch,
@@ -272,7 +288,7 @@ class WebCoverService {
     WebCoverRenamer? rename,
     WebCoverOriginRecorder? recordOrigin,
     PublisherCoverFinder? findOnPublisherSite,
-    WebCoverImageFetcher? fetchPublisherImage,
+    PublisherImageFetcher? fetchPublisherImage,
   }) : _fetch = fetch ?? _fetchViaFfi,
        _fetchImage = fetchImage ?? _fetchImageViaFfi,
        _save = save ?? _saveCapped,
@@ -282,13 +298,72 @@ class WebCoverService {
        _findOnPublisherSite = findOnPublisherSite ?? _findViaFfi,
        _fetchPublisherImage = fetchPublisherImage ?? _fetchPublisherImageViaFfi;
 
-  static Future<FetchedWebCover> _fetchPublisherImageViaFfi(String url) async {
-    final cover = await FfiService().fetchPublisherCoverImage(url);
+  static Future<FetchedWebCover> _fetchPublisherImageViaFfi(
+    String url, {
+    void Function(PublisherLookupStep step)? onStep,
+  }) async {
+    final cover = await _outcomeOf(
+      FfiService().fetchPublisherCoverImage(url),
+      onStep ?? (_) {},
+    );
     return (
       bytes: cover.bytes,
       imageUrl: cover.imageUrl,
       candidates: cover.candidates,
     );
+  }
+
+  /// The cover an engine stream ends with, its steps told to [report] on the
+  /// way. Throws the error code it ends with instead, or `network` when it
+  /// ends with neither. Once [abandoned] completes, the stream is cancelled,
+  /// which the engine sees at its next step and stops the lookup there.
+  static Future<frb.FrbPublisherCover> _outcomeOf(
+    Stream<frb.FrbPublisherLookupEvent> events,
+    void Function(PublisherLookupStep step) report, {
+    Future<void>? abandoned,
+  }) {
+    final outcome = Completer<frb.FrbPublisherCover>();
+    void fail(String code) {
+      if (!outcome.isCompleted) outcome.completeError(code);
+    }
+
+    late final StreamSubscription<frb.FrbPublisherLookupEvent> subscription;
+    subscription = events.listen(
+      (event) {
+        final step = event.step;
+        if (step != null) {
+          report(
+            PublisherLookupStep(
+              kind: step.kind,
+              site: step.site,
+              attempt: step.attempt,
+              of: step.of,
+              seconds: step.seconds,
+              saidAt: DateTime.now(),
+            ),
+          );
+          return;
+        }
+        final cover = event.cover;
+        if (cover != null && !outcome.isCompleted) {
+          outcome.complete(cover);
+        } else {
+          fail(event.error ?? 'network');
+        }
+        subscription.cancel();
+      },
+      onError: (Object e) {
+        debugPrint('[WEB-COVER] publisher stream failed: $e');
+        fail('network');
+      },
+      // The stream ended without its outcome.
+      onDone: () => fail('network'),
+    );
+    abandoned?.then((_) {
+      subscription.cancel();
+      fail('network');
+    });
+    return outcome.future;
   }
 
   /// One engine search per book at a time: the dialog closed and opened again
@@ -317,41 +392,26 @@ class WebCoverService {
   static Future<FoundPublisherCover> _findViaFfi(
     PublisherBook book, {
     void Function(PublisherLookupStep step)? onStep,
-  }) => _publisherSearches.run(publisherSearchKey(book), (report) async {
-    final events = FfiService().findCoverOnPublisherSite(
-      isbn: book.isbn,
-      title: book.title,
-      authors: book.authors,
-      publisher: book.publisher,
+  }) => _publisherSearches.run(publisherSearchKey(book), (
+    report,
+    abandoned,
+  ) async {
+    final cover = await _outcomeOf(
+      FfiService().findCoverOnPublisherSite(
+        isbn: book.isbn,
+        title: book.title,
+        authors: book.authors,
+        publisher: book.publisher,
+      ),
+      report,
+      abandoned: abandoned,
     );
-    await for (final event in events) {
-      final step = event.step;
-      if (step != null) {
-        report(
-          PublisherLookupStep(
-            kind: step.kind,
-            site: step.site,
-            attempt: step.attempt,
-            of: step.of,
-            seconds: step.seconds,
-            saidAt: DateTime.now(),
-          ),
-        );
-        continue;
-      }
-      final cover = event.cover;
-      if (cover != null) {
-        return (
-          bytes: cover.bytes,
-          imageUrl: cover.imageUrl,
-          candidates: cover.candidates,
-          site: cover.site,
-        );
-      }
-      throw event.error ?? 'network';
-    }
-    // The stream ended without its outcome.
-    throw 'network';
+    return (
+      bytes: cover.bytes,
+      imageUrl: cover.imageUrl,
+      candidates: cover.candidates,
+      site: cover.site,
+    );
   }, onProgress: onStep);
 
   static Future<void> _recordOriginViaFfi(String bookId, String imageUrl) =>
@@ -447,7 +507,11 @@ class WebCoverService {
     for (final url in found.candidates.skip(next)) {
       try {
         return picked(
-          await fetchCandidateAndSave(url, fromPublisherSite: true),
+          await fetchCandidateAndSave(
+            url,
+            fromPublisherSite: true,
+            onStep: onStep,
+          ),
         );
       } on WebCoverException catch (e) {
         debugPrint('[WEB-COVER] publisher candidate skipped: $e');
@@ -460,14 +524,16 @@ class WebCoverService {
   /// the next image, and save it under a temp name. Candidates of a cover
   /// found on a publisher's site ([fromPublisherSite]) go through the
   /// engine's lookup rules: robots.txt, the pause between two requests to a
-  /// host, the site's Crawl-delay. Throws [WebCoverException].
+  /// host, the site's Crawl-delay, which can take as long as the search:
+  /// [onStep] hears its steps. Throws [WebCoverException].
   Future<WebCoverPick> fetchCandidateAndSave(
     String imageUrl, {
     bool fromPublisherSite = false,
+    void Function(PublisherLookupStep step)? onStep,
   }) async => _saveFetched(
     await _guard(
       () => fromPublisherSite
-          ? _fetchPublisherImage(imageUrl)
+          ? _fetchPublisherImage(imageUrl, onStep: onStep)
           : _fetchImage(imageUrl),
     ),
   );

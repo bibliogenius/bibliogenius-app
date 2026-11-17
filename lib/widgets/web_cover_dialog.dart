@@ -93,6 +93,7 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     'search_result',
     'site_map',
     'waiting',
+    'queued',
     'cover',
   };
 
@@ -315,7 +316,11 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       setState(() => _position++);
       return;
     }
-    setState(() => _loading = true);
+    _countdown?.cancel();
+    setState(() {
+      _loading = true;
+      _step = null;
+    });
     WebCoverPick? next;
     var index = _nextToTry;
     for (; index < _candidates.length && mounted; index++) {
@@ -323,6 +328,9 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
         next = await widget.service.fetchCandidateAndSave(
           _candidates[index],
           fromPublisherSite: _foundOnSite != null,
+          // A publisher's image goes through the lookup's rules: its
+          // pauses are said as the search's were.
+          onStep: _onStep,
         );
         break;
       } catch (e) {
@@ -333,8 +341,10 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       if (next != null) widget.service.discard(next);
       return;
     }
+    _countdown?.cancel();
     setState(() {
       _loading = false;
+      _step = null;
       if (next != null) {
         _shown = [..._shown, next];
         _position = _shown.length - 1;
@@ -542,6 +552,7 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             label: t('web_cover_dialog_loading'),
             child: const LinearProgressIndicator(),
           ),
+          ..._buildStep(),
         ],
         if (_noMoreImages) ...[
           const SizedBox(height: 12),
