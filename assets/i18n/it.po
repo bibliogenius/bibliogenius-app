@@ -12751,3 +12751,39 @@ msgstr "Non è stato possibile mostrare altre immagini di questa pagina."
 #. Cover from a web page dialog: button that shows the image seen before
 msgid "web_cover_previous_image"
 msgstr "Immagine precedente"
+
+#. Cover from a web page dialog: shown while the book's cover is looked for on its publisher's site, as the dialog opens
+msgid "publisher_cover_searching"
+msgstr "Ricerca della copertina sul sito dell'editore…"
+
+#. Cover from a web page dialog: under the preview of a cover found on the publisher's site; {site} is the site's address, such as gallimard.fr
+msgid "publisher_cover_found_on"
+msgstr "Trovata su {site}"
+
+#. Cover from a web page dialog: the publisher's site cannot be searched because the book's ISBN is not valid
+msgid "publisher_cover_error_invalid_isbn"
+msgstr "L'ISBN di questo libro non è valido, quindi non è possibile cercare sul sito dell'editore."
+
+#. Cover from a web page dialog: no site is known for the book's publisher
+msgid "publisher_cover_error_no_site"
+msgstr "Non è noto alcun sito per l'editore di questo libro."
+
+#. Cover from a web page dialog: the publisher's site answered, but does not show the book
+msgid "publisher_cover_error_not_found"
+msgstr "Il sito dell'editore non presenta questo libro."
+
+#. Cover from a web page dialog: the publisher's site turns automatic requests away
+msgid "publisher_cover_error_blocked_by_site"
+msgstr "Il sito dell'editore non accetta ricerche automatiche."
+
+#. Cover from a web page dialog: the publisher's site did not answer
+msgid "publisher_cover_error_network"
+msgstr "Il sito dell'editore non ha risposto. Riprova più tardi."
+
+#. Cover from a web page dialog: the book's page was found, but the site's rules forbid taking its cover
+msgid "publisher_cover_error_image_forbidden"
+msgstr "La pagina del libro è stata trovata, ma il sito dell'editore non consente di prenderne la copertina."
+
+#. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
+msgid "publisher_cover_error_no_image_found"
+msgstr "La pagina del libro sul sito dell'editore non ha una copertina utilizzabile."

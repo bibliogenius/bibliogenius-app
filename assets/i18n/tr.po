@@ -12758,3 +12758,39 @@ msgstr "Bu sayfadan başka görsel gösterilemedi."
 #. Cover from a web page dialog: button that shows the image seen before
 msgid "web_cover_previous_image"
 msgstr "Önceki görsel"
+
+#. Cover from a web page dialog: shown while the book's cover is looked for on its publisher's site, as the dialog opens
+msgid "publisher_cover_searching"
+msgstr "Kapak, yayınevinin sitesinde aranıyor…"
+
+#. Cover from a web page dialog: under the preview of a cover found on the publisher's site; {site} is the site's address, such as gallimard.fr
+msgid "publisher_cover_found_on"
+msgstr "{site} üzerinde bulundu"
+
+#. Cover from a web page dialog: the publisher's site cannot be searched because the book's ISBN is not valid
+msgid "publisher_cover_error_invalid_isbn"
+msgstr "Bu kitabın ISBN numarası geçerli değil, bu yüzden yayınevinin sitesinde arama yapılamıyor."
+
+#. Cover from a web page dialog: no site is known for the book's publisher
+msgid "publisher_cover_error_no_site"
+msgstr "Bu kitabın yayınevi için bilinen bir site yok."
+
+#. Cover from a web page dialog: the publisher's site answered, but does not show the book
+msgid "publisher_cover_error_not_found"
+msgstr "Yayınevinin sitesinde bu kitap yer almıyor."
+
+#. Cover from a web page dialog: the publisher's site turns automatic requests away
+msgid "publisher_cover_error_blocked_by_site"
+msgstr "Yayınevinin sitesi otomatik aramaları kabul etmiyor."
+
+#. Cover from a web page dialog: the publisher's site did not answer
+msgid "publisher_cover_error_network"
+msgstr "Yayınevinin sitesi yanıt vermedi. Daha sonra yeniden deneyin."
+
+#. Cover from a web page dialog: the book's page was found, but the site's rules forbid taking its cover
+msgid "publisher_cover_error_image_forbidden"
+msgstr "Kitabın sayfası bulundu, ancak yayınevinin sitesi kapağın alınmasına izin vermiyor."
+
+#. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
+msgid "publisher_cover_error_no_image_found"
+msgstr "Kitabın yayınevi sitesindeki sayfasında kullanılabilir bir kapak yok."

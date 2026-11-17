@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -127,7 +128,9 @@ void main() {
       service(
         saveError: const CoverImageTooLargeException(20000, 20000),
       ).fetchAndSave('https://x.org/a'),
-      throwsA(isA<WebCoverException>().having((e) => e.code, 'code', 'too_large')),
+      throwsA(
+        isA<WebCoverException>().having((e) => e.code, 'code', 'too_large'),
+      ),
     );
   });
 
@@ -208,37 +211,43 @@ void main() {
       );
     }
 
-    test('stores the path, then replaces the file, then records the origin', () async {
-      final h = harness();
-      final path = await h.service.adoptForBook(
-        pick,
-        bookId: 'book-1',
-        previousCoverUrl: 'https://old.example.org/a.jpg',
-        updateCoverUrl: (url) async => h.writes.add(url),
-      );
-      expect(path, '/covers/book-1.jpg');
-      expect(h.writes, ['/covers/book-1.jpg']);
-      expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
-      expect(h.origins, ['book-1 https://cdn.example.org/42.jpg']);
-      expect(h.discarded, isEmpty);
-    });
+    test(
+      'stores the path, then replaces the file, then records the origin',
+      () async {
+        final h = harness();
+        final path = await h.service.adoptForBook(
+          pick,
+          bookId: 'book-1',
+          previousCoverUrl: 'https://old.example.org/a.jpg',
+          updateCoverUrl: (url) async => h.writes.add(url),
+        );
+        expect(path, '/covers/book-1.jpg');
+        expect(h.writes, ['/covers/book-1.jpg']);
+        expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
+        expect(h.origins, ['book-1 https://cdn.example.org/42.jpg']);
+        expect(h.discarded, isEmpty);
+      },
+    );
 
-    test('keeps the new cover when only its origin cannot be recorded', () async {
-      // The cover is already in place: an origin that could not be stored is
-      // no reason to tell the user the update failed.
-      final h = harness(originFails: true);
-      final path = await h.service.adoptForBook(
-        pick,
-        bookId: 'book-1',
-        previousCoverUrl: 'https://old.example.org/a.jpg',
-        updateCoverUrl: (url) async => h.writes.add(url),
-      );
-      expect(path, '/covers/book-1.jpg');
-      expect(h.writes, ['/covers/book-1.jpg'], reason: 'nothing rolled back');
-      expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
-      expect(h.discarded, isEmpty);
-      expect(h.origins, isEmpty);
-    });
+    test(
+      'keeps the new cover when only its origin cannot be recorded',
+      () async {
+        // The cover is already in place: an origin that could not be stored is
+        // no reason to tell the user the update failed.
+        final h = harness(originFails: true);
+        final path = await h.service.adoptForBook(
+          pick,
+          bookId: 'book-1',
+          previousCoverUrl: 'https://old.example.org/a.jpg',
+          updateCoverUrl: (url) async => h.writes.add(url),
+        );
+        expect(path, '/covers/book-1.jpg');
+        expect(h.writes, ['/covers/book-1.jpg'], reason: 'nothing rolled back');
+        expect(h.renamed, ['/covers/temp_x.jpg -> book-1']);
+        expect(h.discarded, isEmpty);
+        expect(h.origins, isEmpty);
+      },
+    );
 
     test('recordOrigin on its own never throws either', () async {
       final h = harness(originFails: true);
@@ -248,21 +257,27 @@ void main() {
       );
     });
 
-    test('puts the previous cover back when the file cannot be renamed', () async {
-      final h = harness(renameFails: true);
-      await expectLater(
-        h.service.adoptForBook(
-          pick,
-          bookId: 'book-1',
-          previousCoverUrl: 'https://old.example.org/a.jpg',
-          updateCoverUrl: (url) async => h.writes.add(url),
-        ),
-        throwsA(isA<FileSystemException>()),
-      );
-      expect(h.writes, ['/covers/book-1.jpg', 'https://old.example.org/a.jpg']);
-      expect(h.discarded, ['/covers/temp_x.jpg']);
-      expect(h.origins, isEmpty);
-    });
+    test(
+      'puts the previous cover back when the file cannot be renamed',
+      () async {
+        final h = harness(renameFails: true);
+        await expectLater(
+          h.service.adoptForBook(
+            pick,
+            bookId: 'book-1',
+            previousCoverUrl: 'https://old.example.org/a.jpg',
+            updateCoverUrl: (url) async => h.writes.add(url),
+          ),
+          throwsA(isA<FileSystemException>()),
+        );
+        expect(h.writes, [
+          '/covers/book-1.jpg',
+          'https://old.example.org/a.jpg',
+        ]);
+        expect(h.discarded, ['/covers/temp_x.jpg']);
+        expect(h.origins, isEmpty);
+      },
+    );
 
     test('touches no file when the database refuses the path', () async {
       final h = harness();
@@ -278,6 +293,150 @@ void main() {
       expect(h.renamed, isEmpty, reason: 'the old cover file is intact');
       expect(h.discarded, ['/covers/temp_x.jpg']);
       expect(h.origins, isEmpty);
+    });
+  });
+
+  group('publisher site', () {
+    const book = (
+      isbn: ' 9782070360024 ',
+      title: ' L\'Étranger ',
+      authors: 'Albert Camus',
+      publisher: '  ',
+    );
+
+    WebCoverService publisherService({
+      Object? findError,
+      Object? saveError,
+      void Function(PublisherBook book)? onFind,
+    }) {
+      return WebCoverService(
+        findOnPublisherSite: (b) async {
+          onFind?.call(b);
+          if (findError != null) throw findError;
+          return (
+            bytes: bytes,
+            imageUrl: 'https://www.gallimard.fr/couv/9782070360024.jpg',
+            candidates: [
+              'https://www.gallimard.fr/couv/9782070360024.jpg',
+              'https://www.gallimard.fr/couv/autre.jpg',
+            ],
+            site: 'gallimard.fr',
+            pageUrl:
+                'https://www.gallimard.fr/catalogue/l-etranger/9782070360024',
+          );
+        },
+        save: (b) async {
+          if (saveError != null) throw saveError;
+          return '/covers/temp_p.jpg';
+        },
+      );
+    }
+
+    test('saves the cover found and says on which site', () async {
+      PublisherBook? asked;
+      final pick = await publisherService(
+        onFind: (b) => asked = b,
+      ).findOnPublisherSiteAndSave(book);
+
+      expect(asked!.isbn, '9782070360024', reason: 'trimmed');
+      expect(asked!.title, "L'Étranger");
+      expect(asked!.publisher, isNull, reason: 'a blank publisher is none');
+      expect(pick.path, '/covers/temp_p.jpg');
+      expect(pick.imageUrl, 'https://www.gallimard.fr/couv/9782070360024.jpg');
+      expect(pick.candidates, hasLength(2), reason: 'kept for stepping');
+      expect(pick.site, 'gallimard.fr');
+    });
+
+    test('a failed search keeps its code for the message', () async {
+      for (final code in PublisherCoverException.knownCodes) {
+        await expectLater(
+          publisherService(findError: code).findOnPublisherSiteAndSave(book),
+          throwsA(
+            isA<PublisherCoverException>()
+                .having((e) => e.code, 'code', code)
+                .having(
+                  (e) => e.translationKey,
+                  'key',
+                  'publisher_cover_error_$code',
+                ),
+          ),
+        );
+      }
+    });
+
+    test('an unknown failure is reported as the site not answering', () async {
+      for (final error in ['something_new', StateError('ffi')]) {
+        await expectLater(
+          publisherService(findError: error).findOnPublisherSiteAndSave(book),
+          throwsA(
+            isA<PublisherCoverException>().having(
+              (e) => e.code,
+              'code',
+              'network',
+            ),
+          ),
+        );
+      }
+    });
+
+    test('an image the app cannot use is no usable cover', () async {
+      for (final Object error in [
+        const CoverImageTooLargeException(20000, 20000),
+        const UnsupportedCoverImageException('animated WebP'),
+        const FormatException('corrupt'),
+      ]) {
+        await expectLater(
+          publisherService(saveError: error).findOnPublisherSiteAndSave(book),
+          throwsA(
+            isA<PublisherCoverException>().having(
+              (e) => e.code,
+              'code',
+              'no_image_found',
+            ),
+          ),
+        );
+      }
+    });
+  });
+
+  group('SingleFlight', () {
+    test('a second ask for the same key joins the search running', () async {
+      final flight = SingleFlight<int>();
+      final pending = Completer<int>();
+      var starts = 0;
+      Future<int> start() {
+        starts++;
+        return pending.future;
+      }
+
+      final first = flight.run('9782070360024', start);
+      final second = flight.run('9782070360024', start);
+      expect(starts, 1);
+      pending.complete(7);
+      expect(await first, 7);
+      expect(await second, 7);
+
+      // Once done, a new ask starts a new search.
+      await flight.run('9782070360024', () async {
+        starts++;
+        return 8;
+      });
+      expect(starts, 2);
+    });
+
+    test('other keys run on their own, and a failure is not kept', () async {
+      final flight = SingleFlight<int>();
+      final pending = Completer<int>();
+      final a = flight.run('a', () => pending.future);
+      var otherStarted = false;
+      await flight.run('b', () async {
+        otherStarted = true;
+        return 1;
+      });
+      expect(otherStarted, isTrue);
+      pending.completeError('network');
+      await expectLater(a, throwsA('network'));
+      expect(await flight.run('a', () async => 2), 2);
     });
   });
 }

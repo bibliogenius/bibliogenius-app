@@ -12767,3 +12767,39 @@ msgstr "이 페이지에서 표시할 수 있는 다른 이미지가 없습니�
 #. Cover from a web page dialog: button that shows the image seen before
 msgid "web_cover_previous_image"
 msgstr "이전 이미지"
+
+#. Cover from a web page dialog: shown while the book's cover is looked for on its publisher's site, as the dialog opens
+msgid "publisher_cover_searching"
+msgstr "출판사 사이트에서 표지를 찾는 중…"
+
+#. Cover from a web page dialog: under the preview of a cover found on the publisher's site; {site} is the site's address, such as gallimard.fr
+msgid "publisher_cover_found_on"
+msgstr "{site}에서 찾음"
+
+#. Cover from a web page dialog: the publisher's site cannot be searched because the book's ISBN is not valid
+msgid "publisher_cover_error_invalid_isbn"
+msgstr "이 책의 ISBN이 올바르지 않아 출판사 사이트를 검색할 수 없습니다."
+
+#. Cover from a web page dialog: no site is known for the book's publisher
+msgid "publisher_cover_error_no_site"
+msgstr "이 책의 출판사 사이트가 등록되어 있지 않습니다."
+
+#. Cover from a web page dialog: the publisher's site answered, but does not show the book
+msgid "publisher_cover_error_not_found"
+msgstr "출판사 사이트에 이 책이 없습니다."
+
+#. Cover from a web page dialog: the publisher's site turns automatic requests away
+msgid "publisher_cover_error_blocked_by_site"
+msgstr "출판사 사이트가 자동 검색을 허용하지 않습니다."
+
+#. Cover from a web page dialog: the publisher's site did not answer
+msgid "publisher_cover_error_network"
+msgstr "출판사 사이트가 응답하지 않았습니다. 나중에 다시 시도하세요."
+
+#. Cover from a web page dialog: the book's page was found, but the site's rules forbid taking its cover
+msgid "publisher_cover_error_image_forbidden"
+msgstr "책 페이지를 찾았지만 출판사 사이트가 표지 가져오기를 허용하지 않습니다."
+
+#. Cover from a web page dialog: the book's page on the publisher's site has no cover the app can use
+msgid "publisher_cover_error_no_image_found"
+msgstr "출판사 사이트의 책 페이지에 사용할 수 있는 표지가 없습니다."

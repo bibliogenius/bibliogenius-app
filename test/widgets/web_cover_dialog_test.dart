@@ -29,6 +29,9 @@ void main() {
         'web_cover_previous_image': 'Previous image',
         'web_cover_no_more_images': 'No other image',
         'cancel': 'Cancel',
+        'publisher_cover_searching': "Looking on the publisher's site",
+        'publisher_cover_found_on': 'Found on {site}',
+        'publisher_cover_error_no_site': "This publisher's site is not known",
       },
     });
   });
@@ -51,6 +54,10 @@ void main() {
     WebCoverFetcher fetch, {
     WebCoverImageFetcher? fetchImage,
     String? isbn,
+    PublisherBook? book,
+    PublisherCoverFinder? findOnPublisherSite,
+    WebCoverImageFetcher? fetchPublisherImage,
+    bool settle = true,
   }) async {
     final results = <WebCoverPick?>[];
     final discarded = <String>[];
@@ -63,6 +70,12 @@ void main() {
               (bytes: Uint8List(4), imageUrl: url, candidates: <String>[]),
       save: (bytes) async => '/covers/temp_${++saves}.jpg',
       discard: (path) async => discarded.add(path),
+      findOnPublisherSite:
+          findOnPublisherSite ??
+          (_) async => throw StateError('no publisher search expected'),
+      fetchPublisherImage:
+          fetchPublisherImage ??
+          (_) async => throw StateError('no publisher image expected'),
     );
     await tester.pumpWidget(
       ChangeNotifierProvider<ThemeProvider>(
@@ -74,6 +87,7 @@ void main() {
                 await showWebCoverDialog(
                   context,
                   isbn: isbn,
+                  book: book,
                   service: service,
                 ),
               ),
@@ -84,7 +98,13 @@ void main() {
       ),
     );
     await tester.tap(find.text('open'));
-    await tester.pumpAndSettle();
+    if (settle) {
+      await tester.pumpAndSettle();
+    } else {
+      // A search still running animates its progress bar forever.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+    }
     return (results: results, discarded: discarded);
   }
 
@@ -345,5 +365,150 @@ void main() {
     await tester.tap(find.text('Use this cover'));
     await tester.pumpAndSettle();
     expect(opened.results.single!.imageUrl, many.last);
+  });
+
+  group('publisher site', () {
+    const book = (
+      isbn: '9782070360024',
+      title: "L'Étranger",
+      authors: 'Albert Camus',
+      publisher: 'Gallimard',
+    );
+    const gallimard = [
+      'https://www.gallimard.fr/couv/9782070360024.jpg',
+      'https://www.gallimard.fr/couv/autre.jpg',
+    ];
+
+    Future<FoundPublisherCover> foundOnSite(PublisherBook b) async => (
+      bytes: Uint8List(4),
+      imageUrl: gallimard.first,
+      candidates: gallimard,
+      site: 'gallimard.fr',
+      pageUrl: 'https://www.gallimard.fr/catalogue/9782070360024',
+    );
+
+    testWidgets('looks on the site as the dialog opens and previews it', (
+      tester,
+    ) async {
+      PublisherBook? asked;
+      final stepped = <String>[];
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (b) {
+          asked = b;
+          return foundOnSite(b);
+        },
+        // The page's other images come through the lookup's rules
+        // (robots.txt, pause, Crawl-delay), not the Web button's fetch.
+        fetchImage: (_) async => throw StateError('not the Web fetch'),
+        fetchPublisherImage: (url) async {
+          stepped.add(url);
+          return (bytes: Uint8List(4), imageUrl: url, candidates: <String>[]);
+        },
+      );
+
+      expect(asked?.isbn, book.isbn);
+      expect(find.bySemanticsLabel('Cover found on the page'), findsOneWidget);
+      expect(find.text('Found on gallimard.fr'), findsOneWidget);
+
+      // The page's other images can be stepped through, as for an address.
+      await tester.tap(find.text('Next image'));
+      await tester.pumpAndSettle();
+      expect(find.text('Found on gallimard.fr'), findsOneWidget);
+      expect(stepped, [gallimard.last]);
+
+      await tester.tap(find.text('Use this cover'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single!.imageUrl, gallimard.last);
+      expect(opened.discarded, ['/covers/temp_1.jpg']);
+    });
+
+    testWidgets('no search for a book without an ISBN', (tester) async {
+      var searches = 0;
+      await openDialog(
+        tester,
+        found,
+        book: (isbn: '  ', title: 'Sans ISBN', authors: '', publisher: null),
+        findOnPublisherSite: (b) {
+          searches++;
+          return foundOnSite(b);
+        },
+      );
+      expect(searches, 0);
+      expect(find.text("Looking on the publisher's site"), findsNothing);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('a failed search says why and leaves the address field', (
+      tester,
+    ) async {
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (_) async => throw 'no_site',
+      );
+      expect(find.text("This publisher's site is not known"), findsOneWidget);
+      expect(find.byType(TextField), findsOneWidget);
+
+      await fetchAddress(tester);
+      expect(find.bySemanticsLabel('Cover found on the page'), findsOneWidget);
+      expect(find.textContaining('Found on'), findsNothing);
+      await tester.tap(find.text('Use this cover'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single!.imageUrl, page.first);
+    });
+
+    testWidgets('an address can be fetched during the search, and wins', (
+      tester,
+    ) async {
+      final pending = Completer<FoundPublisherCover>();
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (_) => pending.future,
+        settle: false,
+      );
+      expect(find.text("Looking on the publisher's site"), findsOneWidget);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.readOnly, isFalse, reason: 'the search does not hold it');
+      expect(field.autofocus, isFalse, reason: 'no keyboard over the search');
+
+      await fetchAddress(tester);
+      expect(find.bySemanticsLabel('Cover found on the page'), findsOneWidget);
+
+      // The site answers late: what the user fetched stays on screen.
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Found on'), findsNothing);
+      expect(opened.discarded, ['/covers/temp_2.jpg']);
+
+      await tester.tap(find.text('Use this cover'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single!.path, '/covers/temp_1.jpg');
+    });
+
+    testWidgets('left during the search, its late result is deleted', (
+      tester,
+    ) async {
+      final pending = Completer<FoundPublisherCover>();
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (_) => pending.future,
+        settle: false,
+      );
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single, isNull);
+
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
+      expect(opened.discarded, ['/covers/temp_1.jpg']);
+    });
   });
 }

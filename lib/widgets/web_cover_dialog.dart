@@ -12,23 +12,38 @@ import '../services/web_cover_service.dart';
 /// the kept cover, still under its temp name, or null; a refused or abandoned
 /// preview is deleted. [isbn], when the book has one, ranks the images named
 /// after it first.
+///
+/// When [book] has an ISBN, the dialog first looks for the cover on the
+/// book's publisher's site, as it opens: opening it is the user's ask. The
+/// address field stays usable meanwhile, and is the way on when the search
+/// finds nothing.
 Future<WebCoverPick?> showWebCoverDialog(
   BuildContext context, {
   String? isbn,
+  PublisherBook? book,
   WebCoverService? service,
 }) {
   return showDialog<WebCoverPick>(
     context: context,
-    builder: (_) =>
-        WebCoverDialog(isbn: isbn, service: service ?? WebCoverService()),
+    builder: (_) => WebCoverDialog(
+      isbn: isbn,
+      book: book,
+      service: service ?? WebCoverService(),
+    ),
   );
 }
 
 class WebCoverDialog extends StatefulWidget {
   final String? isbn;
+  final PublisherBook? book;
   final WebCoverService service;
 
-  const WebCoverDialog({super.key, this.isbn, required this.service});
+  const WebCoverDialog({
+    super.key,
+    this.isbn,
+    this.book,
+    required this.service,
+  });
 
   @override
   State<WebCoverDialog> createState() => _WebCoverDialogState();
@@ -55,6 +70,55 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
 
   /// Set once stepping ran out of images that could be shown.
   bool _noMoreImages = false;
+
+  /// The search on the publisher's site, started as the dialog opens.
+  bool _searchingPublisher = false;
+
+  /// Why that search found nothing, as an i18n key.
+  String? _publisherErrorKey;
+
+  /// The publisher's site the images on screen come from; null for images
+  /// from an address the user gave.
+  String? _foundOnSite;
+
+  @override
+  void initState() {
+    super.initState();
+    final book = widget.book;
+    if (book != null && book.isbn.trim().isNotEmpty) {
+      _searchingPublisher = true;
+      _searchPublisherSite(book);
+    }
+  }
+
+  /// Shows the cover the publisher's site gives, unless the user has moved
+  /// on meanwhile (an address fetched, the dialog left): it is deleted then.
+  Future<void> _searchPublisherSite(PublisherBook book) async {
+    String? errorKey;
+    WebCoverPick? pick;
+    try {
+      pick = await widget.service.findOnPublisherSiteAndSave(book);
+    } on PublisherCoverException catch (e) {
+      errorKey = e.translationKey;
+    } catch (e) {
+      // The service maps every failure; this only keeps the dialog usable
+      // should something slip through.
+      debugPrint('[WEB-COVER] unexpected publisher search failure: $e');
+      errorKey = PublisherCoverException('network').translationKey;
+    }
+    final unwanted = !mounted || _loading || _shown.isNotEmpty;
+    if (unwanted) {
+      if (pick != null) widget.service.discard(pick);
+      if (mounted) setState(() => _searchingPublisher = false);
+      return;
+    }
+    setState(() {
+      _searchingPublisher = false;
+      _publisherErrorKey = errorKey;
+      if (pick != null) _showFirst(pick);
+    });
+    if (pick != null) _announcePreview();
+  }
 
   bool get _hasPreviousImage => _position > 0;
   bool get _hasNextImage =>
@@ -102,23 +166,34 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     setState(() {
       _loading = false;
       _errorKey = errorKey;
-      _shown = [?pick];
-      _position = 0;
-      _candidates = pick?.candidates ?? const [];
-      _nextToTry = pick == null ? 0 : _candidates.indexOf(pick.imageUrl) + 1;
-      _noMoreImages = false;
+      if (pick != null) _showFirst(pick);
     });
     if (errorKey != null) {
       _focus.requestFocus();
     } else {
-      // The preview replaces the address field: a screen reader would
-      // otherwise not say that the cover has arrived.
-      SemanticsService.sendAnnouncement(
-        View.of(context),
-        TranslationService.translate(context, 'web_cover_preview_label'),
-        Directionality.of(context),
-      );
+      _announcePreview();
     }
+  }
+
+  /// Puts [pick] on screen as the first of its page's images. Call inside
+  /// setState.
+  void _showFirst(WebCoverPick pick) {
+    _shown = [pick];
+    _position = 0;
+    _candidates = pick.candidates;
+    _nextToTry = _candidates.indexOf(pick.imageUrl) + 1;
+    _noMoreImages = false;
+    _foundOnSite = pick.site;
+  }
+
+  /// The preview replaces the address field: a screen reader would otherwise
+  /// not say that the cover has arrived.
+  void _announcePreview() {
+    SemanticsService.sendAnnouncement(
+      View.of(context),
+      TranslationService.translate(context, 'web_cover_preview_label'),
+      Directionality.of(context),
+    );
   }
 
   void _previousImage() {
@@ -143,7 +218,10 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     var index = _nextToTry;
     for (; index < _candidates.length && mounted; index++) {
       try {
-        next = await widget.service.fetchCandidateAndSave(_candidates[index]);
+        next = await widget.service.fetchCandidateAndSave(
+          _candidates[index],
+          fromPublisherSite: _foundOnSite != null,
+        );
         break;
       } catch (e) {
         debugPrint('[WEB-COVER] candidate $index skipped: $e');
@@ -173,6 +251,7 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       _position = 0;
       _candidates = const [];
       _noMoreImages = false;
+      _foundOnSite = null;
     });
     _focus.requestFocus();
   }
@@ -236,12 +315,29 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (_searchingPublisher) ...[
+          Semantics(
+            liveRegion: true,
+            label: t('publisher_cover_searching'),
+            child: ExcludeSemantics(
+              child: Text(t('publisher_cover_searching')),
+            ),
+          ),
+          const SizedBox(height: 8),
+          const LinearProgressIndicator(),
+          const SizedBox(height: 16),
+        ] else if (_publisherErrorKey != null) ...[
+          Semantics(liveRegion: true, child: Text(t(_publisherErrorKey!))),
+          const SizedBox(height: 16),
+        ],
         Text(t('web_cover_dialog_help')),
         const SizedBox(height: 12),
         TextField(
           controller: _controller,
           focusNode: _focus,
-          autofocus: true,
+          // No keyboard over the search on a phone: the user may only have
+          // to wait for its result.
+          autofocus: widget.book == null || widget.book!.isbn.trim().isEmpty,
           // readOnly rather than disabled: a disabled field drops the focus,
           // and the user would have to tap it again after an error.
           readOnly: _loading,
@@ -286,6 +382,17 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             ),
           ),
         ),
+        if (_foundOnSite != null) ...[
+          const SizedBox(height: 8),
+          Text(
+            TranslationService.translate(
+              context,
+              'publisher_cover_found_on',
+              params: {'site': _foundOnSite!},
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
         if (_loading) ...[
           const SizedBox(height: 16),
           Semantics(
