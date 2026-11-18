@@ -8,6 +8,8 @@
 
 **Mobile and desktop application for managing and sharing your personal library.**
 
+Official website, downloads, and user guides: **[bibliogenius.org](https://bibliogenius.org)**
+
 The official frontend for BiblioGenius, built with Flutter. It embeds the Rust backend for high-performance offline capabilities, and lets you share your catalog and lend books across all your devices, whether they are on the same Wi-Fi or on the other side of the world.
 
 Shipped and tested daily on **iOS, Android, and macOS**. Desktop builds for **Windows and Linux** come from the same codebase and are available, though still stabilizing.
