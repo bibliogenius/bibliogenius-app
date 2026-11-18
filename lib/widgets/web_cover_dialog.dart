@@ -3,10 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../services/web_cover_service.dart';
 import '../utils/isbn_validator.dart';
+import 'cached_book_cover.dart';
 
 /// Asks for the address of a book's page on a publisher's site (or of the
 /// cover image itself), fetches the cover into a temp file and shows it for
@@ -15,22 +18,36 @@ import '../utils/isbn_validator.dart';
 /// preview is deleted. [isbn], when the book has one, ranks the images named
 /// after it first.
 ///
-/// When [book] has an ISBN, the dialog first looks for the cover on the
-/// book's publisher's site, as it opens: opening it is the user's ask. The
-/// address field stays usable meanwhile, and is the way on when the search
-/// finds nothing.
+/// When [book] has an ISBN whose publisher's site the engine's table knows,
+/// a button offers to look for the cover there: the search sends the
+/// publisher the book looked up, so the tap is the consent. The setting
+/// ([PublisherCoverSearch]) can start it as the dialog opens instead, for a
+/// book without a cover only, or remove the button. The address field stays
+/// usable meanwhile, and is the way on when the search finds nothing.
+///
+/// [currentCoverUrl] is the book's cover, if it has one: the preview shows it
+/// beside the new one, to replace or keep.
 Future<WebCoverPick?> showWebCoverDialog(
   BuildContext context, {
   String? isbn,
   PublisherBook? book,
+  String? currentCoverUrl,
   WebCoverService? service,
 }) {
+  final settings = context.read<ThemeProvider>();
+  final mode = settings.publisherCoverSearch;
   return showDialog<WebCoverPick>(
     context: context,
     builder: (_) => WebCoverDialog(
       isbn: isbn,
       book: book,
+      currentCoverUrl: currentCoverUrl,
       service: service ?? WebCoverService(),
+      searchMode: mode,
+      offerAutomatic:
+          mode == PublisherCoverSearch.onDemand &&
+          !settings.publisherCoverAutoOffered,
+      onSearchModeChosen: settings.setPublisherCoverSearch,
     ),
   );
 }
@@ -38,13 +55,25 @@ Future<WebCoverPick?> showWebCoverDialog(
 class WebCoverDialog extends StatefulWidget {
   final String? isbn;
   final PublisherBook? book;
+  final String? currentCoverUrl;
   final WebCoverService service;
+  final PublisherCoverSearch searchMode;
+
+  /// Whether a cover found on the publisher's site comes with the offer to
+  /// search automatically from then on ([onSearchModeChosen] hears the
+  /// answer).
+  final bool offerAutomatic;
+  final ValueChanged<PublisherCoverSearch>? onSearchModeChosen;
 
   const WebCoverDialog({
     super.key,
     this.isbn,
     this.book,
+    this.currentCoverUrl,
     required this.service,
+    this.searchMode = PublisherCoverSearch.onDemand,
+    this.offerAutomatic = false,
+    this.onSearchModeChosen,
   });
 
   @override
@@ -73,8 +102,23 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   /// Set once stepping ran out of images that could be shown.
   bool _noMoreImages = false;
 
-  /// The search on the publisher's site, started as the dialog opens.
+  /// The publisher's site the button names, once the engine's table has
+  /// told it; null while unknown, or when there is none.
+  String? _site;
+
+  /// The search on the publisher's site, started by its button (or as the
+  /// dialog opens, when the setting says so).
   bool _searchingPublisher = false;
+
+  /// Completed when the running search's result is no longer wanted (an
+  /// address won, the dialog closed): its next images are not tried then.
+  Completer<void>? _searchDropped;
+
+  /// Completed as the dialog closes: stops stepping to a next image.
+  final _closed = Completer<void>();
+
+  /// Set once the offer of the automatic search has been answered.
+  bool _offerAnswered = false;
 
   /// Why that search found nothing, as an i18n key.
   String? _publisherErrorKey;
@@ -109,28 +153,76 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   /// caller gave one.
   String? get _isbn => widget.isbn ?? widget.book?.isbn;
 
-  /// Whether the dialog looks on the publisher's site as it opens: only for
-  /// a valid ISBN, not one still being typed in the add form.
-  bool get _searchesPublisher => IsbnValidator.isValid(widget.book?.isbn);
+  /// Whether the dialog may look on the publisher's site: the setting
+  /// allows it, and the ISBN is valid, not one still being typed in the add
+  /// form.
+  bool get _mayAskPublisher =>
+      widget.searchMode != PublisherCoverSearch.never &&
+      IsbnValidator.isValid(widget.book?.isbn);
+
+  bool get _hasCurrentCover => widget.currentCoverUrl?.isNotEmpty ?? false;
+
+  /// Whether the search starts as the dialog opens: by the setting, and
+  /// never for a book that already has a cover.
+  bool get _searchesOnOpening =>
+      _mayAskPublisher &&
+      widget.searchMode == PublisherCoverSearch.automatic &&
+      !_hasCurrentCover;
 
   @override
   void initState() {
     super.initState();
-    if (_searchesPublisher) {
+    if (_mayAskPublisher) _nameSite(widget.book!);
+  }
+
+  /// Asks the engine's table which site the search would look on, for the
+  /// button to name it (no request is sent), then starts the search if the
+  /// setting says so and the user has not begun with an address.
+  Future<void> _nameSite(PublisherBook book) async {
+    final site = await widget.service.publisherSite(book);
+    if (!mounted || site == null) return;
+    setState(() => _site = site);
+    final userBusy =
+        _loading || _shown.isNotEmpty || _controller.text.trim().isNotEmpty;
+    if (_searchesOnOpening && !userBusy) _startPublisherSearch();
+  }
+
+  void _startPublisherSearch() {
+    final book = widget.book;
+    if (book == null || _site == null || _searchingPublisher) return;
+    final dropped = Completer<void>();
+    setState(() {
       _searchingPublisher = true;
-      _searchPublisherSite(widget.book!);
-    }
+      _publisherErrorKey = null;
+      _searchDropped = dropped;
+    });
+    _searchPublisherSite(book, dropped);
+  }
+
+  /// The running search's result is no longer wanted: it stops at its next
+  /// step, and its steps are no longer shown. Call inside setState.
+  void _dropPublisherSearch() {
+    widget.service.stopHearingSteps(_onSearchStep);
+    final dropped = _searchDropped;
+    if (dropped != null && !dropped.isCompleted) dropped.complete();
+    _countdown?.cancel();
+    _searchingPublisher = false;
+    _step = null;
   }
 
   /// Shows the cover the publisher's site gives, unless the user has moved
   /// on meanwhile (an address fetched, the dialog left): it is deleted then.
-  Future<void> _searchPublisherSite(PublisherBook book) async {
+  Future<void> _searchPublisherSite(
+    PublisherBook book,
+    Completer<void> dropped,
+  ) async {
     String? errorKey;
     WebCoverPick? pick;
     try {
       pick = await widget.service.findOnPublisherSiteAndSave(
         book,
-        onStep: _onStep,
+        onStep: _onSearchStep,
+        abandoned: dropped.future,
       );
     } on PublisherCoverException catch (e) {
       errorKey = e.translationKey;
@@ -140,13 +232,17 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       debugPrint('[WEB-COVER] unexpected publisher search failure: $e');
       errorKey = PublisherCoverException('network').translationKey;
     }
-    _countdown?.cancel();
-    // The user has a cover from an address on screen, or left: too late.
-    if (!mounted || _shown.isNotEmpty) {
+    // Dropped (an address won, the dialog left), or the user has a cover
+    // from an address on screen: too late.
+    if (!mounted || dropped.isCompleted || _shown.isNotEmpty) {
       if (pick != null) widget.service.discard(pick);
-      if (mounted) setState(() => _searchingPublisher = false);
+      if (mounted && !dropped.isCompleted) {
+        _countdown?.cancel();
+        setState(() => _searchingPublisher = false);
+      }
       return;
     }
+    _countdown?.cancel();
     // The user is typing or fetching an address: not over their typing.
     final busy = _loading || _controller.text.trim().isNotEmpty;
     setState(() {
@@ -180,6 +276,12 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   bool get _hasPreviousImage => _position > 0;
   bool get _hasNextImage =>
       _position < _shown.length - 1 || _nextToTry < _candidates.length;
+
+  /// A step of the search, shown while it runs only: a dropped search may
+  /// still say one, which would land under a next image's progress bar.
+  void _onSearchStep(PublisherLookupStep step) {
+    if (_searchingPublisher) _onStep(step);
+  }
 
   void _onStep(PublisherLookupStep step) {
     if (!mounted) return;
@@ -219,7 +321,10 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   @override
   void dispose() {
     _countdown?.cancel();
-    widget.service.stopHearingSteps(_onStep);
+    widget.service.stopHearingSteps(_onSearchStep);
+    final dropped = _searchDropped;
+    if (dropped != null && !dropped.isCompleted) dropped.complete();
+    _closed.complete();
     final setAside = _setAside;
     if (setAside != null) widget.service.discard(setAside);
     // However the dialog closes (cancel, barrier, back), the previews that
@@ -265,9 +370,11 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       _errorKey = errorKey;
       if (pick != null) {
         _showFirst(pick);
-        // The address gave a cover: the search's outcome no longer applies.
+        // The address gave a cover: the search's outcome no longer applies,
+        // nor does the search itself.
         _publisherErrorKey = null;
         _setAside = null;
+        if (_searchingPublisher) _dropPublisherSearch();
       }
     });
     if (setAside != null) widget.service.discard(setAside);
@@ -331,6 +438,7 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
           // A publisher's image goes through the lookup's rules: its
           // pauses are said as the search's were.
           onStep: _onStep,
+          abandoned: _closed.future,
         );
         break;
       } catch (e) {
@@ -373,6 +481,17 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     Navigator.of(context).pop(_preview);
   }
 
+  void _answerOffer(PublisherCoverSearch mode) {
+    widget.onSearchModeChosen?.call(mode);
+    setState(() => _offerAnswered = true);
+  }
+
+  bool get _offersAutomatic =>
+      widget.offerAutomatic &&
+      !_offerAnswered &&
+      widget.onSearchModeChosen != null &&
+      _foundOnSite != null;
+
   @override
   Widget build(BuildContext context) {
     String t(String key) => TranslationService.translate(context, key);
@@ -380,45 +499,50 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     // The dialog can be left at any time, a fetch included: a result landing
     // after that is deleted (see the !mounted branch of _fetch).
     return AlertDialog(
-        scrollable: true,
-        title: Semantics(
-          header: true,
-          child: Text(t('web_cover_dialog_title')),
-        ),
-        content: preview == null
-            ? _buildAddressForm(t)
-            : _buildPreview(preview, t),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t('cancel')),
+      scrollable: true,
+      title: Semantics(header: true, child: Text(t('web_cover_dialog_title'))),
+      content: preview == null
+          ? _buildAddressForm(t)
+          : _buildPreview(preview, t),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            t(
+              preview != null && _hasCurrentCover
+                  ? 'web_cover_keep_current'
+                  : 'cancel',
+            ),
           ),
-          if (preview == null)
-            FilledButton(
-              onPressed: _loading ? null : _fetch,
-              child: Text(t('web_cover_dialog_fetch')),
-            )
-          else ...[
+        ),
+        if (preview == null)
+          FilledButton(
+            onPressed: _loading ? null : _fetch,
+            child: Text(t('web_cover_dialog_fetch')),
+          )
+        else ...[
+          TextButton(
+            onPressed: _loading ? null : _tryAnother,
+            child: Text(t('web_cover_try_another')),
+          ),
+          if (_hasPreviousImage)
             TextButton(
-              onPressed: _loading ? null : _tryAnother,
-              child: Text(t('web_cover_try_another')),
+              onPressed: _loading ? null : _previousImage,
+              child: Text(t('web_cover_previous_image')),
             ),
-            if (_hasPreviousImage)
-              TextButton(
-                onPressed: _loading ? null : _previousImage,
-                child: Text(t('web_cover_previous_image')),
-              ),
-            if (_hasNextImage)
-              TextButton(
-                onPressed: _loading ? null : _nextImage,
-                child: Text(t('web_cover_next_image')),
-              ),
-            FilledButton(
-              onPressed: _loading ? null : _keep,
-              child: Text(t('web_cover_use')),
+          if (_hasNextImage)
+            TextButton(
+              onPressed: _loading ? null : _nextImage,
+              child: Text(t('web_cover_next_image')),
             ),
-          ],
+          FilledButton(
+            onPressed: _loading ? null : _keep,
+            child: Text(
+              t(_hasCurrentCover ? 'web_cover_replace' : 'web_cover_use'),
+            ),
+          ),
         ],
+      ],
     );
   }
 
@@ -436,7 +560,9 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             ),
           ),
           const SizedBox(height: 8),
-          const LinearProgressIndicator(),
+          LinearProgressIndicator(
+            semanticsLabel: t('publisher_cover_searching'),
+          ),
           ..._buildStep(),
           const SizedBox(height: 16),
         ] else if (_setAside != null) ...[
@@ -459,18 +585,21 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             ),
           ),
           const SizedBox(height: 8),
-        ] else if (_publisherErrorKey != null) ...[
-          Semantics(liveRegion: true, child: Text(t(_publisherErrorKey!))),
-          const SizedBox(height: 16),
+        ] else ...[
+          if (_publisherErrorKey != null) ...[
+            Semantics(liveRegion: true, child: Text(t(_publisherErrorKey!))),
+            const SizedBox(height: 12),
+          ],
+          if (_site != null) ..._buildSearchButton(),
         ],
         Text(t('web_cover_dialog_help')),
         const SizedBox(height: 12),
         TextField(
           controller: _controller,
           focusNode: _focus,
-          // No keyboard over the search on a phone: the user may only have
-          // to wait for its result.
-          autofocus: !_searchesPublisher,
+          // No keyboard over the search's button on a phone: the user may
+          // only have to tap it, or wait for its result.
+          autofocus: !_mayAskPublisher,
           // readOnly rather than disabled: a disabled field drops the focus,
           // and the user would have to tap it again after an error.
           readOnly: _loading,
@@ -497,6 +626,33 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     );
   }
 
+  /// The button that starts the search on the publisher's site, and what
+  /// tapping it sends.
+  List<Widget> _buildSearchButton() {
+    return [
+      SizedBox(
+        width: double.infinity,
+        child: FilledButton.tonalIcon(
+          onPressed: _loading ? null : _startPublisherSearch,
+          icon: const Icon(Icons.travel_explore),
+          label: Text(
+            TranslationService.translate(
+              context,
+              'publisher_cover_search_on',
+              params: {'site': _site!},
+            ),
+          ),
+        ),
+      ),
+      const SizedBox(height: 4),
+      Text(
+        TranslationService.translate(context, 'publisher_cover_search_notice'),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      const SizedBox(height: 16),
+    ];
+  }
+
   /// The search's current step under its progress bar. Screen readers hear
   /// each step once, as it starts, not every second of a countdown.
   List<Widget> _buildStep() {
@@ -517,23 +673,49 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   }
 
   Widget _buildPreview(WebCoverPick preview, String Function(String) t) {
+    final current = widget.currentCoverUrl;
+    final found = ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.file(
+        File(preview.path),
+        key: ValueKey(preview.path),
+        height: _hasCurrentCover ? 180 : 240,
+        fit: BoxFit.contain,
+        semanticLabel: t('web_cover_preview_label'),
+        errorBuilder: (_, _, _) => SizedBox(
+          width: _hasCurrentCover ? 120 : 160,
+          height: _hasCurrentCover ? 180 : 240,
+        ),
+      ),
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Center(
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.file(
-              File(preview.path),
-              key: ValueKey(preview.path),
-              height: 240,
-              fit: BoxFit.contain,
-              semanticLabel: t('web_cover_preview_label'),
-              errorBuilder: (_, _, _) =>
-                  const SizedBox(width: 160, height: 240),
-            ),
-          ),
-        ),
+        if (current != null && current.isNotEmpty)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _captioned(
+                  t('web_cover_current'),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: CachedBookCover(
+                      imageUrl: current,
+                      width: 120,
+                      height: 180,
+                      fit: BoxFit.contain,
+                      semanticLabel: t('web_cover_current'),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(child: _captioned(t('web_cover_new'), found)),
+            ],
+          )
+        else
+          Center(child: found),
         if (_foundOnSite != null) ...[
           const SizedBox(height: 8),
           Text(
@@ -561,7 +743,57 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             child: Text(t('web_cover_no_more_images')),
           ),
         ],
+        if (_offersAutomatic) ..._buildOffer(t),
       ],
     );
+  }
+
+  /// [image] with [caption] under it; the caption is said by the image's own
+  /// label.
+  Widget _captioned(String caption, Widget image) {
+    return Column(
+      children: [
+        image,
+        const SizedBox(height: 4),
+        ExcludeSemantics(
+          child: Text(
+            caption,
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// After a cover found on the publisher's site: whether to search there
+  /// as the dialog opens from now on, for books without a cover.
+  List<Widget> _buildOffer(String Function(String) t) {
+    return [
+      const SizedBox(height: 16),
+      Semantics(
+        container: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t('publisher_cover_auto_offer')),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              children: [
+                TextButton(
+                  onPressed: () => _answerOffer(PublisherCoverSearch.onDemand),
+                  child: Text(t('publisher_cover_auto_offer_no')),
+                ),
+                TextButton(
+                  onPressed: () => _answerOffer(PublisherCoverSearch.automatic),
+                  child: Text(t('publisher_cover_auto_offer_yes')),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ];
   }
 }

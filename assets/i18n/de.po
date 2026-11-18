@@ -12688,9 +12688,9 @@ msgstr "{site}: Suchergebnis {attempt} von {of}…"
 msgid "publisher_cover_step_site_map"
 msgstr "{site}: Sitemap wird gelesen…"
 
-#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+#. Cover from a web page dialog, publisher site search: the site asks for a pause before our next request; {seconds} counts down to it
 msgid "publisher_cover_step_waiting"
-msgstr "{site} bittet um eine Pause zwischen zwei Seiten: noch {seconds} s…"
+msgstr "Pause von {site} angefordert: noch {seconds} s…"
 
 #. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
 msgid "publisher_cover_step_cover"
@@ -12703,3 +12703,59 @@ msgstr "Auf {site} gefundenes Cover anzeigen"
 #. Cover from a web page dialog, publisher site search: waiting for another request to the same site to end; {site} is the site
 msgid "publisher_cover_step_queued"
 msgstr "{site}: Warten auf die Website…"
+
+#. Cover from a web page dialog: button that looks for the cover on the book's publisher's site; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_search_on"
+msgstr "Auf {site} suchen"
+
+#. Cover from a web page dialog: line under that button, saying what tapping it sends to the publisher
+msgid "publisher_cover_search_notice"
+msgstr "Die Website des Verlags sieht, welches Buch gesucht wird."
+
+#. Cover from a web page dialog: caption of the book's current cover, shown beside the new one
+msgid "web_cover_current"
+msgstr "Aktuelles Cover"
+
+#. Cover from a web page dialog: caption of the cover just found, shown beside the current one
+msgid "web_cover_new"
+msgstr "Neues Cover"
+
+#. Cover from a web page dialog: button, the cover found replaces the book's current one
+msgid "web_cover_replace"
+msgstr "Ersetzen"
+
+#. Cover from a web page dialog: button, closes and keeps the book's current cover
+msgid "web_cover_keep_current"
+msgstr "Aktuelles behalten"
+
+#. Cover from a web page dialog, after a first cover found on the publisher's site: offer to search there as the dialog opens from now on
+msgid "publisher_cover_auto_offer"
+msgstr "Beim Öffnen automatisch suchen, für Bücher ohne Cover? Das lässt sich in den Einstellungen ändern."
+
+#. Answer to that offer: search automatically from now on
+msgid "publisher_cover_auto_offer_yes"
+msgstr "Ja, automatisch"
+
+#. Answer to that offer: keep searching only when the button is tapped
+msgid "publisher_cover_auto_offer_no"
+msgstr "Nein, auf Anfrage"
+
+#. Settings, catalogue: title of the choice of when to look for a cover on the publisher's site
+msgid "module_publisher_cover_search"
+msgstr "Cover von der Website des Verlags"
+
+#. Settings, catalogue: description of that choice
+msgid "module_publisher_cover_search_desc"
+msgstr "Im Fenster „Cover von einer Webseite“ das Cover auf der Website des Verlags suchen. Diese Website sieht, welches Buch gesucht wird."
+
+#. Settings, publisher site cover search: only when the user taps the button (default)
+msgid "publisher_cover_search_on_demand"
+msgstr "Auf Anfrage, per Schaltfläche"
+
+#. Settings, publisher site cover search: as the Web cover dialog opens, for books without a cover
+msgid "publisher_cover_search_automatic"
+msgstr "Automatisch für Bücher ohne Cover"
+
+#. Settings, publisher site cover search: never, no button
+msgid "publisher_cover_search_never"
+msgstr "Nie"

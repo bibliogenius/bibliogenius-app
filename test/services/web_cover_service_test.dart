@@ -311,7 +311,8 @@ void main() {
     }) {
       return WebCoverService(
         // The page's other images do not load either.
-        fetchPublisherImage: (url, {onStep}) async => throw 'network',
+        fetchPublisherImage: (url, {onStep, abandoned}) async =>
+            throw 'network',
         findOnPublisherSite: (b, {onStep}) async {
           onStep?.call(
             const PublisherLookupStep(kind: 'search', site: 'gallimard.fr'),
@@ -494,14 +495,18 @@ void main() {
     WebCoverService service({
       Set<String> unsavable = const {},
       required List<String> fetched,
+      void Function()? onFound,
     }) => WebCoverService(
-      findOnPublisherSite: (b, {onStep}) async => (
-        bytes: Uint8List.fromList(first.codeUnits),
-        imageUrl: first,
-        candidates: [first, second],
-        site: 'gallimard.fr',
-      ),
-      fetchPublisherImage: (url, {onStep}) async {
+      findOnPublisherSite: (b, {onStep}) async {
+        onFound?.call();
+        return (
+          bytes: Uint8List.fromList(first.codeUnits),
+          imageUrl: first,
+          candidates: [first, second],
+          site: 'gallimard.fr',
+        );
+      },
+      fetchPublisherImage: (url, {onStep, abandoned}) async {
         fetched.add(url);
         return (
           bytes: Uint8List.fromList(url.codeUnits),
@@ -545,6 +550,89 @@ void main() {
         ),
       );
       expect(fetched, [second]);
+    });
+
+    test('abandoned, the next images are not tried', () async {
+      final fetched = <String>[];
+      final left = Completer<void>();
+      await expectLater(
+        service(
+          unsavable: {first},
+          fetched: fetched,
+          // The dialog closes while the site is answering.
+          onFound: left.complete,
+        ).findOnPublisherSiteAndSave(book, abandoned: left.future),
+        throwsA(isA<PublisherCoverException>()),
+      );
+      expect(fetched, isEmpty);
+    });
+  });
+
+  group('publisher site named on the button', () {
+    const book = (
+      isbn: ' 978-2-07-036002-4 ',
+      title: "L'Étranger",
+      authors: 'Albert Camus',
+      publisher: ' ',
+    );
+
+    test('the engine is asked with the fields it searches with', () async {
+      PublisherBook? asked;
+      final site = await WebCoverService(
+        siteFor: (b) async {
+          asked = b;
+          return 'gallimard.fr';
+        },
+      ).publisherSite(book);
+      expect(site, 'gallimard.fr');
+      expect(asked?.isbn, '978-2-07-036002-4');
+      expect(asked?.publisher, isNull);
+    });
+
+    test(
+      'no site for an ISBN being typed, an unknown one, a failure',
+      () async {
+        var asks = 0;
+        final typed = await WebCoverService(siteFor: (_) async => '${++asks}')
+            .publisherSite((
+              isbn: '978207',
+              title: '',
+              authors: '',
+              publisher: null,
+            ));
+        expect(typed, isNull);
+        expect(asks, 0, reason: 'not even asked');
+        expect(
+          await WebCoverService(siteFor: (_) async => null).publisherSite(book),
+          isNull,
+        );
+        expect(
+          await WebCoverService(siteFor: (_) async => '').publisherSite(book),
+          isNull,
+        );
+        expect(
+          await WebCoverService(
+            siteFor: (_) async => throw StateError('engine'),
+          ).publisherSite(book),
+          isNull,
+        );
+      },
+    );
+  });
+
+  group('publisher cover search setting', () {
+    test('is read back, and anything unknown is on demand', () {
+      for (final mode in PublisherCoverSearch.values) {
+        expect(PublisherCoverSearch.fromPref(mode.prefValue), mode);
+      }
+      expect(
+        PublisherCoverSearch.fromPref(null),
+        PublisherCoverSearch.onDemand,
+      );
+      expect(
+        PublisherCoverSearch.fromPref('sometimes'),
+        PublisherCoverSearch.onDemand,
+      );
     });
   });
 

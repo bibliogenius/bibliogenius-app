@@ -6,13 +6,15 @@ import 'package:provider/provider.dart';
 
 import '../../providers/theme_provider.dart';
 import '../../services/translation_service.dart';
+import '../../services/web_cover_service.dart' show PublisherCoverSearch;
 import '../../utils/cover_camera_helper.dart';
 import '../../utils/import_actions.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
 
 /// Catalogue section: what goes into the library and how it is kept tidy
-/// (file import, shelves, duplicates, formats, cover photos).
+/// (file import, shelves, duplicates, formats, cover photos, covers from the
+/// publisher's site).
 class CatalogueSettingsSection extends StatefulWidget {
   const CatalogueSettingsSection({super.key});
 
@@ -56,6 +58,7 @@ class _CatalogueSettingsSectionState extends State<CatalogueSettingsSection> {
         'module_cover_auto_crop',
         autoCropDescKey,
       ],
+      ...PublisherCoverSearchCard.searchKeys,
     ])) {
       return const SizedBox.shrink();
     }
@@ -111,7 +114,64 @@ class _CatalogueSettingsSectionState extends State<CatalogueSettingsSection> {
             value: themeProvider.coverAutoCropEnabled,
             onChanged: (value) => themeProvider.setCoverAutoCropEnabled(value),
           ),
+        const PublisherCoverSearchCard(),
       ],
+    );
+  }
+}
+
+/// When the Web cover dialog looks for the cover on the publisher's site,
+/// which then sees the book looked up: on demand, automatically for books
+/// without a cover, or never.
+class PublisherCoverSearchCard extends StatelessWidget {
+  const PublisherCoverSearchCard({super.key});
+
+  static const _titleKey = 'module_publisher_cover_search';
+  static const _descKey = 'module_publisher_cover_search_desc';
+
+  static String _choiceKey(PublisherCoverSearch mode) =>
+      'publisher_cover_search_${mode.prefValue}';
+
+  /// What a settings search matches this card on.
+  static List<String> get searchKeys => [
+    _titleKey,
+    _descKey,
+    for (final mode in PublisherCoverSearch.values) _choiceKey(mode),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    if (!settingsMatches(context, searchKeys)) return const SizedBox.shrink();
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    String t(String key) => TranslationService.translate(context, key);
+    return Card(
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.travel_explore),
+            title: Semantics(header: true, child: Text(t(_titleKey))),
+            subtitle: Text(t(_descKey)),
+          ),
+          RadioGroup<PublisherCoverSearch>(
+            groupValue: themeProvider.publisherCoverSearch,
+            onChanged: (mode) {
+              if (mode != null) themeProvider.setPublisherCoverSearch(mode);
+            },
+            child: Column(
+              children: [
+                for (final mode in PublisherCoverSearch.values)
+                  RadioListTile<PublisherCoverSearch>(
+                    value: mode,
+                    title: Text(t(_choiceKey(mode))),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
     );
   }
 }

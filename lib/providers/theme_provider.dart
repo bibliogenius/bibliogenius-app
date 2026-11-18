@@ -15,6 +15,7 @@ import '../services/ffi_service.dart';
 import '../services/mdns_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../services/translation_service.dart';
+import '../services/web_cover_service.dart' show PublisherCoverSearch;
 import '../themes/base/theme_registry.dart';
 import '../utils/language_constants.dart';
 
@@ -162,6 +163,15 @@ class ThemeProvider with ChangeNotifier {
   // Automatic cover crop (document scanner) for cover photos
   bool _coverAutoCropEnabled = true;
   bool get coverAutoCropEnabled => _coverAutoCropEnabled;
+
+  // When the Web cover dialog looks on the publisher's site, and whether the
+  // automatic search has been offered (after a first cover found there).
+  static const publisherCoverSearchPrefKey = 'publisherCoverSearch';
+  static const publisherCoverAutoOfferedPrefKey = 'publisherCoverAutoOffered';
+  PublisherCoverSearch _publisherCoverSearch = PublisherCoverSearch.onDemand;
+  PublisherCoverSearch get publisherCoverSearch => _publisherCoverSearch;
+  bool _publisherCoverAutoOffered = false;
+  bool get publisherCoverAutoOffered => _publisherCoverAutoOffered;
 
   // Audio Module
   bool _audioEnabled = false;
@@ -515,6 +525,11 @@ class ThemeProvider with ChangeNotifier {
     _digitalFormatsEnabled = prefs.getBool('digitalFormatsEnabled') ?? false;
     _coverAutoCropEnabled =
         prefs.getBool(CoverCameraHelper.autoCropPrefKey) ?? true;
+    _publisherCoverSearch = PublisherCoverSearch.fromPref(
+      prefs.getString(publisherCoverSearchPrefKey),
+    );
+    _publisherCoverAutoOffered =
+        prefs.getBool(publisherCoverAutoOfferedPrefKey) ?? false;
     _audioEnabled = prefs.getBool('audioEnabled') ?? false;
     _mcpEnabled = prefs.getBool('mcpEnabled') ?? false;
     _gamesEnabled = prefs.getBool('gamesEnabled') ?? true;
@@ -1045,6 +1060,8 @@ class ThemeProvider with ChangeNotifier {
     _operationLogViewerEnabled = false;
     _speechToTextEnabled = true;
     _coverAutoCropEnabled = true;
+    _publisherCoverSearch = PublisherCoverSearch.onDemand;
+    _publisherCoverAutoOffered = false;
     _bottomNavEnabled = true;
     notifyListeners();
   }
@@ -1487,6 +1504,17 @@ class ThemeProvider with ChangeNotifier {
     if (enabled) {
       await prefs.remove(CoverCameraHelper.scanTipsDismissedPrefKey);
     }
+    notifyListeners();
+  }
+
+  /// Device-local, like the crop above. Any choice, from the settings or
+  /// from the dialog's offer, means the offer is not made again.
+  Future<void> setPublisherCoverSearch(PublisherCoverSearch mode) async {
+    _publisherCoverSearch = mode;
+    _publisherCoverAutoOffered = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(publisherCoverSearchPrefKey, mode.prefValue);
+    await prefs.setBool(publisherCoverAutoOfferedPrefKey, true);
     notifyListeners();
   }
 

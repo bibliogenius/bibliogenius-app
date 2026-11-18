@@ -1884,6 +1884,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     final pick = await showWebCoverDialog(
       context,
       book: _publisherBook(),
+      currentCoverUrl: _coverUrl,
     );
     if (pick == null) return;
     _useTempCover(pick.path, webCover: pick);

@@ -549,6 +549,11 @@ class FfiService {
     publisher: publisher,
   );
 
+  /// The publisher's site [findCoverOnPublisherSite] would look on first for
+  /// this book, from the engine's table alone: no request is sent.
+  Future<String?> publisherSiteFor({required String isbn, String? publisher}) =>
+      frb.publisherSiteFor(isbn: isbn, publisher: publisher);
+
   /// Fetch one candidate listed by [findCoverOnPublisherSite], under the
   /// same rules as the lookup.
   Stream<frb.FrbPublisherLookupEvent> fetchPublisherCoverImage(

@@ -12828,9 +12828,9 @@ msgstr "{site}: 검색 결과 {attempt}/{of}…"
 msgid "publisher_cover_step_site_map"
 msgstr "{site}: 사이트맵 확인 중…"
 
-#. Cover from a web page dialog, publisher site search: the site asks for a pause between two requests; {seconds} counts down to the next one
+#. Cover from a web page dialog, publisher site search: the site asks for a pause before our next request; {seconds} counts down to it
 msgid "publisher_cover_step_waiting"
-msgstr "{site}에서 페이지 사이에 대기를 요청합니다: {seconds}초 남음…"
+msgstr "{site}에서 대기를 요청했습니다: {seconds}초 남음…"
 
 #. Cover from a web page dialog, publisher site search: the book's page is found, its cover is being fetched
 msgid "publisher_cover_step_cover"
@@ -12843,3 +12843,59 @@ msgstr "{site}에서 찾은 표지 보기"
 #. Cover from a web page dialog, publisher site search: waiting for another request to the same site to end; {site} is the site
 msgid "publisher_cover_step_queued"
 msgstr "{site}: 사이트를 기다리는 중…"
+
+#. Cover from a web page dialog: button that looks for the cover on the book's publisher's site; {site} is the site, such as gallimard.fr
+msgid "publisher_cover_search_on"
+msgstr "{site}에서 찾기"
+
+#. Cover from a web page dialog: line under that button, saying what tapping it sends to the publisher
+msgid "publisher_cover_search_notice"
+msgstr "출판사 사이트에 검색하는 책이 전달됩니다."
+
+#. Cover from a web page dialog: caption of the book's current cover, shown beside the new one
+msgid "web_cover_current"
+msgstr "현재 표지"
+
+#. Cover from a web page dialog: caption of the cover just found, shown beside the current one
+msgid "web_cover_new"
+msgstr "새 표지"
+
+#. Cover from a web page dialog: button, the cover found replaces the book's current one
+msgid "web_cover_replace"
+msgstr "바꾸기"
+
+#. Cover from a web page dialog: button, closes and keeps the book's current cover
+msgid "web_cover_keep_current"
+msgstr "현재 표지 유지"
+
+#. Cover from a web page dialog, after a first cover found on the publisher's site: offer to search there as the dialog opens from now on
+msgid "publisher_cover_auto_offer"
+msgstr "표지가 없는 책은 열 때 자동으로 찾을까요? 설정에서 바꿀 수 있습니다."
+
+#. Answer to that offer: search automatically from now on
+msgid "publisher_cover_auto_offer_yes"
+msgstr "예, 자동으로"
+
+#. Answer to that offer: keep searching only when the button is tapped
+msgid "publisher_cover_auto_offer_no"
+msgstr "아니요, 필요할 때만"
+
+#. Settings, catalogue: title of the choice of when to look for a cover on the publisher's site
+msgid "module_publisher_cover_search"
+msgstr "출판사 사이트에서 표지 가져오기"
+
+#. Settings, catalogue: description of that choice
+msgid "module_publisher_cover_search_desc"
+msgstr "웹 페이지 표지 창에서 책의 출판사 사이트에서 표지를 찾습니다. 그 사이트에는 검색하는 책이 전달됩니다."
+
+#. Settings, publisher site cover search: only when the user taps the button (default)
+msgid "publisher_cover_search_on_demand"
+msgstr "필요할 때만, 버튼으로"
+
+#. Settings, publisher site cover search: as the Web cover dialog opens, for books without a cover
+msgid "publisher_cover_search_automatic"
+msgstr "표지가 없는 책은 자동"
+
+#. Settings, publisher site cover search: never, no button
+msgid "publisher_cover_search_never"
+msgstr "사용 안 함"

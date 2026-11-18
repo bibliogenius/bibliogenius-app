@@ -1550,9 +1550,13 @@ class _EditBookScreenState extends State<EditBookScreen> {
   Future<void> _pickCoverFromWeb() async {
     final bookId = widget.book.id!;
     final service = WebCoverService();
+    final hasCover = _coverUrl != null && _coverUrl!.isNotEmpty;
     final pick = await showWebCoverDialog(
       context,
       book: _publisherBook(),
+      // The cover the book has, not the ISBN-derived fallback, which may
+      // not exist: only a book with its own cover is never looked up alone.
+      currentCoverUrl: hasCover ? _displayCoverUrl : null,
       service: service,
     );
     if (pick == null) return;

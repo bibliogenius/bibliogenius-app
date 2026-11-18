@@ -198,6 +198,10 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   'peerCoverCacheCapMb',
   'peerCoverDisplayEnabled',
   'peerOfflineCachingEnabled',
+  // When the Web cover dialog may send the publisher the book looked up:
+  // a consent given on this device, not carried to another install.
+  'publisherCoverAutoOffered',
+  'publisherCoverSearch',
   'quotesEnabled',
   'remoteReachableEnabled',
   'shareGamificationStats',

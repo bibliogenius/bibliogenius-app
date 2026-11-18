@@ -37,6 +37,15 @@ void main() {
         'publisher_cover_step_waiting': '{site} asks to wait: {seconds} s',
         'publisher_cover_show_found': 'Show the cover found on {site}',
         'publisher_cover_step_cover': '{site}: fetching the cover',
+        'publisher_cover_search_on': 'Search on {site}',
+        'publisher_cover_search_notice': 'The site will see the book',
+        'publisher_cover_auto_offer': 'Search automatically?',
+        'publisher_cover_auto_offer_yes': 'Yes, automatically',
+        'publisher_cover_auto_offer_no': 'No, on demand',
+        'web_cover_current': 'Current cover',
+        'web_cover_new': 'New cover',
+        'web_cover_replace': 'Replace',
+        'web_cover_keep_current': 'Keep the current one',
       },
     });
   });
@@ -52,14 +61,25 @@ void main() {
   Future<FetchedWebCover> found(String url, {String? isbn}) async =>
       (bytes: Uint8List(4), imageUrl: page.first, candidates: page);
 
-  /// Opens the dialog from a button. Returns what it resolved to and the
-  /// temp files it asked to delete.
-  Future<({List<WebCoverPick?> results, List<String> discarded})> openDialog(
+  /// Opens the dialog from a button, with the publisher site search set to
+  /// [mode] (on demand when null, as in a fresh install). Returns what it
+  /// resolved to, the temp files it asked to delete, and the settings.
+  Future<
+    ({
+      List<WebCoverPick?> results,
+      List<String> discarded,
+      ThemeProvider settings,
+    })
+  >
+  openDialog(
     WidgetTester tester,
     WebCoverFetcher fetch, {
     WebCoverImageFetcher? fetchImage,
     String? isbn,
     PublisherBook? book,
+    String? currentCoverUrl,
+    PublisherCoverSearch? mode,
+    PublisherSiteNamer? siteFor,
     PublisherCoverFinder? findOnPublisherSite,
     PublisherImageFetcher? fetchPublisherImage,
     bool settle = true,
@@ -81,12 +101,15 @@ void main() {
               throw StateError('no publisher search expected'),
       fetchPublisherImage:
           fetchPublisherImage ??
-          (_, {onStep}) async =>
+          (_, {onStep, abandoned}) async =>
               throw StateError('no publisher image expected'),
+      siteFor: siteFor ?? (_) async => 'gallimard.fr',
     );
+    final settings = ThemeProvider();
+    if (mode != null) await settings.setPublisherCoverSearch(mode);
     await tester.pumpWidget(
-      ChangeNotifierProvider<ThemeProvider>(
-        create: (_) => ThemeProvider(),
+      ChangeNotifierProvider<ThemeProvider>.value(
+        value: settings,
         child: MaterialApp(
           home: Builder(
             builder: (context) => TextButton(
@@ -95,6 +118,7 @@ void main() {
                   context,
                   isbn: isbn,
                   book: book,
+                  currentCoverUrl: currentCoverUrl,
                   service: service,
                 ),
               ),
@@ -112,7 +136,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
     }
-    return (results: results, discarded: discarded);
+    return (results: results, discarded: discarded, settings: settings);
   }
 
   Future<void> fetchAddress(WidgetTester tester) async {
@@ -402,6 +426,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (b, {onStep}) {
           asked = b;
           return foundOnSite(b);
@@ -409,7 +434,7 @@ void main() {
         // The page's other images come through the lookup's rules
         // (robots.txt, pause, Crawl-delay), not the Web button's fetch.
         fetchImage: (_) async => throw StateError('not the Web fetch'),
-        fetchPublisherImage: (url, {onStep}) async {
+        fetchPublisherImage: (url, {onStep, abandoned}) async {
           stepped.add(url);
           return (bytes: Uint8List(4), imageUrl: url, candidates: <String>[]);
         },
@@ -437,6 +462,7 @@ void main() {
         tester,
         found,
         book: (isbn: '  ', title: 'Sans ISBN', authors: '', publisher: null),
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (b, {onStep}) {
           searches++;
           return foundOnSite(b);
@@ -454,6 +480,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (_, {onStep}) async => throw 'no_site',
       );
       expect(find.text("This publisher's site is not known"), findsOneWidget);
@@ -481,6 +508,7 @@ void main() {
         tester,
         found,
         book: (isbn: '978207036', title: 'T', authors: '', publisher: null),
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (b, {onStep}) {
           searches++;
           return foundOnSite(b);
@@ -498,6 +526,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (_, {onStep}) => pending.future,
         settle: false,
       );
@@ -526,6 +555,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (_, {onStep}) => pending.future,
         settle: false,
       );
@@ -545,6 +575,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (_, {onStep}) => pending.future,
         settle: false,
       );
@@ -575,6 +606,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (_, {onStep}) => pending.future,
         settle: false,
       );
@@ -596,6 +628,7 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (_, {onStep}) {
           step = onStep!;
           return pending.future;
@@ -643,8 +676,9 @@ void main() {
         tester,
         found,
         book: book,
+        mode: PublisherCoverSearch.automatic,
         findOnPublisherSite: (b, {onStep}) => foundOnSite(b),
-        fetchPublisherImage: (url, {onStep}) {
+        fetchPublisherImage: (url, {onStep, abandoned}) {
           step = onStep!;
           return pending.future;
         },
@@ -671,6 +705,220 @@ void main() {
       ));
       await tester.pumpAndSettle();
       expect(find.textContaining('fetching the cover'), findsNothing);
+    });
+
+    testWidgets('on demand, nothing is sent before the button is tapped', (
+      tester,
+    ) async {
+      var searches = 0;
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (b, {onStep}) {
+          searches++;
+          return foundOnSite(b);
+        },
+      );
+      expect(searches, 0);
+      expect(find.text('The site will see the book'), findsOneWidget);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.autofocus, isFalse, reason: 'no keyboard over the button');
+
+      await tester.tap(find.text('Search on gallimard.fr'));
+      await tester.pumpAndSettle();
+      expect(searches, 1);
+      expect(find.text('Found on gallimard.fr'), findsOneWidget);
+
+      // A first cover found there: the automatic search is offered once.
+      // Under the preview: scrolled to, as a user would.
+      await tester.ensureVisible(find.text('Yes, automatically'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Yes, automatically'));
+      await tester.pumpAndSettle();
+      expect(
+        opened.settings.publisherCoverSearch,
+        PublisherCoverSearch.automatic,
+      );
+      expect(find.text('Search automatically?'), findsNothing);
+    });
+
+    testWidgets('the offer declined leaves the search on demand', (
+      tester,
+    ) async {
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        findOnPublisherSite: (b, {onStep}) => foundOnSite(b),
+      );
+      await tester.tap(find.text('Search on gallimard.fr'));
+      await tester.pumpAndSettle();
+      // Under the preview: scrolled to, as a user would.
+      await tester.ensureVisible(find.text('No, on demand'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('No, on demand'));
+      await tester.pumpAndSettle();
+      expect(
+        opened.settings.publisherCoverSearch,
+        PublisherCoverSearch.onDemand,
+      );
+      expect(opened.settings.publisherCoverAutoOffered, isTrue);
+      expect(find.text('Search automatically?'), findsNothing);
+    });
+
+    testWidgets('a setting already chosen is not offered again', (
+      tester,
+    ) async {
+      await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.onDemand,
+        findOnPublisherSite: (b, {onStep}) => foundOnSite(b),
+      );
+      await tester.tap(find.text('Search on gallimard.fr'));
+      await tester.pumpAndSettle();
+      expect(find.text('Found on gallimard.fr'), findsOneWidget);
+      expect(find.text('Search automatically?'), findsNothing);
+    });
+
+    testWidgets('no button when the table knows no site', (tester) async {
+      await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.automatic,
+        siteFor: (_) async => null,
+      );
+      expect(find.textContaining('Search on'), findsNothing);
+      expect(find.text("Looking on the publisher's site"), findsNothing);
+      expect(find.byType(TextField), findsOneWidget);
+    });
+
+    testWidgets('never: no button, and the table is not even read', (
+      tester,
+    ) async {
+      var asked = 0;
+      await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.never,
+        siteFor: (_) async {
+          asked++;
+          return 'gallimard.fr';
+        },
+      );
+      expect(asked, 0);
+      expect(find.textContaining('Search on'), findsNothing);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.autofocus, isTrue, reason: 'the address is the only way');
+    });
+
+    testWidgets('a book with a cover is never looked up on its own', (
+      tester,
+    ) async {
+      var searches = 0;
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.automatic,
+        currentCoverUrl: '/covers/current.jpg',
+        findOnPublisherSite: (b, {onStep}) {
+          searches++;
+          return foundOnSite(b);
+        },
+      );
+      expect(searches, 0);
+
+      // The button stays, and the preview sets the two covers side by side.
+      await tester.tap(find.text('Search on gallimard.fr'));
+      await tester.pumpAndSettle();
+      expect(searches, 1);
+      expect(find.text('Current cover'), findsOneWidget);
+      expect(find.text('New cover'), findsOneWidget);
+      expect(find.bySemanticsLabel('Current cover'), findsOneWidget);
+      expect(find.text('Use this cover'), findsNothing);
+      expect(find.text('Cancel'), findsNothing);
+
+      await tester.tap(find.text('Keep the current one'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single, isNull);
+      expect(opened.discarded, ['/covers/temp_1.jpg']);
+    });
+
+    testWidgets('the cover found replaces the current one on Replace', (
+      tester,
+    ) async {
+      final opened = await openDialog(
+        tester,
+        found,
+        currentCoverUrl: '/covers/current.jpg',
+      );
+      await fetchAddress(tester);
+      await tester.tap(find.text('Replace'));
+      await tester.pumpAndSettle();
+      expect(opened.results.single!.imageUrl, page.first);
+    });
+
+    testWidgets('an address that wins drops the search and its steps', (
+      tester,
+    ) async {
+      final pending = Completer<FoundPublisherCover>();
+      late void Function(PublisherLookupStep) step;
+      await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.automatic,
+        findOnPublisherSite: (_, {onStep}) {
+          step = onStep!;
+          return pending.future;
+        },
+        fetchPublisherImage: (url, {onStep, abandoned}) async =>
+            (bytes: Uint8List(4), imageUrl: url, candidates: <String>[]),
+        settle: false,
+      );
+      await fetchAddress(tester);
+      expect(find.text("Looking on the publisher's site"), findsNothing);
+
+      // A step the search still says is not shown under the preview.
+      step(
+        const PublisherLookupStep(
+          kind: 'waiting',
+          site: 'gallimard.fr',
+          seconds: 10,
+        ),
+      );
+      await tester.pump();
+      expect(find.textContaining('asks to wait'), findsNothing);
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('a next image stops when the dialog is left', (tester) async {
+      Future<void>? stopped;
+      final opened = await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.automatic,
+        findOnPublisherSite: (b, {onStep}) => foundOnSite(b),
+        fetchPublisherImage: (url, {onStep, abandoned}) {
+          stopped = abandoned;
+          return Completer<FetchedWebCover>().future;
+        },
+      );
+      await tester.tap(find.text('Next image'));
+      await tester.pump();
+      var heard = false;
+      stopped!.then((_) => heard = true);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(heard, isTrue);
+      expect(opened.results.single, isNull);
     });
   });
 }

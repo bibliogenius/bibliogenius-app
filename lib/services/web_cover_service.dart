@@ -90,6 +90,31 @@ class PublisherCoverException implements Exception {
   String toString() => 'PublisherCoverException($code)';
 }
 
+/// When the Web cover dialog looks for the cover on the book's publisher's
+/// site. The search sends the publisher the book looked up: by default it
+/// starts only when the user taps its button, and that tap is the consent.
+enum PublisherCoverSearch {
+  /// A button names the site; nothing is sent until it is tapped.
+  onDemand('on_demand'),
+
+  /// As the dialog opens, for a book without a cover; on demand otherwise.
+  automatic('automatic'),
+
+  /// No button, no search.
+  never('never');
+
+  const PublisherCoverSearch(this.prefValue);
+
+  /// How the choice is stored, and the suffix of its i18n keys.
+  final String prefValue;
+
+  /// The stored choice; [onDemand] for none or an unknown one.
+  static PublisherCoverSearch fromPref(String? value) => values.firstWhere(
+    (mode) => mode.prefValue == value,
+    orElse: () => onDemand,
+  );
+}
+
 /// What the engine needs to find a book's page on its publisher's site.
 typedef PublisherBook = ({
   String isbn,
@@ -172,6 +197,10 @@ class PublisherLookupStep {
   String toString() => 'PublisherLookupStep($kind, $site)';
 }
 
+/// The site a search for the book would look on first, from the engine's
+/// table alone (no request), or null when it knows none.
+typedef PublisherSiteNamer = Future<String?> Function(PublisherBook book);
+
 typedef PublisherCoverFinder =
     Future<FoundPublisherCover> Function(
       PublisherBook book, {
@@ -251,11 +280,13 @@ typedef WebCoverFetcher =
     Future<FetchedWebCover> Function(String url, {String? isbn});
 typedef WebCoverImageFetcher = Future<FetchedWebCover> Function(String url);
 
-/// Fetches one of a publisher cover's other images, telling the steps.
+/// Fetches one of a publisher cover's other images, telling the steps. Once
+/// [abandoned] completes, the fetch stops and throws `network`.
 typedef PublisherImageFetcher =
     Future<FetchedWebCover> Function(
       String url, {
       void Function(PublisherLookupStep step)? onStep,
+      Future<void>? abandoned,
     });
 typedef WebCoverSaver = Future<String> Function(Uint8List bytes);
 typedef WebCoverDiscarder = Future<void> Function(String path);
@@ -279,6 +310,7 @@ class WebCoverService {
   final WebCoverOriginRecorder _recordOrigin;
   final PublisherCoverFinder _findOnPublisherSite;
   final PublisherImageFetcher _fetchPublisherImage;
+  final PublisherSiteNamer _siteFor;
 
   WebCoverService({
     WebCoverFetcher? fetch,
@@ -289,6 +321,7 @@ class WebCoverService {
     WebCoverOriginRecorder? recordOrigin,
     PublisherCoverFinder? findOnPublisherSite,
     PublisherImageFetcher? fetchPublisherImage,
+    PublisherSiteNamer? siteFor,
   }) : _fetch = fetch ?? _fetchViaFfi,
        _fetchImage = fetchImage ?? _fetchImageViaFfi,
        _save = save ?? _saveCapped,
@@ -296,15 +329,21 @@ class WebCoverService {
        _rename = rename ?? CoverCameraHelper.renameTempCover,
        _recordOrigin = recordOrigin ?? _recordOriginViaFfi,
        _findOnPublisherSite = findOnPublisherSite ?? _findViaFfi,
-       _fetchPublisherImage = fetchPublisherImage ?? _fetchPublisherImageViaFfi;
+       _fetchPublisherImage = fetchPublisherImage ?? _fetchPublisherImageViaFfi,
+       _siteFor = siteFor ?? _siteForViaFfi;
+
+  static Future<String?> _siteForViaFfi(PublisherBook book) =>
+      FfiService().publisherSiteFor(isbn: book.isbn, publisher: book.publisher);
 
   static Future<FetchedWebCover> _fetchPublisherImageViaFfi(
     String url, {
     void Function(PublisherLookupStep step)? onStep,
+    Future<void>? abandoned,
   }) async {
     final cover = await _outcomeOf(
       FfiService().fetchPublisherCoverImage(url),
       onStep ?? (_) {},
+      abandoned: abandoned,
     );
     return (
       bytes: cover.bytes,
@@ -459,6 +498,32 @@ class WebCoverService {
     );
   }
 
+  /// The site a search for [book] would look on first (`gallimard.fr`), read
+  /// from the engine's table with no request, for the button that starts the
+  /// search to name it. Null when the table knows none, the ISBN is not
+  /// valid, or the engine cannot say.
+  Future<String?> publisherSite(PublisherBook book) async {
+    if (!IsbnValidator.isValid(book.isbn)) return null;
+    try {
+      final site = await _siteFor(_trimmed(book));
+      return site == null || site.isEmpty ? null : site;
+    } catch (e) {
+      debugPrint('[WEB-COVER] publisher site unknown: $e');
+      return null;
+    }
+  }
+
+  /// [book] as the engine is given it: fields trimmed, no empty publisher.
+  static PublisherBook _trimmed(PublisherBook book) {
+    final publisher = book.publisher?.trim();
+    return (
+      isbn: book.isbn.trim(),
+      title: book.title.trim(),
+      authors: book.authors.trim(),
+      publisher: publisher == null || publisher.isEmpty ? null : publisher,
+    );
+  }
+
   /// Look for [book]'s cover on its publisher's site (the engine finds the
   /// book's page from its ISBN, and takes it only if the page states it), and
   /// save it under a temp name. When the image found is one the app cannot
@@ -466,20 +531,20 @@ class WebCoverService {
   /// lookup's rules. Throws [PublisherCoverException], whatever went wrong:
   /// no image the app can keep counts as no usable cover.
   ///
-  /// [onStep] hears what the search is doing.
+  /// [onStep] hears what the search is doing. Once [abandoned] completes
+  /// (the dialog closed, an address won), the next images are no longer
+  /// tried: the search itself stops when no dialog hears its steps any more
+  /// ([stopHearingSteps]).
   Future<WebCoverPick> findOnPublisherSiteAndSave(
     PublisherBook book, {
     void Function(PublisherLookupStep step)? onStep,
+    Future<void>? abandoned,
   }) async {
-    final publisher = book.publisher?.trim();
+    var gone = false;
+    abandoned?.then((_) => gone = true);
     final FoundPublisherCover found;
     try {
-      found = await _findOnPublisherSite((
-        isbn: book.isbn.trim(),
-        title: book.title.trim(),
-        authors: book.authors.trim(),
-        publisher: publisher == null || publisher.isEmpty ? null : publisher,
-      ), onStep: onStep);
+      found = await _findOnPublisherSite(_trimmed(book), onStep: onStep);
     } on String catch (code) {
       throw PublisherCoverException(code);
     } catch (e) {
@@ -505,12 +570,14 @@ class WebCoverService {
     }
     final next = found.candidates.indexOf(found.imageUrl) + 1;
     for (final url in found.candidates.skip(next)) {
+      if (gone) break;
       try {
         return picked(
           await fetchCandidateAndSave(
             url,
             fromPublisherSite: true,
             onStep: onStep,
+            abandoned: abandoned,
           ),
         );
       } on WebCoverException catch (e) {
@@ -525,15 +592,17 @@ class WebCoverService {
   /// found on a publisher's site ([fromPublisherSite]) go through the
   /// engine's lookup rules: robots.txt, the pause between two requests to a
   /// host, the site's Crawl-delay, which can take as long as the search:
-  /// [onStep] hears its steps. Throws [WebCoverException].
+  /// [onStep] hears its steps, and [abandoned] completing stops it. Throws
+  /// [WebCoverException].
   Future<WebCoverPick> fetchCandidateAndSave(
     String imageUrl, {
     bool fromPublisherSite = false,
     void Function(PublisherLookupStep step)? onStep,
+    Future<void>? abandoned,
   }) async => _saveFetched(
     await _guard(
       () => fromPublisherSite
-          ? _fetchPublisherImage(imageUrl, onStep: onStep)
+          ? _fetchPublisherImage(imageUrl, onStep: onStep, abandoned: abandoned)
           : _fetchImage(imageUrl),
     ),
   );
