@@ -457,6 +457,30 @@ void main() {
       expect(prefs.getString('hub_local_location_city_country'), 'FR');
     });
 
+    test('does not adopt a city that was published without consent', () async {
+      // A city reached the hub while sharing was off (the snapshot records
+      // the push), then the user cleared it on the device. The hub copy is
+      // no evidence of consent: adopting it would switch sharing on.
+      final (:provider, :ffi) = await _setup(
+        cities: {_kParis: _city(id: _kParis, country: 'FR')},
+        existingConfig: _config(),
+        ownProfile: _hubProfile(cityId: _kParis, country: 'FR'),
+        prefs: const {
+          'hub_last_pushed_location_city_id': _kParis,
+          'hub_last_pushed_location_city_country': 'FR',
+        },
+      );
+      await provider.loadConfig();
+      await provider.loadShareCity();
+      await provider.loadLocalCityId();
+
+      final adopted = await provider.adoptHubCityIfLocalEmpty();
+
+      expect(adopted, isFalse);
+      expect(provider.localCityId, isNull);
+      expect(provider.isShareCityEnabled, isFalse);
+    });
+
     test('never overwrites a city already picked on this device', () async {
       final (:provider, :ffi) = await _setup(
         prefs: const {

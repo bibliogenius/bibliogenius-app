@@ -323,6 +323,7 @@ void main() {
         prefs: const {
           'hub_pending_location_city_id': '2988507',
           'hub_pending_location_city_country': 'FR',
+          'hub_share_city': true,
         },
       );
       ffi.registerParamsLog.clear();
@@ -350,7 +351,10 @@ void main() {
           existingConfig: _config(),
           cities: {2988507: _city(id: 2988507, country: 'FR')},
           // legacy format: only the city key, no country key
-          prefs: const {'hub_pending_location_city_id': '2988507'},
+          prefs: const {
+            'hub_pending_location_city_id': '2988507',
+            'hub_share_city': true,
+          },
         );
         ffi.registerParamsLog.clear();
 
@@ -368,6 +372,32 @@ void main() {
         );
       },
     );
+
+    test('a pending city is sent as a clear once sharing is off', () async {
+      // The pick failed to reach the hub, then the user left the
+      // directory: that flow turns sharing off without touching pending.
+      final (:provider, :ffi) = await _setup(
+        existingConfig: _config(nodeId: 'me-self'),
+        cities: {2988507: _city(id: 2988507, country: 'FR')},
+        prefs: const {
+          'hub_local_location_city_id': 2988507,
+          'hub_pending_location_city_id': '2988507',
+          'hub_pending_location_city_country': 'FR',
+          'hub_share_city': false,
+        },
+      );
+      ffi.registerParamsLog.clear();
+
+      await provider.initAndSyncCatalog();
+
+      expect(
+        ffi.registerParamsLog.where((p) => p.locationCityId != null),
+        isEmpty,
+      );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('hub_pending_location_city_id'), isNull);
+      expect(prefs.getInt('hub_last_pushed_location_city_id'), isNull);
+    });
 
     test('successful push clears both pending keys', () async {
       final (:provider, :ffi) = await _setup(existingConfig: _config());
@@ -413,7 +443,10 @@ void main() {
         final (:provider, :ffi) = await _setup(
           existingConfig: _config(nodeId: 'me-self'),
           cities: {2988507: _city(id: 2988507, country: 'FR')},
-          prefs: const {'hub_local_location_city_id': 2988507},
+          prefs: const {
+            'hub_local_location_city_id': 2988507,
+            'hub_share_city': true,
+          },
           // no last-pushed snapshot: legacy install that registered city
           // without country before this fix shipped
         );
@@ -487,6 +520,7 @@ void main() {
         cities: {2988507: _city(id: 2988507, country: 'FR')},
         prefs: const {
           'hub_local_location_city_id': 2988507,
+          'hub_share_city': true,
           'hub_last_pushed_location_city_id': 2988507,
           'hub_last_pushed_location_city_country': 'FR',
         },
@@ -516,7 +550,10 @@ void main() {
         final (:provider, :ffi) = await _setup(
           existingConfig: _config(),
           // city in prefs but no country file loaded, no local hint either
-          prefs: const {'hub_local_location_city_id': 2988507},
+          prefs: const {
+            'hub_local_location_city_id': 2988507,
+            'hub_share_city': true,
+          },
           cities: const {},
         );
         await provider.loadConfig();
@@ -534,6 +571,125 @@ void main() {
               'cross-cutting register paths still re-assert their best '
               'effort, but the remediation itself stays silent.',
         );
+      },
+    );
+
+    test(
+      'shared city pushed without its country is re-pushed with the pair',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(nodeId: 'me-self'),
+          cities: {2988507: _city(id: 2988507, country: 'FR')},
+          prefs: const {
+            'hub_local_location_city_id': 2988507,
+            'hub_share_city': true,
+            // Pushed before the country travelled along with the city.
+            'hub_last_pushed_location_city_id': 2988507,
+          },
+        );
+        await provider.loadConfig();
+        await provider.loadLocalCityId();
+        ffi.registerParamsLog.clear();
+
+        final pushed = await provider.ensureLocationCityCountryConsistency();
+
+        expect(pushed, isTrue);
+        expect(ffi.registerParamsLog.single.locationCityId, 2988507);
+        expect(ffi.registerParamsLog.single.locationCountry, 'FR');
+      },
+    );
+
+    test('a city kept local is never published on cold start', () async {
+      final (:provider, :ffi) = await _setup(
+        existingConfig: _config(nodeId: 'me-self'),
+        cities: {2988507: _city(id: 2988507, country: 'FR')},
+        prefs: const {
+          'hub_local_location_city_id': 2988507,
+          'hub_local_location_city_country': 'FR',
+          // hub_share_city absent: the user never opted in.
+        },
+      );
+      ffi.registerParamsLog.clear();
+
+      await provider.initAndSyncCatalog();
+
+      expect(
+        ffi.registerParamsLog.where((p) => p.locationCityId != null),
+        isEmpty,
+        reason:
+            'hub_share_city is the only authorisation to copy the city to '
+            'the hub (ADR-035 section 3): the remediation must not bypass it',
+      );
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('hub_last_pushed_location_city_id'), isNull);
+    });
+
+    test('withdrawing the city is not undone by the next cold start', () async {
+      final (:provider, :ffi) = await _setup(
+        existingConfig: _config(nodeId: 'me-self'),
+        cities: {2988507: _city(id: 2988507, country: 'FR')},
+        prefs: const {
+          'hub_local_location_city_id': 2988507,
+          'hub_local_location_city_country': 'FR',
+          'hub_share_city': true,
+          'hub_last_pushed_location_city_id': 2988507,
+          'hub_last_pushed_location_city_country': 'FR',
+        },
+      );
+      await provider.loadConfig();
+      await provider.loadLocalCityId();
+      // Same sequence as the settings toggle when switched off.
+      await provider.setShareCity(false);
+      await provider.syncLocationCityId(null);
+
+      // Next cold start: a fresh provider over the same storage.
+      final restarted = HubDirectoryProvider(
+        ffi: ffi,
+        deviceService: _MockDeviceService(),
+        lookupCity: _lookup({2988507: _city(id: 2988507, country: 'FR')}),
+      );
+      ffi.registerParamsLog.clear();
+
+      await restarted.initAndSyncCatalog();
+
+      expect(
+        ffi.registerParamsLog.where((p) => p.locationCityId != null),
+        isEmpty,
+      );
+    });
+
+    test(
+      'a city published without consent is withdrawn once, then left alone',
+      () async {
+        final (:provider, :ffi) = await _setup(
+          existingConfig: _config(nodeId: 'me-self'),
+          cities: {2988507: _city(id: 2988507, country: 'FR')},
+          prefs: const {
+            'hub_local_location_city_id': 2988507,
+            'hub_local_location_city_country': 'FR',
+            // An earlier remediation pushed the city without consent and
+            // recorded the snapshot.
+            'hub_last_pushed_location_city_id': 2988507,
+            'hub_last_pushed_location_city_country': 'FR',
+          },
+        );
+        await provider.loadConfig();
+        await provider.loadLocalCityId();
+        ffi.registerParamsLog.clear();
+
+        final first = await provider.ensureLocationCityCountryConsistency();
+
+        expect(first, isTrue);
+        expect(ffi.registerParamsLog.single.locationCityId, isNull);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getInt('hub_last_pushed_location_city_id'), isNull);
+        expect(prefs.getInt('hub_local_location_city_id'), 2988507);
+
+        ffi.registerParamsLog.clear();
+        final second = await provider.ensureLocationCityCountryConsistency();
+
+        expect(second, isFalse);
+        expect(ffi.registerParamsLog, isEmpty);
       },
     );
 

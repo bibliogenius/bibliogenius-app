@@ -318,7 +318,11 @@ void main() {
       () async {
         final (provider, ffi) = await _createProvider(
           existingConfig: _config(nodeId: 'node-uuid-1'),
-          prefs: const {'hub_pending_location_city_id': '2988507'},
+          // A city is only queued while sharing is on.
+          prefs: const {
+            'hub_pending_location_city_id': '2988507',
+            'hub_share_city': true,
+          },
         );
         ffi.registerCallCount = 0;
         ffi.registerParamsLog.clear();

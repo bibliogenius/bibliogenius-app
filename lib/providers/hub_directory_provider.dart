@@ -452,6 +452,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// profile may still appear publicly with country-only granularity.
   bool get isShareCityEnabled => _shareCity;
 
+  /// The only authorisation to copy the city to the hub (ADR-035 section 3).
+  /// Every path that may send a city reads it here, from storage rather than
+  /// from [_shareCity]: some register() paths run before [loadShareCity].
+  static bool _cityShareConsented(SharedPreferences prefs) =>
+      prefs.getBool(_kShareCityKey) ?? false;
+
   /// Load the share-city toggle from SharedPreferences. Call at app start.
   Future<void> loadShareCity() async {
     final prefs = await SharedPreferences.getInstance();
@@ -1346,7 +1352,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       return (cityId: null, country: null);
     }
     final prefs = await SharedPreferences.getInstance();
-    if (!(prefs.getBool(_kShareCityKey) ?? false)) {
+    if (!_cityShareConsented(prefs)) {
       return (cityId: null, country: null);
     }
     // Deliberately NOT also gated on [isListed]. It reads as a free extra
@@ -1386,6 +1392,13 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (_localCityId != null) return false;
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(_kCityBackfillProbedKey) ?? false) return false;
+    // Sharing off while the snapshot records a city push means that city
+    // reached the hub without consent: its presence there proves nothing, and
+    // adopting it would switch sharing on. The remediation pass clears it.
+    if (!_cityShareConsented(prefs) &&
+        prefs.getInt(_kLastPushedLocationCityIdKey) != null) {
+      return false;
+    }
     // A deferred clear that has not reached the hub yet leaves the local
     // value empty while the profile still carries the old city. Adopting it
     // back would resurrect exactly what the user asked to remove.
@@ -1599,15 +1612,22 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (_config == null) return;
     final pending = await _getPendingLocationCityId();
     if (!pending.hasPending) return;
-    final country = await _resolveCityCountry(pending.cityId, pending.country);
+    // Sharing may have been switched off since the city was queued (leaving
+    // the directory does not touch the pending key): replay it as a clear so
+    // a cold start never publishes a city the user no longer shares.
+    final prefs = await SharedPreferences.getInstance();
+    final cityId = _cityShareConsented(prefs) ? pending.cityId : null;
+    final country = cityId == null
+        ? null
+        : await _resolveCityCountry(cityId, pending.country);
     debugPrint(
       'HubDirectory: replaying pending locationCityId '
-      '${pending.cityId ?? "<clear>"} country=${country ?? "<unknown>"}',
+      '${cityId ?? "<clear>"} country=${country ?? "<unknown>"}',
     );
-    final ok = await _pushLocationCityId(pending.cityId, country: country);
+    final ok = await _pushLocationCityId(cityId, country: country);
     if (ok) {
       await _clearPendingLocationCityId();
-      await _recordLastPushedLocationCity(pending.cityId, country);
+      await _recordLastPushedLocationCity(cityId, country);
     }
   }
 
@@ -1642,6 +1662,13 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// - the snapshot already matches local state.
   /// Idempotent: subsequent cold starts find the snapshot aligned and
   /// short-circuit before any hub call.
+  ///
+  /// Gated on [_cityShareConsented]: this pass runs on every cold start with
+  /// no user gesture, so it must never publish a city the user keeps local
+  /// (ADR-035 section 3). When sharing is off but a snapshot says a city was
+  /// pushed, the hub copy is cleared once and the snapshot dropped, so later
+  /// cold starts make no call.
+  ///
   /// Returns true when a remediation push was actually attempted (drift
   /// detected). Visible for tests so the unit suite can assert "skipped"
   /// vs "pushed" precisely - just counting register calls is no longer
@@ -1650,9 +1677,16 @@ class HubDirectoryProvider extends ChangeNotifier {
   @visibleForTesting
   Future<bool> ensureLocationCityCountryConsistency() async {
     if (_config == null) return false;
+    final prefs = await SharedPreferences.getInstance();
+    if (!_cityShareConsented(prefs)) {
+      if (prefs.getInt(_kLastPushedLocationCityIdKey) == null) return false;
+      debugPrint('HubDirectory: location remediation: clearing unshared city');
+      final ok = await _pushLocationCityId(null);
+      if (ok) await _recordLastPushedLocationCity(null, null);
+      return true;
+    }
     final cityId = _localCityId;
     if (cityId == null) return false;
-    final prefs = await SharedPreferences.getInstance();
     final hint = prefs.getString(_kLocalLocationCityCountryKey);
     final country = await _resolveCityCountry(cityId, hint);
     if (country == null) {
