@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/services/backup_prefs_whitelist.dart';
 import 'package:bibliogenius/services/shelf_id_set_store.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +29,26 @@ void main() {
       isFalse,
       reason: 'non-whitelisted keys must not leak into the archive',
     );
+  });
+
+  test('the publisher site search choice stays on the device', () {
+    // Asking a publisher's site about a book is a consent given on this
+    // device, like sharing the city: a restored archive must not carry it.
+    expect(
+      kBackupPrefsBlacklist,
+      contains(ThemeProvider.publisherCoverSearchPrefKey),
+    );
+    expect(
+      kBackupPrefsBlacklist,
+      contains(ThemeProvider.publisherCoverAutoOfferedPrefKey),
+    );
+
+    const stored = <String, Object?>{
+      ThemeProvider.publisherCoverSearchPrefKey: 'automatic',
+      ThemeProvider.publisherCoverAutoOfferedPrefKey: true,
+    };
+    final json = exportWhitelistedPrefs((k) => stored[k]);
+    expect(json.contains('publisherCover'), isFalse);
   });
 
   test('the local city round-trips, the sharing consent does not', () {
@@ -93,7 +114,10 @@ void main() {
   test('a list under a string key is ignored on restore', () async {
     // Restored as a list, the theme would make its reader throw at every
     // launch.
-    final target = await restore({'themeStyle': ['dark'], 'country': 'FR'});
+    final target = await restore({
+      'themeStyle': ['dark'],
+      'country': 'FR',
+    });
     expect(target.get('themeStyle'), isNull);
     expect(target.getString('country'), 'FR');
   });

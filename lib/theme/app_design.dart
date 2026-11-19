@@ -134,6 +134,36 @@ class AppDesign {
           splash: Colors.black.withValues(alpha: 0.04),
         );
 
+  /// A side question inside a dialog (an offer, a preference asked once):
+  /// the dialog's ground washed with the accent, edged by a firmer line of
+  /// it, so it stands apart where a surface container sat within a shade of
+  /// the dialog. [ink] is for its answers: the theme's flat-button ink,
+  /// darkened on a light wash where it would drop under 4.5:1 (the default
+  /// theme's ink is calibrated on the page, not on a tinted dialog). Text on
+  /// it stays `onSurface`. Checked by
+  /// `test/widgets/question_panel_contrast_test.dart`.
+  static ({Color ground, Color edge, Color ink}) questionPanel(
+    ThemeData theme,
+  ) {
+    final scheme = theme.colorScheme;
+    final dark = scheme.brightness == Brightness.dark;
+    // Material 3's dialog ground unless the theme sets one.
+    final dialog =
+        theme.dialogTheme.backgroundColor ?? scheme.surfaceContainerHigh;
+    final ground = Color.alphaBlend(
+      scheme.primary.withValues(alpha: dark ? 0.14 : 0.07),
+      dialog,
+    );
+    final themeInk =
+        theme.textButtonTheme.style?.foregroundColor?.resolve(const {}) ??
+        scheme.primary;
+    return (
+      ground: ground,
+      edge: scheme.primary.withValues(alpha: 0.45),
+      ink: dark ? themeInk : inkOn(ground, themeInk),
+    );
+  }
+
   AppDesign._();
 
   // ═══════════════════════════════════════════════════════════════════════════

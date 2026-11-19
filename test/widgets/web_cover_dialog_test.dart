@@ -69,6 +69,7 @@ void main() {
       List<WebCoverPick?> results,
       List<String> discarded,
       ThemeProvider settings,
+      _StepsHeardService service,
     })
   >
   openDialog(
@@ -87,7 +88,7 @@ void main() {
     final results = <WebCoverPick?>[];
     final discarded = <String>[];
     var saves = 0;
-    final service = WebCoverService(
+    final service = _StepsHeardService(
       fetch: fetch,
       fetchImage:
           fetchImage ??
@@ -136,7 +137,12 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 500));
     }
-    return (results: results, discarded: discarded, settings: settings);
+    return (
+      results: results,
+      discarded: discarded,
+      settings: settings,
+      service: service,
+    );
   }
 
   Future<void> fetchAddress(WidgetTester tester) async {
@@ -868,7 +874,7 @@ void main() {
     ) async {
       final pending = Completer<FoundPublisherCover>();
       late void Function(PublisherLookupStep) step;
-      await openDialog(
+      final opened = await openDialog(
         tester,
         found,
         book: book,
@@ -883,6 +889,9 @@ void main() {
       );
       await fetchAddress(tester);
       expect(find.text("Looking on the publisher's site"), findsNothing);
+      // The dialog is still open: only the address winning stopped hearing
+      // the search, which lets it end once nobody else listens.
+      expect(opened.service.stopsHeard, 1);
 
       // A step the search still says is not shown under the preview.
       step(
@@ -921,4 +930,27 @@ void main() {
       expect(opened.results.single, isNull);
     });
   });
+}
+
+/// Counts the dialog telling the service it no longer hears a search: the
+/// search runs in the service, shared by every dialog on the same book, and
+/// only stops once none of them listens.
+class _StepsHeardService extends WebCoverService {
+  _StepsHeardService({
+    super.fetch,
+    super.fetchImage,
+    super.save,
+    super.discard,
+    super.findOnPublisherSite,
+    super.fetchPublisherImage,
+    super.siteFor,
+  });
+
+  int stopsHeard = 0;
+
+  @override
+  void stopHearingSteps(void Function(PublisherLookupStep step) listener) {
+    stopsHeard++;
+    super.stopHearingSteps(listener);
+  }
 }

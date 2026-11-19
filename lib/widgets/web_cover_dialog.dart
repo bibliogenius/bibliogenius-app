@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/translation_service.dart';
 import '../services/web_cover_service.dart';
+import '../theme/app_design.dart';
 import '../utils/isbn_validator.dart';
 import 'cached_book_cover.dart';
 
@@ -504,6 +505,10 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
       content: preview == null
           ? _buildAddressForm(t)
           : _buildPreview(preview, t),
+      // Only the decision lives here: the image tools sit by the preview.
+      // Stacked on a phone, the main action goes on top, apart.
+      actionsOverflowDirection: VerticalDirection.up,
+      actionsOverflowButtonSpacing: AppDesign.spacingSm,
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
@@ -520,28 +525,13 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             onPressed: _loading ? null : _fetch,
             child: Text(t('web_cover_dialog_fetch')),
           )
-        else ...[
-          TextButton(
-            onPressed: _loading ? null : _tryAnother,
-            child: Text(t('web_cover_try_another')),
-          ),
-          if (_hasPreviousImage)
-            TextButton(
-              onPressed: _loading ? null : _previousImage,
-              child: Text(t('web_cover_previous_image')),
-            ),
-          if (_hasNextImage)
-            TextButton(
-              onPressed: _loading ? null : _nextImage,
-              child: Text(t('web_cover_next_image')),
-            ),
+        else
           FilledButton(
             onPressed: _loading ? null : _keep,
             child: Text(
               t(_hasCurrentCover ? 'web_cover_replace' : 'web_cover_use'),
             ),
           ),
-        ],
       ],
     );
   }
@@ -585,12 +575,14 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             ),
           ),
           const SizedBox(height: 8),
-        ] else ...[
-          if (_publisherErrorKey != null) ...[
-            Semantics(liveRegion: true, child: Text(t(_publisherErrorKey!))),
-            const SizedBox(height: 12),
-          ],
+        ] else if (_site != null || _publisherErrorKey != null) ...[
           if (_site != null) ..._buildSearchButton(),
+          // The search's outcome comes after the button that started it.
+          if (_publisherErrorKey != null) ...[
+            if (_site != null) const SizedBox(height: 8),
+            Semantics(liveRegion: true, child: Text(t(_publisherErrorKey!))),
+          ],
+          const SizedBox(height: 24),
         ],
         Text(t('web_cover_dialog_help')),
         const SizedBox(height: 12),
@@ -626,10 +618,16 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
     );
   }
 
-  /// The button that starts the search on the publisher's site, and what
-  /// tapping it sends.
+  /// The button that starts the search on the publisher's site, after what
+  /// tapping it sends: the tap is the consent, so screen readers too hear
+  /// the notice before they reach the button.
   List<Widget> _buildSearchButton() {
     return [
+      Text(
+        TranslationService.translate(context, 'publisher_cover_search_notice'),
+        style: Theme.of(context).textTheme.bodySmall,
+      ),
+      const SizedBox(height: 4),
       SizedBox(
         width: double.infinity,
         child: FilledButton.tonalIcon(
@@ -644,12 +642,6 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
           ),
         ),
       ),
-      const SizedBox(height: 4),
-      Text(
-        TranslationService.translate(context, 'publisher_cover_search_notice'),
-        style: Theme.of(context).textTheme.bodySmall,
-      ),
-      const SizedBox(height: 16),
     ];
   }
 
@@ -717,7 +709,7 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
         else
           Center(child: found),
         if (_foundOnSite != null) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             TranslationService.translate(
               context,
@@ -725,8 +717,13 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
               params: {'site': _foundOnSite!},
             ),
             textAlign: TextAlign.center,
+            style: Theme.of(
+              context,
+            ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
           ),
         ],
+        const SizedBox(height: 4),
+        _buildImageTools(t),
         if (_loading) ...[
           const SizedBox(height: 16),
           Semantics(
@@ -744,6 +741,37 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
           ),
         ],
         if (_offersAutomatic) ..._buildOffer(t),
+      ],
+    );
+  }
+
+  /// What acts on the image shown rather than decides: stepping through the
+  /// page's images, or going back to the address. Kept by the preview, out
+  /// of the dialog's actions, so the decision there stands alone; the icons
+  /// tell these quiet buttons apart and are decorative (the label is said).
+  Widget _buildImageTools(String Function(String) t) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: AppDesign.spacingXs,
+      children: [
+        if (_hasPreviousImage)
+          TextButton.icon(
+            onPressed: _loading ? null : _previousImage,
+            icon: const Icon(Icons.chevron_left),
+            label: Text(t('web_cover_previous_image')),
+          ),
+        if (_hasNextImage)
+          TextButton.icon(
+            onPressed: _loading ? null : _nextImage,
+            icon: const Icon(Icons.chevron_right),
+            iconAlignment: IconAlignment.end,
+            label: Text(t('web_cover_next_image')),
+          ),
+        TextButton.icon(
+          onPressed: _loading ? null : _tryAnother,
+          icon: const Icon(Icons.link),
+          label: Text(t('web_cover_try_another')),
+        ),
       ],
     );
   }
@@ -767,31 +795,86 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
   }
 
   /// After a cover found on the publisher's site: whether to search there
-  /// as the dialog opens from now on, for books without a cover.
+  /// as the dialog opens from now on, for books without a cover. Set apart
+  /// in its own accent-washed panel, a question beside the choice of the
+  /// cover, and said to screen readers as it appears. Its answers are
+  /// outlined and text buttons, never filled: the dialog keeps one main
+  /// action, using the cover.
   List<Widget> _buildOffer(String Function(String) t) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final panel = AppDesign.questionPanel(theme);
     return [
-      const SizedBox(height: 16),
+      const SizedBox(height: AppDesign.spacingMd),
       Semantics(
         container: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t('publisher_cover_auto_offer')),
-            Wrap(
-              alignment: WrapAlignment.end,
-              spacing: 8,
-              children: [
-                TextButton(
-                  onPressed: () => _answerOffer(PublisherCoverSearch.onDemand),
-                  child: Text(t('publisher_cover_auto_offer_no')),
+        liveRegion: true,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(14, 14, 10, 6),
+          decoration: BoxDecoration(
+            color: panel.ground,
+            border: Border.all(color: panel.edge),
+            borderRadius: BorderRadius.circular(AppDesign.radiusMedium),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Marks the panel as a setting, not part of the cover
+                  // choice; the text says it all.
+                  Padding(
+                    padding: const EdgeInsets.only(top: 1),
+                    child: Icon(
+                      Icons.settings_suggest_outlined,
+                      size: 20,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(end: 4),
+                      child: Text(
+                        t('publisher_cover_auto_offer'),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppDesign.spacingSm),
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: AppDesign.spacingSm,
+                  children: [
+                    TextButton(
+                      onPressed: () =>
+                          _answerOffer(PublisherCoverSearch.onDemand),
+                      style: TextButton.styleFrom(foregroundColor: panel.ink),
+                      child: Text(t('publisher_cover_auto_offer_no')),
+                    ),
+                    OutlinedButton(
+                      onPressed: () =>
+                          _answerOffer(PublisherCoverSearch.automatic),
+                      // The theme's outline is a hairline on this wash.
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: panel.ink,
+                        side: BorderSide(color: panel.edge),
+                      ),
+                      child: Text(t('publisher_cover_auto_offer_yes')),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => _answerOffer(PublisherCoverSearch.automatic),
-                  child: Text(t('publisher_cover_auto_offer_yes')),
-                ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     ];
