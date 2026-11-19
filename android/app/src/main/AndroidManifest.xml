@@ -64,4 +64,11 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <!-- Play infers required hardware from the Wi-Fi permissions above and from
+         the portrait-locked document scanner activities of the scanner plugins.
+         Neither is essential: LAN discovery is optional, and the scanner runs
+         on any screen. Declared optional so the app stays installable on
+         devices without them (desktop, XR, Wi-Fi-less tablets). -->
+    <uses-feature android:name="android.hardware.wifi" android:required="false"/>
+    <uses-feature android:name="android.hardware.screen.portrait" android:required="false"/>
 </manifest>
