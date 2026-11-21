@@ -7737,6 +7737,10 @@ msgstr "Barra inferior"
 msgid "title_label"
 msgstr "Título *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "Use o formato “Título: Subtítulo” para adicionar um subtítulo"
+
 #. To
 msgid "to"
 msgstr "Para"

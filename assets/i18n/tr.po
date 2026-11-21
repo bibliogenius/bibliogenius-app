@@ -5705,6 +5705,10 @@ msgstr "Görünüm"
 msgid "title_label"
 msgstr "Başlık *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "Alt başlık eklemek için “Başlık: Alt başlık” biçimini kullanın"
+
 #. To
 msgid "to"
 msgstr "Kime"

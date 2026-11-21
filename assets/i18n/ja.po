@@ -5370,6 +5370,10 @@ msgstr "表示"
 msgid "title_label"
 msgstr "タイトル *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "サブタイトルを追加するには「タイトル: サブタイトル」の形式で入力してください"
+
 #. To
 msgid "to"
 msgstr "宛先"

@@ -906,6 +906,10 @@ class _AddBookScreenState extends State<AddBookScreen> {
               // Title
               _buildLabel(
                 TranslationService.translate(context, 'title_label'),
+                helperText: TranslationService.translate(
+                  context,
+                  'title_helper',
+                ),
                 icon: Icons.auto_stories,
               ),
               LayoutBuilder(

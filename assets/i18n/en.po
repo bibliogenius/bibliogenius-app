@@ -6895,6 +6895,10 @@ msgstr "Bottom bar"
 msgid "title_label"
 msgstr "Title *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "Use the format Title: Subtitle to add a subtitle"
+
 #. To
 msgid "to"
 msgstr "To"

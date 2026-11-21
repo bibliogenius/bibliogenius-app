@@ -5370,6 +5370,10 @@ msgstr "표시"
 msgid "title_label"
 msgstr "제목 *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "부제를 추가하려면 '제목: 부제' 형식을 사용하세요"
+
 #. To
 msgid "to"
 msgstr "받는 사람"

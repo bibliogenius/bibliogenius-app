@@ -6105,6 +6105,10 @@ msgstr "Untere Leiste"
 msgid "title_label"
 msgstr "Titel *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "Verwenden Sie das Format „Titel: Untertitel“, um einen Untertitel hinzuzufügen"
+
 #. To
 msgid "to"
 msgstr "An"

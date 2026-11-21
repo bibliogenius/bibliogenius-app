@@ -851,6 +851,10 @@ class _EditBookScreenState extends State<EditBookScreen> {
               // Title
               _buildLabel(
                 TranslationService.translate(context, 'title_label'),
+                helperText: TranslationService.translate(
+                  context,
+                  'title_helper',
+                ),
                 icon: Icons.auto_stories,
               ),
               TextFormField(

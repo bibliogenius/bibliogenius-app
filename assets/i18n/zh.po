@@ -5370,6 +5370,10 @@ msgstr "显示"
 msgid "title_label"
 msgstr "书名 *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "如需添加副标题，请使用“书名：副标题”格式"
+
 #. To
 msgid "to"
 msgstr "至"

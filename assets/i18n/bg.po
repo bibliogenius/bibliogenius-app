@@ -5652,6 +5652,10 @@ msgstr "Изглед"
 msgid "title_label"
 msgstr "Заглавие *"
 
+#. Helper under the title field: how to write a subtitle
+msgid "title_helper"
+msgstr "Използвайте формата „Заглавие: Подзаглавие“, за да добавите подзаглавие"
+
 #. To
 msgid "to"
 msgstr "До"
