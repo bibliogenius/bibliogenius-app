@@ -673,6 +673,28 @@ void main() {
       await tester.pumpAndSettle();
     });
 
+    testWidgets('the search is said to screen readers once', (tester) async {
+      final pending = Completer<FoundPublisherCover>();
+      await openDialog(
+        tester,
+        found,
+        book: book,
+        mode: PublisherCoverSearch.automatic,
+        findOnPublisherSite: (_, {onStep}) => pending.future,
+        settle: false,
+      );
+      await tester.pump();
+
+      // The live region says it; the progress bar under it says nothing more.
+      expect(
+        find.bySemanticsLabel("Looking on the publisher's site"),
+        findsOneWidget,
+      );
+
+      pending.complete(await foundOnSite(book));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('says what the next image of a publisher cover waits for', (
       tester,
     ) async {

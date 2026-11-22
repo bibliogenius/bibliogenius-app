@@ -550,9 +550,8 @@ class _WebCoverDialogState extends State<WebCoverDialog> {
             ),
           ),
           const SizedBox(height: 8),
-          LinearProgressIndicator(
-            semanticsLabel: t('publisher_cover_searching'),
-          ),
+          // The live region above says it: a label here would say it twice.
+          const ExcludeSemantics(child: LinearProgressIndicator()),
           ..._buildStep(),
           const SizedBox(height: 16),
         ] else if (_setAside != null) ...[
