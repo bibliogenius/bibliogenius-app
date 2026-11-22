@@ -77,20 +77,29 @@ class SettingsStepSlider extends StatelessWidget {
                     enabledThumbRadius: 8,
                   ),
                 ),
-                child: Slider(
-                  value: index.toDouble(),
-                  min: 0,
-                  max: (stepCount - 1).toDouble(),
-                  divisions: stepCount - 1,
-                  activeColor: theme.colorScheme.primary,
-                  semanticFormatterCallback: (value) =>
-                      valueLabel(value.round()),
-                  onChanged: (value) {
-                    final step = value.round();
-                    if (step == index) return;
-                    HapticFeedback.lightImpact();
-                    onChanged(step);
-                  },
+                // The title above is a separate node: without this label a
+                // screen reader announces the step ("Large, slider") but not
+                // the setting it changes. Merged, so the label and the
+                // slider are one node and not two stops.
+                child: MergeSemantics(
+                  child: Semantics(
+                    label: title,
+                    child: Slider(
+                      value: index.toDouble(),
+                      min: 0,
+                      max: (stepCount - 1).toDouble(),
+                      divisions: stepCount - 1,
+                      activeColor: theme.colorScheme.primary,
+                      semanticFormatterCallback: (value) =>
+                          valueLabel(value.round()),
+                      onChanged: (value) {
+                        final step = value.round();
+                        if (step == index) return;
+                        HapticFeedback.lightImpact();
+                        onChanged(step);
+                      },
+                    ),
+                  ),
                 ),
               ),
               Padding(

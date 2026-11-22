@@ -20,7 +20,9 @@ void main() {
     theme = ThemeProvider();
     TranslationService.setPoTranslationsForTest({
       'en': {
+        'home_cover_size': 'Cover size',
         'home_cover_size_per_row': '{count} covers per row',
+        'text_size': 'Text size',
         'text_size_default': 'Default',
       },
     });
@@ -67,7 +69,8 @@ void main() {
 
     final text = tester.widget<Slider>(sliderWithKey('text_size_slider'));
     final labels = {
-      for (var i = 0; i <= text.max; i++) text.semanticFormatterCallback!(i.toDouble()),
+      for (var i = 0; i <= text.max; i++)
+        text.semanticFormatterCallback!(i.toDouble()),
     };
     expect(labels, hasLength(text.max.toInt() + 1));
   });
@@ -138,6 +141,7 @@ void main() {
     expect(
       tester.getSemantics(sliderWithKey('cover_size_slider')),
       matchesSemantics(
+        label: 'Cover size',
         value: '3 covers per row',
         increasedValue: '2 covers per row',
         decreasedValue: '4 covers per row',
@@ -148,6 +152,31 @@ void main() {
         hasIncreaseAction: true,
         hasDecreaseAction: true,
         hasFocusAction: true,
+      ),
+    );
+    handle.dispose();
+  });
+
+  testWidgets('a screen reader hears which setting each slider changes', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    await pumpSection(tester);
+
+    expect(
+      tester.getSemantics(sliderWithKey('text_size_slider')),
+      matchesSemantics(
+        label: 'Text size',
+        value: 'Default',
+        isSlider: true,
+        isEnabled: true,
+        hasEnabledState: true,
+        isFocusable: true,
+        hasIncreaseAction: true,
+        hasDecreaseAction: true,
+        hasFocusAction: true,
+        increasedValue: 'text_size_large',
+        decreasedValue: 'text_size_small',
       ),
     );
     handle.dispose();
