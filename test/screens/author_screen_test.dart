@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/testing.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bibliogenius/data/repositories/book_repository.dart';
 import 'package:bibliogenius/data/repositories/recommendation_repository.dart';
 import 'package:bibliogenius/models/book.dart';
+import 'package:bibliogenius/models/book_sequence.dart';
 import 'package:bibliogenius/models/discovery.dart';
 import 'package:bibliogenius/models/recommendation.dart';
 import 'package:bibliogenius/providers/book_refresh_notifier.dart';
@@ -92,6 +94,7 @@ void main() {
     String authorName, {
     required http.Response Function() answer,
     Set<String> libraryKeys = _libraryKeys,
+    void Function(Object? extra)? onBookRoute,
   }) {
     final provider = RecommendationProvider(
       _FakeRecommendationRepository(
@@ -114,14 +117,28 @@ void main() {
       ),
     );
 
-    return MaterialApp(
-      home: MultiProvider(
-        providers: [
-          ChangeNotifierProvider<ThemeProvider>.value(value: theme),
-          ChangeNotifierProvider<RecommendationProvider>.value(value: provider),
-          Provider<BookRepository>.value(value: books),
+    final page = MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: theme),
+        ChangeNotifierProvider<RecommendationProvider>.value(value: provider),
+        Provider<BookRepository>.value(value: books),
+      ],
+      child: AuthorScreen(authorName: authorName),
+    );
+    if (onBookRoute == null) return MaterialApp(home: page);
+    // The book route only records what it was handed.
+    return MaterialApp.router(
+      routerConfig: GoRouter(
+        routes: [
+          GoRoute(path: '/', builder: (_, _) => page),
+          GoRoute(
+            path: '/books/:id',
+            builder: (_, state) {
+              onBookRoute(state.extra);
+              return const Scaffold();
+            },
+          ),
         ],
-        child: AuthorScreen(authorName: authorName),
       ),
     );
   }
@@ -169,6 +186,29 @@ void main() {
     expect(find.text('A Wizard of Earthsea'), findsOneWidget);
     expect(find.text('The Dispossessed'), findsOneWidget);
     expect(find.text("L'Etranger"), findsNothing);
+  });
+
+  testWidgets('a book opened here steps through the author own books', (
+    tester,
+  ) async {
+    Object? extra;
+    await tester.pumpWidget(
+      harness(
+        'Ursula K. Le Guin',
+        answer: () => http.Response(jsonEncode({'status': 'unknown'}), 200),
+        onBookRoute: (e) => extra = e,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('The Dispossessed'));
+    await tester.pumpAndSettle();
+
+    expect(extra, isA<BookSequence>());
+    final sequence = extra as BookSequence;
+    expect(sequence.current.id, 'b2');
+    expect(sequence.previous?.id, 'b1');
+    expect(sequence.next, isNull);
   });
 
   testWidgets('the co-author of a shared book has their own page', (

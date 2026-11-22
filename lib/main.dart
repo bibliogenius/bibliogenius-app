@@ -60,12 +60,14 @@ import 'screens/login_screen.dart';
 import 'screens/add_book_screen.dart';
 import 'screens/author_screen.dart';
 import 'screens/book_copies_screen.dart';
+import 'screens/book_browser_screen.dart';
 import 'screens/book_details_screen.dart';
 import 'screens/book_notes_screen.dart';
 import 'screens/edit_book_screen.dart';
 import 'screens/add_contact_screen.dart';
 import 'screens/contact_details_screen.dart';
 import 'models/book.dart';
+import 'models/book_sequence.dart';
 import 'models/contact.dart';
 import 'screens/account_add_device_screen.dart';
 import 'screens/account_join_screen.dart';
@@ -1324,6 +1326,11 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
                   builder: (context, state) {
                     // The route param is the book uuid (cross-device identity).
                     final bookRef = state.pathParameters['id'] ?? '';
+                    final extra = state.extra;
+                    // Opened from a list: the page steps through it.
+                    if (extra is BookSequence) {
+                      return BookBrowserScreen(sequence: extra);
+                    }
                     Book? book;
                     if (state.extra is Book) {
                       book = state.extra as Book;

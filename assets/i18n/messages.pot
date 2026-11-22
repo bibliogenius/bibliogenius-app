@@ -12835,3 +12835,19 @@ msgstr ""
 #. Settings, publisher site cover search: never, no button
 msgid "publisher_cover_search_never"
 msgstr ""
+
+#. Book page, button to the previous book of the list it was opened from
+msgid "book_nav_previous"
+msgstr ""
+
+#. Book page, previous-book button naming that book
+msgid "book_nav_previous_titled"
+msgstr ""
+
+#. Book page, button to the next book of the list it was opened from
+msgid "book_nav_next"
+msgstr ""
+
+#. Book page, next-book button naming that book
+msgid "book_nav_next_titled"
+msgstr ""

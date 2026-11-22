@@ -27,6 +27,7 @@ import '../services/ffi_service.dart';
 import '../services/sync_service.dart';
 import '../services/translation_service.dart';
 import '../models/book.dart';
+import '../models/book_sequence.dart';
 import '../models/tag.dart';
 import '../widgets/bookshelf_view.dart';
 import '../widgets/collection_stack_widget.dart';
@@ -53,6 +54,35 @@ enum ViewMode {
   spineShelf, // Original bookshelf
   list, // Simple list
   groupedCollections, // Books grouped by collection
+}
+
+/// The books of a library view that open a page, in the order [viewMode]
+/// shows them. [books] is the filtered list; [groupedByReadingStatus] only
+/// matters to the covers grid, the one view that has sections.
+List<Book> bookPageOrder({
+  required ViewMode viewMode,
+  required List<Book> books,
+  required List<CollectionGroup> collectionGroups,
+  required bool groupedByReadingStatus,
+}) {
+  switch (viewMode) {
+    case ViewMode.groupedCollections:
+      // A stack opens its collection, not a book.
+      return [
+        for (final group in collectionGroups)
+          if (group.soleUncollectedBook case final book?) book,
+      ];
+    case ViewMode.coverGrid:
+      if (!groupedByReadingStatus) return books;
+      // Every book of each section, the ones past the section cap too:
+      // the page carries on where the grid's "see all" would.
+      return [
+        for (final group in groupBooksByReadingStatus(books)) ...group.value,
+      ];
+    case ViewMode.spineShelf:
+    case ViewMode.list:
+      return books;
+  }
 }
 
 enum _SortAction {
@@ -3399,13 +3429,45 @@ class _BookListScreenState extends State<BookListScreen>
       _toggleSelected(book);
       return;
     }
-    final result = await context.push('/books/${book.id}', extra: book);
+    final result = await context.push(
+      '/books/${book.id}',
+      extra: BookSequence.routeExtra(_displayedOrder(), book),
+    );
     if (result == true) {
       // The list stays mounted under the details screen, so refreshing without
       // the spinner keeps the reader where they were when they opened the book.
       _fetchBooks(silent: true);
     }
   }
+
+  /// The books that open a page, in the order the current view shows them:
+  /// what the book page steps through.
+  List<Book> _displayedOrder() {
+    final theme = context.read<ThemeProvider>();
+    return bookPageOrder(
+      viewMode: _viewMode,
+      books: _filteredBooks,
+      collectionGroups: _collectionGroups,
+      groupedByReadingStatus: _groupsByReadingStatus(
+        enabled: theme.groupByReadingStatus,
+        inventoryStatuses: theme.inventoryStatusesEnabled,
+      ),
+    );
+  }
+
+  /// Whether the covers grid shows reading-status sections, from the two
+  /// display settings and this screen's own state.
+  bool _groupsByReadingStatus({
+    required bool enabled,
+    required bool inventoryStatuses,
+  }) => shouldGroupByReadingStatus(
+    enabled: enabled,
+    inventoryStatuses: inventoryStatuses,
+    selecting: _isSelecting,
+    statusFiltered: _selectedStatus != null,
+    searching: _searchQuery.isNotEmpty,
+    shelfFiltered: _tagFilter != null,
+  );
 
   Future<void> _onStatusChanged(Book book, String newStatus) async {
     if (book.id == null) return;
@@ -3761,13 +3823,9 @@ class _BookListScreenState extends State<BookListScreen>
             selectedIds: _selectedIds,
             onBookLongPress: _isReordering ? null : _enterSelection,
             coverSize: coverExtent,
-            groupByReadingStatus: shouldGroupByReadingStatus(
+            groupByReadingStatus: _groupsByReadingStatus(
               enabled: groupByReadingStatus,
               inventoryStatuses: inventoryStatuses,
-              selecting: _isSelecting,
-              statusFiltered: _selectedStatus != null,
-              searching: _searchQuery.isNotEmpty,
-              shelfFiltered: _tagFilter != null,
             ),
             onSeeAllStatus: (status) => setState(() {
               _selectedStatus = status;

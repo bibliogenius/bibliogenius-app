@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../data/repositories/book_repository.dart';
 import '../models/book.dart';
+import '../models/book_sequence.dart';
 import '../models/recommendation.dart';
 import '../providers/recommendation_provider.dart';
 import '../providers/theme_provider.dart';
@@ -227,7 +228,10 @@ class _LocalBooksGrid extends StatelessWidget {
           label: BookDisplay.coverLabelOf(context, book),
           child: BookCoverCard(
             book: book,
-            onTap: () => context.push('/books/${book.id}', extra: book),
+            onTap: () => context.push(
+              '/books/${book.id}',
+              extra: BookSequence.routeExtra(books, book),
+            ),
           ),
         );
       },

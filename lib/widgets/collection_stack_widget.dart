@@ -37,6 +37,11 @@ class CollectionGroup {
   }
 
   int get ownedCount => books.where((b) => b.owned).length;
+
+  /// The book this group shows as a plain cover, opening its page directly:
+  /// a lone book outside any collection. Null for a stack.
+  Book? get soleUncollectedBook =>
+      collection == null && books.length == 1 ? books.first : null;
 }
 
 // ---------------------------------------------------------------------------
@@ -1121,8 +1126,8 @@ class CollectionGroupGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         final group = groups[index];
         // Uncollected single book: render as a regular cover card.
-        if (group.collection == null && group.books.length == 1) {
-          final book = group.books.first;
+        final book = group.soleUncollectedBook;
+        if (book != null) {
           return SelectableBookTile(
             selected: null,
             semanticLabel: book.title,

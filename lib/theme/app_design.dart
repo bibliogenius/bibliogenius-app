@@ -14,6 +14,11 @@ class ShelfTint {
 /// Centralized design tokens for consistent styling across the app
 
 class AppDesign {
+  /// A disabled control over the dark scrim the book page lays on its cover,
+  /// next to the white of the enabled ones. A disabled control has no
+  /// contrast minimum (WCAG 1.4.11); it must only read as unavailable.
+  static const Color onScrimDisabled = Colors.white38;
+
   /// The colours a shelf can take. Each ink holds 4.5:1 on its ground, the
   /// darkest point of a light gradient and the lightest of a dark one, so
   /// wherever a focus ring crosses it.

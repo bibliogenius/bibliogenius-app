@@ -12763,3 +12763,19 @@ msgstr "Automatisch für Bücher ohne Cover"
 #. Settings, publisher site cover search: never, no button
 msgid "publisher_cover_search_never"
 msgstr "Nie"
+
+#. Book page, button to the previous book of the list it was opened from
+msgid "book_nav_previous"
+msgstr "Vorheriges Buch"
+
+#. Book page, previous-book button naming that book
+msgid "book_nav_previous_titled"
+msgstr "Vorheriges Buch: {title}"
+
+#. Book page, button to the next book of the list it was opened from
+msgid "book_nav_next"
+msgstr "Nächstes Buch"
+
+#. Book page, next-book button naming that book
+msgid "book_nav_next_titled"
+msgstr "Nächstes Buch: {title}"

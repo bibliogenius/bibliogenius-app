@@ -12903,3 +12903,19 @@ msgstr "没有封面的图书自动查找"
 #. Settings, publisher site cover search: never, no button
 msgid "publisher_cover_search_never"
 msgstr "从不"
+
+#. Book page, button to the previous book of the list it was opened from
+msgid "book_nav_previous"
+msgstr "上一本书"
+
+#. Book page, previous-book button naming that book
+msgid "book_nav_previous_titled"
+msgstr "上一本书：{title}"
+
+#. Book page, button to the next book of the list it was opened from
+msgid "book_nav_next"
+msgstr "下一本书"
+
+#. Book page, next-book button naming that book
+msgid "book_nav_next_titled"
+msgstr "下一本书：{title}"

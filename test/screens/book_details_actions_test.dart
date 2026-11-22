@@ -13,6 +13,7 @@ import 'package:bibliogenius/data/repositories/copy_repository.dart';
 import 'package:bibliogenius/data/repositories/loan_repository.dart';
 import 'package:bibliogenius/data/repositories/recommendation_repository.dart';
 import 'package:bibliogenius/models/book.dart';
+import 'package:bibliogenius/models/book_sequence.dart';
 import 'package:bibliogenius/models/copy.dart';
 import 'package:bibliogenius/models/discovery.dart';
 import 'package:bibliogenius/models/loan.dart';
@@ -106,6 +107,10 @@ const _catalogue = {
     'coming_soon': 'Coming soon',
     'more_actions': 'More',
     'back': 'Back',
+    'book_nav_previous': 'Previous book',
+    'book_nav_previous_titled': 'Previous book: {title}',
+    'book_nav_next': 'Next book',
+    'book_nav_next_titled': 'Next book: {title}',
     'currently_reading': 'Reading',
     'to_read_status': 'To read',
     'read_status': 'Read',
@@ -382,6 +387,50 @@ void main() {
 
     expect(find.text('Delete'), findsOneWidget);
     expect(find.text('Update'), findsOneWidget);
+  });
+
+  testWidgets('a page opened alone offers no stepping', (tester) async {
+    copies.mockCopies = [_copy('c1', 'available')];
+    await tester.pumpWidget(harness(book(readingStatus: 'to_read')));
+    await settle(tester);
+
+    expect(find.byKey(const Key('previousBookButton')), findsNothing);
+    expect(find.byKey(const Key('nextBookButton')), findsNothing);
+  });
+
+  testWidgets('a page opened from a list names its neighbours, and the first '
+      'one has no previous', (tester) async {
+    // The swipe and the arrow keys reach neither a screen reader nor a
+    // switch user: the buttons are the way in, so they name where they go.
+    copies.mockCopies = [_copy('c1', 'available')];
+    final current = book(readingStatus: 'to_read');
+    books.mockBook = current;
+    var stepped = false;
+    await tester.pumpWidget(
+      _wrap(
+        BookDetailsScreen(
+          book: current,
+          bookId: current.id!,
+          stepper: BookStepper(
+            next: Book(id: 'b2', title: 'Dune'),
+            onNext: () => stepped = true,
+            carriedChanges: false,
+            onChanged: () {},
+          ),
+        ),
+      ),
+    );
+    await settle(tester);
+
+    final previous = tester.widget<IconButton>(
+      find.byKey(const Key('previousBookButton')),
+    );
+    expect(previous.onPressed, isNull);
+    expect(previous.tooltip, 'Previous book');
+
+    expect(find.byTooltip('Next book: Dune'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('nextBookButton')));
+    expect(stepped, isTrue);
   });
 
   testWidgets('the menu icons are legible on the menu, not on the app bar', (

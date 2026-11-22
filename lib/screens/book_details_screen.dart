@@ -24,6 +24,8 @@ import '../data/repositories/contact_repository.dart';
 import '../data/repositories/copy_repository.dart';
 import '../data/repositories/loan_repository.dart';
 import '../models/book.dart';
+import '../models/book_sequence.dart';
+import '../theme/app_design.dart';
 import '../models/collection.dart';
 import '../models/contact.dart';
 import '../models/loan_recipient.dart';
@@ -74,7 +76,16 @@ class BookDetailsScreen extends StatefulWidget {
   /// uuid (loans, statistics, peers). [_fetchBookDetails] resolves either form.
   final String bookId;
 
-  const BookDetailsScreen({super.key, this.book, required this.bookId});
+  /// Previous/next stepping, when the page was opened from a list (see
+  /// `BookBrowserScreen`); null shows no stepping buttons.
+  final BookStepper? stepper;
+
+  const BookDetailsScreen({
+    super.key,
+    this.book,
+    required this.bookId,
+    this.stepper,
+  });
 
   @override
   State<BookDetailsScreen> createState() => _BookDetailsScreenState();
@@ -94,7 +105,24 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
   Map<String, String?> _loanContactNotes = {};
   bool _isLoadingCopies = true;
   bool _isLoadingBook = false;
-  bool _hasChanges = false;
+
+  /// Starts true when an earlier book of the same browse was changed, so
+  /// the list behind still refreshes when this page is the one that pops.
+  late bool _changed = widget.stepper?.carriedChanges ?? false;
+  bool get _hasChanges => _changed;
+  set _hasChanges(bool value) {
+    _changed = value;
+    if (value) {
+      _changedHere = true;
+      widget.stepper?.onChanged();
+    }
+  }
+
+  /// This page's own book was changed, not only an earlier one of the browse.
+  bool _changedHere = false;
+
+  /// Left through [_navigateBack], which already refreshed the list.
+  bool _leftByBack = false;
 
   /// Set on the transition into "read", cleared on leaving the page. Gates
   /// the ADR-062 R5 block, which must answer the MOMENT a book is finished
@@ -128,6 +156,15 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) context.read<FavoritesProvider>().ensureLoaded();
     });
+  }
+
+  @override
+  void dispose() {
+    // Left by a step to another book of the browse: the list will show this
+    // book again when the reader comes back, so its cover must not come
+    // from the cache of before the change.
+    if (_changedHere && !_leftByBack) _evictCoverFromCache(_book?.coverUrl);
+    super.dispose();
   }
 
   /// The library's individual author names, memoised provider-side, so this
@@ -332,6 +369,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
   /// Shared back-navigation logic: notify library of changes and pop.
   void _navigateBack() {
+    _leftByBack = true;
     if (_hasChanges) {
       // Evict the current cover from Flutter's image cache so the library
       // reloads the (possibly overwritten) file instead of showing a stale
@@ -990,6 +1028,8 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
 
     return WillPopScope(
       onWillPop: () async {
+        // A page still sliding out after a step lets the page shown answer.
+        if (!BookPageActivity.isActive(context)) return true;
         _navigateBack();
         return false;
       },
@@ -1389,6 +1429,7 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         ),
       ),
       actions: [
+        ..._buildStepActions(context, scrim),
         _buildFavoriteAction(context, book, scrim),
         const SizedBox(width: 8),
         _buildOverflowMenu(context, book, scrim),
@@ -1403,9 +1444,9 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
               constraints.maxHeight <= kToolbarHeight + topPadding + 8;
           return FlexibleSpaceBar(
             collapseMode: CollapseMode.pin,
-            titlePadding: const EdgeInsetsDirectional.only(
+            titlePadding: EdgeInsetsDirectional.only(
               start: 56,
-              end: 116,
+              end: widget.stepper == null ? 116 : 212,
               bottom: 16,
             ),
             title: AnimatedOpacity(
@@ -2205,6 +2246,46 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
     );
     if (!mounted) return;
     await _fetchCopies();
+  }
+
+  /// Previous and next book of the list the page was opened from. Always
+  /// shown, even with a swipe and the arrow keys available: neither of those
+  /// reaches a screen reader or a switch user. Disabled, not hidden, at the
+  /// ends of the list, so the bar does not shift under the finger.
+  List<Widget> _buildStepActions(BuildContext context, Color scrim) {
+    final stepper = widget.stepper;
+    if (stepper == null) return const [];
+    final style = IconButton.styleFrom(
+      backgroundColor: scrim,
+      foregroundColor: Colors.white,
+      disabledBackgroundColor: scrim,
+      disabledForegroundColor: AppDesign.onScrimDisabled,
+    );
+    String label(String key, Book? neighbour) => neighbour == null
+        ? TranslationService.translate(context, key)
+        : TranslationService.translate(
+            context,
+            '${key}_titled',
+            params: {'title': neighbour.title},
+          );
+    return [
+      IconButton(
+        key: const Key('previousBookButton'),
+        icon: const Icon(Icons.chevron_left),
+        tooltip: label('book_nav_previous', stepper.previous),
+        onPressed: stepper.onPrevious,
+        style: style,
+      ),
+      const SizedBox(width: 4),
+      IconButton(
+        key: const Key('nextBookButton'),
+        icon: const Icon(Icons.chevron_right),
+        tooltip: label('book_nav_next', stepper.next),
+        onPressed: stepper.onNext,
+        style: style,
+      ),
+      const SizedBox(width: 8),
+    ];
   }
 
   /// The favorite toggle (ADR-064): the star-bookmark glyph, outline when off,

@@ -12903,3 +12903,19 @@ msgstr "표지가 없는 책은 자동"
 #. Settings, publisher site cover search: never, no button
 msgid "publisher_cover_search_never"
 msgstr "사용 안 함"
+
+#. Book page, button to the previous book of the list it was opened from
+msgid "book_nav_previous"
+msgstr "이전 책"
+
+#. Book page, previous-book button naming that book
+msgid "book_nav_previous_titled"
+msgstr "이전 책: {title}"
+
+#. Book page, button to the next book of the list it was opened from
+msgid "book_nav_next"
+msgstr "다음 책"
+
+#. Book page, next-book button naming that book
+msgid "book_nav_next_titled"
+msgstr "다음 책: {title}"
