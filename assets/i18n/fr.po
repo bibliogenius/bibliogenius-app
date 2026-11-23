@@ -12387,7 +12387,7 @@ msgstr "Page d'accueil"
 
 #. Size of the covers in the home page grid
 msgid "home_cover_size"
-msgstr "Taille des vignettes"
+msgstr "Taille des couvertures"
 
 #. Cover size slider in Display settings: covers in one row of the library grid; {count} is a number
 msgid "home_cover_size_per_row"
