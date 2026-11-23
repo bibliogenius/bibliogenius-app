@@ -433,6 +433,39 @@ void main() {
     expect(stepped, isTrue);
   });
 
+  testWidgets('the cover starts below the bar buttons, not between them', (
+    tester,
+  ) async {
+    // Centred on the whole band, the cover reached up into the bar, and the
+    // stepping buttons widen the bar's row of buttons over its top edge.
+    copies.mockCopies = [_copy('c1', 'available')];
+    final current = book(readingStatus: 'to_read');
+    books.mockBook = current;
+    await tester.pumpWidget(
+      _wrap(
+        BookDetailsScreen(
+          book: current,
+          bookId: current.id!,
+          stepper: BookStepper(
+            next: Book(id: 'b2', title: 'Dune'),
+            onNext: () {},
+            carriedChanges: false,
+            onChanged: () {},
+          ),
+        ),
+      ),
+    );
+    await settle(tester);
+
+    final cover = tester.getRect(
+      find.byWidgetPredicate(
+        (w) => w is Hero && w.tag == 'book_cover_${current.id}',
+      ),
+    );
+    final button = tester.getRect(find.byKey(const Key('nextBookButton')));
+    expect(cover.top, greaterThanOrEqualTo(button.bottom + 16));
+  });
+
   testWidgets('the menu icons are legible on the menu, not on the app bar', (
     tester,
   ) async {

@@ -1493,58 +1493,68 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
                   ),
 
                   // Hero Image - tap to add/change cover
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => _showCoverOptions(context, book),
-                      child: Hero(
-                        tag: 'book_cover_${book.id}',
-                        child: SizedBox(
-                          width: 200,
-                          height: 300,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                width: 200,
-                                height: 300,
-                                decoration: BoxDecoration(
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(
-                                        alpha: 0.4,
-                                      ),
-                                      blurRadius: 20,
-                                      offset: const Offset(0, 10),
-                                    ),
-                                  ],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Stack(
-                                    fit: StackFit.expand,
-                                    children: [
-                                      _buildFallbackCover(book),
-                                      if (coverUrl != null &&
-                                          coverUrl.isNotEmpty)
-                                        CachedBookCover(
-                                          key: ValueKey('hero_$_coverVersion'),
-                                          imageUrl: coverUrl,
-                                          fit: BoxFit.cover,
-                                          placeholder: const SizedBox.shrink(),
-                                          errorWidget: const SizedBox.shrink(),
-                                          semanticLabel: book.title,
+                  // Centred in the band below the bar, not in the whole band:
+                  // centred on the whole band, the cover reached up between
+                  // the bar buttons.
+                  Padding(
+                    padding: EdgeInsets.only(top: topPadding + kToolbarHeight),
+                    child: Center(
+                      child: GestureDetector(
+                        onTap: () => _showCoverOptions(context, book),
+                        child: Hero(
+                          tag: 'book_cover_${book.id}',
+                          child: SizedBox(
+                            width: 200,
+                            height: 300,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                Container(
+                                  width: 200,
+                                  height: 300,
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(
+                                          alpha: 0.4,
                                         ),
+                                        blurRadius: 20,
+                                        offset: const Offset(0, 10),
+                                      ),
                                     ],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: [
+                                        _buildFallbackCover(book),
+                                        if (coverUrl != null &&
+                                            coverUrl.isNotEmpty)
+                                          CachedBookCover(
+                                            key: ValueKey(
+                                              'hero_$_coverVersion',
+                                            ),
+                                            imageUrl: coverUrl,
+                                            fit: BoxFit.cover,
+                                            placeholder:
+                                                const SizedBox.shrink(),
+                                            errorWidget:
+                                                const SizedBox.shrink(),
+                                            semanticLabel: book.title,
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              // Owner-only badge: surfaces a pending hub cover
-                              // upload failure so the user knows peers may
-                              // still see the stale cover until the next sync.
-                              if (book.hubCoverUploadFailedAt != null)
-                                _buildCoverUploadWarningBadge(context),
-                            ],
+                                // Owner-only badge: surfaces a pending hub cover
+                                // upload failure so the user knows peers may
+                                // still see the stale cover until the next sync.
+                                if (book.hubCoverUploadFailedAt != null)
+                                  _buildCoverUploadWarningBadge(context),
+                              ],
+                            ),
                           ),
                         ),
                       ),
