@@ -132,6 +132,7 @@ import 'package:flutter/gestures.dart';
 
 import 'screens/collection/collection_detail_screen.dart';
 import 'models/collection.dart';
+import 'widgets/online_services_consent_dialog.dart';
 
 /// Lets a mouse drag scroll lists on desktop, on top of the SDK's default
 /// drag devices.
@@ -1833,6 +1834,25 @@ class _AppRouterState extends State<AppRouter> with WidgetsBindingObserver {
               Provider.of<MetadataFillProvider>(ctx).suggestsFailedImport,
           excludedRoutes: ['/onboarding', '/settings', '/library-completeness'],
           contentBuilder: (ctx, dismiss) => const _FlashReimportToComplete(),
+        ),
+      );
+
+      // Told once, with nothing to do: an installation that already used
+      // the network before the question existed is registered on the hub
+      // without ever having been asked (ADR-073 D3). Never shown to one
+      // that answered the dialog: it has read the same list.
+      flashProvider.register(
+        FlashMessageDefinition(
+          key: kOnlineServicesNoticeFlashKey,
+          textKey: 'online_reg_notice_title',
+          icon: Icons.cloud_done_outlined,
+          // Watched on purpose: the device is read after startup, and the
+          // flash bar only rebuilds for providers it depends on.
+          condition: (ctx) => ctx.select<HubDirectoryProvider, bool>(
+            (hub) => hub.onlineServicesInferred,
+          ),
+          excludedRoutes: ['/onboarding'],
+          contentBuilder: (ctx, dismiss) => const OnlineServicesNotice(),
         ),
       );
 

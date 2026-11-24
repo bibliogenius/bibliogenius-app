@@ -47,6 +47,8 @@ import 'package:bibliogenius/src/rust/frb_generated.dart';
 import 'package:bibliogenius/widgets/goal_tile.dart';
 
 import '../helpers/mock_classes.dart';
+import 'package:bibliogenius/services/online_services_consent.dart';
+import 'package:bibliogenius/widgets/online_services_consent_dialog.dart';
 
 /// The only FFI calls these tests answer: the loan settings, stored here. Any
 /// other call fails, as it does with no FFI up.
@@ -89,7 +91,15 @@ class _OfflineApiService extends MockApiService {
 
 /// The hub directory of a reader who never joined it.
 class _OfflineHubDirectoryProvider extends HubDirectoryProvider {
-  _OfflineHubDirectoryProvider() : super(ffi: FfiService());
+  /// [usesNetwork]: whether the device shows a use of the network that
+  /// stands for the online services consent (ADR-073 D3).
+  _OfflineHubDirectoryProvider({bool usesNetwork = false})
+    : super(
+        ffi: FfiService(),
+        onlineServices: OnlineServicesConsent(
+          readSignals: () async => NetworkUseSignals(hasAccount: usesNetwork),
+        ),
+      );
 
   @override
   Future<void> loadConfig() async {}
@@ -125,7 +135,18 @@ class _RelayApiService extends _OfflineApiService {
   // No relay yet. Throwing (not answering "none") also keeps the page from
   // auto-connecting on load, which would use up [setupReply].
   @override
-  Future<Response> getRelayConfig() async => throw StateError('no relay');
+  Future<Response> getRelayConfig() async {
+    final relay = existingRelay;
+    if (relay == null) throw StateError('no relay');
+    return Response(
+      requestOptions: RequestOptions(path: '/api/peers/relay/config'),
+      statusCode: 200,
+      data: relay,
+    );
+  }
+
+  /// A mailbox created behind the page's back, after it loaded.
+  Map<String, dynamic>? existingRelay;
 
   @override
   Future<Response> setupRelay({required String relayUrl}) {
@@ -166,7 +187,13 @@ class _StoredSearchApiService extends _OfflineApiService {
 }
 
 class _RecordingHubDirectoryProvider extends _OfflineHubDirectoryProvider {
+  _RecordingHubDirectoryProvider({super.usesNetwork});
+
   int relayPublished = 0;
+
+  // Registering is another test's subject; here the relay is.
+  @override
+  Future<void> initAndSyncCatalog() async {}
 
   @override
   Future<void> ensureRelayPublished() async => relayPublished++;
@@ -395,7 +422,7 @@ void main() {
     tester,
   ) async {
     final api = _RelayApiService();
-    final hub = _RecordingHubDirectoryProvider();
+    final hub = _RecordingHubDirectoryProvider(usesNetwork: true);
     await _pumpSettings(tester, api: api, hub: hub);
 
     final details = find.text(_t(tester, 'settings_remote_reachable_details'));
@@ -437,6 +464,160 @@ void main() {
       ),
       findsNothing,
     );
+  });
+
+  group('"reachable remotely" without the online services consent', () {
+    // The preference is on by default, but no mailbox exists before the
+    // consent (ADR-073): the switch says so, and asks before creating one.
+    Finder reachable(WidgetTester tester) => find.widgetWithText(
+      SwitchListTile,
+      _t(tester, 'settings_remote_reachable'),
+    );
+    bool shownOn(WidgetTester tester) =>
+        tester.widget<SwitchListTile>(reachable(tester)).value;
+
+    Future<String?> storedChoice() async =>
+        (await SharedPreferences.getInstance()).getString(
+          OnlineServicesConsent.prefKey,
+        );
+
+    testWidgets('shows off, with no relay details under it', (tester) async {
+      final theme = await _pumpSettings(
+        tester,
+        api: _RelayApiService(),
+        hub: _RecordingHubDirectoryProvider(),
+      );
+      await _openSection(tester, 'settings_network_title');
+
+      expect(theme.remoteReachableEnabled, isTrue, reason: 'the default');
+      expect(shownOn(tester), isFalse);
+      expect(
+        find.text(_t(tester, 'settings_remote_reachable_details')),
+        findsNothing,
+      );
+    });
+
+    testWidgets('a consenting installation sees it as before', (tester) async {
+      await _pumpSettings(
+        tester,
+        api: _RelayApiService(),
+        hub: _RecordingHubDirectoryProvider(usesNetwork: true),
+      );
+      await _openSection(tester, 'settings_network_title');
+
+      expect(shownOn(tester), isTrue);
+    });
+
+    testWidgets('turning it on asks first; refused, it stays off and no '
+        'mailbox is created', (tester) async {
+      final api = _RelayApiService();
+      await _pumpSettings(
+        tester,
+        api: api,
+        hub: _RecordingHubDirectoryProvider(),
+      );
+      await _openSection(tester, 'settings_network_title');
+
+      await tester.ensureVisible(reachable(tester));
+      await tester.tap(reachable(tester));
+      await _settle(tester);
+      expect(find.byType(OnlineServicesConsentDialog), findsOneWidget);
+
+      await tester.tap(find.text(_t(tester, 'online_reg_refuse')));
+      await _settle(tester);
+
+      expect(shownOn(tester), isFalse);
+      expect(api.setupCalls, 0);
+      expect(await storedChoice(), isNull);
+    });
+
+    testWidgets('accepted, the mailbox is created and the switch shows on', (
+      tester,
+    ) async {
+      final api = _RelayApiService();
+      final hub = _RecordingHubDirectoryProvider();
+      await _pumpSettings(tester, api: api, hub: hub);
+      await _openSection(tester, 'settings_network_title');
+
+      await tester.ensureVisible(reachable(tester));
+      await tester.tap(reachable(tester));
+      await _settle(tester);
+      await tester.tap(find.text(_t(tester, 'online_reg_accept')));
+      await _settle(tester);
+
+      expect(await storedChoice(), 'granted');
+      expect(api.setupCalls, 1);
+      expect(shownOn(tester), isTrue);
+    });
+  });
+
+  testWidgets('Connect adopts a mailbox created since the page loaded '
+      'instead of creating a second one', (tester) async {
+    // Accepting the dialog elsewhere creates the mailbox in the background
+    // while this page still offers Connect.
+    final api = _RelayApiService();
+    final hub = _RecordingHubDirectoryProvider(usesNetwork: true);
+    await _pumpSettings(tester, api: api, hub: hub);
+    await _openSection(tester, 'settings_network_title');
+    final details = find.text(_t(tester, 'settings_remote_reachable_details'));
+    await tester.ensureVisible(details);
+    await tester.tap(details);
+    await _settle(tester);
+
+    api.existingRelay = {
+      'relay_url': 'https://hub.example.org',
+      'mailbox_uuid': 'fedcba9876543210',
+    };
+    final connect = find.text(_t(tester, 'relay_connect'));
+    await tester.ensureVisible(connect);
+    await tester.tap(connect);
+    await _settle(tester);
+
+    expect(api.setupCalls, 0, reason: 'a second mailbox orphans the first');
+    expect(find.text(_t(tester, 'relay_disconnect')), findsOneWidget);
+    expect(find.text('Mailbox: fedcba98...'), findsOneWidget);
+  });
+
+  group('the "online features" switch without the consent', () {
+    Finder onlineFeatures(WidgetTester tester) => find.widgetWithText(
+      SwitchListTile,
+      _t(tester, 'hub_coming_soon_toggle'),
+    );
+
+    testWidgets('refused: it stays off', (tester) async {
+      final hub = _RecordingHubDirectoryProvider();
+      await _pumpSettings(tester, api: _RelayApiService(), hub: hub);
+      await _openSection(tester, 'settings_network_title');
+
+      await tester.ensureVisible(onlineFeatures(tester));
+      await tester.tap(onlineFeatures(tester));
+      await _settle(tester);
+      expect(find.byType(OnlineServicesConsentDialog), findsOneWidget);
+      await tester.tap(find.text(_t(tester, 'online_reg_refuse')));
+      await _settle(tester);
+
+      expect(hub.isHubEnabled, isFalse);
+      expect(
+        (await SharedPreferences.getInstance()).getBool(
+          'hub_directory_enabled',
+        ),
+        isNot(true),
+      );
+    });
+
+    testWidgets('accepted: it turns on', (tester) async {
+      final hub = _RecordingHubDirectoryProvider();
+      await _pumpSettings(tester, api: _RelayApiService(), hub: hub);
+      await _openSection(tester, 'settings_network_title');
+
+      await tester.ensureVisible(onlineFeatures(tester));
+      await tester.tap(onlineFeatures(tester));
+      await _settle(tester);
+      await tester.tap(find.text(_t(tester, 'online_reg_accept')));
+      await _settle(tester);
+
+      expect(hub.isHubEnabled, isTrue);
+    });
   });
 
   group('one place per setting', () {

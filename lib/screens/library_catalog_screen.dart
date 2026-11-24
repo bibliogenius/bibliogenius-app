@@ -23,6 +23,7 @@ import '../widgets/genie_app_bar.dart';
 import '../widgets/hub_location_label.dart';
 import '../widgets/library_avatar.dart';
 import '../widgets/borrow_request_sent_snack_bar.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Displays a library's public catalog (list of ISBNs) fetched from the hub.
 ///
@@ -1192,6 +1193,9 @@ class _NotFollowingState extends StatelessWidget {
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: () async {
+                // Following registers this library on the hub: the
+                // question comes first (ADR-073 D2).
+                if (!await confirmOnlineServices(context)) return;
                 final ok = await provider.follow(nodeId);
                 if (!context.mounted) return;
                 if (!ok || provider.actionError != null) {

@@ -8,6 +8,7 @@ import '../screens/invite_screen.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../utils/invite_payload.dart';
+import 'online_services_consent_dialog.dart';
 
 /// Generates the invite link and opens the native share sheet directly.
 ///
@@ -17,7 +18,11 @@ import '../utils/invite_payload.dart';
 /// network banner and the post-pairing dialog): the context there is
 /// explicit, so sharing stays a one-tap gesture.
 Future<void> shareInviteLinkDirect(BuildContext context) async {
-  // Capture everything from context before any await
+  // An invitation goes through the hub: the question comes first
+  // (ADR-073 D2). Refused, nothing is generated and nothing is sent.
+  if (!await confirmOnlineServices(context)) return;
+  if (!context.mounted) return;
+  // Capture everything from context before any further await
   final messenger = ScaffoldMessenger.of(context);
   final apiService = Provider.of<ApiService>(context, listen: false);
   final hub = context.read<HubDirectoryProvider>();
@@ -55,9 +60,9 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
   );
 
   try {
-    // An invitation carries the relay mailbox and goes through the hub:
-    // creating one is the choice of the online services (ADR-073 D2).
-    await hub.grantOnlineServices(maxWait: kInvitationConsentMaxWait);
+    // An invitation carries the relay mailbox: what startup would have
+    // done, for the consent given above.
+    await hub.startOnlineServices(maxWait: kInvitationConsentMaxWait);
     final result = await loadInviteLink(
       libraryName: libraryName,
       fetchLibraryConfig: () async =>

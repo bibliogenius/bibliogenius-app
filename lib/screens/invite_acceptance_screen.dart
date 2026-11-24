@@ -7,6 +7,7 @@ import '../providers/flash_message_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Screen shown when the user opens an invite link (deep link or QR).
 /// Displays the inviting library name and lets the user accept or decline.
@@ -55,6 +56,17 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
       return;
     }
 
+    // Pairing registers this library on the hub, so that the peer gets a
+    // way to reach it: the question comes first (ADR-073 D2). An
+    // invitation that carries a local address can still be accepted on the
+    // local network alone. Otherwise it stays on screen and nothing is
+    // sent to anyone.
+    final consent = await confirmOnlineServicesForPairing(
+      context,
+      localAddress: hasLanUrl,
+    );
+    if (consent == PairingConsent.cancelled || !mounted) return;
+
     setState(() {
       _isConnecting = true;
       _error = null;
@@ -82,12 +94,11 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
       // Use empty URL for relay-only connections
       final connectUrl = _url ?? '';
 
-      // Pairing is the choice of the online services (ADR-073): the
-      // consent is recorded and the relay mailbox created before the
-      // handshake, so the peer receives a way to reach this library.
-      // Without a local address the pairing goes through the relay and
-      // needs this library's mailbox: it waits for it, however long.
-      await hub.grantOnlineServices(
+      // The relay mailbox is created before the handshake, so the peer
+      // receives a way to reach this library. Without a local address the
+      // pairing goes through the relay and needs this library's mailbox:
+      // it waits for it, however long.
+      await hub.startOnlineServices(
         maxWait: _url == null ? null : kPairingConsentMaxWait,
       );
       final response = await api.connectPeer(
@@ -99,6 +110,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
         relayUrl: _relayUrl,
         mailboxId: _mailboxId,
         relayWriteToken: _relayWriteToken,
+        localOnly: consent == PairingConsent.localOnly,
       );
 
       // connectLocalPeer returns error responses instead of throwing

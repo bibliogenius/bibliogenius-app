@@ -13,6 +13,7 @@ import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
 import '../widgets/passphrase_strength_meter.dart';
 import '../widgets/recovery_phrase_view.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Create-a-new-account flow.
 ///
@@ -45,6 +46,16 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
   // Data sync activates only after an app restart (the backend CRR-ifies the
   // database on the next launch); prompt for it when the user leaves the screen.
   bool _restartRequired = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // An encrypted account lives on the hub: the question of ADR-073 D2
+    // comes before anything is typed. Refused, the screen closes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) confirmOnlineServicesOrLeave(context);
+    });
+  }
 
   @override
   void dispose() {
@@ -80,6 +91,10 @@ class _AccountSignupScreenState extends State<AccountSignupScreen> {
 
   Future<void> _submit() async {
     if (!_canSubmit) return;
+    // An account lives on the hub and registers this device there: asked
+    // when the screen opened (ADR-073 D2), checked again before sending.
+    if (!await confirmOnlineServices(context)) return;
+    if (!mounted) return;
     setState(() => _submitting = true);
     final provider = context.read<AccountSyncProvider>();
     try {

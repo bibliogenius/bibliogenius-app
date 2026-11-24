@@ -80,13 +80,22 @@ class _MockFfiService extends FfiService {
     String? followerX25519PublicKey,
     String? followerNodeId,
     required bool ownerGesture,
-  }) async => frb.FrbHubFollow(
-    id: followId,
-    followerNodeId: 'follower-1',
-    followedNodeId: 'node-1',
-    status: resolution == 'approve' ? 'active' : 'rejected',
-    createdAt: '2026-01-01T00:00:00Z',
-  );
+  }) async {
+    resolveCalls++;
+    return frb.FrbHubFollow(
+      id: followId,
+      followerNodeId: 'follower-1',
+      followedNodeId: 'node-1',
+      status: resolution == 'approve' ? 'active' : 'rejected',
+      createdAt: '2026-01-01T00:00:00Z',
+    );
+  }
+
+  int resolveCalls = 0;
+
+  // A private catalog is only pushed once its readers can be seen.
+  @override
+  Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async => const [];
 
   @override
   Future<frb.FrbRelayConfig?> getRelayConfig() async => relayConfig;
@@ -472,6 +481,8 @@ void main() {
   test('following a library from a fresh installation also creates the '
       'relay mailbox', () async {
     final (provider, ffi, api) = _build();
+    // The user accepted the dialog shown before the action.
+    await provider.recordOnlineServicesGrant();
 
     await provider.follow('some-library');
 
@@ -482,6 +493,8 @@ void main() {
   test('publishing the library from a fresh installation creates the relay '
       'mailbox', () async {
     final (provider, ffi, api) = _build();
+    // The user accepted the dialog shown before the action.
+    await provider.recordOnlineServicesGrant();
 
     final ok = await provider.enableAndPublish(displayName: 'Test Library');
 
@@ -503,7 +516,7 @@ void main() {
     expect(provider.isRegistered, isTrue);
 
     var returned = false;
-    final gesture = provider.grantOnlineServices().then((_) => returned = true);
+    final gesture = provider.startOnlineServices().then((_) => returned = true);
     await Future<void>.delayed(const Duration(milliseconds: 10));
     expect(returned, isFalse, reason: 'an invitation needs the mailbox');
 
@@ -522,7 +535,7 @@ void main() {
     ];
     await provider.loadConfig();
 
-    await provider.grantOnlineServices();
+    await provider.startOnlineServices();
 
     expect(api.relaySetups, 1);
   });
@@ -536,7 +549,11 @@ void main() {
     test('by the owner is a choice: it is recorded', () async {
       // Nothing on the device says someone reads this catalog. Without the
       // record, leaving the directory later would freeze it for them.
-      final (provider, _, _) = _build(registeredBefore: true);
+      // The owner consents by use (the directory switch), never asked.
+      final (provider, _, _) = _build(
+        registeredBefore: true,
+        prefs: {'hub_directory_enabled': true},
+      );
 
       await provider.resolveFollow(1, 'approve', ownerGesture: true);
 
@@ -553,8 +570,116 @@ void main() {
     });
   });
 
-  test('following a library is a choice: it is recorded', () async {
+  group('without the yes of the dialog, a gesture sends nothing', () {
+    // Every screen asks the question before the action. These are the
+    // paths behind the screens: a caller that forgot to ask fails closed.
+    Future<String?> storedChoice() async =>
+        (await SharedPreferences.getInstance()).getString(
+          OnlineServicesConsent.prefKey,
+        );
+
+    test('starting the online services', () async {
+      final (provider, ffi, api) = _build();
+
+      await provider.startOnlineServices();
+
+      expect(_hubCalls(ffi, api), 0);
+      expect(await storedChoice(), isNull);
+    });
+
+    test('following a library', () async {
+      final (provider, ffi, api) = _build();
+
+      expect(await provider.follow('some-library'), isFalse);
+
+      expect(ffi.followCalls, 0);
+      expect(_hubCalls(ffi, api), 0);
+      expect(await storedChoice(), isNull);
+    });
+
+    test('approving a follower', () async {
+      final (provider, ffi, api) = _build();
+
+      final ok = await provider.resolveFollow(
+        1,
+        'approve',
+        ownerGesture: true,
+      );
+
+      expect(ok, isFalse);
+      expect(ffi.resolveCalls, 0);
+      expect(_hubCalls(ffi, api), 0);
+      expect(await storedChoice(), isNull);
+    });
+
+    test('publishing the library', () async {
+      final (provider, ffi, api) = _build();
+
+      final ok = await provider.enableAndPublish(displayName: 'Test Library');
+
+      expect(ok, isFalse);
+      expect(provider.isHubEnabled, isFalse);
+      expect(_hubCalls(ffi, api), 0);
+      expect(await storedChoice(), isNull);
+    });
+
+    test('turning the directory switch on', () async {
+      final (provider, ffi, api) = _build();
+
+      await provider.setHubEnabled(true);
+
+      // The switch stands for a consent at the next launch: it stays off.
+      expect(provider.isHubEnabled, isFalse);
+      expect(
+        (await SharedPreferences.getInstance()).getBool('hub_directory_enabled'),
+        isNot(true),
+      );
+      expect(_hubCalls(ffi, api), 0);
+    });
+
+    test('sharing the scores does not open the hub paths', () async {
+      final (provider, ffi, api) = _build(
+        prefs: {'shareGamificationStats': true},
+      );
+
+      await provider.initAndSyncCatalog();
+
+      expect(await provider.onlineServicesAllowed(), isFalse);
+      expect(_hubCalls(ffi, api), 0);
+    });
+  });
+
+  group('the one-time notice (ADR-073 D3)', () {
+    test('is for an installation that consents by use, never asked', () async {
+      final (provider, _, _) = _build(prefs: {'hub_directory_enabled': true});
+      expect(provider.onlineServicesInferred, isFalse, reason: 'not read yet');
+
+      await provider.onlineServicesAllowed();
+
+      expect(provider.onlineServicesInferred, isTrue);
+    });
+
+    test('not for one that answered the dialog', () async {
+      final (provider, _, _) = _build(prefs: {'hub_directory_enabled': true});
+      await provider.recordOnlineServicesGrant();
+
+      await provider.onlineServicesAllowed();
+
+      expect(provider.onlineServicesInferred, isFalse);
+    });
+
+    test('not for one that does not use the network', () async {
+      final (provider, _, _) = _build();
+
+      await provider.onlineServicesAllowed();
+
+      expect(provider.onlineServicesInferred, isFalse);
+    });
+  });
+
+  test('an accepted dialog holds at the next launch', () async {
     final (provider, ffi, _) = _build();
+    await provider.recordOnlineServicesGrant();
 
     await provider.follow('some-library');
 
@@ -585,7 +710,7 @@ void main() {
     final registrations = ffi.registerCalls;
     final pushes = ffi.catalogPushes;
 
-    await provider.grantOnlineServices();
+    await provider.startOnlineServices();
 
     expect(ffi.registerCalls, registrations);
     expect(ffi.catalogPushes, pushes);
@@ -608,8 +733,10 @@ void main() {
   test('a gesture never waits longer than its bound on a silent hub', () async {
     final (provider, ffi, _) = _build();
     ffi.registrationGate = Completer<void>();
+    // The user accepted the dialog shown before the action.
+    await provider.recordOnlineServicesGrant();
 
-    await provider.grantOnlineServices(
+    await provider.startOnlineServices(
       maxWait: const Duration(milliseconds: 50),
     );
 
@@ -619,7 +746,7 @@ void main() {
     expect(
       await provider.onlineServicesAllowed(),
       isTrue,
-      reason: 'the consent is recorded at once, the hub calls follow',
+      reason: 'the consent holds whatever the hub does',
     );
 
     ffi.registrationGate!.complete();
@@ -637,12 +764,14 @@ void main() {
     // invitation, which needs the mailbox the first run is still creating.
     final (provider, ffi, api) = _build();
     ffi.registrationGate = Completer<void>();
-    await provider.grantOnlineServices(
+    // The user accepted the dialog shown before the action.
+    await provider.recordOnlineServicesGrant();
+    await provider.startOnlineServices(
       maxWait: const Duration(milliseconds: 20),
     );
 
     var secondReturned = false;
-    final second = provider.grantOnlineServices().then((_) {
+    final second = provider.startOnlineServices().then((_) {
       secondReturned = true;
     });
     await Future<void>.delayed(const Duration(milliseconds: 20));
@@ -659,7 +788,9 @@ void main() {
     final (provider, ffi, _) = _build();
     final startup = provider.initAndSyncCatalog();
 
-    await provider.grantOnlineServices();
+    // The user accepted the dialog while startup was still reading.
+    await provider.recordOnlineServicesGrant();
+    await provider.startOnlineServices();
     await startup;
 
     expect(provider.isRegistered, isTrue);
@@ -670,7 +801,9 @@ void main() {
     final (provider, ffi, api) = _build();
     expect(await provider.ensureRegistered(), isFalse);
 
-    await provider.grantOnlineServices();
+    // The user accepted the dialog shown before the action.
+    await provider.recordOnlineServicesGrant();
+    await provider.startOnlineServices();
     await Future<void>.delayed(const Duration(milliseconds: 10));
 
     // What startup used to do without asking now follows the choice.

@@ -12851,3 +12851,163 @@ msgstr ""
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr ""
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr ""
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr ""
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr ""
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr ""
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr ""
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr ""
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr ""
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr ""
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr ""
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr ""
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr ""
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr ""
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr ""
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr ""
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr ""
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr ""
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr ""
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr ""
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr ""
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr ""
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr ""
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr ""
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr ""
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr ""
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr ""
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr ""
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr ""
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr ""
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr ""
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr ""
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr ""
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr ""
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr ""
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr ""
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr ""
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr ""
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr ""
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr ""
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr ""
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr ""

@@ -10,6 +10,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Join an EXISTING account on this device with its passphrase.
 /// Reached from the hub, or from the signup flow when the email is
@@ -42,6 +43,11 @@ class _AccountJoinScreenState extends State<AccountJoinScreen> {
     super.initState();
     _emailController = TextEditingController(text: widget.initialEmail ?? '');
     WidgetsBinding.instance.addPostFrameCallback((_) => _countLocalBooks());
+    // An encrypted account lives on the hub: the question of ADR-073 D2
+    // comes before anything is typed. Refused, the screen closes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) confirmOnlineServicesOrLeave(context);
+    });
   }
 
   Future<void> _countLocalBooks() async {
@@ -73,6 +79,10 @@ class _AccountJoinScreenState extends State<AccountJoinScreen> {
 
   Future<void> _submit() async {
     if (!_canSubmit) return;
+    // An account lives on the hub and registers this device there: asked
+    // when the screen opened (ADR-073 D2), checked again before sending.
+    if (!await confirmOnlineServices(context)) return;
+    if (!mounted) return;
     setState(() => _submitting = true);
     final provider = context.read<AccountSyncProvider>();
     try {

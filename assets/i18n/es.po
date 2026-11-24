@@ -7145,7 +7145,7 @@ msgid "hub_coming_soon_desc"
 msgstr "Recibe solicitudes de seguimiento y de prestamo en tiempo real, y desbloquea las opciones para publicar tu biblioteca en el directorio publico. Una copia de tus libros compartidos se guarda en el servidor para tus contactos: cifrada, salvo si tu biblioteca es visible sin aprobación requerida. Tus fotos de portada siguen siendo legibles para el servidor."
 
 msgid "hub_coming_soon_toggle"
-msgstr "Funciones en linea"
+msgstr "Funciones en línea"
 
 msgid "hub_only_detail_hint"
 msgstr "Conectate al mismo Wi-Fi o espera a que esta biblioteca este en linea para ver los detalles completos."
@@ -12778,3 +12778,163 @@ msgstr "Libro siguiente"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "Libro siguiente: {title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "¿Registrar este dispositivo en el servidor de BiblioGenius?"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "Lo que este dispositivo envía al servidor"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "Esta acción necesita el servidor de BiblioGenius. El registro por sí solo no publica nada en el directorio público."
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "El servidor recibe:"
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "la lista de tus libros compartidos, cifrada (nunca tus libros privados)"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "la lista de tus libros compartidos, legible por el servidor y por todos, ya que publicas sin aprobación requerida (nunca tus libros privados)"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "las fotos de portada de esos libros, legibles por el servidor"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "el nombre y el avatar de tu biblioteca, el número de libros, tu país y tu ciudad si los has indicado"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "un identificador de este dispositivo (su huella), para evitar un duplicado de tu biblioteca tras una reinstalación"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "el modelo del dispositivo y la versión de la aplicación"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "lo necesario para recibir los mensajes de tus contactos, cifrados de extremo a extremo"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "la fecha de tu última conexión"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "Si rechazas, no se envía nada y la acción se cancela. La aplicación sigue funcionando sin el servidor."
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "Detalles"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "Registro, «{toggle}», directorio"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "Son tres cosas distintas. El registro da a conocer este dispositivo al servidor. El ajuste «{toggle}» da acceso a las funciones del directorio. Tu biblioteca solo aparece en el directorio público si decides publicarla."
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "Tus libros compartidos"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "Son los libros que posees y que no has marcado como privados. La copia de esta lista está cifrada para tus contactos, salvo si tu biblioteca es visible en el directorio sin aprobación requerida, o mientras uno de tus seguidores use una versión de la aplicación demasiado antigua para descifrarla. Las fotos de portada siguen siendo legibles por el servidor."
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "El identificador del dispositivo"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "Es una forma transformada del identificador que proporciona el sistema: el servidor no recibe el identificador original. Por lo general sigue siendo el mismo tras una reinstalación. El servidor lo usa para sustituir tu registro anterior en lugar de crear otro, y sus administradores pueden usarlo para encontrar tu registro si pides ayuda. La aplicación no lo envía a ningún otro servicio."
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "El modelo del dispositivo y la versión"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "Son visibles para los administradores del servidor."
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "El buzón de mensajes"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "Permite que tus contactos te escriban. El servidor guarda su dirección, tu clave pública y un código que autoriza a depositar mensajes en él. El contenido de los mensajes está cifrado de extremo a extremo."
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "La fecha de la última conexión"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "Se actualiza cada vez que se abre la aplicación."
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "Publicidad y medición de audiencia"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "La aplicación no contiene ninguna herramienta publicitaria ni de medición de audiencia."
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "Sin registro"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "Todo lo que ocurre en este dispositivo sigue funcionando, así como los intercambios con las bibliotecas de tu red local. Los intercambios a distancia necesitan este registro."
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "Rechazar y cancelar"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "Registrar y continuar"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "Este dispositivo está registrado en el servidor de BiblioGenius"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "El registro sirve para los intercambios con tus contactos y para las funciones en línea que usas."
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "Ver lo que se envía"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "Quién gestiona el servidor, y cómo darse de baja"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "La aplicación aún no permite retirar este registro. La página «Eliminación de datos» del sitio indica quién gestiona el servidor y cómo solicitar la eliminación."
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "Eliminación de datos"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "Continuar sin el servidor"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "Sin registro, no se envía nada al servidor: la conexión funciona solo en tu red local."

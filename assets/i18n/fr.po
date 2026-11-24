@@ -12920,3 +12920,163 @@ msgstr "Livre suivant"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "Livre suivant : {title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "Inscrire cet appareil sur le serveur BiblioGenius ?"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "Ce que cet appareil envoie au serveur"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "Cette action a besoin du serveur BiblioGenius. L'inscription seule ne publie rien dans l'annuaire public."
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "Le serveur reçoit :"
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "la liste de vos livres partagés, chiffrée (jamais vos livres privés)"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "la liste de vos livres partagés, lisible par le serveur et par tous, puisque vous publiez sans approbation requise (jamais vos livres privés)"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "les photos de couverture de ces livres, lisibles par le serveur"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "le nom et l'avatar de votre bibliothèque, le nombre de livres, votre pays et votre ville si vous les avez renseignés"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "un identifiant de cet appareil (son empreinte), pour éviter un doublon de votre bibliothèque après une réinstallation"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "le modèle de l'appareil et la version de l'application"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "de quoi recevoir les messages de vos contacts, chiffrés de bout en bout"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "la date de votre dernière connexion"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "Si vous refusez, rien n'est envoyé et l'action est annulée. L'application continue de fonctionner sans le serveur."
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "Détails"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "Inscription, « {toggle} », annuaire"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "Ce sont trois choses différentes. L'inscription fait connaître cet appareil au serveur. Le réglage « {toggle} » donne accès aux fonctions de l'annuaire. Votre bibliothèque n'apparaît dans l'annuaire public que si vous choisissez de la publier."
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "Vos livres partagés"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "Ce sont les livres que vous possédez et que vous n'avez pas marqués comme privés. La copie de cette liste est chiffrée pour vos contacts, sauf si votre bibliothèque est visible dans l'annuaire sans approbation requise, ou tant qu'un de vos abonnés utilise une version trop ancienne de l'application pour la déchiffrer. Les photos de couverture restent lisibles par le serveur."
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "L'identifiant de l'appareil"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "C'est une forme transformée de l'identifiant fourni par le système : le serveur ne reçoit pas l'identifiant d'origine. Elle reste en général la même après une réinstallation. Le serveur s'en sert pour remplacer votre ancienne inscription au lieu d'en créer une seconde, et ses administrateurs peuvent s'en servir pour retrouver votre inscription si vous demandez de l'aide. L'application ne l'envoie à aucun autre service."
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "Le modèle de l'appareil et la version"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "Ils sont visibles par les administrateurs du serveur."
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "La boîte de messages"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "Elle permet à vos contacts de vous écrire. Le serveur conserve son adresse, votre clé publique et un code qui autorise à y déposer des messages. Le contenu des messages est chiffré de bout en bout."
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "La date de dernière connexion"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "Elle est mise à jour à chaque ouverture de l'application."
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "Publicité et mesure d'audience"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "L'application ne contient aucun outil publicitaire ni outil de mesure d'audience."
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "Sans inscription"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "Tout ce qui se passe sur cet appareil continue de fonctionner, ainsi que les échanges avec les bibliothèques de votre réseau local. Les échanges à distance ont besoin de cette inscription."
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "Refuser et annuler"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "Inscrire et continuer"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "Cet appareil est inscrit sur le serveur BiblioGenius"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "L'inscription sert à vos échanges avec vos contacts et aux fonctions en ligne que vous utilisez."
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "Voir ce qui est envoyé"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "Qui gère le serveur, et se désinscrire"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "L'application ne permet pas encore de retirer cette inscription. La page « Suppression des données » du site indique qui gère le serveur et comment demander la suppression."
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "Suppression des données"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "Continuer sans le serveur"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "Sans inscription, rien n'est envoyé au serveur : la connexion se fait sur votre réseau local seulement."

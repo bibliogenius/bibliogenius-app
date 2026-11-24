@@ -12910,3 +12910,163 @@ msgstr "Sonraki kitap"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "Sonraki kitap: {title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "Bu cihaz BiblioGenius sunucusuna kaydedilsin mi?"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "Bu cihazın sunucuya gönderdikleri"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "Bu işlem BiblioGenius sunucusunu gerektirir. Kayıt tek başına herkese açık dizinde hiçbir şey yayımlamaz."
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "Sunucunun aldıkları:"
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "paylaştığınız kitapların listesi, şifreli olarak (özel kitaplarınız asla)"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "paylaştığınız kitapların listesi; onay gerekmeden yayımladığınız için sunucu ve herkes tarafından okunabilir (özel kitaplarınız asla)"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "bu kitapların kapak fotoğrafları, sunucu tarafından okunabilir"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "kütüphanenizin adı ve avatarı, kitap sayısı, belirttiyseniz ülkeniz ve şehriniz"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "bu cihazın bir tanımlayıcısı (cihazın parmak izi); yeniden kurulumdan sonra kütüphanenizin ikinci kez oluşmasını önlemek için"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "cihaz modeli ve uygulama sürümü"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "kişilerinizin uçtan uca şifreli mesajlarını almak için gerekenler"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "son bağlantınızın tarihi"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "Reddederseniz hiçbir şey gönderilmez ve işlem iptal edilir. Uygulama sunucu olmadan çalışmaya devam eder."
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "Ayrıntılar"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "Kayıt, “{toggle}”, dizin"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "Bunlar üç ayrı şeydir. Kayıt, bu cihazı sunucuya tanıtır. “{toggle}” ayarı dizin özelliklerine erişim sağlar. Kütüphaneniz yalnızca yayımlamayı seçerseniz herkese açık dizinde görünür."
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "Paylaştığınız kitaplar"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "Sahip olduğunuz ve özel olarak işaretlemediğiniz kitaplardır. Bu listenin kopyası kişileriniz için şifrelenir; ancak kütüphaneniz dizinde onay gerekmeden görünüyorsa veya takipçilerinizden biri listeyi çözemeyecek kadar eski bir uygulama sürümü kullandığı sürece şifrelenmez. Kapak fotoğrafları sunucu tarafından okunabilir kalır."
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "Cihaz tanımlayıcısı"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "Sistemin sağladığı tanımlayıcının dönüştürülmüş bir biçimidir: sunucu özgün tanımlayıcıyı almaz. Yeniden kurulumdan sonra genellikle aynı kalır. Sunucu bunu, ikinci bir kayıt oluşturmak yerine önceki kaydınızın yerine yenisini koymak için kullanır; yardım isterseniz sunucu yöneticileri kaydınızı bulmak için de kullanabilir. Uygulama bunu başka hiçbir hizmete göndermez."
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "Cihaz modeli ve sürüm"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "Sunucu yöneticileri tarafından görülebilir."
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "Mesaj kutusu"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "Kişilerinizin size yazmasını sağlar. Sunucu kutunun adresini, açık anahtarınızı ve kutuya mesaj bırakmaya izin veren bir kodu saklar. Mesajların içeriği uçtan uca şifrelidir."
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "Son bağlantı tarihi"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "Uygulama her açıldığında güncellenir."
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "Reklam ve kitle ölçümü"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "Uygulama hiçbir reklam aracı veya kitle ölçüm aracı içermez."
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "Kayıt olmadan"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "Bu cihazda olan her şey ve yerel ağınızdaki kütüphanelerle alışveriş çalışmaya devam eder. Uzaktan alışveriş için bu kayıt gerekir."
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "Reddet ve iptal et"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "Cihazı kaydet ve devam et"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "Bu cihaz BiblioGenius sunucusuna kayıtlı"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "Kayıt, kişilerinizle alışverişleriniz ve kullandığınız çevrimiçi özellikler içindir."
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "Gönderilenleri gör"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "Sunucuyu kim yönetiyor ve kayıt nasıl silinir"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "Uygulama bu kaydı geri çekmeye henüz izin vermiyor. Sitedeki “Verilerin silinmesi” sayfası (İngilizce), sunucuyu kimin yönettiğini ve silme talebinin nasıl yapılacağını belirtir."
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "Verilerin silinmesi (İngilizce)"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "Sunucu olmadan devam et"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "Kayıt olmadan sunucuya hiçbir şey gönderilmez: bağlantı yalnızca yerel ağınızda çalışır."

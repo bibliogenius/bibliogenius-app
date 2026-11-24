@@ -12919,3 +12919,163 @@ msgstr "다음 책"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "다음 책: {title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "이 기기를 BiblioGenius 서버에 등록할까요?"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "이 기기가 서버로 보내는 내용"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "이 작업에는 BiblioGenius 서버가 필요합니다. 등록만으로는 공개 디렉터리에 아무것도 게시되지 않습니다."
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "서버가 받는 것:"
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "공유한 책 목록(암호화됨, 비공개 책은 절대 포함되지 않음)"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "공유한 책 목록. 승인을 요구하지 않고 게시하므로 서버와 누구나 읽을 수 있습니다(비공개 책은 절대 포함되지 않음)"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "해당 책들의 표지 사진(서버가 읽을 수 있음)"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "서재 이름과 아바타, 책 수, 입력한 경우 국가와 도시"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "이 기기의 식별자(기기 지문). 재설치 후 서재가 중복되는 것을 막기 위한 것입니다"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "기기 모델과 앱 버전"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "연락처의 메시지(종단 간 암호화)를 받는 데 필요한 정보"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "마지막 접속 날짜"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "거부하면 아무것도 전송되지 않고 작업이 취소됩니다. 앱은 서버 없이도 계속 작동합니다."
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "자세히"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "등록, “{toggle}”, 디렉터리"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "이 세 가지는 서로 다릅니다. 등록은 이 기기를 서버에 알립니다. “{toggle}” 설정은 디렉터리 기능을 사용할 수 있게 합니다. 서재는 게시하기로 선택한 경우에만 공개 디렉터리에 표시됩니다."
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "공유한 책"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "소유하고 있으며 비공개로 표시하지 않은 책입니다. 이 목록의 사본은 연락처를 위해 암호화됩니다. 단, 서재가 승인을 요구하지 않고 디렉터리에 공개된 경우와, 팔로워 중 누군가가 이를 복호화하기에 너무 오래된 앱 버전을 쓰는 동안은 예외입니다. 표지 사진은 서버가 읽을 수 있는 상태로 남습니다."
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "기기 식별자"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "시스템이 제공하는 식별자를 변환한 형태입니다. 서버는 원래 식별자를 받지 않습니다. 보통 재설치 후에도 그대로 유지됩니다. 서버는 두 번째 등록을 만드는 대신 이전 등록을 대체하는 데 이를 사용하며, 도움을 요청하면 서버 관리자가 등록을 찾는 데 사용할 수 있습니다. 앱은 이를 다른 어떤 서비스에도 보내지 않습니다."
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "기기 모델과 버전"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "서버 관리자가 볼 수 있습니다."
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "메시지 보관함"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "연락처가 나에게 메시지를 보낼 수 있게 합니다. 서버는 보관함 주소, 공개 키, 메시지를 넣을 수 있게 하는 코드를 보관합니다. 메시지 내용은 종단 간 암호화됩니다."
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "마지막 접속 날짜"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "앱을 열 때마다 갱신됩니다."
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "광고 및 이용 측정"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "이 앱에는 광고 도구도 이용 측정 도구도 없습니다."
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "등록하지 않으면"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "이 기기에서 하는 모든 일과 로컬 네트워크에 있는 서재와의 교류는 계속 작동합니다. 원격 교류에는 이 등록이 필요합니다."
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "거부하고 취소"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "등록하고 계속"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "이 기기는 BiblioGenius 서버에 등록되어 있습니다"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "이 등록은 연락처와의 교류와 사용 중인 온라인 기능에 쓰입니다."
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "전송되는 내용 보기"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "서버 운영자와 등록 해지"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "이 앱에서는 아직 이 등록을 철회할 수 없습니다. 사이트의 “데이터 삭제” 페이지(영어)에 서버 운영자와 삭제 요청 방법이 나와 있습니다."
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "데이터 삭제(영어)"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "서버 없이 계속"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "등록하지 않으면 서버로 아무것도 전송되지 않으며, 연결은 로컬 네트워크에서만 작동합니다."

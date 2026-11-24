@@ -79,8 +79,13 @@ class _MockFfiService extends FfiService {
   int encryptedPushes = 0;
   int clearPushes = 0;
 
+  /// A failure of the followers read that is not a refused token.
+  String? followersError;
+
   @override
   Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async {
+    final error = followersError;
+    if (error != null) throw StateError(error);
     // The dead token cannot read the followers either.
     if (registerCalls == 0) throw StateError('Hub error 401: unauthorized');
     return const [];
@@ -142,20 +147,31 @@ void main() {
     expect(pushed, 7);
   });
 
-  test('the push that follows is decided again: a private catalog does not '
-      'go out in clear', () async {
-    // With the dead token the followers cannot be read, so the first
-    // attempt falls back on a clear push. Once registered again they can:
-    // the retry must be encrypted, not a replay of the clear attempt.
+  test('a private catalog whose followers a dead token cannot read registers '
+      'again, then goes out encrypted, never in clear', () async {
+    // With the dead token the followers cannot be read, so nothing can be
+    // decided and nothing is pushed. The refusal itself says the profile
+    // is gone: once registered again the followers are read and the
+    // catalog is encrypted.
     final (provider, ffi) = await _registeredWithoutRelay(privateLibrary: true);
-    ffi.pushErrorUntilRegistered =
-        'Hub error 401: {"error":"Invalid write_token."}';
 
-    await provider.syncCatalog();
+    final pushed = await provider.syncCatalog();
 
     expect(ffi.registerCalls, 1);
     expect(ffi.encryptedPushes, 1);
-    expect(ffi.clearPushes, 1, reason: 'only the first, refused attempt');
+    expect(ffi.clearPushes, 0);
+    expect(pushed, 7);
+  });
+
+  test('followers unreadable for another reason: nothing registers and '
+      'nothing is pushed', () async {
+    final (provider, ffi) = await _registeredWithoutRelay(privateLibrary: true);
+    ffi.followersError = 'hub unreachable';
+
+    expect(await provider.syncCatalog(), -1);
+
+    expect(ffi.registerCalls, 0);
+    expect(ffi.pushAttempts, 0);
   });
 
   test('it registers again once per run, not at every refused push', () async {

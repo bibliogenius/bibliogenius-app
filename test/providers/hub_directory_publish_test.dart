@@ -69,8 +69,21 @@ class _MockFfiService extends FfiService {
     );
   }
 
+  // An approval-required catalog is only pushed once its readers can be
+  // seen: a new library has none.
+  @override
+  Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async => const [];
+
   @override
   Future<int> hubDirectorySyncCatalog() async {
+    syncCatalogCallCount++;
+    return 0;
+  }
+
+  // Listed with approval required and no reader yet: the catalog goes out
+  // encrypted (ADR-072 D8).
+  @override
+  Future<int> hubDirectorySyncCatalogEncrypted() async {
     syncCatalogCallCount++;
     return 0;
   }

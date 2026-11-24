@@ -12,6 +12,7 @@ import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../utils/invite_payload.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Produces the invite to display; injectable so the screen can be tested
 /// without the network. Defaults to [loadInviteLink] against the backend.
@@ -21,7 +22,11 @@ typedef InviteLoader = Future<InviteLinkData?> Function();
 ///
 /// The keys (`showMyCodeDialog`, `closeShowMyCode`, `myQrCode`, ...) are the
 /// ones the integration tour drives; keep them when reworking the screen.
-Future<void> showInviteScreen(BuildContext context) {
+Future<void> showInviteScreen(BuildContext context) async {
+  // An invitation carries the relay mailbox and goes through the hub: the
+  // question comes before the screen (ADR-073 D2). Refused, it never opens.
+  if (!await confirmOnlineServices(context)) return;
+  if (!context.mounted) return;
   return showGeneralDialog<void>(
     context: context,
     barrierDismissible: true,
@@ -79,9 +84,9 @@ class _InviteScreenState extends State<InviteScreen> {
     final apiService = Provider.of<ApiService>(context, listen: false);
     final hub = context.read<HubDirectoryProvider>();
     return () async {
-      // An invitation carries the relay mailbox and goes through the hub:
-      // creating one is the choice of the online services (ADR-073 D2).
-      await hub.grantOnlineServices(maxWait: kInvitationConsentMaxWait);
+      // An invitation carries the relay mailbox: what startup would have
+      // done, for the consent given before this screen opened.
+      await hub.startOnlineServices(maxWait: kInvitationConsentMaxWait);
       return loadInviteLink(
         libraryName: _libraryName,
         fetchLibraryConfig: () async =>

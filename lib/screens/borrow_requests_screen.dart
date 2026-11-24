@@ -26,6 +26,7 @@ import '../src/rust/api/frb.dart'
 import '../utils/cover_url_resolver.dart';
 import '../utils/requests_tabs.dart';
 import '../widgets/premium_empty_state.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Screen for managing loans, borrows, and P2P requests
 /// Structure:
@@ -2312,11 +2313,20 @@ class _LoansScreenState extends State<LoansScreen>
     final hubDir = Provider.of<HubDirectoryProvider>(context, listen: false);
     final pending = Provider.of<PendingPeersProvider>(context, listen: false);
     final flashes = Provider.of<FlashMessageProvider>(context, listen: false);
+    // Accepting a connection registers this library on the hub, so that it
+    // can be reached beyond the local network: the question comes first
+    // (ADR-073 D2). The request reached this device over the local
+    // network, so declining the registration accepts it there alone.
+    // Dismissed, the request stays pending.
+    final consent = await confirmOnlineServicesForPairing(
+      context,
+      localAddress: true,
+    );
+    if (consent == PairingConsent.cancelled) return;
     try {
-      // Accepting a connection is the choice of the online services
-      // (ADR-073): consent and relay mailbox first, so this library can
-      // be reached beyond the local network.
-      await hubDir.grantOnlineServices(maxWait: kPairingConsentMaxWait);
+      // The relay mailbox is created before the peer is accepted (nothing
+      // happens without the consent).
+      await hubDir.startOnlineServices(maxWait: kPairingConsentMaxWait);
       await api.updatePeerStatus(peer['id'], 'active');
       // ADR-053: a freshly accepted pairing must also hold hub catalog
       // access; the reconciliation sends/approves the mutual follow.

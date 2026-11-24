@@ -10,6 +10,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/account_sync_restart_dialog.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Which side of the in-person pairing handshake this device plays. The role is
 /// fixed by sign-in state (a signed-out device can only be the new one; a
@@ -46,6 +47,20 @@ class _AccountAddDeviceScreenState extends State<AccountAddDeviceScreen> {
   String? _sealedPayload;
 
   @override
+  void initState() {
+    super.initState();
+    // The authorizer already belongs to the account; the new device is
+    // about to join it.
+    if (widget.role == AccountPairingRole.newDevice) {
+      // An encrypted account lives on the hub: the question of ADR-073 D2
+      // comes before anything is typed. Refused, the screen closes.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) confirmOnlineServicesOrLeave(context);
+      });
+    }
+  }
+
+  @override
   void dispose() {
     _deviceNameController.dispose();
     super.dispose();
@@ -70,6 +85,10 @@ class _AccountAddDeviceScreenState extends State<AccountAddDeviceScreen> {
   Future<void> _generatePairCode() async {
     final name = _deviceNameController.text.trim();
     if (name.isEmpty) return;
+    // An account lives on the hub and registers this device there: asked
+    // when the screen opened (ADR-073 D2), checked again before sending.
+    if (!await confirmOnlineServices(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     try {
       final payload = await _provider.getDevicePairingQr(name);
@@ -89,6 +108,10 @@ class _AccountAddDeviceScreenState extends State<AccountAddDeviceScreen> {
       expectedToken: 'bg-sealed',
     );
     if (sealed == null || !mounted) return;
+    // Joining the account registers this device on the hub: asked when the
+    // screen opened (ADR-073 D2), checked again before joining.
+    if (!await confirmOnlineServices(context)) return;
+    if (!mounted) return;
     setState(() => _busy = true);
     try {
       final restartRequired = await _provider.enrollFromSealed(sealed);

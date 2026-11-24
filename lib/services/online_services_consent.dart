@@ -8,7 +8,7 @@ enum OnlineServicesChoice {
   /// already does on the network (ADR-073 D3).
   unset,
 
-  /// Said yes at a network action.
+  /// Said yes to the dialog shown at a network action (ADR-073 D2).
   granted,
 
   /// Said yes once, then took it back. Network use no longer counts.
@@ -30,6 +30,10 @@ enum OnlineServicesDecision {
 /// What this installation already does on the network, read from the device
 /// alone. Any of these stands for a consent while the choice is unset: the
 /// user who paired with a peer, or opened the directory, did choose the hub.
+///
+/// Sharing the scores is not one of them: the switch sends nothing to the
+/// hub, the scores only travel to peers, and a peer is already a signal.
+/// On its own it would register someone who has nobody to share with.
 @immutable
 class NetworkUseSignals {
   const NetworkUseSignals({
@@ -37,7 +41,6 @@ class NetworkUseSignals {
     this.directoryEnabled = false,
     this.isListed = false,
     this.hasAccount = false,
-    this.sharesLeaderboard = false,
   });
 
   /// At least one peer, whatever its status, on an installation that an
@@ -54,29 +57,20 @@ class NetworkUseSignals {
   /// This device belongs to an encrypted account.
   final bool hasAccount;
 
-  /// The scores are shared with peers.
-  final bool sharesLeaderboard;
-
   /// The same signals with the peer left out.
   NetworkUseSignals withoutPeer() => NetworkUseSignals(
     directoryEnabled: directoryEnabled,
     isListed: isListed,
     hasAccount: hasAccount,
-    sharesLeaderboard: sharesLeaderboard,
   );
 
-  bool get any =>
-      hasPeer ||
-      directoryEnabled ||
-      isListed ||
-      hasAccount ||
-      sharesLeaderboard;
+  bool get any => hasPeer || directoryEnabled || isListed || hasAccount;
 
   @override
   String toString() =>
       'NetworkUseSignals(hasPeer: $hasPeer, '
       'directoryEnabled: $directoryEnabled, isListed: $isListed, '
-      'hasAccount: $hasAccount, sharesLeaderboard: $sharesLeaderboard)';
+      'hasAccount: $hasAccount)';
 }
 
 /// The rule itself, kept pure: an explicit choice wins, and only an unset
@@ -146,6 +140,12 @@ class OnlineServicesConsent {
   Future<bool> isAllowed() async =>
       await decide() == OnlineServicesDecision.allowed;
 
+  /// Whether a consent that holds was never given in so many words: the
+  /// choice is unset and the yes comes from network use (ADR-073 D3). Only
+  /// meaningful when [isAllowed] answered true.
+  Future<bool> isInferred() async =>
+      !debugAlwaysAllowed && await choice() == OnlineServicesChoice.unset;
+
   /// The decision, telling a real "no" from "could not tell". Only a real
   /// no may lead to removing something from the device (the local relay
   /// configuration): a database that is not ready yet must never be read
@@ -188,8 +188,8 @@ class OnlineServicesConsent {
   /// From then on a peer no longer stands for a consent: another device can
   /// create a peer row here at any time (an incoming connection request),
   /// and that must not reopen the hub behind the user's back. What the
-  /// user does on this device (the directory switch, an account, shared
-  /// scores, any network gesture) still counts.
+  /// user does on this device (the directory switch, an account, any
+  /// network gesture) still counts.
   Future<void> rememberSilence() async {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(peersIgnoredPrefKey) == true) return;

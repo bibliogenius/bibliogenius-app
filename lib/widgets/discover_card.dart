@@ -13,6 +13,7 @@ import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import 'hub_location_label.dart';
+import 'online_services_consent_dialog.dart';
 
 /// Card for a hub library profile in the Discover tab.
 class DiscoverCard extends StatelessWidget {
@@ -393,6 +394,9 @@ class DiscoverCard extends StatelessWidget {
       color: const Color(0xFF3A7186),
       isDark: isDark,
       onPressed: () async {
+        // Following registers this library on the hub: the question comes
+        // first (ADR-073 D2).
+        if (!await confirmOnlineServices(context)) return;
         final ok = await provider.follow(profile.nodeId);
         if (!context.mounted) return;
         if (!ok || provider.actionError != null) {

@@ -12919,3 +12919,163 @@ msgstr "次の本"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "次の本：{title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "このデバイスをBiblioGeniusサーバーに登録しますか？"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "このデバイスがサーバーに送信する内容"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "この操作にはBiblioGeniusサーバーが必要です。登録だけでは公開ディレクトリに何も公開されません。"
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "サーバーが受け取るもの："
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "共有している本のリスト（暗号化されます。非公開の本は決して含まれません）"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "共有している本のリスト。承認を必須にせずに公開するため、サーバーと誰もが読めます（非公開の本は決して含まれません）"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "それらの本の表紙写真（サーバーから読めます）"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "ライブラリの名前とアバター、本の冊数、入力している場合は国と都市"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "このデバイスの識別子（フィンガープリント）。再インストール後にライブラリが重複するのを防ぐためです"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "デバイスの機種とアプリのバージョン"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "連絡先からのメッセージ（エンドツーエンドで暗号化）を受け取るために必要な情報"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "最後に接続した日付"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "拒否した場合、何も送信されず、操作はキャンセルされます。アプリはサーバーなしで引き続き動作します。"
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "詳細"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "登録、「{toggle}」、ディレクトリ"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "これらは3つの別々のものです。登録は、このデバイスをサーバーに知らせます。「{toggle}」の設定は、ディレクトリの機能を使えるようにします。ライブラリは、公開することを選んだ場合にのみ公開ディレクトリに表示されます。"
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "共有している本"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "所有していて、非公開に設定していない本です。このリストのコピーは連絡先のために暗号化されます。ただし、承認を必須にせずにライブラリをディレクトリで公開している場合や、フォロワーの誰かが復号できないほど古いバージョンのアプリを使っている間は除きます。表紙の写真はサーバーから読める状態のままです。"
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "デバイスの識別子"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "システムが提供する識別子を変換したものです。サーバーは元の識別子を受け取りません。通常、再インストール後も同じままです。サーバーは、2つ目の登録を作る代わりに以前の登録を置き換えるためにこれを使います。あなたがサポートを依頼した場合、サーバーの管理者が登録を探すために使うこともあります。アプリはこれを他のどのサービスにも送信しません。"
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "デバイスの機種とバージョン"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "サーバーの管理者に表示されます。"
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "メッセージボックス"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "連絡先があなたにメッセージを送れるようにします。サーバーは、そのアドレス、あなたの公開鍵、メッセージの投函を許可するコードを保存します。メッセージの内容はエンドツーエンドで暗号化されます。"
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "最終接続日"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "アプリを開くたびに更新されます。"
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "広告と利用状況の計測"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "このアプリには広告ツールも利用状況の計測ツールも含まれていません。"
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "登録しない場合"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "このデバイス上で行うことはすべて、またローカルネットワーク上のライブラリとのやり取りも、引き続き動作します。離れた場所とのやり取りにはこの登録が必要です。"
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "拒否してキャンセル"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "登録して続ける"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "このデバイスはBiblioGeniusサーバーに登録されています"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "この登録は、連絡先とのやり取りと、利用しているオンライン機能のために使われます。"
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "送信される内容を見る"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "サーバーの運営者と登録の解除"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "このアプリでは、まだこの登録を取り消すことができません。サイトの「データの削除」ページ（英語）に、サーバーの運営者と削除の依頼方法が記載されています。"
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "データの削除（英語）"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "サーバーなしで続ける"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "登録しない場合、サーバーには何も送信されません。接続はローカルネットワーク内でのみ機能します。"

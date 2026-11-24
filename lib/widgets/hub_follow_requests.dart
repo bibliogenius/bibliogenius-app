@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../models/hub_directory.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
+import 'online_services_consent_dialog.dart';
 
 /// How many request cards the inline preview renders before collapsing the
 /// rest behind the "see all" link. The section sits on top of the contacts
@@ -234,7 +235,11 @@ class HubFollowRequestTile extends StatelessWidget {
     required this.provider,
   });
 
-  Future<void> _approve() async {
+  Future<void> _approve(BuildContext context) async {
+    // Welcoming a reader is a network action: the question comes first
+    // (ADR-073 D2). An owner who sees requests almost always consents
+    // already, and is then not asked.
+    if (!await confirmOnlineServices(context)) return;
     // The card is attached only if this follower is in its audience.
     final blob = await provider.contactBlobForApproval(follow);
     await provider.resolveFollow(
@@ -371,7 +376,7 @@ class HubFollowRequestTile extends StatelessWidget {
                     ),
                   ),
                   FilledButton.icon(
-                    onPressed: busy ? null : _approve,
+                    onPressed: busy ? null : () => _approve(context),
                     icon: busy
                         ? const SizedBox(
                             width: 16,

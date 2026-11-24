@@ -9,6 +9,8 @@ import 'package:bibliogenius/widgets/hub_follow_requests.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/device_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
+import 'package:bibliogenius/services/online_services_consent.dart';
+import 'package:bibliogenius/widgets/online_services_consent_dialog.dart';
 import 'package:bibliogenius/services/translation_service.dart';
 import 'package:bibliogenius/src/rust/api/frb.dart' as frb;
 
@@ -77,13 +79,22 @@ frb.FrbHubFollow _follow({required int id, required String name}) {
   );
 }
 
-Future<HubDirectoryProvider> _provider(_MockFfiService ffi) async {
+/// [usesNetwork]: an owner who receives follow requests has the online
+/// features on, which stands for the online services consent (ADR-073).
+Future<HubDirectoryProvider> _provider(
+  _MockFfiService ffi, {
+  bool usesNetwork = true,
+}) async {
   SharedPreferences.setMockInitialValues({});
   AuthService.storage = MockSecureStorage();
 
   final provider = HubDirectoryProvider(
     ffi: ffi,
     deviceService: _MockDeviceService(),
+    onlineServices: OnlineServicesConsent(
+      readSignals: () async =>
+          NetworkUseSignals(directoryEnabled: usesNetwork),
+    ),
   );
   await provider.loadPendingRequests();
   return provider;
@@ -237,6 +248,60 @@ void main() {
       expect(ffi.resolved.single.id, 7);
       expect(ffi.resolved.single.resolution, 'approve');
       expect(ffi.ownerGestures, [true]);
+    });
+  });
+
+  group('approving without the online services consent (ADR-073)', () {
+    // Providers above the MaterialApp, as in main.dart: the dialog is a
+    // route of the root Navigator.
+    Widget harness(HubDirectoryProvider hub) => MultiProvider(
+      providers: [
+        ChangeNotifierProvider<ThemeProvider>.value(value: theme),
+        ChangeNotifierProvider<HubDirectoryProvider>.value(value: hub),
+      ],
+      child: MaterialApp(
+        home: Scaffold(
+          body: ListenableBuilder(
+            listenable: hub,
+            builder: (context, _) => hub.pendingRequests.isEmpty
+                ? const SizedBox.shrink()
+                : HubFollowRequestTile(
+                    follow: hub.pendingRequests.first,
+                    provider: hub,
+                  ),
+          ),
+        ),
+      ),
+    );
+
+    testWidgets('refused: the hub receives nothing', (tester) async {
+      final ffi = _MockFfiService()..pending = [_follow(id: 7, name: 'Ann')];
+      final hub = await _provider(ffi, usesNetwork: false);
+      await tester.pumpWidget(harness(hub));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Approve'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OnlineServicesConsentDialog), findsOneWidget);
+      await tester.tap(find.text('online_reg_refuse'));
+      await tester.pumpAndSettle();
+
+      expect(ffi.resolved, isEmpty);
+      expect(find.text('Approve'), findsOneWidget, reason: 'still pending');
+    });
+
+    testWidgets('accepted: the request is approved', (tester) async {
+      final ffi = _MockFfiService()..pending = [_follow(id: 7, name: 'Ann')];
+      final hub = await _provider(ffi, usesNetwork: false);
+      await tester.pumpWidget(harness(hub));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Approve'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('online_reg_accept'));
+      await tester.pumpAndSettle();
+
+      expect(ffi.resolved.single.resolution, 'approve');
     });
   });
 

@@ -216,29 +216,61 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Whether this installation may register on the hub and send it library
   /// data (ADR-073 D1). Every call the app makes on its own (startup,
   /// timers, opening a screen) checks this first; a gesture of the user
-  /// goes through [grantOnlineServices] instead.
-  Future<bool> onlineServicesAllowed() => _onlineServices.isAllowed();
+  /// asks the question when this is false, then goes through
+  /// [startOnlineServices].
+  Future<bool> onlineServicesAllowed() async {
+    final decision = await _onlineServices.decide();
+    final allowed = decision == OnlineServicesDecision.allowed;
+    _onlineServicesUnreadable = decision == OnlineServicesDecision.unknown;
+    final inferred = allowed && await _onlineServices.isInferred();
+    if (inferred != _onlineServicesInferred ||
+        allowed != _onlineServicesKnownAllowed) {
+      _onlineServicesInferred = inferred;
+      _onlineServicesKnownAllowed = allowed;
+      notifyListeners();
+    }
+    return allowed;
+  }
 
-  /// Records the consent given by a network action of the user that leaves
-  /// no trace on the device by itself (creating an invitation, asking to be
-  /// reachable remotely), then does what startup would have done:
-  /// registration, relay mailbox, catalog push. Pairing, the directory
-  /// switch, an encrypted account and shared scores need no call here: they
-  /// are read back as network use.
+  /// Whether the last [onlineServicesAllowed] answered false because the
+  /// device could not be read (a database still busy at startup), so that
+  /// neither a yes nor a no could be told.
+  bool get onlineServicesUnreadable => _onlineServicesUnreadable;
+  bool _onlineServicesUnreadable = false;
+
+  /// The last answer of [onlineServicesAllowed], for a widget that shows
+  /// a state depending on it: false until the device was read. Listeners
+  /// are notified when it changes, a yes given to the dialog included.
+  bool get onlineServicesKnownAllowed => _onlineServicesKnownAllowed;
+  bool _onlineServicesKnownAllowed = false;
+
+  /// True when this installation uses the hub without ever having been
+  /// asked: its consent is inferred from what it already does on the
+  /// network (ADR-073 D3). Such an installation is told once, with nothing
+  /// to do. False until the device was read, and once a yes is written.
+  bool get onlineServicesInferred => _onlineServicesInferred;
+  bool _onlineServicesInferred = false;
+
+  /// Does what startup would have done for a network action the user just
+  /// made: registration, relay mailbox, catalog push.
   ///
-  /// The single place where the question is asked: the shared dialog of
-  /// ADR-073 D2 belongs here.
+  /// Records nothing and asks nothing. The question of ADR-073 D2 is asked
+  /// before the action, by the shared dialog (`confirmOnlineServices`),
+  /// which is the only place where a yes is written. Without a consent
+  /// this returns at once and nothing is sent: a caller that forgot the
+  /// dialog fails closed.
   ///
   /// An installation that already consents and is registered returns at
   /// once: an invitation must not wait on the hub, nor replay the startup
   /// calls, each time its screen opens.
   ///
-  /// [maxWait] bounds how long the gesture waits for the hub: the consent
-  /// is recorded at once and the calls go on in the background. A pairing
-  /// on the local network must not hang on a hub that does not answer.
-  Future<void> grantOnlineServices({Duration? maxWait}) async {
+  /// [maxWait] bounds how long the gesture waits for the hub: the calls go
+  /// on in the background. A pairing on the local network must not hang on
+  /// a hub that does not answer.
+  Future<void> startOnlineServices({Duration? maxWait}) async {
+    if (!await onlineServicesAllowed()) return;
     Future<void> Function() startup;
-    if (isRegistered && await onlineServicesAllowed()) {
+    if (isRegistered) {
       // Registered, but the relay mailbox the gesture needs may be
       // missing: the startup run is still creating it, or its creation
       // failed then. Only then is there something to wait for.
@@ -246,7 +278,6 @@ class HubDirectoryProvider extends ChangeNotifier {
       final running = _initRun;
       startup = running != null ? () => running : ensureRelayPublished;
     } else {
-      await recordOnlineServicesGrant();
       startup = () async {
         final joined = _initRun != null;
         await initAndSyncCatalog();
@@ -260,9 +291,14 @@ class HubDirectoryProvider extends ChangeNotifier {
     await startup().timeout(maxWait, onTimeout: () {});
   }
 
-  /// The consent alone, for a caller that sets the relay up itself and
-  /// registers afterwards.
-  Future<void> recordOnlineServicesGrant() => _onlineServices.grant();
+  /// Writes the yes. Two callers only: the shared dialog, when the user
+  /// accepts it, and the approval of a follower by an owner who already
+  /// consents (see [resolveFollow]).
+  Future<void> recordOnlineServicesGrant() async {
+    await _onlineServices.grant();
+    // Refreshes what the widgets read ([onlineServicesKnownAllowed]).
+    await onlineServicesAllowed();
+  }
 
   /// An installation whose user never chose the online services goes
   /// silent (ADR-073 D3, D4): the relay poller works from the stored relay
@@ -349,7 +385,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   }
 
   /// Enable or disable the hub directory feature.
+  ///
+  /// Turning it on stands for the online services consent at the next
+  /// launch (ADR-073 D3), so it is refused without one: the switch asks
+  /// the question first.
   Future<void> setHubEnabled(bool value) async {
+    if (value && !await onlineServicesAllowed()) return;
     _hubEnabled = value;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kHubEnabledKey, value);
@@ -2433,6 +2474,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     required String displayName,
     String? locationCountry,
   }) async {
+    // Publishing carries a visibility setting, which always reaches the
+    // hub (see [register]); the consent is therefore checked here.
+    if (!await onlineServicesAllowed()) return false;
     // Flip the local flag first so even if register() hits the network
     // cooldown, the UI reflects the user's intent immediately.
     await setHubEnabled(true);
@@ -2525,10 +2569,10 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Follow (or request to follow) a library identified by [nodeId].
   /// Updates the following list on success.
   ///
-  /// Following is a choice of the online services (ADR-073) and leaves no
-  /// trace on the device, so the consent is recorded here. The automatic
-  /// follow of a paired peer passes [userGesture] false: it only runs once
-  /// the consent exists.
+  /// Following is a network action (ADR-073 D2): the screen asks the
+  /// question first, and without a consent this sends nothing and returns
+  /// false. The automatic follow of a paired peer passes [userGesture]
+  /// false: it only runs once the consent exists.
   Future<bool> follow(String nodeId, {bool userGesture = true}) async {
     _busyNodes.add(nodeId);
     _actionError = null;
@@ -2538,7 +2582,8 @@ class HubDirectoryProvider extends ChangeNotifier {
       // The consent, then what startup would have done (relay mailbox,
       // catalog), not the bare registration below.
       if (userGesture) {
-        await grantOnlineServices(maxWait: kInvitationConsentMaxWait);
+        if (!await onlineServicesAllowed()) return false;
+        await startOnlineServices(maxWait: kInvitationConsentMaxWait);
       }
       // Auto-register silently if not yet registered
       if (_config == null) {
@@ -2620,14 +2665,19 @@ class HubDirectoryProvider extends ChangeNotifier {
       final raw = await _ffi.hubDirectoryListFollowers();
       _followers = raw.map(HubFollow.fromFrb).toList();
       _resolveNames(_followers.map((f) => f.followerNodeId).toList());
+      _followersReadError = null;
     } catch (e) {
       debugPrint('HubDirectoryProvider loadFollowers error: $e');
+      _followersReadError = e.toString();
       notifyListeners();
       return false;
     }
     notifyListeners();
     return true;
   }
+
+  /// Why the last [loadFollowers] failed, null after one that succeeded.
+  String? _followersReadError;
 
   /// Load pending incoming follow requests (badge count).
   Future<void> loadPendingRequests() async {
@@ -2859,6 +2909,13 @@ class HubDirectoryProvider extends ChangeNotifier {
       // The follower's node id and key let the Rust side put it on the
       // catalog readers list and wrap the catalog key for it (ADR-072 D3);
       // a library pushing in clear holds no key and sends no wrap.
+      // Welcoming a reader is a network action: without a consent the
+      // dialog comes first, and nothing is sent until it is accepted.
+      if (ownerGesture &&
+          resolution == 'approve' &&
+          !await onlineServicesAllowed()) {
+        return false;
+      }
       final request = _pendingRequests
           .where((f) => f.id == followId)
           .firstOrNull;
@@ -2962,29 +3019,48 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (!await onlineServicesAllowed()) return -1;
     try {
       var mode = await _decideCatalogPushMode();
+      if (mode == null &&
+          await _registerAgainAfterRefusal(_followersReadError)) {
+        // The followers could not be read because the hub no longer knows
+        // this library's token: registered again, they can.
+        mode = await _decideCatalogPushMode();
+      }
+      if (mode == null) {
+        // Readers the owner cannot see: neither a clear push, which would
+        // show a private catalog to the hub, nor an encrypted one that
+        // might lock a reader out. The catalog stays dirty and the next
+        // sync asks again.
+        debugPrint('HubDirectoryProvider syncCatalog: followers unreadable');
+        return -1;
+      }
+      final decided = mode;
       // An encrypted push first rotates the key when a reader left since it
       // was made, then hands every reader its wrap once the hub confirms it
       // holds the ciphertext, all on the Rust side (D3, D4); a failed
       // hand-out comes back as an error and keeps the catalog dirty, so the
       // next sync contacts the hub and wraps again.
-      Future<int> push() => mode == CatalogPushMode.encrypted
+      Future<int> push(CatalogPushMode mode) =>
+          mode == CatalogPushMode.encrypted
           ? _ffi.hubDirectorySyncCatalogEncrypted()
           : _ffi.hubDirectorySyncCatalog();
-      var count = await push();
-      if (count < 0 && await _registerAgainAfterRefusedPush()) {
-        // Decided again: the refused token could not read the followers,
-        // so the first decision fell back on a clear push. Replaying it
-        // would put a private catalog on the hub in clear.
-        mode = await _decideCatalogPushMode();
-        count = await push();
+      var pushed = decided;
+      var count = await push(pushed);
+      if (count < 0 &&
+          await _registerAgainAfterRefusal(_ffi.lastCatalogSyncError)) {
+        // Decided again rather than replayed: the profile is a new one.
+        final again = await _decideCatalogPushMode();
+        if (again == null) return -1;
+        pushed = again;
+        count = await push(pushed);
       }
       if (count >= 0) {
         _catalogDirty = false;
-        _lastCatalogPushMode = mode;
+        _lastCatalogPushMode = pushed;
         await _recordCatalogPush();
       }
       debugPrint(
-        'HubDirectoryProvider syncCatalog: pushed $count ISBNs (${mode.name})',
+        'HubDirectoryProvider syncCatalog: pushed $count ISBNs '
+        '(${pushed.name})',
       );
       return count;
     } catch (e) {
@@ -2995,14 +3071,14 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   bool _registeredAgainAfterRefusedPush = false;
 
-  /// A push refused because the hub no longer knows this library's token:
+  /// A catalog call refused ([cause], the error of a push or of the
+  /// followers read) because the hub no longer knows this library's token:
   /// the hub removed the profile (ADR-073 purges one nobody may read after
   /// 30 days of silence) and this installation, having no relay, sent no
   /// profile update at startup that would have registered it again. Once
   /// per run: a refusal that registering does not cure must not loop.
-  Future<bool> _registerAgainAfterRefusedPush() async {
+  Future<bool> _registerAgainAfterRefusal(String? cause) async {
     if (_registeredAgainAfterRefusedPush || _isIn401Cooldown) return false;
-    final cause = _ffi.lastCatalogSyncError;
     if (cause == null || !cause.contains('Hub error 401:')) return false;
     _registeredAgainAfterRefusedPush = true;
     debugPrint('HubDirectory: push refused (401), registering again');
@@ -3010,16 +3086,16 @@ class HubDirectoryProvider extends ChangeNotifier {
   }
 
   /// Clear or encrypted for the next push. A public library needs no
-  /// followers list; any other reads it fresh, and pushes in clear when the
-  /// hub cannot be read: a catalog must never be encrypted for readers the
-  /// owner cannot see.
-  Future<CatalogPushMode> _decideCatalogPushMode() async {
+  /// followers list; any other reads it fresh. Null when it cannot be
+  /// read: the owner cannot see its readers, so nothing can be decided
+  /// and nothing is pushed.
+  Future<CatalogPushMode?> _decideCatalogPushMode() async {
     final config = _config;
-    if (config == null) return CatalogPushMode.clear;
+    if (config == null) return null;
     if (config.isListed && !config.requiresApproval) {
       return CatalogPushMode.clear;
     }
-    if (!await loadFollowers()) return CatalogPushMode.clear;
+    if (!await loadFollowers()) return null;
     return decideCatalogPushMode(
       isListed: config.isListed,
       requiresApproval: config.requiresApproval,

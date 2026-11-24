@@ -36,7 +36,6 @@ void main() {
         NetworkUseSignals(directoryEnabled: true),
         NetworkUseSignals(isListed: true),
         NetworkUseSignals(hasAccount: true),
-        NetworkUseSignals(sharesLeaderboard: true),
       ];
       for (final signals in uses) {
         expect(
@@ -197,7 +196,6 @@ void main() {
       for (final signals in const [
         NetworkUseSignals(hasPeer: true, directoryEnabled: true),
         NetworkUseSignals(hasAccount: true),
-        NetworkUseSignals(sharesLeaderboard: true),
         NetworkUseSignals(isListed: true),
       ]) {
         expect(

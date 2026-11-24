@@ -1389,6 +1389,7 @@ class ApiService {
     String? relayUrl,
     String? mailboxId,
     String? relayWriteToken,
+    bool localOnly = false,
   }) async {
     if (useFfi) {
       return connectLocalPeer(
@@ -1400,6 +1401,7 @@ class ApiService {
         relayUrl: relayUrl,
         mailboxId: mailboxId,
         relayWriteToken: relayWriteToken,
+        localOnly: localOnly,
       );
     }
     // Fetch my config to send to remote peer for handshake
@@ -3983,6 +3985,12 @@ class ApiService {
 
   /// Connect to a locally discovered peer by URL.
   /// Optional E2EE keys from QR/invite/mDNS are forwarded to the Rust backend.
+  ///
+  /// [localOnly]: the user declined the hub registration (ADR-073) and
+  /// pairs over the local network alone. The peer's relay credentials are
+  /// then neither used nor kept: no relay path, no relay fallback when the
+  /// handshake fails, and nothing that would later reach the peer through
+  /// the hub.
   Future<Response> connectLocalPeer(
     String name,
     String url, {
@@ -3992,7 +4000,13 @@ class ApiService {
     String? relayUrl,
     String? mailboxId,
     String? relayWriteToken,
+    bool localOnly = false,
   }) async {
+    if (localOnly) {
+      relayUrl = null;
+      mailboxId = null;
+      relayWriteToken = null;
+    }
     debugPrint(
       'P2P connectLocalPeer: name="$name" url="$url" '
       'libraryUuid=$libraryUuid e2ee=${ed25519PublicKey != null} '
@@ -4160,10 +4174,13 @@ class ApiService {
         if (response.data is Map) {
           remoteEd25519 ??= response.data['ed25519_public_key'] as String?;
           remoteX25519 ??= response.data['x25519_public_key'] as String?;
-          remoteRelayUrl ??= response.data['relay_url'] as String?;
-          remoteMailboxId ??= response.data['mailbox_id'] as String?;
-          remoteRelayWriteToken ??=
-              response.data['relay_write_token'] as String?;
+          // A local-only pairing keeps no way to the peer through the hub.
+          if (!localOnly) {
+            remoteRelayUrl ??= response.data['relay_url'] as String?;
+            remoteMailboxId ??= response.data['mailbox_id'] as String?;
+            remoteRelayWriteToken ??=
+                response.data['relay_write_token'] as String?;
+          }
         }
 
         // 3. Save peer locally (FFI mode) with E2EE keys and relay info

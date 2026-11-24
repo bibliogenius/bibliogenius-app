@@ -10,11 +10,8 @@ import 'online_services_consent.dart';
 /// (`HubDirectoryProvider.setHubEnabled`).
 const kDirectoryEnabledPrefKey = 'hub_directory_enabled';
 
-/// Preference behind "share my scores" (`ThemeProvider`).
-const kShareLeaderboardPrefKey = 'shareGamificationStats';
-
 /// Reads the network use of this installation (ADR-073 D3) from the device:
-/// two preferences and three local lookups, no request to the hub.
+/// one preference and three local lookups, no request to the hub.
 ///
 /// One true signal is enough, whatever happened to the others. With none
 /// true, a lookup that failed makes the whole answer unknown (it throws):
@@ -35,7 +32,6 @@ Future<NetworkUseSignals> readNetworkUseSignals({
 }) async {
   final prefs = await SharedPreferences.getInstance();
   final directoryEnabled = prefs.getBool(kDirectoryEnabledPrefKey) ?? false;
-  final sharesLeaderboard = prefs.getBool(kShareLeaderboardPrefKey) ?? false;
 
   Object? failure;
   Future<bool> lookup(Future<bool> Function() read) async {
@@ -49,7 +45,6 @@ Future<NetworkUseSignals> readNetworkUseSignals({
 
   final signals = NetworkUseSignals(
     directoryEnabled: directoryEnabled,
-    sharesLeaderboard: sharesLeaderboard,
     hasPeer: await lookup(wasRegistered) && await lookup(hasPeer),
     isListed: await lookup(isListed),
     hasAccount: await lookup(hasAccount),

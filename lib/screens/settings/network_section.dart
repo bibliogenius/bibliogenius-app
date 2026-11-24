@@ -15,6 +15,7 @@ import '../../services/auth_service.dart';
 import '../../services/ffi_service.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
+import '../../widgets/online_services_consent_dialog.dart';
 
 /// Network section (local + remote reachability + public directory)
 class NetworkSettingsSection extends StatelessWidget {
@@ -74,6 +75,10 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
     // Rebuild when the relay connects on its own after the page loads.
     watchSettingsData(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    // Rebuilt when the online services consent changes, here or elsewhere.
+    final reachableShown = context.select<HubDirectoryProvider, bool>(
+      (hub) => SettingsData.remoteReachableShown(themeProvider, hub),
+    );
     String t(String key) => TranslationService.translate(context, key);
 
     return Column(
@@ -99,15 +104,21 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
                 secondary: const Icon(Icons.cell_tower),
                 title: Text(t('settings_remote_reachable')),
                 subtitle: Text(t('settings_remote_reachable_desc')),
-                value: themeProvider.remoteReachableEnabled,
+                // Shown off without a consent: no mailbox exists then,
+                // whatever the stored default says (ADR-073).
+                value: reachableShown,
                 onChanged: (value) async {
+                  final data = _data;
+                  // Being reachable remotely needs a mailbox on the hub:
+                  // the question comes first. Refused, the switch stays off.
+                  if (value && !await confirmOnlineServices(context)) return;
                   await themeProvider.setRemoteReachableEnabled(value);
-                  if (value) {
-                    _data.autoConnectRelay(context);
+                  if (value && context.mounted) {
+                    data.autoConnectRelay(context);
                   }
                 },
               ),
-              if (themeProvider.remoteReachableEnabled) ...[
+              if (reachableShown) ...[
                 const Divider(height: 1),
                 ExpansionTile(
                   leading: const Icon(Icons.tune, size: 20),
@@ -557,6 +568,13 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
                                 : _data.relayUrlController.text.trim();
                             if (url.isEmpty) return;
 
+                            // Connecting creates a mailbox on the hub: the
+                            // question comes first (ADR-073 D2).
+                            final data = _data;
+                            final hub = context.read<HubDirectoryProvider>();
+                            if (!await confirmOnlineServices(context)) return;
+                            if (!context.mounted) return;
+
                             // Taken before the wait: the section may be gone
                             // by the time the hub answers.
                             final messenger = ScaffoldMessenger.of(context);
@@ -566,9 +584,9 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
                                   'relay_connected',
                                 ) ??
                                 'Connected';
-                            final error = await _data.connectRelay(
+                            final error = await data.connectRelay(
                               api,
-                              context.read<HubDirectoryProvider>(),
+                              hub,
                               url,
                             );
                             messenger.showSnackBar(
@@ -710,6 +728,12 @@ class _DirectorySettingsState extends State<DirectorySettings> {
                     ),
                     value: dirProvider.isHubEnabled,
                     onChanged: (value) async {
+                      // Turning the online features on registers this
+                      // device on the hub: the question comes first
+                      // (ADR-073 D2). Refused, the switch stays off.
+                      if (value && !await confirmOnlineServices(context)) {
+                        return;
+                      }
                       await dirProvider.setHubEnabled(value);
                       if (value) {
                         dirProvider.initAndSyncCatalog();

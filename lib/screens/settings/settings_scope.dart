@@ -67,6 +67,10 @@ class SettingsData extends ChangeNotifier {
     _notify();
 
     try {
+      // Read once here so the "reachable remotely" switch shows its real
+      // state as the section opens (see [remoteReachableShown]).
+      await hub.onlineServicesAllowed();
+
       // Fetch Config
       final configRes = await api.getLibraryConfig();
       if (configRes.statusCode == 200) {
@@ -191,20 +195,31 @@ class SettingsData extends ChangeNotifier {
     await load(api, theme, hub);
   }
 
-  /// Connects the relay when the user turns "reachable remotely" on. That
-  /// switch is the choice of the online services (ADR-073 D2): the consent
-  /// is recorded, the mailbox created, then the library registered if it
-  /// was not, since nothing registers it at startup any more.
+  /// What the "reachable remotely" switch shows. The preference is on by
+  /// default, but without the online services consent (ADR-073) no mailbox
+  /// exists: the switch then shows off, whatever the stored preference
+  /// says. Read from the hub provider, which notifies when a dialog is
+  /// accepted anywhere, on this page or another.
+  static bool remoteReachableShown(
+    ThemeProvider theme,
+    HubDirectoryProvider hub,
+  ) => theme.remoteReachableEnabled && hub.onlineServicesKnownAllowed;
+
+  /// Connects the relay when the user turns "reachable remotely" on: the
+  /// mailbox is created, then the library registered if it was not, since
+  /// nothing registers it at startup any more. The switch asks the question
+  /// of ADR-073 D2 first; without a consent nothing is sent.
   Future<void> autoConnectRelay(BuildContext context) async {
     final api = Provider.of<ApiService>(context, listen: false);
     final hub = context.read<HubDirectoryProvider>();
-    await hub.recordOnlineServicesGrant();
+    if (!await hub.onlineServicesAllowed()) return;
     await _connectRelay(api, hub);
     if (!hub.isRegistered) await hub.initAndSyncCatalog();
   }
 
   Future<void> _connectRelay(ApiService api, HubDirectoryProvider hub) async {
     if (relayConnected) return;
+    if (await _adoptExistingRelay(api) || _disposed) return;
     final url = kReleaseMode
         ? ApiService.hubUrl
         : (relayUrlController.text.trim().isNotEmpty
@@ -226,6 +241,30 @@ class SettingsData extends ChangeNotifier {
     }
   }
 
+  /// Shows as connected a mailbox this page has not seen yet, and says
+  /// whether there was one. Accepting the consent dialog elsewhere creates
+  /// a mailbox in the background while this page still offers to connect:
+  /// setting the relay up again would create a second mailbox and orphan
+  /// the first.
+  Future<bool> _adoptExistingRelay(ApiService api) async {
+    try {
+      final existing = await api.getRelayConfig();
+      if (_disposed) return false;
+      if (existing.statusCode == 200 &&
+          existing.data is Map &&
+          existing.data['relay_url'] != null) {
+        relayConnected = true;
+        relayMailboxUuid = existing.data['mailbox_uuid'] as String?;
+        relayUrlController.text = existing.data['relay_url'] as String? ?? '';
+        _notify();
+        return true;
+      }
+    } catch (_) {
+      // No configuration yet.
+    }
+    return false;
+  }
+
   /// Connects the relay at [url], from the Connect button. Lives here and not
   /// in the Network section so it completes (state, notification, published
   /// credentials) even when the section page is closed or hidden by a search
@@ -238,8 +277,10 @@ class SettingsData extends ChangeNotifier {
     relayLoading = true;
     _notify();
     try {
-      // The Connect button is the choice of the online services (ADR-073).
-      await hub.recordOnlineServicesGrant();
+      // The Connect button asks the question of ADR-073 D2 first; without
+      // a consent no mailbox is created.
+      if (!await hub.onlineServicesAllowed()) return 'Connection failed';
+      if (await _adoptExistingRelay(api)) return null;
       final res = await api.setupRelay(relayUrl: url);
       if (res.statusCode == 200 && res.data is Map) {
         relayConnected = true;

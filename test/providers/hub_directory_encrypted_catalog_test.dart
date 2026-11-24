@@ -239,16 +239,22 @@ void main() {
       expect(ffi.clearPushes, 1);
     });
 
-    test('readers the owner cannot see mean a clear push, never a blind one',
-        () async {
+    test('readers the owner cannot see: nothing is pushed, neither in clear '
+        'nor blind, and the catalog waits for the next sync', () async {
       final (p, ffi) = await _provider();
       ffi.failFollowers = true;
 
-      await p.syncCatalog();
+      expect(await p.syncCatalog(), -1);
 
-      expect(p.lastCatalogPushMode, CatalogPushMode.clear);
-      expect(ffi.clearPushes, 1);
+      expect(p.lastCatalogPushMode, isNull);
+      expect(ffi.clearPushes, 0);
       expect(ffi.encryptedPushes, 0);
+
+      // The hub answers again: the same catalog goes out, encrypted.
+      ffi.failFollowers = false;
+      expect(await p.syncCatalog(), 3);
+      expect(p.lastCatalogPushMode, CatalogPushMode.encrypted);
+      expect(ffi.clearPushes, 0);
     });
   });
 

@@ -10,6 +10,7 @@ import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../utils/invite_payload.dart';
 import '../widgets/genie_app_bar.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 class ScanQrScreen extends StatelessWidget {
   const ScanQrScreen({super.key});
@@ -133,17 +134,33 @@ class _ScanContactViewState extends State<ScanContactView> {
   }) async {
     final api = Provider.of<ApiService>(context, listen: false);
     final hub = context.read<HubDirectoryProvider>();
+    // Pairing registers this library on the hub, so that the peer gets a
+    // way to reach it: the question comes first (ADR-073 D2). A code that
+    // carries a local address can still be paired with on the local
+    // network alone. Otherwise nothing is sent and the scanner is ready
+    // for another code.
+    final consent = await confirmOnlineServicesForPairing(
+      context,
+      localAddress: url.isNotEmpty,
+    );
+    if (consent == PairingConsent.cancelled) {
+      if (!mounted) return;
+      _isProcessingScan = false;
+      setState(() {});
+      _controller.start();
+      return;
+    }
+    if (!mounted) return;
     try {
       if (kDebugMode)
         debugPrint(
           'QR Connect: connectPeer(hasKeys=${ed25519PublicKey != null}, hasRelay=${relayUrl != null})',
         );
-      // Pairing is the choice of the online services (ADR-073): the
-      // consent is recorded and the relay mailbox created before the
-      // handshake, so the peer receives a way to reach this library.
-      // Without a local address the pairing goes through the relay and
-      // needs this library's mailbox: it waits for it, however long.
-      await hub.grantOnlineServices(
+      // The relay mailbox is created before the handshake, so the peer
+      // receives a way to reach this library. Without a local address the
+      // pairing goes through the relay and needs this library's mailbox:
+      // it waits for it, however long.
+      await hub.startOnlineServices(
         maxWait: url.isEmpty ? null : kPairingConsentMaxWait,
       );
       final response = await api.connectPeer(
@@ -155,6 +172,7 @@ class _ScanContactViewState extends State<ScanContactView> {
         relayUrl: relayUrl,
         mailboxId: mailboxId,
         relayWriteToken: relayWriteToken,
+        localOnly: consent == PairingConsent.localOnly,
       );
       debugPrint(
         // The body carries the peer's relay write token: status only.

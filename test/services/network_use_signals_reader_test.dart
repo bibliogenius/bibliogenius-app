@@ -19,8 +19,8 @@ void main() {
     expect(signals.any, isFalse);
   });
 
-  test('the directory switch and the shared scores are read from the '
-      'preferences', () async {
+  test('the directory switch is read from the preferences, and sharing '
+      'the scores is not a network use', () async {
     SharedPreferences.setMockInitialValues({kDirectoryEnabledPrefKey: true});
     var signals = await readNetworkUseSignals(
       hasPeer: _no,
@@ -30,14 +30,15 @@ void main() {
     );
     expect(signals.directoryEnabled, isTrue);
 
-    SharedPreferences.setMockInitialValues({kShareLeaderboardPrefKey: true});
+    // The switch sends nothing to the hub and needs a peer to share with.
+    SharedPreferences.setMockInitialValues({'shareGamificationStats': true});
     signals = await readNetworkUseSignals(
       hasPeer: _no,
       wasRegistered: _yes,
       isListed: _no,
       hasAccount: _no,
     );
-    expect(signals.sharesLeaderboard, isTrue);
+    expect(signals.any, isFalse);
   });
 
   test('each local lookup is a signal', () async {

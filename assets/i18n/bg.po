@@ -12910,3 +12910,163 @@ msgstr "Следваща книга"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "Следваща книга: {title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "Да се регистрира ли това устройство на сървъра на BiblioGenius?"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "Какво изпраща това устройство на сървъра"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "Това действие изисква сървъра на BiblioGenius. Самата регистрация не публикува нищо в публичния указател."
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "Сървърът получава:"
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "списъка на споделените ви книги, криптиран (никога личните ви книги)"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "списъка на споделените ви книги, четим за сървъра и за всички, тъй като публикувате без изискване за одобрение (никога личните ви книги)"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "снимките на кориците на тези книги, четими за сървъра"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "името и аватара на библиотеката ви, броя на книгите, държавата и града ви, ако сте ги посочили"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "идентификатор на това устройство (неговия отпечатък), за да се избегне дубликат на библиотеката ви след преинсталиране"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "модела на устройството и версията на приложението"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "необходимото за получаване на съобщенията от вашите контакти, криптирани от край до край"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "датата на последното ви свързване"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "Ако откажете, нищо не се изпраща и действието се отменя. Приложението продължава да работи без сървъра."
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "Подробности"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "Регистрация, „{toggle}“, указател"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "Това са три различни неща. Регистрацията прави това устройство известно на сървъра. Настройката „{toggle}“ дава достъп до функциите на указателя. Библиотеката ви се появява в публичния указател само ако решите да я публикувате."
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "Споделените ви книги"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "Това са книгите, които притежавате и не сте отбелязали като лични. Копието на този списък е криптирано за вашите контакти, освен ако библиотеката ви е видима в указателя без изискване за одобрение или докато някой от последователите ви използва твърде стара версия на приложението, за да го декриптира. Снимките на кориците остават четими за сървъра."
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "Идентификаторът на устройството"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "Това е преобразувана форма на идентификатора, предоставен от системата: сървърът не получава оригиналния идентификатор. Обикновено остава същият след преинсталиране. Сървърът го използва, за да замени предишната ви регистрация, вместо да създава втора, а администраторите му могат да го използват, за да намерят регистрацията ви, ако поискате помощ. Приложението не го изпраща на никоя друга услуга."
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "Моделът на устройството и версията"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "Те са видими за администраторите на сървъра."
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "Кутията за съобщения"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "Тя позволява на контактите ви да ви пишат. Сървърът пази нейния адрес, публичния ви ключ и код, който разрешава оставянето на съобщения в нея. Съдържанието на съобщенията е криптирано от край до край."
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "Датата на последното свързване"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "Обновява се при всяко отваряне на приложението."
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "Реклама и измерване на аудиторията"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "Приложението не съдържа никакъв рекламен инструмент, нито инструмент за измерване на аудиторията."
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "Без регистрация"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "Всичко, което се случва на това устройство, продължава да работи, както и обменът с библиотеките в локалната ви мрежа. Обменът от разстояние изисква тази регистрация."
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "Отхвърляне и отмяна"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "Регистриране и продължаване"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "Това устройство е регистрирано на сървъра на BiblioGenius"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "Регистрацията служи за обмена с вашите контакти и за онлайн функциите, които използвате."
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "Вижте какво се изпраща"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "Кой управлява сървъра и как да се отпишете"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "Приложението все още не позволява оттегляне на тази регистрация. Страницата „Изтриване на данни“ на сайта (на английски) посочва кой управлява сървъра и как да поискате изтриване."
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "Изтриване на данни (на английски)"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "Продължаване без сървъра"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "Без регистрация нищо не се изпраща на сървъра: връзката работи само в локалната ви мрежа."

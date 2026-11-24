@@ -12919,3 +12919,163 @@ msgstr "下一本书"
 #. Book page, next-book button naming that book
 msgid "book_nav_next_titled"
 msgstr "下一本书：{title}"
+
+#. Online registration dialog - title
+msgid "online_reg_title"
+msgstr "要在 BiblioGenius 服务器上注册此设备吗？"
+
+#. Online registration - read-only notice title
+msgid "online_reg_info_title"
+msgstr "此设备向服务器发送的内容"
+
+#. Online registration dialog - intro
+msgid "online_reg_intro"
+msgstr "此操作需要 BiblioGenius 服务器。仅注册不会在公开名录中发布任何内容。"
+
+#. Online registration - heading of the list of data
+msgid "online_reg_received"
+msgstr "服务器会收到："
+
+#. Online registration - shared books list, encrypted
+msgid "online_reg_item_books"
+msgstr "您共享书籍的列表，已加密（绝不包含您的私密图书）"
+
+#. Online registration - shared books list when publishing without approval
+msgid "online_reg_item_books_public"
+msgstr "您共享书籍的列表；由于您在不要求批准的情况下发布，服务器和所有人都可读取（绝不包含您的私密图书）"
+
+#. Online registration - cover photos
+msgid "online_reg_item_covers"
+msgstr "这些书籍的封面照片，服务器可读取"
+
+#. Online registration - library name, count, location
+msgid "online_reg_item_library"
+msgstr "您的图书馆名称和头像、书籍数量，以及您填写过的国家和城市"
+
+#. Online registration - device identifier (fingerprint)
+msgid "online_reg_item_device_id"
+msgstr "此设备的标识符（设备指纹），用于避免重新安装后出现重复的图书馆"
+
+#. Online registration - device model and app version
+msgid "online_reg_item_device_model"
+msgstr "设备型号和应用版本"
+
+#. Online registration - relay mailbox
+msgid "online_reg_item_messages"
+msgstr "接收联系人消息（端到端加密）所需的信息"
+
+#. Online registration - last access date
+msgid "online_reg_item_last_seen"
+msgstr "您上次连接的日期"
+
+#. Online registration dialog - what refusing does
+msgid "online_reg_refusal"
+msgstr "如果您拒绝，不会发送任何内容，操作将被取消。应用在没有服务器的情况下仍可继续使用。"
+
+#. Online registration - expander label
+msgid "online_reg_details"
+msgstr "详情"
+
+#. Online registration details - three notions, {toggle} is the settings switch name
+msgid "online_reg_d_three_title"
+msgstr "注册、“{toggle}”、名录"
+
+#. Online registration details - three notions body
+msgid "online_reg_d_three_body"
+msgstr "这是三件不同的事。注册让服务器知道此设备。“{toggle}”设置用于开启名录功能。只有在您选择发布时，您的图书馆才会出现在公开名录中。"
+
+#. Online registration details - shared books title
+msgid "online_reg_d_books_title"
+msgstr "您共享的书籍"
+
+#. Online registration details - shared books body
+msgid "online_reg_d_books_body"
+msgstr "即您拥有且未标记为私密的书籍。此列表的副本会为您的联系人加密，除非您的图书馆在名录中不要求批准即可见，或者您的某位关注者使用的应用版本过旧而无法解密。封面照片仍可被服务器读取。"
+
+#. Online registration details - device identifier title
+msgid "online_reg_d_device_id_title"
+msgstr "设备标识符"
+
+#. Online registration details - device identifier body
+msgid "online_reg_d_device_id_body"
+msgstr "它是系统所提供标识符的转换形式：服务器不会收到原始标识符。重新安装后它通常保持不变。服务器用它来替换您之前的注册，而不是创建第二个；如果您请求帮助，服务器管理员也可以用它找到您的注册。应用不会将它发送给任何其他服务。"
+
+#. Online registration details - device model title
+msgid "online_reg_d_device_model_title"
+msgstr "设备型号和版本"
+
+#. Online registration details - device model body
+msgid "online_reg_d_device_model_body"
+msgstr "服务器管理员可以看到它们。"
+
+#. Online registration details - mailbox title
+msgid "online_reg_d_mailbox_title"
+msgstr "消息信箱"
+
+#. Online registration details - mailbox body
+msgid "online_reg_d_mailbox_body"
+msgstr "它让您的联系人可以给您发消息。服务器保存信箱地址、您的公钥以及一个允许向其中投递消息的代码。消息内容经过端到端加密。"
+
+#. Online registration details - last access title
+msgid "online_reg_d_last_seen_title"
+msgstr "上次连接日期"
+
+#. Online registration details - last access body
+msgid "online_reg_d_last_seen_body"
+msgstr "每次打开应用时都会更新。"
+
+#. Online registration details - advertising title
+msgid "online_reg_d_no_ads_title"
+msgstr "广告与受众统计"
+
+#. Online registration details - advertising body
+msgid "online_reg_d_no_ads_body"
+msgstr "应用不包含任何广告工具或受众统计工具。"
+
+#. Online registration details - without registration title
+msgid "online_reg_d_without_title"
+msgstr "不注册时"
+
+#. Online registration details - without registration body
+msgid "online_reg_d_without_body"
+msgstr "在此设备上进行的一切，以及与本地网络中图书馆的交流，都可继续使用。远程交流需要此注册。"
+
+#. Online registration dialog - refuse button
+msgid "online_reg_refuse"
+msgstr "拒绝并取消"
+
+#. Online registration dialog - accept button
+msgid "online_reg_accept"
+msgstr "注册并继续"
+
+#. Online registration banner for existing users - title
+msgid "online_reg_notice_title"
+msgstr "此设备已在 BiblioGenius 服务器上注册"
+
+#. Online registration banner for existing users - body
+msgid "online_reg_notice_body"
+msgstr "此注册用于您与联系人的交流以及您使用的在线功能。"
+
+#. Online registration banner for existing users - action
+msgid "online_reg_notice_action"
+msgstr "查看发送的内容"
+
+#. Online registration details - who runs the server and how to unregister, title
+msgid "online_reg_d_who_title"
+msgstr "服务器由谁运营，以及如何取消注册"
+
+#. Online registration details - who runs the server and how to unregister, body
+msgid "online_reg_d_who_body"
+msgstr "应用目前还不能撤回此注册。网站的“数据删除”页面（英文）说明了服务器由谁运营，以及如何申请删除。"
+
+#. Online registration details - link to the data deletion page of the website
+msgid "online_reg_d_who_link"
+msgstr "数据删除（英文）"
+
+#. Online registration dialog - declining button when the pairing can go on over the local network
+msgid "online_reg_continue_local"
+msgstr "不使用服务器继续"
+
+#. Online registration dialog - what declining does when the pairing can go on locally
+msgid "online_reg_refusal_local"
+msgstr "不注册时，不会向服务器发送任何内容：连接仅在您的本地网络中有效。"

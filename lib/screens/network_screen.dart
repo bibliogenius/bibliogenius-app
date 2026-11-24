@@ -37,6 +37,7 @@ import '../providers/theme_provider.dart';
 import '../providers/pending_peers_provider.dart';
 import '../providers/hub_directory_provider.dart';
 import '../services/translation_service.dart';
+import '../widgets/online_services_consent_dialog.dart';
 
 /// Unified screen displaying "Mon reseau" and "Decouvrir" tabs
 class NetworkScreen extends StatefulWidget {
@@ -1571,10 +1572,19 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                     tooltip: TranslationService.translate(context, 'connect'),
                     onPressed: () async {
                       final hub = context.read<HubDirectoryProvider>();
+                      // Pairing registers this library on the hub: the
+                      // question comes first (ADR-073 D2). This peer is on
+                      // the local network, so declining the registration
+                      // pairs there without the hub.
+                      final consent = await confirmOnlineServicesForPairing(
+                        context,
+                        localAddress: true,
+                      );
+                      if (consent == PairingConsent.cancelled) return;
                       try {
-                        // Pairing is the choice of the online services
-                        // (ADR-073): consent and relay mailbox first.
-                        await hub.grantOnlineServices(
+                        // The relay mailbox is created before the handshake
+                        // (nothing happens without the consent).
+                        await hub.startOnlineServices(
                           maxWait: kPairingConsentMaxWait,
                         );
                         await api.connectPeer(
@@ -1583,6 +1593,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                           libraryUuid: peer.libraryId,
                           ed25519PublicKey: peer.ed25519PublicKey,
                           x25519PublicKey: peer.x25519PublicKey,
+                          localOnly: consent == PairingConsent.localOnly,
                         );
                         if (context.mounted) {
                           context.read<FlashMessageProvider>().addEphemeralPeer(
@@ -2889,6 +2900,15 @@ class _PublishToDirectoryBannerState extends State<_PublishToDirectoryBanner> {
 
   Future<void> _onPublish() async {
     if (_busy) return;
+    // Publishing registers this device on the hub: the question comes first
+    // (ADR-073 D2). A library that asks for no approval is told its list
+    // will be readable by everyone.
+    final accepted = await confirmOnlineServices(
+      context,
+      publishingWithoutApproval:
+          widget.provider.config?.requiresApproval == false,
+    );
+    if (!accepted || !mounted) return;
     setState(() => _busy = true);
 
     final themeProvider = context.read<ThemeProvider>();
