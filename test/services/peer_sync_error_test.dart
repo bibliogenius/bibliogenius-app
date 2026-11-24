@@ -43,4 +43,31 @@ void main() {
     );
     expect(peerSyncErrorCode(Exception('boom')), isNull);
   });
+
+  test('the backend error message is read for the log, and only it', () {
+    final error = _failedSync({
+      'error': 'Another library answers at the peer address',
+      'detail': 'not logged',
+    });
+    expect(
+      peerSyncErrorMessage(error),
+      'Another library answers at the peer address',
+    );
+    final line = describePeerSyncErrorForLog(error);
+    expect(
+      line,
+      endsWith('(backend: Another library answers at the peer address)'),
+    );
+    expect(line, isNot(contains('not logged')));
+  });
+
+  test('no message is added when the body names none', () {
+    expect(peerSyncErrorMessage(_failedSync('plain text body')), isNull);
+    expect(peerSyncErrorMessage(_failedSync({'error': 42})), isNull);
+    expect(peerSyncErrorMessage(Exception('boom')), isNull);
+    expect(
+      describePeerSyncErrorForLog(Exception('boom')),
+      'Exception: boom',
+    );
+  });
 }

@@ -18,10 +18,24 @@ class PeerKeysChangedException implements Exception {
 
 /// The `code` of a failed sync answer from the local backend, or null when
 /// the failure names none.
-String? peerSyncErrorCode(Object error) {
+String? peerSyncErrorCode(Object error) => _syncErrorField(error, 'code');
+
+/// The `error` message of a failed sync answer from the local backend, or
+/// null when the body carries none. It tells apart the failures that all
+/// answer 502 (peer offline, peer error, another library at the address...).
+String? peerSyncErrorMessage(Object error) => _syncErrorField(error, 'error');
+
+/// [error] for a debug log line, followed by the backend `error` message
+/// when the answer carries one. Only that field is added, never the body.
+String describePeerSyncErrorForLog(Object error) {
+  final message = peerSyncErrorMessage(error);
+  return message == null ? '$error' : '$error (backend: $message)';
+}
+
+String? _syncErrorField(Object error, String key) {
   if (error is! DioException) return null;
   final data = error.response?.data;
   if (data is! Map) return null;
-  final code = data['code'];
-  return code is String ? code : null;
+  final value = data[key];
+  return value is String ? value : null;
 }

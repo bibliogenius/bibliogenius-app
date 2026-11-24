@@ -2829,7 +2829,9 @@ class ApiService {
           localOk = true;
         } catch (e) {
           peerKeysChanged = peerSyncErrorCode(e) == peerKeysChangedCode;
-          debugPrint('P2P local sync error (non-fatal): $e');
+          debugPrint(
+            'P2P local sync error (non-fatal): ${describePeerSyncErrorForLog(e)}',
+          );
         }
 
         // The local backend found the peer under new keys: whatever the
@@ -2850,7 +2852,7 @@ class ApiService {
               data: {'message': 'Local sync completed'},
             );
       } catch (e) {
-        debugPrint('P2P Sync Error: $e');
+        debugPrint('P2P Sync Error: ${describePeerSyncErrorForLog(e)}');
         // Rethrow so SyncService backoff can catch it
         rethrow;
       }
