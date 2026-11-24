@@ -132,11 +132,20 @@ class _ScanContactViewState extends State<ScanContactView> {
     String? relayWriteToken,
   }) async {
     final api = Provider.of<ApiService>(context, listen: false);
+    final hub = context.read<HubDirectoryProvider>();
     try {
       if (kDebugMode)
         debugPrint(
           'QR Connect: connectPeer(hasKeys=${ed25519PublicKey != null}, hasRelay=${relayUrl != null})',
         );
+      // Pairing is the choice of the online services (ADR-073): the
+      // consent is recorded and the relay mailbox created before the
+      // handshake, so the peer receives a way to reach this library.
+      // Without a local address the pairing goes through the relay and
+      // needs this library's mailbox: it waits for it, however long.
+      await hub.grantOnlineServices(
+        maxWait: url.isEmpty ? null : kPairingConsentMaxWait,
+      );
       final response = await api.connectPeer(
         name,
         url,

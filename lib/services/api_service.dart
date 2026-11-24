@@ -2599,6 +2599,25 @@ class ApiService {
   static int _lastGetPendingTotalLogged = -1;
 
   // P2P Advanced
+  /// The local peer list, read strictly: a database error is an error
+  /// (HTTP 500), where [getPeers] gets an empty list. For the one caller
+  /// that must tell "no peer" from "could not read" (the online services
+  /// consent, ADR-073). Always the embedded or configured backend.
+  Future<Response> getPeersStrict() async {
+    const query = {'strict': 'true'};
+    if (useFfi) {
+      final localDio = Dio(
+        BaseOptions(
+          baseUrl: 'http://localhost:${ApiService.httpPort}',
+          connectTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+      return localDio.get('/api/peers', queryParameters: query);
+    }
+    return _dio.get('/api/peers', queryParameters: query);
+  }
+
   Future<Response> getPeers() async {
     if (useFfi) {
       // Call local HTTP API to get peers
@@ -5309,6 +5328,20 @@ class ApiService {
     if (value is DateTime) return value.toIso8601String();
     if (value is String) return value;
     return null;
+  }
+
+  /// Forget the relay on this device without telling the hub (ADR-073): an
+  /// installation whose user never chose the online services goes silent,
+  /// and no deletion call is sent on its behalf.
+  Future<Response> forgetRelayLocally() async {
+    const query = {'local_only': 'true'};
+    if (useFfi) {
+      final localDio = Dio(
+        BaseOptions(baseUrl: 'http://localhost:${ApiService.httpPort}'),
+      );
+      return localDio.delete('/api/peers/relay/config', queryParameters: query);
+    }
+    return _dio.delete('/api/peers/relay/config', queryParameters: query);
   }
 
   /// Disconnect from relay hub (delete local relay config).

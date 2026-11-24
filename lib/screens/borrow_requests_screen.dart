@@ -2313,6 +2313,10 @@ class _LoansScreenState extends State<LoansScreen>
     final pending = Provider.of<PendingPeersProvider>(context, listen: false);
     final flashes = Provider.of<FlashMessageProvider>(context, listen: false);
     try {
+      // Accepting a connection is the choice of the online services
+      // (ADR-073): consent and relay mailbox first, so this library can
+      // be reached beyond the local network.
+      await hubDir.grantOnlineServices(maxWait: kPairingConsentMaxWait);
       await api.updatePeerStatus(peer['id'], 'active');
       // ADR-053: a freshly accepted pairing must also hold hub catalog
       // access; the reconciliation sends/approves the mutual follow.

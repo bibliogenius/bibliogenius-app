@@ -1570,7 +1570,13 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
                     icon: const Icon(Icons.person_add),
                     tooltip: TranslationService.translate(context, 'connect'),
                     onPressed: () async {
+                      final hub = context.read<HubDirectoryProvider>();
                       try {
+                        // Pairing is the choice of the online services
+                        // (ADR-073): consent and relay mailbox first.
+                        await hub.grantOnlineServices(
+                          maxWait: kPairingConsentMaxWait,
+                        );
                         await api.connectPeer(
                           displayName,
                           'http://${peer.host}:${peer.port}',

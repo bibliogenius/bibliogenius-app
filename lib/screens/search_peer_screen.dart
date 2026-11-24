@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../providers/hub_directory_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
 import '../widgets/genie_app_bar.dart';
@@ -53,6 +54,11 @@ class _SearchPeerScreenState extends State<SearchPeerScreen> {
   Future<void> _connect(Map<String, dynamic> peer) async {
     try {
       final api = Provider.of<ApiService>(context, listen: false);
+      final hub = context.read<HubDirectoryProvider>();
+      // Pairing is the choice of the online services (ADR-073): the
+      // consent is recorded and the relay mailbox created before the
+      // handshake, so the peer receives a way to reach this library.
+      await hub.grantOnlineServices(maxWait: kPairingConsentMaxWait);
       await api.connectPeer(peer['name'], peer['url']);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

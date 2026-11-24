@@ -1577,6 +1577,10 @@ class FfiService {
 
   /// Get the local relay config (relay_url, mailbox_uuid, write_token).
   /// Returns null if relay is not configured. read_token excluded (S2).
+  /// [getRelayConfig] without the catch, for the consent inference.
+  Future<frb.FrbRelayConfig?> getRelayConfigStrict() =>
+      frb.getRelayConfigFfi();
+
   Future<frb.FrbRelayConfig?> getRelayConfig() async {
     try {
       return await frb.getRelayConfigFfi();
@@ -1589,6 +1593,12 @@ class FfiService {
   // ============ Hub Directory (FFI direct) ============
 
   /// Get the local hub directory config, or null if not yet registered.
+  /// [hubDirectoryGetConfig] without the catch: null means "no local
+  /// registration", an error stays an error. For callers that must tell
+  /// "never registered" from "could not read" (the consent inference).
+  Future<frb.FrbDirectoryConfig?> hubDirectoryGetConfigStrict() =>
+      frb.hubDirectoryGetConfig();
+
   Future<frb.FrbDirectoryConfig?> hubDirectoryGetConfig() async {
     try {
       return await frb.hubDirectoryGetConfig();
@@ -1698,21 +1708,32 @@ class FfiService {
   /// Returns the number of ISBNs pushed, or -1 on error.
   Future<int> hubDirectorySyncCatalog() async {
     try {
-      return await frb.hubDirectorySyncCatalog();
+      final count = await frb.hubDirectorySyncCatalog();
+      lastCatalogSyncError = null;
+      return count;
     } catch (e) {
       debugPrint('FFI hubDirectorySyncCatalog error: $e');
+      lastCatalogSyncError = e.toString();
       return -1;
     }
   }
+
+  /// Why the last catalog push returned -1, null after a success. The push
+  /// methods report a bare -1; the one caller that needs the cause (a token
+  /// the hub no longer knows) reads it here.
+  String? lastCatalogSyncError;
 
   /// Same push as [hubDirectorySyncCatalog], as a ciphertext under this
   /// library's catalog key (ADR-072). The caller decides when every reader
   /// can open it. Returns the number of entries pushed, or -1 on error.
   Future<int> hubDirectorySyncCatalogEncrypted() async {
     try {
-      return await frb.hubDirectorySyncCatalogEncrypted();
+      final count = await frb.hubDirectorySyncCatalogEncrypted();
+      lastCatalogSyncError = null;
+      return count;
     } catch (e) {
       debugPrint('FFI hubDirectorySyncCatalogEncrypted error: $e');
+      lastCatalogSyncError = e.toString();
       return -1;
     }
   }

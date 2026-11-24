@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../services/api_service.dart';
 import '../services/translation_service.dart';
@@ -60,7 +61,13 @@ class _InviteScreenState extends State<InviteScreen> {
   Future<void> _load() async {
     if (!_isLoading) setState(() => _isLoading = true);
     final loader = widget.loader ?? _defaultLoader();
-    final invite = await loader();
+    InviteLinkData? invite;
+    try {
+      invite = await loader();
+    } catch (e) {
+      // A null invitation shows the error state and its retry.
+      debugPrint('InviteScreen: could not prepare the invitation: $e');
+    }
     if (!mounted) return;
     setState(() {
       _invite = invite;
@@ -70,13 +77,19 @@ class _InviteScreenState extends State<InviteScreen> {
 
   InviteLoader _defaultLoader() {
     final apiService = Provider.of<ApiService>(context, listen: false);
-    return () => loadInviteLink(
-      libraryName: _libraryName,
-      fetchLibraryConfig: () async =>
-          (await apiService.getLibraryConfig()).data as Map,
-      httpPort: ApiService.httpPort,
-      hubBaseUrl: ApiService.hubUrl,
-    );
+    final hub = context.read<HubDirectoryProvider>();
+    return () async {
+      // An invitation carries the relay mailbox and goes through the hub:
+      // creating one is the choice of the online services (ADR-073 D2).
+      await hub.grantOnlineServices(maxWait: kInvitationConsentMaxWait);
+      return loadInviteLink(
+        libraryName: _libraryName,
+        fetchLibraryConfig: () async =>
+            (await apiService.getLibraryConfig()).data as Map,
+        httpPort: ApiService.httpPort,
+        hubBaseUrl: ApiService.hubUrl,
+      );
+    };
   }
 
   bool get _isDesktop =>

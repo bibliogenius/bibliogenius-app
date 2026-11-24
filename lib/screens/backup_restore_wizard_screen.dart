@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../services/online_services_consent.dart';
 import '../services/auth_service.dart';
 import '../services/backup_prefs_whitelist.dart';
 import '../services/backup_scheduler_service.dart';
@@ -318,6 +319,12 @@ class _BackupRestoreWizardScreenState extends State<BackupRestoreWizardScreen> {
       // Restore prefs whitelist.
       if (summary.prefsJson.isNotEmpty) {
         await _applyPrefs(summary.prefsJson);
+      }
+      // A Replace brings the peers of the archive back, and they are the
+      // user's own: let the next launch look at them again (ADR-073).
+      // Whatever the archive held in the way of preferences.
+      if (_mode == 'replace') {
+        await OnlineServicesConsent.forgetSilence();
       }
 
       if (!mounted) return;

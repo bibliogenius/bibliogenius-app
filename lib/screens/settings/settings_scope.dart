@@ -135,8 +135,11 @@ class SettingsData extends ChangeNotifier {
           relayUrlController.text = relayRes.data['relay_url'] as String? ?? '';
         } else {
           relayUrlController.text = ApiService.hubUrl;
-          // Auto-connect relay if remote reachable is enabled but not yet connected
-          if (theme.remoteReachableEnabled) {
+          // Auto-connect relay if remote reachable is enabled but not yet
+          // connected. Opening the settings is not a choice: the mailbox
+          // waits for the online services consent (ADR-073).
+          if (theme.remoteReachableEnabled &&
+              await hub.onlineServicesAllowed()) {
             _connectRelay(api, hub);
           }
         }
@@ -188,11 +191,17 @@ class SettingsData extends ChangeNotifier {
     await load(api, theme, hub);
   }
 
-  /// Auto-connect relay when remote reachable is enabled.
-  Future<void> autoConnectRelay(BuildContext context) => _connectRelay(
-    Provider.of<ApiService>(context, listen: false),
-    context.read<HubDirectoryProvider>(),
-  );
+  /// Connects the relay when the user turns "reachable remotely" on. That
+  /// switch is the choice of the online services (ADR-073 D2): the consent
+  /// is recorded, the mailbox created, then the library registered if it
+  /// was not, since nothing registers it at startup any more.
+  Future<void> autoConnectRelay(BuildContext context) async {
+    final api = Provider.of<ApiService>(context, listen: false);
+    final hub = context.read<HubDirectoryProvider>();
+    await hub.recordOnlineServicesGrant();
+    await _connectRelay(api, hub);
+    if (!hub.isRegistered) await hub.initAndSyncCatalog();
+  }
 
   Future<void> _connectRelay(ApiService api, HubDirectoryProvider hub) async {
     if (relayConnected) return;
@@ -229,6 +238,8 @@ class SettingsData extends ChangeNotifier {
     relayLoading = true;
     _notify();
     try {
+      // The Connect button is the choice of the online services (ADR-073).
+      await hub.recordOnlineServicesGrant();
       final res = await api.setupRelay(relayUrl: url);
       if (res.statusCode == 200 && res.data is Map) {
         relayConnected = true;
@@ -236,6 +247,8 @@ class SettingsData extends ChangeNotifier {
         _notify();
         // Publish new relay credentials to hub so peers can reach this mailbox.
         await hub.ensureRelayPublished();
+        // Nothing registers the library at startup any more.
+        if (!hub.isRegistered) await hub.initAndSyncCatalog();
         return null;
       }
       return (res.data?['error'] ?? 'Connection failed').toString();

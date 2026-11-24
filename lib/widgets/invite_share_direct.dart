@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../providers/hub_directory_provider.dart';
 import '../providers/theme_provider.dart';
 import '../screens/invite_screen.dart';
 import '../services/api_service.dart';
@@ -19,6 +20,7 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
   // Capture everything from context before any await
   final messenger = ScaffoldMessenger.of(context);
   final apiService = Provider.of<ApiService>(context, listen: false);
+  final hub = context.read<HubDirectoryProvider>();
   final libraryName = Provider.of<ThemeProvider>(
     context,
     listen: false,
@@ -53,6 +55,9 @@ Future<void> shareInviteLinkDirect(BuildContext context) async {
   );
 
   try {
+    // An invitation carries the relay mailbox and goes through the hub:
+    // creating one is the choice of the online services (ADR-073 D2).
+    await hub.grantOnlineServices(maxWait: kInvitationConsentMaxWait);
     final result = await loadInviteLink(
       libraryName: libraryName,
       fetchLibraryConfig: () async =>

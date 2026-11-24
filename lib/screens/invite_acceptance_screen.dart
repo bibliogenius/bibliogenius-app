@@ -61,6 +61,7 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
     });
 
     final api = context.read<ApiService>();
+    final hub = context.read<HubDirectoryProvider>();
 
     try {
       // Block self-connection: compare E2EE public keys
@@ -81,6 +82,14 @@ class _InviteAcceptanceScreenState extends State<InviteAcceptanceScreen> {
       // Use empty URL for relay-only connections
       final connectUrl = _url ?? '';
 
+      // Pairing is the choice of the online services (ADR-073): the
+      // consent is recorded and the relay mailbox created before the
+      // handshake, so the peer receives a way to reach this library.
+      // Without a local address the pairing goes through the relay and
+      // needs this library's mailbox: it waits for it, however long.
+      await hub.grantOnlineServices(
+        maxWait: _url == null ? null : kPairingConsentMaxWait,
+      );
       final response = await api.connectPeer(
         _libraryName,
         connectUrl,

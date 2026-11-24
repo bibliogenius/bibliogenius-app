@@ -20,6 +20,8 @@ import 'services/sync_service.dart';
 import 'services/translation_service.dart';
 import 'services/mdns_service.dart';
 import 'services/ffi_service.dart';
+import 'services/network_use_signals_reader.dart';
+import 'services/online_services_consent.dart';
 import 'services/avatar_sync_service.dart';
 import 'services/curated_lists_service.dart';
 import 'src/rust/api/frb.dart' as frb;
@@ -635,7 +637,24 @@ Future<void> _runApp() async {
     // Auto-setup relay hub for WAN communication (if not already configured)
     // Relay is independent of mDNS: it enables connectivity via the hub
     // even without local network discovery (e.g. on cellular/different WiFi)
-    if (themeProvider.remoteReachableEnabled) {
+    //
+    // Creating the mailbox registers this installation on the hub, so it
+    // waits for the online services consent (ADR-073): an installation
+    // that shares nothing never gets one.
+    final onlineServices = OnlineServicesConsent(
+      readSignals: deviceNetworkUseReader(
+        getPeers: () => Dio(
+          BaseOptions(
+            baseUrl: 'http://localhost:$httpPort',
+            connectTimeout: const Duration(seconds: 5),
+            receiveTimeout: const Duration(seconds: 5),
+          ),
+        ).get('/api/peers', queryParameters: const {'strict': 'true'}),
+        ffi: FfiService(),
+      ),
+    );
+    if (themeProvider.remoteReachableEnabled &&
+        await onlineServices.isAllowed()) {
       try {
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://localhost:$httpPort'),

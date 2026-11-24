@@ -14,6 +14,8 @@ import '../services/auth_service.dart';
 import '../services/city_repository.dart';
 import '../services/device_service.dart';
 import '../services/ffi_service.dart';
+import '../services/network_use_signals_reader.dart';
+import '../services/online_services_consent.dart';
 import '../services/translation_service.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../src/rust/api/frb.dart' show FrbNudgeEvent, subscribeRelayNudges;
@@ -62,6 +64,14 @@ const Duration _kCatalogKeepAliveInterval = Duration(days: 4);
 /// - Hub-mediated borrow requests (ADR-018)
 /// SharedPreferences key for the hub directory toggle.
 const String _kHubEnabledKey = 'hub_directory_enabled';
+
+/// How long a pairing gesture waits for the hub before going on (ADR-073):
+/// the handshake on the local network must not hang on it.
+const kPairingConsentMaxWait = Duration(seconds: 4);
+
+/// How long creating an invitation waits for the hub: the link carries the
+/// relay mailbox, which the hub has to create first.
+const kInvitationConsentMaxWait = Duration(seconds: 15);
 
 /// SharedPreferences key: set to true once the user has dismissed the
 /// first-time explanation banner in the Discover tab.
@@ -183,11 +193,98 @@ class HubDirectoryProvider extends ChangeNotifier {
     AuthService? authService,
     CityLookup? lookupCity,
     ApiService? apiService,
+    OnlineServicesConsent? onlineServices,
   }) : _ffi = ffi ?? FfiService(),
        _deviceService = deviceService ?? DeviceService(),
        _authService = authService ?? AuthService(),
        _lookupCity = lookupCity ?? CityRepository.shared().lookupById,
-       _apiService = apiService;
+       _apiService = apiService {
+    _onlineServices =
+        onlineServices ??
+        OnlineServicesConsent(
+          readSignals: deviceNetworkUseReader(
+            getPeers: apiService?.getPeersStrict,
+            ffi: _ffi,
+          ),
+        );
+  }
+
+  // ── Online services consent (ADR-073) ───────────────────────────────────
+
+  late final OnlineServicesConsent _onlineServices;
+
+  /// Whether this installation may register on the hub and send it library
+  /// data (ADR-073 D1). Every call the app makes on its own (startup,
+  /// timers, opening a screen) checks this first; a gesture of the user
+  /// goes through [grantOnlineServices] instead.
+  Future<bool> onlineServicesAllowed() => _onlineServices.isAllowed();
+
+  /// Records the consent given by a network action of the user that leaves
+  /// no trace on the device by itself (creating an invitation, asking to be
+  /// reachable remotely), then does what startup would have done:
+  /// registration, relay mailbox, catalog push. Pairing, the directory
+  /// switch, an encrypted account and shared scores need no call here: they
+  /// are read back as network use.
+  ///
+  /// The single place where the question is asked: the shared dialog of
+  /// ADR-073 D2 belongs here.
+  ///
+  /// An installation that already consents and is registered returns at
+  /// once: an invitation must not wait on the hub, nor replay the startup
+  /// calls, each time its screen opens.
+  ///
+  /// [maxWait] bounds how long the gesture waits for the hub: the consent
+  /// is recorded at once and the calls go on in the background. A pairing
+  /// on the local network must not hang on a hub that does not answer.
+  Future<void> grantOnlineServices({Duration? maxWait}) async {
+    Future<void> Function() startup;
+    if (isRegistered && await onlineServicesAllowed()) {
+      // Registered, but the relay mailbox the gesture needs may be
+      // missing: the startup run is still creating it, or its creation
+      // failed then. Only then is there something to wait for.
+      if ((await _getRelayCredentials()).relayUrl != null) return;
+      final running = _initRun;
+      startup = running != null ? () => running : ensureRelayPublished;
+    } else {
+      await recordOnlineServicesGrant();
+      startup = () async {
+        final joined = _initRun != null;
+        await initAndSyncCatalog();
+        // A run joined above may have started before the consent was
+        // recorded and concluded "no": once more, now that it is.
+        if (joined && !isRegistered) await initAndSyncCatalog();
+      };
+    }
+
+    if (maxWait == null) return startup();
+    await startup().timeout(maxWait, onTimeout: () {});
+  }
+
+  /// The consent alone, for a caller that sets the relay up itself and
+  /// registers afterwards.
+  Future<void> recordOnlineServicesGrant() => _onlineServices.grant();
+
+  /// An installation whose user never chose the online services goes
+  /// silent (ADR-073 D3, D4): the relay poller works from the stored relay
+  /// configuration, so that row is forgotten, on this device only. Only on
+  /// a real "no": when the device could not be read, nothing is removed.
+  Future<void> _goSilent() async {
+    final api = _apiService;
+    if (api == null) return;
+    try {
+      final relay = await _getRelayCredentials();
+      if (relay.relayUrl == null) return;
+      // A gesture may have said yes, and created this mailbox, since the
+      // "no" was read.
+      if (await _onlineServices.choice() == OnlineServicesChoice.granted) {
+        return;
+      }
+      await api.forgetRelayLocally();
+      debugPrint('HubDirectory: online services not chosen, relay forgotten');
+    } catch (e) {
+      debugPrint('HubDirectory: forgetting the relay failed: $e');
+    }
+  }
 
   // ── Custom follow display names ──────────────────────────────────────────
 
@@ -324,6 +421,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     _nudgeSub?.cancel();
     _catalogSyncDebounce?.cancel();
     _contactSyncDebounce?.cancel();
+    _startupRetry?.cancel();
     super.dispose();
   }
 
@@ -888,16 +986,46 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Load the local config from SQLite. Call once at app start / settings open.
   /// Load config, auto-register if needed, push catalog.
   /// Called at app startup so the catalog is always available for known peers.
-  /// Re-entrant safe: concurrent callers are ignored (not queued).
-  bool _initSyncing = false;
+  /// Re-entrant safe: a caller arriving while a run is in progress gets
+  /// that run's future. A gesture that needs the registration or the relay
+  /// mailbox must wait for them, not go on without.
+  Future<void>? _initRun;
 
-  Future<void> initAndSyncCatalog() async {
-    if (_initSyncing) {
-      debugPrint('HubDirectory: initAndSyncCatalog already running, skip');
-      return;
-    }
-    _initSyncing = true;
+  /// The last startup run could not tell whether the online services were
+  /// chosen (the device was not readable yet). It is tried again a few
+  /// times, and whenever the app comes back to the foreground.
+  bool _startupUndecided = false;
+  Timer? _startupRetry;
+  int _startupRetries = 0;
+  static const _kStartupRetryMax = 3;
+
+  @visibleForTesting
+  Duration startupRetryDelay = const Duration(seconds: 10);
+
+  Future<void> initAndSyncCatalog() =>
+      _initRun ??= _initAndSyncCatalogOnce().whenComplete(() => _initRun = null);
+
+  Future<void> _initAndSyncCatalogOnce() async {
     try {
+      _startupUndecided = false;
+      _startupRetry?.cancel();
+      final decision = await _onlineServices.decide();
+      if (decision == OnlineServicesDecision.unknown) {
+        debugPrint('HubDirectory: online services undecided, will look again');
+        _startupUndecided = true;
+        if (_startupRetries < _kStartupRetryMax) {
+          _startupRetries++;
+          _startupRetry = Timer(startupRetryDelay, () {
+            unawaited(initAndSyncCatalog());
+          });
+        }
+        return;
+      }
+      if (decision == OnlineServicesDecision.refused) {
+        debugPrint('HubDirectory: online services not chosen, hub left alone');
+        await _goSilent();
+        return;
+      }
       debugPrint('HubDirectory: initAndSyncCatalog starting');
       // Local UI state lives in SharedPreferences and is independent of the
       // hub config. Load eagerly so consumers reading from the provider on
@@ -957,8 +1085,6 @@ class HubDirectoryProvider extends ChangeNotifier {
       }
     } catch (e) {
       debugPrint('HubDirectory: initAndSyncCatalog error: $e');
-    } finally {
-      _initSyncing = false;
     }
   }
 
@@ -972,6 +1098,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// attempts to handle transient network failures (5G, tunnel, etc.).
   Future<void> ensureRelayPublished() async {
     if (_config == null) return;
+    if (!await onlineServicesAllowed()) return;
     // Read relay credentials upfront to check availability.
     var initialRelay = await _getRelayCredentials();
     if (initialRelay.relayUrl == null) {
@@ -1087,7 +1214,9 @@ class HubDirectoryProvider extends ChangeNotifier {
       await ensureRegistered();
     }
 
-    if (_config == null) {
+    if (_config == null || !await onlineServicesAllowed()) {
+      // No registration yet, or the online services were not chosen
+      // (ADR-073): kept for the registration that follows a consent.
       await _storePendingDisplayName(trimmed);
       debugPrint('HubDirectory: displayName sync deferred (no config yet)');
       return false;
@@ -1189,7 +1318,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       await ensureRegistered();
     }
 
-    if (_config == null) {
+    if (_config == null || !await onlineServicesAllowed()) {
       await _storePendingLocationCountry(trimmed);
       debugPrint('HubDirectory: locationCountry sync deferred (no config yet)');
       return false;
@@ -1303,7 +1432,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       await ensureRegistered();
     }
 
-    if (_config == null) {
+    if (_config == null || !await onlineServicesAllowed()) {
       await _storePendingLocationCityId(cityId, resolvedCountry);
       debugPrint('HubDirectory: locationCityId sync deferred (no config yet)');
       return false;
@@ -1717,7 +1846,11 @@ class HubDirectoryProvider extends ChangeNotifier {
       var frbConfig = await _ffi.hubDirectoryGetConfig();
       // Post-reinstall recovery: SQLite is gone but Keychain survives (iOS).
       // Restore the write_token so the next register() can authenticate.
-      frbConfig ??= await _tryRecoverFromKeychain();
+      // Only with the consent (ADR-073): the import writes a local
+      // registration row, and opening a screen must not create one.
+      if (frbConfig == null && await onlineServicesAllowed()) {
+        frbConfig = await _tryRecoverFromKeychain();
+      }
       _config = frbConfig != null ? DirectoryConfig.fromFrb(frbConfig) : null;
 
       // Backfill: existing users registered before the Keychain-backup fix
@@ -1777,6 +1910,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     final remoteEnabled = prefs.getBool('remoteReachableEnabled') ?? true;
     if (!remoteEnabled) return false;
+    if (!await onlineServicesAllowed()) return false;
     try {
       final res = await api.setupRelay(relayUrl: ApiService.hubUrl);
       final ok =
@@ -1830,6 +1964,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// relay credentials, the display name or the hub node change.
   Future<void> ensureKeysPublished(String displayName) async {
     if (!_hubEnabled) return;
+    if (!await onlineServicesAllowed()) return;
     if (_config == null) {
       debugPrint('[CONTACT-SYNC] ensureKeysPublished: config is null, skip');
       return;
@@ -1941,6 +2076,20 @@ class HubDirectoryProvider extends ChangeNotifier {
     String? relayWriteToken,
     String? avatarConfig,
   }) async {
+    // Every registration and profile update goes through here, so this is
+    // where the online services consent is enforced (ADR-073), whoever the
+    // caller is. A visibility flag is a setting the owner just changed,
+    // from a screen only shown with the directory switch on: it always
+    // goes through (leaving the directory must never be held back).
+    // Nothing is recorded: the switch already stands for the consent, and
+    // turning it off must still let the installation fall silent.
+    final ownerSetting =
+        isListed != null || requiresApproval != null || allowBorrowing != null;
+    if (!ownerSetting && !await onlineServicesAllowed()) {
+      debugPrint('HubDirectory: online services not chosen, profile not sent');
+      return false;
+    }
+
     _configLoading = true;
     _configError = null;
     notifyListeners();
@@ -2253,6 +2402,8 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Skips silently when in 401 cooldown to avoid hammering the hub.
   Future<bool> ensureRegistered() async {
     if (isRegistered) return true;
+    // Opening a screen is not a choice: only a consent registers.
+    if (!await onlineServicesAllowed()) return false;
     if (_isIn401Cooldown) {
       debugPrint('HubDirectory: ensureRegistered skipped (401 cooldown)');
       return false;
@@ -2295,7 +2446,12 @@ class HubDirectoryProvider extends ChangeNotifier {
       x25519PublicKey = await _ffi.getLocalX25519PublicKey();
     } catch (_) {}
 
-    final relay = await _getRelayCredentials();
+    // A library published from an installation that was silent until now
+    // has no relay mailbox yet.
+    var relay = await _getRelayCredentials();
+    if (relay.relayUrl == null && await _ensureLocalRelaySetup()) {
+      relay = await _getRelayCredentials();
+    }
     final deviceModel = await _deviceService.getDeviceModel();
     final deviceFingerprint = await _deviceService.getDeviceFingerprint();
     final appVersion = await _deviceService.getAppVersion();
@@ -2368,12 +2524,22 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Follow (or request to follow) a library identified by [nodeId].
   /// Updates the following list on success.
-  Future<bool> follow(String nodeId) async {
+  ///
+  /// Following is a choice of the online services (ADR-073) and leaves no
+  /// trace on the device, so the consent is recorded here. The automatic
+  /// follow of a paired peer passes [userGesture] false: it only runs once
+  /// the consent exists.
+  Future<bool> follow(String nodeId, {bool userGesture = true}) async {
     _busyNodes.add(nodeId);
     _actionError = null;
     notifyListeners();
 
     try {
+      // The consent, then what startup would have done (relay mailbox,
+      // catalog), not the bare registration below.
+      if (userGesture) {
+        await grantOnlineServices(maxWait: kInvitationConsentMaxWait);
+      }
       // Auto-register silently if not yet registered
       if (_config == null) {
         final ok = await _ensureSilentRegistration();
@@ -2506,6 +2672,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   Future<void> reconcilePairedPeerFollows({bool refreshLists = true}) async {
     if (_reconcilingFollows) return;
     if (!isRegistered) return;
+    if (!await onlineServicesAllowed()) return;
     final api = _apiService;
     if (api == null) return;
 
@@ -2534,7 +2701,7 @@ class HubDirectoryProvider extends ChangeNotifier {
         if (followed.contains(uuid)) continue;
         if (!_autoFollowRequested.add(uuid)) continue;
         debugPrint('[ADR-053] auto-follow paired peer $uuid');
-        final ok = await follow(uuid);
+        final ok = await follow(uuid, userGesture: false);
         if (!ok) {
           // Transient failure (hub down, network): allow the next trigger
           // (nudge or startup) to retry instead of blocking until restart.
@@ -2704,6 +2871,12 @@ class HubDirectoryProvider extends ChangeNotifier {
         ownerGesture: ownerGesture,
       );
       if (result != null) {
+        // Welcoming a reader leaves no trace on the device: without this
+        // record, an owner who later leaves the directory would be judged
+        // silent and the reader's copy of the catalog would freeze.
+        if (ownerGesture && resolution == 'approve') {
+          await recordOnlineServicesGrant();
+        }
         // Refresh pending list and followers after resolution.
         await Future.wait([loadPendingRequests(), loadFollowers()]);
         if (resolution == 'approve' &&
@@ -2784,16 +2957,27 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   Future<int> _syncCatalogOnce() async {
     if (!isRegistered) return 0;
+    // -1, not 0: nothing was pushed, the catalog stays dirty for the day
+    // the user chooses the online services.
+    if (!await onlineServicesAllowed()) return -1;
     try {
-      final mode = await _decideCatalogPushMode();
+      var mode = await _decideCatalogPushMode();
       // An encrypted push first rotates the key when a reader left since it
       // was made, then hands every reader its wrap once the hub confirms it
       // holds the ciphertext, all on the Rust side (D3, D4); a failed
       // hand-out comes back as an error and keeps the catalog dirty, so the
       // next sync contacts the hub and wraps again.
-      final count = mode == CatalogPushMode.encrypted
-          ? await _ffi.hubDirectorySyncCatalogEncrypted()
-          : await _ffi.hubDirectorySyncCatalog();
+      Future<int> push() => mode == CatalogPushMode.encrypted
+          ? _ffi.hubDirectorySyncCatalogEncrypted()
+          : _ffi.hubDirectorySyncCatalog();
+      var count = await push();
+      if (count < 0 && await _registerAgainAfterRefusedPush()) {
+        // Decided again: the refused token could not read the followers,
+        // so the first decision fell back on a clear push. Replaying it
+        // would put a private catalog on the hub in clear.
+        mode = await _decideCatalogPushMode();
+        count = await push();
+      }
       if (count >= 0) {
         _catalogDirty = false;
         _lastCatalogPushMode = mode;
@@ -2807,6 +2991,22 @@ class HubDirectoryProvider extends ChangeNotifier {
       debugPrint('HubDirectoryProvider syncCatalog error: $e');
       return -1;
     }
+  }
+
+  bool _registeredAgainAfterRefusedPush = false;
+
+  /// A push refused because the hub no longer knows this library's token:
+  /// the hub removed the profile (ADR-073 purges one nobody may read after
+  /// 30 days of silence) and this installation, having no relay, sent no
+  /// profile update at startup that would have registered it again. Once
+  /// per run: a refusal that registering does not cure must not loop.
+  Future<bool> _registerAgainAfterRefusedPush() async {
+    if (_registeredAgainAfterRefusedPush || _isIn401Cooldown) return false;
+    final cause = _ffi.lastCatalogSyncError;
+    if (cause == null || !cause.contains('Hub error 401:')) return false;
+    _registeredAgainAfterRefusedPush = true;
+    debugPrint('HubDirectory: push refused (401), registering again');
+    return _ensureSilentRegistration();
   }
 
   /// Clear or encrypted for the next push. A public library needs no
@@ -2859,7 +3059,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     // Push catalog when registered, regardless of isListed.
     // isListed controls discoverability by strangers; catalog push enables
     // browsing by known peers who have the nodeId (via invite link).
+    if (_startupUndecided) return initAndSyncCatalog();
     if (!isRegistered) return;
+    if (!await onlineServicesAllowed()) return;
 
     // Retry relay publish if it failed during startup (network instability).
     // Enforces a cooldown to avoid hammering the hub every 30s.

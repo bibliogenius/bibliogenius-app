@@ -259,6 +259,10 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // this device, meaningless anywhere else, and a restored install should
   // run its own probe rather than inherit someone else's answer.
   'hub_city_backfill_probed', // HubDirectoryProvider._kCityBackfillProbedKey
+  // The online services consent is given per device (ADR-073): a restored
+  // archive must carry neither a yes nor a withdrawal made elsewhere.
+  'online_services_consent', // OnlineServicesConsent.prefKey
+  'online_services_peers_ignored', // OnlineServicesConsent.peersIgnoredPrefKey
 };
 
 /// Encode the user-meaningful subset of the caller's preferences store
