@@ -1646,6 +1646,18 @@ class FfiService {
     }
   }
 
+  /// Tells the Rust core whether it may contact the hub (ADR-073). The core
+  /// has senders of its own (relay deposits when a book changes, the relay
+  /// poller, the nudge listener): closed, they send nothing. Closed by
+  /// default at every launch, until this is called with true.
+  void setHubContactAllowed(bool allowed) {
+    try {
+      frb.setHubContactAllowed(allowed: allowed);
+    } catch (e) {
+      debugPrint('FFI setHubContactAllowed error: $e');
+    }
+  }
+
   /// Purges the local hub_directory_config, forcing fresh registration.
   Future<bool> hubDirectoryPurgeConfig() async {
     try {

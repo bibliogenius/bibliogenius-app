@@ -12945,7 +12945,7 @@ msgstr "kütüphanenizin adı ve avatarı, kitap sayısı, belirttiyseniz ülken
 
 #. Online registration - device identifier (fingerprint)
 msgid "online_reg_item_device_id"
-msgstr "bu cihazın bir tanımlayıcısı (cihazın parmak izi); yeniden kurulumdan sonra kütüphanenizin ikinci kez oluşmasını önlemek için"
+msgstr "bu cihazın bir tanımlayıcısı (cihazın parmak izi); yeniden kurulumdan sonra yinelenen olarak kalan önceki bir kaydı fark etmek için"
 
 #. Online registration - device model and app version
 msgid "online_reg_item_device_model"
@@ -12961,7 +12961,7 @@ msgstr "son bağlantınızın tarihi"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
-msgstr "Reddederseniz hiçbir şey gönderilmez ve işlem iptal edilir. Uygulama sunucu olmadan çalışmaya devam eder."
+msgstr "Reddederseniz bu cihaz kaydedilmez ve işlem iptal edilir. Uygulama sunucu olmadan çalışmaya devam eder."
 
 #. Online registration - expander label
 msgid "online_reg_details"
@@ -12989,7 +12989,7 @@ msgstr "Cihaz tanımlayıcısı"
 
 #. Online registration details - device identifier body
 msgid "online_reg_d_device_id_body"
-msgstr "Sistemin sağladığı tanımlayıcının dönüştürülmüş bir biçimidir: sunucu özgün tanımlayıcıyı almaz. Yeniden kurulumdan sonra genellikle aynı kalır. Sunucu bunu, ikinci bir kayıt oluşturmak yerine önceki kaydınızın yerine yenisini koymak için kullanır; yardım isterseniz sunucu yöneticileri kaydınızı bulmak için de kullanabilir. Uygulama bunu başka hiçbir hizmete göndermez."
+msgstr "Sistemin sağladığı tanımlayıcının dönüştürülmüş bir biçimidir: sunucu özgün tanımlayıcıyı almaz. Yeniden kurulumdan sonra genellikle aynı kalır. Sunucu yöneticileri bunu, yinelenen olarak kalan önceki bir kaydı fark edip kaldırmak ve yardım isterseniz kaydınızı bulmak için kullanır. Uygulama bunu başka hiçbir hizmete göndermez."
 
 #. Online registration details - device model title
 msgid "online_reg_d_device_model_title"
@@ -13069,4 +13069,4 @@ msgstr "Sunucu olmadan devam et"
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
-msgstr "Kayıt olmadan sunucuya hiçbir şey gönderilmez: bağlantı yalnızca yerel ağınızda çalışır."
+msgstr "Kayıt olmadan bağlantı yalnızca yerel ağınızda çalışır."

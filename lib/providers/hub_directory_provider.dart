@@ -219,7 +219,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// asks the question when this is false, then goes through
   /// [startOnlineServices].
   Future<bool> onlineServicesAllowed() async {
-    final decision = await _onlineServices.decide();
+    final decision = await _decideOnlineServices();
     final allowed = decision == OnlineServicesDecision.allowed;
     _onlineServicesUnreadable = decision == OnlineServicesDecision.unknown;
     final inferred = allowed && await _onlineServices.isInferred();
@@ -230,6 +230,65 @@ class HubDirectoryProvider extends ChangeNotifier {
       notifyListeners();
     }
     return allowed;
+  }
+
+  /// Reads the consent and hands the answer to the Rust core, the one
+  /// place where the provider reads it. The core sends to the hub on its
+  /// own (relay deposits when a book changes, relay poller, nudge
+  /// listener): its gate follows every answer read here. When the device
+  /// could not be read the gate is left as it is: closed at launch, and
+  /// never closed on a consenting user by a database that was busy.
+  ///
+  /// Reading the device takes time (the peers come from the local server):
+  /// a "no" that started before the user accepted the dialog must not close
+  /// the gate the yes just opened, so the written choice is read again
+  /// before closing.
+  Future<OnlineServicesDecision> _decideOnlineServices() async {
+    final decision = await _onlineServices.decide();
+    if (decision == OnlineServicesDecision.unknown) return decision;
+    var open = decision == OnlineServicesDecision.allowed;
+    if (!open) {
+      open = await _onlineServices.choice() == OnlineServicesChoice.granted;
+    }
+    _hubContactDecided = open;
+    _ffi.setHubContactAllowed(open || _ownerSettingCalls > 0);
+    return decision;
+  }
+
+  /// What the last readable consent said about the core's gate. False
+  /// until the device was read: the gate is closed at launch.
+  bool _hubContactDecided = false;
+
+  /// Owner settings on their way to the hub (see [_sendOwnerSetting]).
+  int _ownerSettingCalls = 0;
+
+  /// Sends a visibility setting the owner just changed. Such a call always
+  /// goes through (leaving the directory must never be held back), even
+  /// without a consent: the core's gate is held open for the time of the
+  /// call, then set back to what the consent says.
+  ///
+  /// The gate is one for the whole core: while it is held, the core's own
+  /// senders may run too. In practice the hold changes nothing: these
+  /// settings are only shown with the directory switch on, which stands
+  /// for the consent, and an inferred consent holds until the next launch
+  /// even when the switch is turned off meanwhile.
+  Future<T> _sendOwnerSetting<T>(Future<T> Function() send) async {
+    _ownerSettingCalls++;
+    _ffi.setHubContactAllowed(true);
+    try {
+      return await send();
+    } finally {
+      _ownerSettingCalls--;
+      // Back to what the consent says. First to the last answer known, so
+      // the gate never stays open because the device could not be read
+      // just now (or the read failed); then the fresh answer, if any.
+      _ffi.setHubContactAllowed(_hubContactDecided || _ownerSettingCalls > 0);
+      try {
+        await onlineServicesAllowed();
+      } catch (e) {
+        debugPrint('HubDirectory: consent not re-read after a setting: $e');
+      }
+    }
   }
 
   /// Whether the last [onlineServicesAllowed] answered false because the
@@ -1050,7 +1109,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     try {
       _startupUndecided = false;
       _startupRetry?.cancel();
-      final decision = await _onlineServices.decide();
+      final decision = await _decideOnlineServices();
       if (decision == OnlineServicesDecision.unknown) {
         debugPrint('HubDirectory: online services undecided, will look again');
         _startupUndecided = true;
@@ -2175,7 +2234,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     );
 
     try {
-      final result = await _ffi.hubDirectoryRegister(params);
+      final result = ownerSetting
+          ? await _sendOwnerSetting(() => _ffi.hubDirectoryRegister(params))
+          : await _ffi.hubDirectoryRegister(params);
       if (result != null) {
         _config = DirectoryConfig.fromFrb(result);
         // Registration succeeded: reset 401 back-off and recovery state.
@@ -2211,10 +2272,18 @@ class HubDirectoryProvider extends ChangeNotifier {
               'HubDirectoryProvider: 401 detected, attempting recovery with stored code',
             );
             try {
-              final recovered = await _ffi.hubDirectoryRecover(
-                nodeId: nodeId,
-                recoveryCode: recoveryCode,
-              );
+              // An owner setting holds the core's gate open for its own
+              // request only: the recovery it triggers needs the same, or
+              // it fails without reaching the hub and the purge below
+              // throws a registration away for nothing.
+              Future<frb.FrbDirectoryConfig?> recover() =>
+                  _ffi.hubDirectoryRecover(
+                    nodeId: nodeId,
+                    recoveryCode: recoveryCode,
+                  );
+              final recovered = ownerSetting
+                  ? await _sendOwnerSetting(recover)
+                  : await recover();
               if (recovered != null) {
                 _config = DirectoryConfig.fromFrb(recovered);
                 _consecutive401Count = 0;
@@ -2249,7 +2318,11 @@ class HubDirectoryProvider extends ChangeNotifier {
           // Retry once: without local config, Rust sends no Bearer token
           // and the hub issues a fresh write_token.
           try {
-            final retryResult = await _ffi.hubDirectoryRegister(params);
+            final retryResult = ownerSetting
+              ? await _sendOwnerSetting(
+                  () => _ffi.hubDirectoryRegister(params),
+                )
+              : await _ffi.hubDirectoryRegister(params);
             if (retryResult != null) {
               _config = DirectoryConfig.fromFrb(retryResult);
               _consecutive401Count = 0;

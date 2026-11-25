@@ -12954,7 +12954,7 @@ msgstr "您的图书馆名称和头像、书籍数量，以及您填写过的国
 
 #. Online registration - device identifier (fingerprint)
 msgid "online_reg_item_device_id"
-msgstr "此设备的标识符（设备指纹），用于避免重新安装后出现重复的图书馆"
+msgstr "此设备的标识符（设备指纹），用于发现重新安装后遗留的重复注册"
 
 #. Online registration - device model and app version
 msgid "online_reg_item_device_model"
@@ -12970,7 +12970,7 @@ msgstr "您上次连接的日期"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
-msgstr "如果您拒绝，不会发送任何内容，操作将被取消。应用在没有服务器的情况下仍可继续使用。"
+msgstr "如果您拒绝，此设备不会被注册，操作将被取消。应用在没有服务器的情况下仍可继续使用。"
 
 #. Online registration - expander label
 msgid "online_reg_details"
@@ -12998,7 +12998,7 @@ msgstr "设备标识符"
 
 #. Online registration details - device identifier body
 msgid "online_reg_d_device_id_body"
-msgstr "它是系统所提供标识符的转换形式：服务器不会收到原始标识符。重新安装后它通常保持不变。服务器用它来替换您之前的注册，而不是创建第二个；如果您请求帮助，服务器管理员也可以用它找到您的注册。应用不会将它发送给任何其他服务。"
+msgstr "它是系统所提供标识符的转换形式：服务器不会收到原始标识符。重新安装后它通常保持不变。服务器管理员用它来发现并移除遗留的重复注册；如果您请求帮助，也可以用它找到您的注册。应用不会将它发送给任何其他服务。"
 
 #. Online registration details - device model title
 msgid "online_reg_d_device_model_title"
@@ -13078,4 +13078,4 @@ msgstr "不使用服务器继续"
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
-msgstr "不注册时，不会向服务器发送任何内容：连接仅在您的本地网络中有效。"
+msgstr "不注册时，连接仅在您的本地网络中有效。"

@@ -34,6 +34,24 @@ Future<void> setHubUrlFfi({required String hubUrl}) =>
 /// issued it. `None` before [`set_hub_url_ffi`] ran.
 String? hubEffectiveUrl() => RustLib.instance.api.crateApiFrbHubEffectiveUrl();
 
+/// Tell the core whether it may contact the hub (ADR-073).
+///
+/// The consent to register on the hub is asked and stored by the app; the
+/// core has senders of its own (relay deposits, the relay poller, the nudge
+/// listener, the directory and account clients) and they all stay silent
+/// until this is called with `true`. The app calls it at startup, once it
+/// knows the user's choice, and again on every change; `false` takes effect
+/// at once, an open nudge connection included.
+///
+/// FFI only, on purpose: an HTTP route would let any device of the local
+/// network open the gate.
+void setHubContactAllowed({required bool allowed}) =>
+    RustLib.instance.api.crateApiFrbSetHubContactAllowed(allowed: allowed);
+
+/// Whether the core may contact the hub right now (see
+/// [`set_hub_contact_allowed`]).
+bool hubContactAllowed() => RustLib.instance.api.crateApiFrbHubContactAllowed();
+
 /// Check if the FFI backend is healthy
 String healthCheck() => RustLib.instance.api.crateApiFrbHealthCheck();
 

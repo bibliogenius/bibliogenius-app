@@ -194,7 +194,12 @@ class _ScanContactViewState extends State<ScanContactView> {
             peerId: url.hashCode & 0x7FFFFFFF,
             peerName: name,
             peerUrl: url,
-            hasRelayCredentials: relayUrl != null && mailboxId != null,
+            // A pairing kept on the local network has no way through the
+            // hub, whatever the code carried.
+            hasRelayCredentials:
+                relayUrl != null &&
+                mailboxId != null &&
+                consent != PairingConsent.localOnly,
             connectedAt: DateTime.now(),
           ),
           showAccepted: context

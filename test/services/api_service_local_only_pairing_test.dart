@@ -13,8 +13,10 @@ class _MockAuthService extends AuthService {
 }
 
 /// A pairing made after the hub registration was declined (ADR-073) stays
-/// on the local network: the peer's relay credentials are neither used nor
-/// kept, and no relay mailbox is created for this library.
+/// on the local network: the app neither uses nor forwards the peer's relay
+/// credentials, and no relay mailbox is created for this library. (The
+/// Rust core may store the ones the peer serves on the local network; its
+/// hub gate keeps them unused, see `tests/hub_silence_test.rs` there.)
 ///
 /// `connectLocalPeer` talks to the embedded local server and to the peer
 /// through its own Dio instances, so two loopback servers stand in for

@@ -39,6 +39,15 @@ class _MockFfiService extends FfiService {
   frb.FrbRelayConfig? relayConfig;
   bool signedIn = false;
 
+  /// Every value the provider gave the Rust core's hub gate, in order.
+  final hubContact = <bool>[];
+
+  /// The gate as it stood when the last registration left.
+  bool? hubContactAtRegistration;
+
+  @override
+  void setHubContactAllowed(bool allowed) => hubContact.add(allowed);
+
   int registerCalls = 0;
   int catalogPushes = 0;
   int writeTokenImports = 0;
@@ -120,6 +129,7 @@ class _MockFfiService extends FfiService {
     frb.FrbRegisterParams params,
   ) async {
     registerCalls++;
+    hubContactAtRegistration = hubContact.isEmpty ? null : hubContact.last;
     await registrationGate?.future;
     registrationsFinished++;
     directoryConfig = frb.FrbDirectoryConfig(
@@ -414,6 +424,104 @@ void main() {
         reason: 'not knowing is not a no: a paired user keeps the relay',
       );
     });
+  });
+
+  // The Rust core sends to the hub on its own (relay deposits when a book
+  // changes, relay poller, nudge listener). Its gate is closed at launch
+  // and follows the consent read here.
+  group('the hub gate of the Rust core', () {
+    test('stays closed on an installation that never used the network', () async {
+      final (provider, ffi, _) = _build();
+
+      await provider.initAndSyncCatalog();
+
+      expect(ffi.hubContact, isNotEmpty);
+      expect(ffi.hubContact, everyElement(isFalse));
+    });
+
+    test('is closed on an installation an earlier build registered and that '
+        'never used the network', () async {
+      final (provider, ffi, _) = _build(registeredBefore: true);
+
+      await provider.initAndSyncCatalog();
+
+      expect(ffi.hubContact, everyElement(isFalse));
+      expect(ffi.hubContact, isNotEmpty);
+    });
+
+    test('opens for an installation that uses the network', () async {
+      final (provider, ffi, api) = _build(registeredBefore: true);
+      api.peers = [
+        {'id': 1, 'connection_status': 'accepted', 'library_uuid': 'friend'},
+      ];
+
+      await provider.initAndSyncCatalog();
+
+      expect(ffi.hubContact.last, isTrue);
+    });
+
+    test('opens as soon as the dialog is accepted', () async {
+      final (provider, ffi, _) = _build();
+      expect(await provider.onlineServicesAllowed(), isFalse);
+      expect(ffi.hubContact.last, isFalse);
+
+      await provider.recordOnlineServicesGrant();
+
+      expect(ffi.hubContact.last, isTrue);
+    });
+
+    test('is left alone when the device cannot be read', () async {
+      // Not knowing is not a no: the gate of a paired user is never closed
+      // by a database that was busy. At launch it is closed anyway.
+      final (provider, ffi, api) = _build(registeredBefore: true);
+      api.peersUnreadable = true;
+
+      expect(await provider.onlineServicesAllowed(), isFalse);
+
+      expect(ffi.hubContact, isEmpty);
+    });
+
+    test('is held open for a visibility setting of the owner, then closed '
+        'again', () async {
+      // Leaving the directory must reach the hub even when turning the
+      // switch off has just ended the inferred consent.
+      final (provider, ffi, _) = _build(registeredBefore: true);
+      await provider.loadConfig();
+
+      final sent = await provider.register(
+        nodeId: 'node-1',
+        displayName: 'Test Library',
+        bookCount: 7,
+        acceptFrom: 'everyone',
+        isListed: false,
+      );
+
+      expect(sent, isTrue);
+      expect(ffi.hubContactAtRegistration, isTrue);
+      expect(ffi.hubContact.last, isFalse);
+    });
+  });
+
+  test('the hub gate of the Rust core does not stay open after a setting of '
+      'the owner when the device cannot be read', () async {
+    final (provider, ffi, api) = _build(registeredBefore: true);
+    await provider.loadConfig();
+    api.peersUnreadable = true;
+
+    await provider.register(
+      nodeId: 'node-1',
+      displayName: 'Test Library',
+      bookCount: 7,
+      acceptFrom: 'everyone',
+      isListed: false,
+    );
+
+    expect(ffi.hubContactAtRegistration, isTrue);
+    expect(
+      ffi.hubContact.last,
+      isFalse,
+      reason: 'not knowing must not leave the gate open',
+    );
   });
 
   group('an installation that uses the network', () {

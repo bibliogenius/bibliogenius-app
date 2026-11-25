@@ -654,8 +654,18 @@ Future<void> _runApp() async {
         ffi: FfiService(),
       ),
     );
+    // The Rust core keeps its hub gate closed until it is told the answer
+    // (the relay poller, the nudge listener and the mailbox creation below
+    // all wait for it). Told here, before the first frame, a consenting
+    // installation reads its mailbox without waiting for the provider.
+    final startupDecision = await onlineServices.decide();
+    if (startupDecision != OnlineServicesDecision.unknown) {
+      FfiService().setHubContactAllowed(
+        startupDecision == OnlineServicesDecision.allowed,
+      );
+    }
     if (themeProvider.remoteReachableEnabled &&
-        await onlineServices.isAllowed()) {
+        startupDecision == OnlineServicesDecision.allowed) {
       try {
         final localDio = Dio(
           BaseOptions(baseUrl: 'http://localhost:$httpPort'),

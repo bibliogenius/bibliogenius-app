@@ -12948,7 +12948,7 @@ msgstr "o nome e o avatar da sua biblioteca, o número de livros, seu país e su
 
 #. Online registration - device identifier (fingerprint)
 msgid "online_reg_item_device_id"
-msgstr "um identificador deste dispositivo (a impressão digital do dispositivo), para evitar uma duplicata da sua biblioteca após uma reinstalação"
+msgstr "um identificador deste dispositivo (a impressão digital do dispositivo), para identificar um registro anterior que tenha ficado duplicado após uma reinstalação"
 
 #. Online registration - device model and app version
 msgid "online_reg_item_device_model"
@@ -12964,7 +12964,7 @@ msgstr "a data da sua última conexão"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
-msgstr "Se você recusar, nada é enviado e a ação é cancelada. O aplicativo continua funcionando sem o servidor."
+msgstr "Se você recusar, este dispositivo não é registrado e a ação é cancelada. O aplicativo continua funcionando sem o servidor."
 
 #. Online registration - expander label
 msgid "online_reg_details"
@@ -12992,7 +12992,7 @@ msgstr "O identificador do dispositivo"
 
 #. Online registration details - device identifier body
 msgid "online_reg_d_device_id_body"
-msgstr "É uma forma transformada do identificador fornecido pelo sistema: o servidor não recebe o identificador original. Em geral ele continua o mesmo após uma reinstalação. O servidor o usa para substituir seu registro anterior em vez de criar um segundo, e os administradores do servidor podem usá-lo para encontrar seu registro se você pedir ajuda. O aplicativo não o envia a nenhum outro serviço."
+msgstr "É uma forma transformada do identificador fornecido pelo sistema: o servidor não recebe o identificador original. Em geral ele continua o mesmo após uma reinstalação. Os administradores do servidor o usam para identificar e remover um registro anterior que tenha ficado duplicado, e para encontrar seu registro se você pedir ajuda. O aplicativo não o envia a nenhum outro serviço."
 
 #. Online registration details - device model title
 msgid "online_reg_d_device_model_title"
@@ -13072,4 +13072,4 @@ msgstr "Continuar sem o servidor"
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
-msgstr "Sem registro, nada é enviado ao servidor: a conexão funciona apenas na sua rede local."
+msgstr "Sem registro, a conexão funciona apenas na sua rede local."

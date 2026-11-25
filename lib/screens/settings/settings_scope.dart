@@ -280,7 +280,13 @@ class SettingsData extends ChangeNotifier {
       // The Connect button asks the question of ADR-073 D2 first; without
       // a consent no mailbox is created.
       if (!await hub.onlineServicesAllowed()) return 'Connection failed';
-      if (await _adoptExistingRelay(api)) return null;
+      if (await _adoptExistingRelay(api)) {
+        // A mailbox created in the background may not be published yet:
+        // peers reach it through the credentials the hub holds.
+        await hub.ensureRelayPublished();
+        if (!hub.isRegistered) await hub.initAndSyncCatalog();
+        return null;
+      }
       final res = await api.setupRelay(relayUrl: url);
       if (res.statusCode == 200 && res.data is Map) {
         relayConnected = true;

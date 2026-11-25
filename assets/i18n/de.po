@@ -12814,7 +12814,7 @@ msgstr "den Namen und den Avatar Ihrer Bibliothek, die Anzahl der Bücher, Ihr L
 
 #. Online registration - device identifier (fingerprint)
 msgid "online_reg_item_device_id"
-msgstr "eine Kennung dieses Geräts (seinen Fingerabdruck), um ein Duplikat Ihrer Bibliothek nach einer Neuinstallation zu vermeiden"
+msgstr "eine Kennung dieses Geräts (seinen Fingerabdruck), um eine frühere Registrierung zu erkennen, die nach einer Neuinstallation als Duplikat zurückgeblieben ist"
 
 #. Online registration - device model and app version
 msgid "online_reg_item_device_model"
@@ -12830,7 +12830,7 @@ msgstr "das Datum Ihrer letzten Verbindung"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
-msgstr "Wenn Sie ablehnen, wird nichts gesendet und die Aktion wird abgebrochen. Die App funktioniert weiterhin ohne den Server."
+msgstr "Wenn Sie ablehnen, wird dieses Gerät nicht registriert und die Aktion wird abgebrochen. Die App funktioniert weiterhin ohne den Server."
 
 #. Online registration - expander label
 msgid "online_reg_details"
@@ -12858,7 +12858,7 @@ msgstr "Die Gerätekennung"
 
 #. Online registration details - device identifier body
 msgid "online_reg_d_device_id_body"
-msgstr "Sie ist eine umgewandelte Form der vom System bereitgestellten Kennung: Der Server erhält die ursprüngliche Kennung nicht. Sie bleibt nach einer Neuinstallation in der Regel gleich. Der Server nutzt sie, um Ihre frühere Registrierung zu ersetzen, statt eine zweite anzulegen, und seine Administratoren können sie nutzen, um Ihre Registrierung zu finden, wenn Sie um Hilfe bitten. Die App sendet sie an keinen anderen Dienst."
+msgstr "Sie ist eine umgewandelte Form der vom System bereitgestellten Kennung: Der Server erhält die ursprüngliche Kennung nicht. Sie bleibt nach einer Neuinstallation in der Regel gleich. Die Administratoren des Servers nutzen sie, um eine frühere Registrierung, die als Duplikat zurückgeblieben ist, zu erkennen und zu entfernen, und um Ihre Registrierung zu finden, wenn Sie um Hilfe bitten. Die App sendet sie an keinen anderen Dienst."
 
 #. Online registration details - device model title
 msgid "online_reg_d_device_model_title"
@@ -12938,4 +12938,4 @@ msgstr "Ohne den Server fortfahren"
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
-msgstr "Ohne Registrierung wird nichts an den Server gesendet: Die Verbindung funktioniert nur in Ihrem lokalen Netzwerk."
+msgstr "Ohne Registrierung funktioniert die Verbindung nur in Ihrem lokalen Netzwerk."

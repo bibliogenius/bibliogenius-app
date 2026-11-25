@@ -1074,6 +1074,7 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
   Future<void> _refreshFromHubCatalog() async {
     final nodeId = _effectiveNodeId;
     if (nodeId == null || FfiService.isPlaceholderNodeId(nodeId)) return;
+    if (!await _hubReadAllowed()) return;
     try {
       final ffi = FfiService();
       final entries = await ffi.hubDirectoryGetCatalog(nodeId);
@@ -1170,11 +1171,20 @@ class _PeerBookListScreenState extends State<PeerBookListScreen> {
     }
   }
 
+  /// An installation that did not register on the hub (ADR-073) reads a
+  /// peer's catalog on the local network only: nothing is asked from the
+  /// hub, and no hub error is shown for a request that was never made.
+  Future<bool> _hubReadAllowed() async {
+    if (!mounted) return false;
+    return context.read<HubDirectoryProvider>().onlineServicesAllowed();
+  }
+
   /// Load hub catalog and convert entries to Book objects for unified rendering.
   /// Books get covers via explicit cover_url or OpenLibrary ISBN fallback.
   Future<void> _loadHubCatalog() async {
     final nodeId = _effectiveNodeId;
     if (nodeId == null || FfiService.isPlaceholderNodeId(nodeId)) return;
+    if (!await _hubReadAllowed()) return;
     try {
       final ffi = FfiService();
       debugPrint('Hub catalog: fetching for $nodeId');

@@ -12954,7 +12954,7 @@ msgstr "ライブラリの名前とアバター、本の冊数、入力してい
 
 #. Online registration - device identifier (fingerprint)
 msgid "online_reg_item_device_id"
-msgstr "このデバイスの識別子（フィンガープリント）。再インストール後にライブラリが重複するのを防ぐためです"
+msgstr "このデバイスの識別子（フィンガープリント）。再インストール後に重複して残った以前の登録を見つけるためです"
 
 #. Online registration - device model and app version
 msgid "online_reg_item_device_model"
@@ -12970,7 +12970,7 @@ msgstr "最後に接続した日付"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
-msgstr "拒否した場合、何も送信されず、操作はキャンセルされます。アプリはサーバーなしで引き続き動作します。"
+msgstr "拒否した場合、このデバイスは登録されず、操作はキャンセルされます。アプリはサーバーなしで引き続き動作します。"
 
 #. Online registration - expander label
 msgid "online_reg_details"
@@ -12998,7 +12998,7 @@ msgstr "デバイスの識別子"
 
 #. Online registration details - device identifier body
 msgid "online_reg_d_device_id_body"
-msgstr "システムが提供する識別子を変換したものです。サーバーは元の識別子を受け取りません。通常、再インストール後も同じままです。サーバーは、2つ目の登録を作る代わりに以前の登録を置き換えるためにこれを使います。あなたがサポートを依頼した場合、サーバーの管理者が登録を探すために使うこともあります。アプリはこれを他のどのサービスにも送信しません。"
+msgstr "システムが提供する識別子を変換したものです。サーバーは元の識別子を受け取りません。通常、再インストール後も同じままです。サーバーの管理者は、重複して残った以前の登録を見つけて削除するため、またあなたがサポートを依頼した場合に登録を探すために、これを使います。アプリはこれを他のどのサービスにも送信しません。"
 
 #. Online registration details - device model title
 msgid "online_reg_d_device_model_title"
@@ -13078,4 +13078,4 @@ msgstr "サーバーなしで続ける"
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
-msgstr "登録しない場合、サーバーには何も送信されません。接続はローカルネットワーク内でのみ機能します。"
+msgstr "登録しない場合、接続はローカルネットワーク内でのみ機能します。"

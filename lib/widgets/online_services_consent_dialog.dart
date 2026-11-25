@@ -14,7 +14,9 @@ import '../services/translation_service.dart';
 /// consents (nothing is shown), or the user just accepted the dialog (the
 /// yes is then written, here and nowhere else). Returns false when the
 /// user refused or dismissed it: the caller drops the action, records
-/// nothing and sends nothing.
+/// nothing and registers nothing. (The suggestion lookups of ADR-060 and
+/// ADR-061 are outside this consent and still reach the hub: no text of
+/// the dialog may promise that nothing at all is sent.)
 ///
 /// One dialog, the same text at every entry point. [publishingWithoutApproval]
 /// only changes the line about the list of books, for the one action that
@@ -38,8 +40,10 @@ enum PairingConsent {
   online,
 
   /// The user declined the registration and the peer has an address on
-  /// the local network: the pairing goes on there, and nothing is sent to
-  /// the hub, now or because of this pairing later.
+  /// the local network: the pairing goes on there. This device is not
+  /// registered, and the Rust core keeps its hub gate closed: the peer's
+  /// relay credentials may be stored, but nothing is deposited or read on
+  /// the hub because of this pairing until the user agrees to register.
   localOnly,
 
   /// The dialog was dismissed, or declined with no local address to fall
@@ -416,15 +420,24 @@ class _OnlineServicesSummary extends StatelessWidget {
               const SizedBox(height: 2),
               Text(t('online_reg_d_who_body'), style: body),
               TextButton.icon(
-                onPressed: () => launchUrl(
-                  dataDeletionPageUri(
+                onPressed: () async {
+                  final page = dataDeletionPageUri(
                     Provider.of<ThemeProvider>(
                       context,
                       listen: false,
                     ).locale.languageCode,
-                  ),
-                  mode: LaunchMode.externalApplication,
-                ),
+                  );
+                  // No browser, or a platform that refuses the link: the
+                  // dialog stays usable, the page is named in its text.
+                  try {
+                    await launchUrl(
+                      page,
+                      mode: LaunchMode.externalApplication,
+                    );
+                  } catch (e) {
+                    debugPrint('Consent dialog: could not open $page: $e');
+                  }
+                },
                 icon: const Icon(Icons.open_in_new, size: 18),
                 label: Text(t('online_reg_d_who_link')),
                 style: TextButton.styleFrom(

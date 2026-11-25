@@ -12960,7 +12960,7 @@ msgstr "your library name and avatar, the number of books, your country and your
 
 #. Online registration - device identifier (fingerprint)
 msgid "online_reg_item_device_id"
-msgstr "an identifier of this device (its fingerprint), to avoid a duplicate of your library after a reinstall"
+msgstr "an identifier of this device (its fingerprint), to spot an earlier registration left as a duplicate after a reinstall"
 
 #. Online registration - device model and app version
 msgid "online_reg_item_device_model"
@@ -12976,7 +12976,7 @@ msgstr "the date of your last connection"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
-msgstr "If you refuse, nothing is sent and the action is cancelled. The app keeps working without the server."
+msgstr "If you refuse, this device is not registered and the action is cancelled. The app keeps working without the server."
 
 #. Online registration - expander label
 msgid "online_reg_details"
@@ -13004,7 +13004,7 @@ msgstr "The device identifier"
 
 #. Online registration details - device identifier body
 msgid "online_reg_d_device_id_body"
-msgstr "It is a transformed form of the identifier provided by the system: the server does not receive the original identifier. It usually stays the same after a reinstall. The server uses it to replace your earlier registration instead of creating a second one, and its administrators can use it to find your registration if you ask for help. The app sends it to no other service."
+msgstr "It is a transformed form of the identifier provided by the system: the server does not receive the original identifier. It usually stays the same after a reinstall. The server's administrators use it to spot and remove an earlier registration left as a duplicate, and to find your registration if you ask for help. The app sends it to no other service."
 
 #. Online registration details - device model title
 msgid "online_reg_d_device_model_title"
@@ -13084,4 +13084,4 @@ msgstr "Continue without the server"
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
-msgstr "Without registration, nothing is sent to the server: the connection works on your local network only."
+msgstr "Without registration, the connection works on your local network only."

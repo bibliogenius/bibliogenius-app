@@ -3988,9 +3988,11 @@ class ApiService {
   ///
   /// [localOnly]: the user declined the hub registration (ADR-073) and
   /// pairs over the local network alone. The peer's relay credentials are
-  /// then neither used nor kept: no relay path, no relay fallback when the
-  /// handshake fails, and nothing that would later reach the peer through
-  /// the hub.
+  /// then not used here: no relay path, no relay fallback when the
+  /// handshake fails. The Rust core may still store the ones the peer
+  /// serves on the local network; they stay unused while its hub gate is
+  /// closed, and let this library reach the peer remotely, without pairing
+  /// again, if the user registers later.
   Future<Response> connectLocalPeer(
     String name,
     String url, {
