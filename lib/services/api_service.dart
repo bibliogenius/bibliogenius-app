@@ -307,6 +307,12 @@ class ApiService {
 
   String get baseUrl => _dio.options.baseUrl;
 
+  /// Base URL of this device's own backend, for a relative `/api` path built
+  /// outside Dio (an image URL). In the native app that is the embedded
+  /// server on [httpPort]; [baseUrl] comes from `.env` there and is not it.
+  String get localBackendBaseUrl =>
+      useFfi ? 'http://127.0.0.1:$httpPort' : baseUrl;
+
   void setBaseUrl(String url) {
     _dio.options.baseUrl = url;
   }

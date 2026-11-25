@@ -401,7 +401,7 @@ class CachedBookCover extends StatelessWidget {
     String resolvedUrl = imageUrl!;
     if (isRelativeApiPath) {
       final apiService = Provider.of<ApiService>(context, listen: false);
-      String baseUrl = apiService.baseUrl;
+      String baseUrl = apiService.localBackendBaseUrl;
       if (baseUrl.endsWith('/')) {
         baseUrl = baseUrl.substring(0, baseUrl.length - 1);
       }
