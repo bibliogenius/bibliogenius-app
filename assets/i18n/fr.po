@@ -8786,6 +8786,18 @@ msgstr "Aucune bibliothèque à proximité"
 msgid "no_nearby_peers_hint"
 msgstr "Vérifiez que le Wi-Fi est activé et que d'autres utilisateurs BiblioGenius sont sur le même réseau."
 
+msgid "nearby_discovery_off_title"
+msgstr "La découverte sur le Wi-Fi est désactivée"
+
+msgid "nearby_discovery_off_hint"
+msgstr "Cet appareil ne cherche pas les bibliothèques à proximité, et les autres ne le voient pas. Une fois la découverte activée, le nom de votre bibliothèque est visible sur les réseaux Wi-Fi que vous rejoignez. L'autre appareil doit aussi l'activer."
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "Votre appareil peut vous demander l'accès au réseau local."
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Activer la découverte sur le Wi-Fi"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "Aucune bibliothèque suivie"

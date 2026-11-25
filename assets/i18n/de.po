@@ -7261,6 +7261,18 @@ msgstr "Keine Bibliotheken in der Nähe"
 msgid "no_nearby_peers_hint"
 msgstr "Stellen Sie sicher, dass Wi-Fi aktiviert ist und andere BiblioGenius-Nutzer im selben Netzwerk sind."
 
+msgid "nearby_discovery_off_title"
+msgstr "Die Erkennung im Wi-Fi ist ausgeschaltet"
+
+msgid "nearby_discovery_off_hint"
+msgstr "Dieses Gerät sucht keine Bibliotheken in der Nähe, und andere können es nicht sehen. Ist die Erkennung eingeschaltet, ist der Name Ihrer Bibliothek in den Wi-Fi-Netzwerken sichtbar, mit denen Sie sich verbinden. Das andere Gerät muss sie ebenfalls einschalten."
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "Ihr Gerät fragt möglicherweise nach Zugriff auf das lokale Netzwerk."
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Erkennung im Wi-Fi einschalten"
+
 msgid "page_not_found_message"
 msgstr "Die gesuchte Seite existiert nicht."
 

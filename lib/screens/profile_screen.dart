@@ -1403,12 +1403,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 listen: false,
               );
               final libraryUuid = await authService.getOrCreateLibraryUuid();
-              await MdnsService.startAnnouncing(
-                result,
-                ApiService.httpPort,
+              // Through the provider, so the new name is announced with the
+              // E2EE public keys, as at launch. setLibraryName above already
+              // holds the new name.
+              await themeProvider.setNetworkDiscoveryEnabled(
+                true,
                 libraryId: libraryUuid,
+                port: ApiService.httpPort,
               );
-              await MdnsService.startDiscovery();
             } catch (e) {
               debugPrint('mDNS restart after name change failed: $e');
             }

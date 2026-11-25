@@ -8980,6 +8980,18 @@ msgstr "近くにライブラリがありません"
 msgid "no_nearby_peers_hint"
 msgstr "Wi-Fiが有効で、他のBiblioGeniusユーザーが同じネットワーク上にいることを確認してください。"
 
+msgid "nearby_discovery_off_title"
+msgstr "Wi-Fiでの検出がオフになっています"
+
+msgid "nearby_discovery_off_hint"
+msgstr "このデバイスは近くのライブラリを探しておらず、他のデバイスからも見えません。検出をオンにすると、接続したWi-Fiネットワーク上でライブラリの名前が表示されます。相手のデバイスでもオンにする必要があります。"
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "デバイスからローカルネットワークへのアクセス許可を求められる場合があります。"
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Wi-Fiでの検出をオンにする"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "フォロー中のライブラリはまだありません"

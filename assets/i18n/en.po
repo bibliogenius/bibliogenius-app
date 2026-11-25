@@ -8786,6 +8786,18 @@ msgstr "No nearby libraries"
 msgid "no_nearby_peers_hint"
 msgstr "Make sure Wi-Fi is enabled and other BiblioGenius users are on the same network."
 
+msgid "nearby_discovery_off_title"
+msgstr "Wi-Fi discovery is off"
+
+msgid "nearby_discovery_off_hint"
+msgstr "This device is not looking for nearby libraries, and others cannot see it. Once discovery is on, your library's name is visible on the Wi-Fi networks you join. The other device must turn it on too."
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "Your device may ask for access to the local network."
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Turn on Wi-Fi discovery"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "No followed libraries yet"

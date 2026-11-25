@@ -8800,6 +8800,18 @@ msgstr "Няма близки библиотеки"
 msgid "no_nearby_peers_hint"
 msgstr "Уверете се, че Wi-Fi е включен и че други потребители на BiblioGenius са в същата мрежа."
 
+msgid "nearby_discovery_off_title"
+msgstr "Откриването в Wi-Fi е изключено"
+
+msgid "nearby_discovery_off_hint"
+msgstr "Това устройство не търси библиотеки наблизо и другите не могат да го видят. Когато откриването е включено, името на вашата библиотека се вижда в Wi-Fi мрежите, към които се свързвате. Другото устройство също трябва да го включи."
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "Вашето устройство може да поиска достъп до локалната мрежа."
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Включване на откриването в Wi-Fi"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "Все още няма следвани библиотеки"

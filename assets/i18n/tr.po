@@ -8794,6 +8794,18 @@ msgstr "Yakında kütüphane yok"
 msgid "no_nearby_peers_hint"
 msgstr "Wi-Fi'nin etkin olduğundan ve diğer BiblioGenius kullanıcılarının aynı ağda olduğundan emin olun."
 
+msgid "nearby_discovery_off_title"
+msgstr "Wi-Fi'de keşif kapalı"
+
+msgid "nearby_discovery_off_hint"
+msgstr "Bu cihaz yakındaki kütüphaneleri aramıyor ve diğerleri onu göremiyor. Keşif açıkken kütüphanenizin adı katıldığınız Wi-Fi ağlarında görünür. Diğer cihazın da keşfi açması gerekir."
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "Cihazınız yerel ağa erişim izni isteyebilir."
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Wi-Fi'de keşfi aç"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "Henüz takip edilen kütüphane yok"

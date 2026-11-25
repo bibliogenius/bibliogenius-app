@@ -1230,6 +1230,34 @@ class ThemeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Test seams for turning discovery on: reading the identity keys and
+  /// announcing both need a native backend, which unit tests do not have.
+  @visibleForTesting
+  static Future<String?> Function()? publicKeysOverride;
+  @visibleForTesting
+  static Future<bool> Function(
+    String libraryName,
+    int port, {
+    String? libraryId,
+    String? ed25519PublicKey,
+    String? x25519PublicKey,
+  })?
+  mdnsAnnounceOverride;
+
+  static ({String? ed25519, String? x25519}) _decodePublicKeys(String? json) {
+    if (json == null) return (ed25519: null, x25519: null);
+    try {
+      final keys = jsonDecode(json) as Map<String, dynamic>;
+      return (
+        ed25519: keys['ed25519'] as String?,
+        x25519: keys['x25519'] as String?,
+      );
+    } catch (e) {
+      debugPrint('mDNS: unreadable public keys, announcing without them: $e');
+      return (ed25519: null, x25519: null);
+    }
+  }
+
   Future<void> setNetworkDiscoveryEnabled(
     bool enabled, {
     String? libraryId,
@@ -1254,10 +1282,18 @@ class ThemeProvider with ChangeNotifier {
     if (enabled) {
       if (libraryId != null && port != null) {
         try {
-          await MdnsService.startAnnouncing(
+          // The same keys main.dart announces at launch: without them, a
+          // peer pairing from this announcement gets no E2EE keys until the
+          // next launch re-announces.
+          final keys = _decodePublicKeys(
+            await (publicKeysOverride ?? FfiService().getPublicKeys)(),
+          );
+          await (mdnsAnnounceOverride ?? MdnsService.startAnnouncing)(
             libraryName,
             port,
             libraryId: libraryId,
+            ed25519PublicKey: keys.ed25519,
+            x25519PublicKey: keys.x25519,
           );
           await MdnsService.startDiscovery();
         } catch (e) {

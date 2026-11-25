@@ -8980,6 +8980,18 @@ msgstr "附近没有图书馆"
 msgid "no_nearby_peers_hint"
 msgstr "请确保已启用 Wi-Fi，且其他 BiblioGenius 用户处于同一网络。"
 
+msgid "nearby_discovery_off_title"
+msgstr "Wi-Fi 发现已关闭"
+
+msgid "nearby_discovery_off_hint"
+msgstr "此设备不会查找附近的图书馆，其他设备也看不到它。开启发现后，您图书馆的名称会在您连接的 Wi-Fi 网络上可见。对方设备也需要开启。"
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "您的设备可能会请求访问本地网络的权限。"
+
+msgid "nearby_discovery_enable_btn"
+msgstr "开启 Wi-Fi 发现"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "尚未关注任何图书馆"

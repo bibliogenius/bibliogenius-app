@@ -17,6 +17,7 @@ import 'invite_screen.dart';
 import '../widgets/configurable_action_card.dart';
 import '../widgets/peer_sync_failure_snack_bar.dart';
 import '../widgets/shimmer_loading.dart';
+import '../widgets/network_empty_state.dart';
 import '../utils/known_libraries.dart';
 import '../utils/requests_tabs.dart';
 import 'package:provider/provider.dart';
@@ -1640,14 +1641,7 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
   Widget _buildEmptyState(BuildContext context) {
     switch (_filter) {
       case LibraryFilter.nearby:
-        return _buildEmptyStateContent(
-          context,
-          key: 'networkEmptyNearby',
-          icon: Icons.wifi_off,
-          iconColor: Colors.grey,
-          titleKey: 'no_nearby_peers',
-          hintKey: 'no_nearby_peers_hint',
-        );
+        return const NearbyEmptyState();
       case LibraryFilter.following:
         final hubOn = context.read<HubDirectoryProvider>().isHubEnabled;
         return _buildEmptyStateContent(
@@ -1782,46 +1776,13 @@ class _MyNetworkViewState extends State<_MyNetworkView> {
     required String hintKey,
     Widget? actionWidget,
   }) {
-    return Center(
+    return NetworkEmptyStateContent(
       key: Key(key),
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: iconColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, size: 64, color: iconColor),
-            ),
-            const SizedBox(height: 24),
-            Text(
-              TranslationService.translate(context, titleKey),
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              TranslationService.translate(context, hintKey),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                height: 1.5,
-              ),
-            ),
-            if (actionWidget != null) ...[
-              const SizedBox(height: 32),
-              actionWidget,
-            ],
-          ],
-        ),
-      ),
+      icon: icon,
+      iconColor: iconColor,
+      titleKey: titleKey,
+      hintKey: hintKey,
+      actionWidget: actionWidget,
     );
   }
 }

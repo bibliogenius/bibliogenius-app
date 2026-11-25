@@ -8980,6 +8980,18 @@ msgstr "근처에 서재가 없습니다"
 msgid "no_nearby_peers_hint"
 msgstr "Wi-Fi가 켜져 있고 다른 BiblioGenius 사용자가 같은 네트워크에 있는지 확인하세요."
 
+msgid "nearby_discovery_off_title"
+msgstr "Wi-Fi 검색이 꺼져 있습니다"
+
+msgid "nearby_discovery_off_hint"
+msgstr "이 기기는 주변 라이브러리를 찾지 않으며 다른 기기에서도 보이지 않습니다. 검색을 켜면 연결한 Wi-Fi 네트워크에서 라이브러리 이름이 표시됩니다. 상대 기기에서도 켜야 합니다."
+
+msgid "nearby_discovery_off_ios_hint"
+msgstr "기기에서 로컬 네트워크 접근 권한을 요청할 수 있습니다."
+
+msgid "nearby_discovery_enable_btn"
+msgstr "Wi-Fi 검색 켜기"
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr "아직 팔로우한 서재가 없습니다"

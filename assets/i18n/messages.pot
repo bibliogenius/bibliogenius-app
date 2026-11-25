@@ -7904,6 +7904,22 @@ msgstr ""
 msgid "no_nearby_peers_hint"
 msgstr ""
 
+#. Nearby empty state when local discovery is off: title
+msgid "nearby_discovery_off_title"
+msgstr ""
+
+#. Nearby empty state when local discovery is off: what it means, what turning it on shows
+msgid "nearby_discovery_off_hint"
+msgstr ""
+
+#. Nearby empty state when local discovery is off: iOS only, why the system may ask
+msgid "nearby_discovery_off_ios_hint"
+msgstr ""
+
+#. Nearby empty state when local discovery is off: button that turns it on
+msgid "nearby_discovery_enable_btn"
+msgstr ""
+
 #. Empty state: no followed libraries
 msgid "no_following_yet"
 msgstr ""
