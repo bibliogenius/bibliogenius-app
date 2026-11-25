@@ -12931,7 +12931,7 @@ msgstr "Ce que cet appareil envoie au serveur"
 
 #. Online registration dialog - intro
 msgid "online_reg_intro"
-msgstr "Cette action a besoin du serveur BiblioGenius. L'inscription seule ne publie rien dans l'annuaire public."
+msgstr "Cette action a besoin du serveur BiblioGenius. L'inscription seule ne publie pas votre bibliothèque."
 
 #. Online registration - heading of the list of data
 msgid "online_reg_received"
@@ -12947,27 +12947,11 @@ msgstr "la liste de vos livres partagés, lisible par le serveur et par tous, pu
 
 #. Online registration - cover photos
 msgid "online_reg_item_covers"
-msgstr "les photos de couverture de ces livres, lisibles par le serveur"
+msgstr "les photos de couverture que vous avez prises, pour que vos contacts les voient même loin de chez vous (lisibles par le serveur)"
 
 #. Online registration - library name, count, location
 msgid "online_reg_item_library"
 msgstr "le nom et l'avatar de votre bibliothèque, le nombre de livres, votre pays et votre ville si vous les avez renseignés"
-
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr "un identifiant de cet appareil (son empreinte), pour repérer une ancienne inscription restée en double après une réinstallation"
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr "le modèle de l'appareil et la version de l'application"
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr "de quoi recevoir les messages de vos contacts, chiffrés de bout en bout"
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr "la date de votre dernière connexion"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
@@ -13067,7 +13051,7 @@ msgstr "Qui gère le serveur, et se désinscrire"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "L'application ne permet pas encore de retirer cette inscription. La page « Suppression des données » du site indique qui gère le serveur et comment demander la suppression."
+msgstr "Vous pouvez vous désinscrire à tout moment dans les réglages, section « {section} » : le serveur supprime alors ce qu'il détient. La page « Suppression des données » du site indique qui gère le serveur."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13080,3 +13064,67 @@ msgstr "Continuer sans le serveur"
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
 msgstr "Sans inscription, la connexion se fait sur votre réseau local seulement."
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr "Aussi : un identifiant et le modèle de cet appareil, la version de l'application, de quoi recevoir les messages de vos contacts et la date de votre dernière connexion. Chaque élément est expliqué dans « Détails »."
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr "Inscription sur le serveur BiblioGenius"
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr "Cet appareil est inscrit"
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr "Cet appareil n'est pas inscrit"
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr "Désinscription en cours : le serveur n'a pas confirmé la suppression, nouvel essai au prochain lancement"
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr "Se désinscrire du serveur"
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr "Désinscrire cet appareil du serveur ?"
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr "Le serveur supprime ce qu'il détient : votre inscription, la liste de vos livres partagés, vos photos de couverture, vos abonnements et vos abonnés, vos demandes de prêt en cours et votre boîte de messages. Une trace technique est effacée sous 30 jours.\n\nVos contacts ne pourront plus voir votre bibliothèque ni vous demander un livre quand vous n'êtes pas sur le même Wi-Fi. Ils ne sont pas prévenus : votre bibliothèque leur apparaît comme injoignable.\n\nSur le même Wi-Fi, vos échanges avec vos contacts continuent de fonctionner.\n\nVous pourrez vous réinscrire plus tard, mais vos abonnements et vos abonnés ne reviendront pas."
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr "Se désinscrire"
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr "Cet appareil est connecté à un compte chiffré, qui passe par le serveur. Déconnectez-vous du compte avant de vous désinscrire."
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr "Ouvrir le compte"
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr "Cet appareil n'est plus inscrit sur le serveur."
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr "Cet appareil n'est plus inscrit. Le serveur n'a pas confirmé la suppression de vos données : elle sera demandée de nouveau au prochain lancement."
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr "La désinscription n'a pas pu démarrer. Réessayez dans un instant."
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr "Désinscrit sur cet appareil. Le serveur n'a pas pu confirmer la suppression : si votre inscription y figure encore, demandez-la depuis la page ci-dessous."
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
+msgstr "Cet appareil n'est plus inscrit. Le serveur n'a pas pu confirmer la suppression de vos données."

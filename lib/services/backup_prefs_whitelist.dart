@@ -263,6 +263,9 @@ const Set<String> kBackupPrefsBlacklist = <String>{
   // archive must carry neither a yes nor a withdrawal made elsewhere.
   'online_services_consent', // OnlineServicesConsent.prefKey
   'online_services_peers_ignored', // OnlineServicesConsent.peersIgnoredPrefKey
+  // Names the registration of THIS device still to delete on the hub.
+  'online_services_removal_pending', // OnlineServicesConsent.removalPendingPrefKey
+  'online_services_removal_unconfirmed', // OnlineServicesConsent.removalUnconfirmedPrefKey
 };
 
 /// Encode the user-meaningful subset of the caller's preferences store

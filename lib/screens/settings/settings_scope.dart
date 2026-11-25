@@ -226,7 +226,9 @@ class SettingsData extends ChangeNotifier {
               ? relayUrlController.text.trim()
               : ApiService.hubUrl);
     try {
-      final res = await api.setupRelay(relayUrl: url);
+      // Followed by the hub provider: a withdrawal waits for a mailbox
+      // on its way, or it would be created after the deletion.
+      final res = await hub.trackHubWrite(api.setupRelay(relayUrl: url));
       if (_disposed) return;
       if (res.statusCode == 200 && res.data is Map) {
         relayConnected = true;
@@ -287,7 +289,9 @@ class SettingsData extends ChangeNotifier {
         if (!hub.isRegistered) await hub.initAndSyncCatalog();
         return null;
       }
-      final res = await api.setupRelay(relayUrl: url);
+      // Followed by the hub provider: a withdrawal waits for a mailbox
+      // on its way, or it would be created after the deletion.
+      final res = await hub.trackHubWrite(api.setupRelay(relayUrl: url));
       if (res.statusCode == 200 && res.data is Map) {
         relayConnected = true;
         relayMailboxUuid = res.data['mailbox_uuid'] as String?;

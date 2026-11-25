@@ -12921,7 +12921,7 @@ msgstr "Bu cihazın sunucuya gönderdikleri"
 
 #. Online registration dialog - intro
 msgid "online_reg_intro"
-msgstr "Bu işlem BiblioGenius sunucusunu gerektirir. Kayıt tek başına herkese açık dizinde hiçbir şey yayımlamaz."
+msgstr "Bu işlem BiblioGenius sunucusunu gerektirir. Kayıt tek başına kütüphanenizi yayımlamaz."
 
 #. Online registration - heading of the list of data
 msgid "online_reg_received"
@@ -12937,27 +12937,11 @@ msgstr "paylaştığınız kitapların listesi; onay gerekmeden yayımladığın
 
 #. Online registration - cover photos
 msgid "online_reg_item_covers"
-msgstr "bu kitapların kapak fotoğrafları, sunucu tarafından okunabilir"
+msgstr "çektiğiniz kapak fotoğrafları; kişileriniz evinizden uzaktayken de görebilsin diye (sunucu tarafından okunabilir)"
 
 #. Online registration - library name, count, location
 msgid "online_reg_item_library"
 msgstr "kütüphanenizin adı ve avatarı, kitap sayısı, belirttiyseniz ülkeniz ve şehriniz"
-
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr "bu cihazın bir tanımlayıcısı (cihazın parmak izi); yeniden kurulumdan sonra yinelenen olarak kalan önceki bir kaydı fark etmek için"
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr "cihaz modeli ve uygulama sürümü"
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr "kişilerinizin uçtan uca şifreli mesajlarını almak için gerekenler"
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr "son bağlantınızın tarihi"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
@@ -13057,7 +13041,7 @@ msgstr "Sunucuyu kim yönetiyor ve kayıt nasıl silinir"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Uygulama bu kaydı geri çekmeye henüz izin vermiyor. Sitedeki “Verilerin silinmesi” sayfası (İngilizce), sunucuyu kimin yönettiğini ve silme talebinin nasıl yapılacağını belirtir."
+msgstr "Kaydı istediğiniz zaman ayarlardaki “{section}” bölümünden silebilirsiniz: sunucu o zaman tuttuklarını siler. Sitedeki “Verilerin silinmesi” sayfası (İngilizce), sunucuyu kimin yönettiğini belirtir."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13070,3 +13054,67 @@ msgstr "Sunucu olmadan devam et"
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
 msgstr "Kayıt olmadan bağlantı yalnızca yerel ağınızda çalışır."
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr "Ayrıca: bu cihazın bir tanımlayıcısı ve modeli, uygulama sürümü, kişilerinizin mesajlarını almak için gerekenler ve son bağlantı tarihiniz. Her biri “Ayrıntılar” bölümünde açıklanır."
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr "BiblioGenius sunucusuna kayıt"
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr "Bu cihaz kayıtlı"
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr "Bu cihaz kayıtlı değil"
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr "Kayıt siliniyor: sunucu silmeyi onaylamadı, bir sonraki açılışta yeniden denenecek"
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr "Sunucudaki kaydı sil"
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr "Bu cihazın sunucudaki kaydı silinsin mi?"
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr "Sunucu tuttuklarını siler: kaydınız, paylaştığınız kitapların listesi, kapak fotoğraflarınız, takip ettiğiniz kütüphaneler ve takipçileriniz, bekleyen ödünç istekleriniz ve mesaj kutunuz. Teknik bir iz 30 gün içinde silinir.\n\nAynı Wi-Fi ağında olmadığınızda kişileriniz artık kütüphanenizi göremez ve sizden kitap isteyemez. Onlara haber verilmez: kütüphaneniz onlara ulaşılamıyor olarak görünür.\n\nAynı Wi-Fi ağında kişilerinizle paylaşım çalışmaya devam eder.\n\nDaha sonra yeniden kaydolabilirsiniz, ancak takip ettiğiniz kütüphaneler ve takipçileriniz geri gelmez."
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr "Kaydı sil"
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr "Bu cihaz, sunucu üzerinden çalışan şifreli bir hesaba bağlı. Kaydı silmeden önce hesaptan çıkış yapın."
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr "Hesabı aç"
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr "Bu cihaz artık sunucuda kayıtlı değil."
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr "Bu cihaz artık kayıtlı değil. Sunucu verilerinizin silindiğini onaylamadı: silme bir sonraki açılışta yeniden istenecek."
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr "Kayıt silme başlatılamadı. Birazdan yeniden deneyin."
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr "Bu cihazda kayıt silindi. Sunucu silmeyi onaylayamadı: kaydınız hâlâ oradaysa, silinmesini aşağıdaki sayfadan isteyin."
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
+msgstr "Bu cihaz artık kayıtlı değil. Sunucu verilerinizin silindiğini onaylayamadı."

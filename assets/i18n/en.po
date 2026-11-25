@@ -12936,7 +12936,7 @@ msgstr "What this device sends to the server"
 
 #. Online registration dialog - intro
 msgid "online_reg_intro"
-msgstr "This action needs the BiblioGenius server. Registering alone publishes nothing in the public directory."
+msgstr "This action needs the BiblioGenius server. Registering alone does not publish your library."
 
 #. Online registration - heading of the list of data
 msgid "online_reg_received"
@@ -12952,27 +12952,11 @@ msgstr "the list of your shared books, readable by the server and by everyone, s
 
 #. Online registration - cover photos
 msgid "online_reg_item_covers"
-msgstr "the cover photos of these books, readable by the server"
+msgstr "the cover photos you took, so your contacts can see them even far from your home (readable by the server)"
 
 #. Online registration - library name, count, location
 msgid "online_reg_item_library"
 msgstr "your library name and avatar, the number of books, your country and your city if you filled them in"
-
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr "an identifier of this device (its fingerprint), to spot an earlier registration left as a duplicate after a reinstall"
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr "the device model and the app version"
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr "what it takes to receive your contacts' messages, end-to-end encrypted"
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr "the date of your last connection"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
@@ -13072,7 +13056,7 @@ msgstr "Who runs the server, and unregistering"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "The app does not yet let you withdraw this registration. The \"Data deletion\" page of the website says who runs the server and how to ask for the deletion."
+msgstr "You can unregister at any time in the settings, section \"{section}\": the server then deletes what it holds. The \"Data deletion\" page of the website says who runs the server."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13085,3 +13069,67 @@ msgstr "Continue without the server"
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
 msgstr "Without registration, the connection works on your local network only."
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr "Also: an identifier and the model of this device, the app version, what it takes to receive your contacts' messages, and the date of your last connection. Each item is explained under \"Details\"."
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr "Registration on the BiblioGenius server"
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr "This device is registered"
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr "This device is not registered"
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr "Unregistering: the server did not confirm the deletion, it will be asked again at the next launch"
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr "Unregister from the server"
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr "Unregister this device from the server?"
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr "The server deletes what it holds: your registration, the list of your shared books, your cover photos, the libraries you follow and your followers, your pending loan requests and your message box. A technical trace is erased within 30 days.\n\nYour contacts will no longer be able to see your library or ask you for a book when you are not on the same Wi-Fi. They are not told: your library shows to them as unreachable.\n\nOn the same Wi-Fi, sharing with your contacts keeps working.\n\nYou can register again later, but the libraries you follow and your followers will not come back."
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr "Unregister"
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr "This device is signed in to an encrypted account, which goes through the server. Sign out of the account before unregistering."
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr "Open the account"
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr "This device is no longer registered on the server."
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr "This device is no longer registered. The server did not confirm the deletion of your data: it will be asked again at the next launch."
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr "Unregistering could not start. Try again in a moment."
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr "Unregistered on this device. The server could not confirm the deletion: if your registration is still there, ask for it from the page below."
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
+msgstr "This device is no longer registered. The server could not confirm the deletion of your data."

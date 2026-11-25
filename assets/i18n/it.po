@@ -12914,7 +12914,7 @@ msgstr "Cosa invia questo dispositivo al server"
 
 #. Online registration dialog - intro
 msgid "online_reg_intro"
-msgstr "Questa azione ha bisogno del server BiblioGenius. La sola registrazione non pubblica nulla nella directory pubblica."
+msgstr "Questa azione ha bisogno del server BiblioGenius. La sola registrazione non pubblica la tua biblioteca."
 
 #. Online registration - heading of the list of data
 msgid "online_reg_received"
@@ -12930,27 +12930,11 @@ msgstr "l'elenco dei tuoi libri condivisi, leggibile dal server e da tutti, poic
 
 #. Online registration - cover photos
 msgid "online_reg_item_covers"
-msgstr "le foto di copertina di questi libri, leggibili dal server"
+msgstr "le foto di copertina che hai scattato, perché i tuoi contatti le vedano anche lontano da casa tua (leggibili dal server)"
 
 #. Online registration - library name, count, location
 msgid "online_reg_item_library"
 msgstr "il nome e l'avatar della tua biblioteca, il numero di libri, il tuo paese e la tua città se li hai indicati"
-
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr "un identificativo di questo dispositivo (la sua impronta), per individuare una registrazione precedente rimasta come doppione dopo una reinstallazione"
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr "il modello del dispositivo e la versione dell'app"
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr "il necessario per ricevere i messaggi dei tuoi contatti, cifrati end-to-end"
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr "la data della tua ultima connessione"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
@@ -13050,7 +13034,7 @@ msgstr "Chi gestisce il server, e come annullare la registrazione"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "L'app non permette ancora di ritirare questa registrazione. La pagina «Eliminazione dei dati» del sito (in inglese) indica chi gestisce il server e come chiedere la cancellazione."
+msgstr "Puoi annullare la registrazione in qualsiasi momento nelle impostazioni, sezione «{section}»: il server elimina allora ciò che conserva. La pagina «Eliminazione dei dati» del sito (in inglese) indica chi gestisce il server."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13063,3 +13047,67 @@ msgstr "Continua senza il server"
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
 msgstr "Senza registrazione, la connessione funziona solo sulla tua rete locale."
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr "Inoltre: un identificativo e il modello di questo dispositivo, la versione dell'app, il necessario per ricevere i messaggi dei tuoi contatti e la data della tua ultima connessione. Ogni elemento è spiegato in «Dettagli»."
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr "Registrazione sul server BiblioGenius"
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr "Questo dispositivo è registrato"
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr "Questo dispositivo non è registrato"
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr "Annullamento in corso: il server non ha confermato l'eliminazione, nuovo tentativo al prossimo avvio"
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr "Annulla la registrazione sul server"
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr "Annullare la registrazione di questo dispositivo sul server?"
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr "Il server elimina ciò che conserva: la tua registrazione, l'elenco dei tuoi libri condivisi, le tue foto di copertina, le biblioteche che segui e i tuoi follower, le tue richieste di prestito in corso e la tua casella dei messaggi. Una traccia tecnica viene cancellata entro 30 giorni.\n\nI tuoi contatti non potranno più vedere la tua biblioteca né chiederti un libro quando non sei sulla stessa rete Wi-Fi. Non vengono avvisati: la tua biblioteca risulta loro non raggiungibile.\n\nSulla stessa rete Wi-Fi gli scambi con i tuoi contatti continuano a funzionare.\n\nPotrai registrarti di nuovo più tardi, ma le biblioteche che segui e i tuoi follower non torneranno."
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr "Annulla la registrazione"
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr "Questo dispositivo è connesso a un account cifrato, che passa dal server. Esci dall'account prima di annullare la registrazione."
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr "Apri l'account"
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr "Questo dispositivo non è più registrato sul server."
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr "Questo dispositivo non è più registrato. Il server non ha confermato l'eliminazione dei tuoi dati: verrà richiesta di nuovo al prossimo avvio."
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr "Non è stato possibile avviare l'annullamento. Riprova tra un momento."
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr "Registrazione annullata su questo dispositivo. Il server non ha potuto confermare l'eliminazione: se la tua registrazione è ancora presente, richiedila dalla pagina qui sotto."
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
+msgstr "Questo dispositivo non è più registrato. Il server non ha potuto confermare l'eliminazione dei tuoi dati."

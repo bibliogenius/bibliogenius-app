@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -14,6 +16,10 @@ enum OnlineServicesChoice {
   /// Said yes once, then took it back. Network use no longer counts.
   withdrawn,
 }
+
+/// A registration on the hub, as this device names it: the library id of
+/// its profile and the relay mailbox of this device. Either may be absent.
+typedef HubRegistrationIds = ({String? nodeId, String? mailboxUuid});
 
 /// Outcome of [OnlineServicesConsent.decide].
 enum OnlineServicesDecision {
@@ -106,6 +112,15 @@ class OnlineServicesConsent {
   /// Set once this installation was judged "no" (see [rememberSilence]).
   static const peersIgnoredPrefKey = 'online_services_peers_ignored';
 
+  /// Set while a withdrawal still has something to delete on the hub (see
+  /// [rememberPendingRemoval]). Absent otherwise.
+  static const removalPendingPrefKey = 'online_services_removal_pending';
+
+  /// Set when a withdrawal ended without the hub confirming the deletion,
+  /// with nothing left to try (see [rememberUnconfirmedRemoval]).
+  static const removalUnconfirmedPrefKey =
+      'online_services_removal_unconfirmed';
+
   static const _granted = 'granted';
   static const _withdrawn = 'withdrawn';
 
@@ -182,6 +197,9 @@ class OnlineServicesConsent {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(prefKey, _granted);
     await prefs.remove(peersIgnoredPrefKey);
+    // A registration the user asks for again is not to be deleted.
+    await prefs.remove(removalPendingPrefKey);
+    await prefs.remove(removalUnconfirmedPrefKey);
   }
 
   /// Remembers that this installation was judged "no" and went silent.
@@ -209,10 +227,82 @@ class OnlineServicesConsent {
     return prefs.getBool(peersIgnoredPrefKey) == true;
   }
 
-  /// Records that the consent was taken back.
+  /// Records that the consent was taken back. Holds whatever the
+  /// installation does on the network afterwards, and through a restored
+  /// backup (the choice is not part of it), until a yes is given again.
   Future<void> withdraw() async {
     _inferredAllowed = false;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(prefKey, _withdrawn);
+  }
+
+  /// Puts back the choice [previous] a withdrawal replaced, when that
+  /// withdrawal turned out to be refused: nothing was deleted, so nothing
+  /// is left pending either.
+  Future<void> restore(OnlineServicesChoice previous) async {
+    final prefs = await SharedPreferences.getInstance();
+    switch (previous) {
+      case OnlineServicesChoice.granted:
+        await prefs.setString(prefKey, _granted);
+      case OnlineServicesChoice.withdrawn:
+        await prefs.setString(prefKey, _withdrawn);
+      case OnlineServicesChoice.unset:
+        await prefs.remove(prefKey);
+    }
+    if (previous != OnlineServicesChoice.withdrawn) {
+      await prefs.remove(removalPendingPrefKey);
+    }
+  }
+
+  /// Remembers which registration a withdrawal still has to delete on the
+  /// hub: the library id and the relay mailbox read on this device when
+  /// the user withdrew. Written before the deletion is asked, so an app
+  /// killed in between, or a hub that does not answer, leaves it to be
+  /// tried again. Naming the registration matters: a backup restored
+  /// meanwhile can bring another library's rows, whose tokens must never
+  /// be used for this deletion.
+  Future<void> rememberPendingRemoval(HubRegistrationIds ids) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      removalPendingPrefKey,
+      jsonEncode({'node_id': ids.nodeId, 'mailbox_uuid': ids.mailboxUuid}),
+    );
+  }
+
+  /// The registration still to delete on the hub, null when there is none.
+  Future<HubRegistrationIds?> pendingRemoval() async {
+    final prefs = await SharedPreferences.getInstance();
+    final raw = prefs.getString(removalPendingPrefKey);
+    if (raw == null) return null;
+    try {
+      final decoded = jsonDecode(raw) as Map<String, dynamic>;
+      return (
+        nodeId: decoded['node_id'] as String?,
+        mailboxUuid: decoded['mailbox_uuid'] as String?,
+      );
+    } catch (_) {
+      // Unreadable: nothing can be named, so nothing is deleted on the hub.
+      return (nodeId: null, mailboxUuid: null);
+    }
+  }
+
+  /// The hub refused the write token and the recovery code of this device:
+  /// whether it still holds the profile cannot be told, and asking again
+  /// would get the same answer. Nothing is retried; the settings keep
+  /// saying so, with the page where a deletion can be asked for.
+  Future<void> rememberUnconfirmedRemoval() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(removalPendingPrefKey);
+    await prefs.setBool(removalUnconfirmedPrefKey, true);
+  }
+
+  Future<bool> removalUnconfirmed() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(removalUnconfirmedPrefKey) == true;
+  }
+
+  Future<void> clearPendingRemoval() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(removalPendingPrefKey);
   }
 }

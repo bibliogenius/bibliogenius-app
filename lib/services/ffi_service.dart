@@ -1646,6 +1646,19 @@ class FfiService {
     }
   }
 
+  /// Withdraws this installation's registration on the hub (ADR-073 D4):
+  /// the core goes silent, then asks the hub to delete the profile and the
+  /// relay mailbox named here. Answers 'done', 'pending' when the hub
+  /// could not be asked (call again later with the same ids), or
+  /// 'unconfirmed' when it refused every credential of this device
+  /// (nothing more can be tried). Throws when
+  /// nothing was changed, with 'account_signed_in' in the message while an
+  /// encrypted account is on this device.
+  Future<String> withdrawHubRegistration({
+    String? nodeId,
+    String? mailboxUuid,
+  }) => frb.withdrawHubRegistration(nodeId: nodeId, mailboxUuid: mailboxUuid);
+
   /// Tells the Rust core whether it may contact the hub (ADR-073). The core
   /// has senders of its own (relay deposits when a book changes, the relay
   /// poller, the nudge listener): closed, they send nothing. Closed by

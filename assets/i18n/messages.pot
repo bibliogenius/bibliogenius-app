@@ -12884,22 +12884,6 @@ msgstr ""
 msgid "online_reg_item_library"
 msgstr ""
 
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr ""
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr ""
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr ""
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr ""
-
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
 msgstr ""
@@ -13010,4 +12994,68 @@ msgstr ""
 
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
+msgstr ""
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr ""
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr ""
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr ""
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr ""
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr ""
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr ""
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr ""
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr ""
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr ""
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr ""
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr ""
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr ""
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr ""
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr ""
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr ""
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
 msgstr ""

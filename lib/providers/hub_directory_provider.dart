@@ -164,6 +164,27 @@ const String _kLastPushedLocationCityCountryKey =
 /// uses [CityRepository.shared().lookupById].
 typedef CityLookup = Future<CityRecord?> Function(int id, {String? country});
 
+/// Outcome of [HubDirectoryProvider.withdrawOnlineServices].
+enum HubWithdrawal {
+  /// This device is silent and the hub holds nothing of it any more.
+  done,
+
+  /// This device is silent; the hub could not be asked to delete, and will
+  /// be asked again.
+  pending,
+
+  /// This device is silent and holds nothing any more, but the hub refused
+  /// its credentials: whether it still holds the profile cannot be told,
+  /// and nothing more can be tried from here.
+  unconfirmed,
+
+  /// Refused: an encrypted account is on this device. Nothing changed.
+  accountSignedIn,
+
+  /// The device could not be read. Nothing changed.
+  failed,
+}
+
 class HubDirectoryProvider extends ChangeNotifier {
   final FfiService _ffi;
   final DeviceService _deviceService;
@@ -248,10 +269,14 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (decision == OnlineServicesDecision.unknown) return decision;
     var open = decision == OnlineServicesDecision.allowed;
     if (!open) {
-      open = await _onlineServices.choice() == OnlineServicesChoice.granted;
+      final written = await _onlineServices.choice();
+      open = written == OnlineServicesChoice.granted;
+      _withdrawn = written == OnlineServicesChoice.withdrawn;
+    } else {
+      _withdrawn = false;
     }
     _hubContactDecided = open;
-    _ffi.setHubContactAllowed(open || _ownerSettingCalls > 0);
+    _ffi.setHubContactAllowed(open || _holdsGateForOwnerSetting);
     return decision;
   }
 
@@ -261,6 +286,12 @@ class HubDirectoryProvider extends ChangeNotifier {
 
   /// Owner settings on their way to the hub (see [_sendOwnerSetting]).
   int _ownerSettingCalls = 0;
+
+  /// The last readable consent was a withdrawal (ADR-073 D4). Nothing
+  /// holds the gate open then, a setting of the owner on its way included.
+  bool _withdrawn = false;
+
+  bool get _holdsGateForOwnerSetting => !_withdrawn && _ownerSettingCalls > 0;
 
   /// Sends a visibility setting the owner just changed. Such a call always
   /// goes through (leaving the directory must never be held back), even
@@ -274,7 +305,9 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// even when the switch is turned off meanwhile.
   Future<T> _sendOwnerSetting<T>(Future<T> Function() send) async {
     _ownerSettingCalls++;
-    _ffi.setHubContactAllowed(true);
+    // Not after a withdrawal: the core then refuses the call, which is
+    // what a withdrawn installation wants.
+    if (!_withdrawn) _ffi.setHubContactAllowed(true);
     try {
       return await send();
     } finally {
@@ -282,7 +315,9 @@ class HubDirectoryProvider extends ChangeNotifier {
       // Back to what the consent says. First to the last answer known, so
       // the gate never stays open because the device could not be read
       // just now (or the read failed); then the fresh answer, if any.
-      _ffi.setHubContactAllowed(_hubContactDecided || _ownerSettingCalls > 0);
+      _ffi.setHubContactAllowed(
+        _hubContactDecided || _holdsGateForOwnerSetting,
+      );
       try {
         await onlineServicesAllowed();
       } catch (e) {
@@ -353,8 +388,18 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Writes the yes. Two callers only: the shared dialog, when the user
   /// accepts it, and the approval of a follower by an owner who already
   /// consents (see [resolveFollow]).
-  Future<void> recordOnlineServicesGrant() async {
+  Future<void> recordOnlineServicesGrant() => _exclusively(_recordGrant);
+
+  /// Runs in turn with the removals ([_exclusively]): a removal in
+  /// progress finishes first, and none starts while the yes is being
+  /// written. Written in the middle of one, the yes would be followed by
+  /// the deletion it had just cancelled.
+  Future<void> _recordGrant() async {
     await _onlineServices.grant();
+    _hubRemovalPending = false;
+    _hubRemovalUnconfirmed = false;
+    // What the next registration pushes: everything, at once.
+    _catalogDirty = true;
     // Refreshes what the widgets read ([onlineServicesKnownAllowed]).
     await onlineServicesAllowed();
   }
@@ -379,6 +424,300 @@ class HubDirectoryProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('HubDirectory: forgetting the relay failed: $e');
     }
+  }
+
+  // ── Withdrawing the registration (ADR-073 D4) ───────────────────────────
+
+  /// True while a withdrawal still has something to delete on the hub (the
+  /// hub did not answer). The device is silent meanwhile; the deletion is
+  /// tried again at each launch and when the app comes back to the
+  /// foreground.
+  bool get hubRemovalPending => _hubRemovalPending;
+  bool _hubRemovalPending = false;
+
+  /// True when a withdrawal ended without the hub confirming the deletion
+  /// and with nothing left to try (it refused the credentials of this
+  /// device). Lasts until a yes is given again.
+  bool get hubRemovalUnconfirmed => _hubRemovalUnconfirmed;
+  bool _hubRemovalUnconfirmed = false;
+
+  /// How long a withdrawal waits for a hub call already on its way. Such a
+  /// call landing after the deletion would create the profile again: the
+  /// hub reads a profile update for an id it no longer knows as a new
+  /// registration.
+  @visibleForTesting
+  Duration hubCallsInFlightMaxWait = const Duration(seconds: 20);
+
+  /// Minimum time between two tries of a pending deletion in one session.
+  @visibleForTesting
+  Duration removalRetryCooldown = const Duration(minutes: 10);
+  DateTime? _lastRemovalAttempt;
+
+  /// Takes the online services consent back: this device stops contacting
+  /// the hub at once, then the hub is asked to delete what it holds
+  /// (profile, catalog, covers, follows, borrow requests, relay mailbox).
+  ///
+  /// Silent first, deletion second: a hub that does not answer changes
+  /// nothing to the silence, and the deletion is then tried again later
+  /// ([HubWithdrawal.pending]). Works the same for a consent that was only
+  /// inferred from use. Refused while an encrypted account is on this
+  /// device, since the account goes through the hub; nothing is changed
+  /// then, nor when the device cannot be read.
+  Future<HubWithdrawal> withdrawOnlineServices() {
+    final running = _userWithdrawal;
+    if (running != null) return running;
+    final run = _exclusively(() async {
+      try {
+        return await _withdrawOnlineServices();
+      } finally {
+        _userWithdrawal = null;
+      }
+    });
+    _userWithdrawal = run;
+    return run;
+  }
+
+  /// The withdrawal the user asked for, while it runs: a second tap joins
+  /// it.
+  Future<HubWithdrawal>? _userWithdrawal;
+
+  /// Whatever is asking the hub for a deletion right now: the user's
+  /// withdrawal, or the retry of a pending one at launch. One at a time,
+  /// and a yes given meanwhile waits for it (see
+  /// [recordOnlineServicesGrant]): written in the middle, it would be
+  /// followed by the deletion it had just cancelled.
+  Future<void>? _withdrawalRun;
+
+  /// Runs [removal] once the removal in progress, if any, is over, and
+  /// stands as the one in progress from this very call on, before any
+  /// asynchronous gap.
+  Future<T> _exclusively<T>(Future<T> Function() removal) {
+    final before = _withdrawalRun;
+    final completer = Completer<void>();
+    final mine = completer.future;
+    _withdrawalRun = mine;
+    return () async {
+      try {
+        if (before != null) await before;
+        return await removal();
+      } finally {
+        if (identical(_withdrawalRun, mine)) _withdrawalRun = null;
+        completer.complete();
+      }
+    }();
+  }
+
+  Future<HubWithdrawal> _withdrawOnlineServices() async {
+    HubRegistrationIds named;
+    final OnlineServicesChoice previous;
+    final directorySwitch = _hubEnabled;
+    try {
+      final status = jsonDecode(await _ffi.accountStatus());
+      if (status is Map && status['signed_in'] == true) {
+        return HubWithdrawal.accountSignedIn;
+      }
+      named = await _registrationOnDevice();
+      previous = await _onlineServices.choice();
+    } catch (e) {
+      debugPrint('HubDirectory: withdrawal not started, device unreadable: $e');
+      return HubWithdrawal.failed;
+    }
+
+    // Written before anything else: an app killed from here on still
+    // knows, at its next launch, that it withdrew and what is left to
+    // delete.
+    await _onlineServices.rememberPendingRemoval(named);
+    await _onlineServices.withdraw();
+    _hubRemovalPending = true;
+    // Closes the core's gate and tells the widgets. From here on, every
+    // path of the app that reaches the hub returns at once.
+    await onlineServicesAllowed();
+    await setHubEnabled(false);
+
+    await _hubCallsInFlight();
+    try {
+      // A call that was on its way may have just registered the library
+      // or created its mailbox: that is what must be deleted.
+      final now = await _registrationOnDevice();
+      if (now != named) {
+        named = now;
+        await _onlineServices.rememberPendingRemoval(named);
+      }
+    } catch (e) {
+      debugPrint('HubDirectory: registration not re-read before removal: $e');
+    }
+    final result = await _removeFromHub(named);
+    if (result == HubWithdrawal.accountSignedIn) {
+      // The core found an account the app had not seen. It changed
+      // nothing: neither does the app, back to the choice it had.
+      await _onlineServices.restore(previous);
+      _hubRemovalPending = false;
+      final allowedAgain = await onlineServicesAllowed();
+      if (directorySwitch && allowedAgain) await setHubEnabled(true);
+    }
+    return result;
+  }
+
+  Future<HubRegistrationIds> _registrationOnDevice() async => (
+    nodeId: (await _ffi.hubDirectoryGetConfigStrict())?.nodeId,
+    mailboxUuid: (await _ffi.getRelayConfigStrict())?.mailboxUuid,
+  );
+
+  /// Waits, for a bounded time, for the hub calls this provider already
+  /// started (the startup run, a catalog push).
+  Future<void> _hubCallsInFlight() async {
+    Future<void> drained() async {
+      // A call that ends may start another (a retry on a refused token):
+      // until none is left.
+      while (true) {
+        final running = <Future<void>>[
+          ?_initRun,
+          ?_catalogSyncRunning,
+          ..._hubWrites,
+        ];
+        if (running.isEmpty) return;
+        await Future.wait(
+          running.map((run) => run.then<void>((_) {}, onError: (_) {})),
+        );
+      }
+    }
+
+    try {
+      await drained().timeout(hubCallsInFlightMaxWait);
+    } on TimeoutException {
+      debugPrint('HubDirectory: a hub call is still running, removing anyway');
+    }
+  }
+
+  /// The calls on their way that write on the hub what a withdrawal
+  /// deletes: a registration or profile update, a mailbox creation.
+  final Set<Future<void>> _hubWrites = {};
+
+  /// Follows [write] until it ends, so that a withdrawal waits for it.
+  /// Every registration of this provider goes through here; a screen that
+  /// creates the relay mailbox itself hands its call over too.
+  Future<T> trackHubWrite<T>(Future<T> write) {
+    final Future<void> done = write.then<void>((_) {}, onError: (_) {});
+    _hubWrites.add(done);
+    done.whenComplete(() => _hubWrites.remove(done));
+    return write;
+  }
+
+  /// Whether the registration is withdrawn, or being withdrawn right now
+  /// (the choice is written a moment after the user confirms).
+  Future<bool> _withdrawing() async =>
+      _userWithdrawal != null ||
+      await _onlineServices.choice() == OnlineServicesChoice.withdrawn;
+
+  /// The one place a registration or profile update leaves from. Nothing
+  /// leaves after a withdrawal, the retries of a call that started before
+  /// it included: such a call would register the library again.
+  Future<frb.FrbDirectoryConfig?> _registerOnHub(
+    frb.FrbRegisterParams params,
+  ) async {
+    if (await _withdrawing()) {
+      throw StateError('hub registration withdrawn');
+    }
+    return trackHubWrite(_ffi.hubDirectoryRegister(params));
+  }
+
+  /// Asks the core to delete [named] on the hub and to drop the local rows,
+  /// then forgets the copies this device keeps for a reinstall.
+  Future<HubWithdrawal> _removeFromHub(HubRegistrationIds named) async {
+    _lastRemovalAttempt = DateTime.now();
+    final String answer;
+    try {
+      answer = await _ffi.withdrawHubRegistration(
+        nodeId: named.nodeId,
+        mailboxUuid: named.mailboxUuid,
+      );
+    } catch (e) {
+      debugPrint('HubDirectory: removal from the hub failed: $e');
+      if (e.toString().contains('account_signed_in')) {
+        return HubWithdrawal.accountSignedIn;
+      }
+      // The withdrawal is written and the gate closed: the device is
+      // silent, and the marker leaves the deletion to be tried again.
+      _hubRemovalPending = true;
+      notifyListeners();
+      return HubWithdrawal.pending;
+    }
+    // The Keychain copies only serve to register again after a reinstall.
+    try {
+      await _authService.deleteHubWriteToken();
+      await _authService.deleteHubRecoveryCode();
+    } catch (e) {
+      debugPrint('HubDirectory: Keychain copies not removed: $e');
+    }
+    _config = null;
+    _publishedKeys = null;
+    _relayPublished = false;
+    _tokenRecoveredFromKeychain = false;
+    _following = [];
+    _followers = [];
+    _nudgeSub?.cancel();
+    _nudgeSub = null;
+    // A later registration starts from nothing on the hub, and is not
+    // held back by a refusal met before.
+    _consecutive401Count = 0;
+    _last401At = null;
+    _catalogDirty = true;
+    (await SharedPreferences.getInstance()).remove(_kLastCatalogPushKey);
+    final HubWithdrawal result;
+    switch (answer) {
+      case 'done':
+        await _onlineServices.clearPendingRemoval();
+        result = HubWithdrawal.done;
+      case 'unconfirmed':
+        // Final: the hub would refuse the same credentials again.
+        await _onlineServices.rememberUnconfirmedRemoval();
+        _hubRemovalUnconfirmed = true;
+        result = HubWithdrawal.unconfirmed;
+      default:
+        result = HubWithdrawal.pending;
+    }
+    _hubRemovalPending = result == HubWithdrawal.pending;
+    notifyListeners();
+    return result;
+  }
+
+  /// What a withdrawn installation does when the app starts or comes back
+  /// to the foreground: try a pending deletion again, or drop local rows
+  /// that came back (a restored backup brings the archive's registration
+  /// and relay rows). Those are not named to the hub: they may belong to
+  /// another library.
+  Future<void> _settleWithdrawal() {
+    // The user's own withdrawal, or another retry, is at it already.
+    if (_withdrawalRun != null) return Future.value();
+    return _exclusively(_settleWithdrawalNow);
+  }
+
+  Future<void> _settleWithdrawalNow() async {
+    // A yes given since lifts everything (see [recordOnlineServicesGrant]).
+    if (await _onlineServices.choice() != OnlineServicesChoice.withdrawn) {
+      _hubRemovalPending = false;
+      return;
+    }
+    final pending = await _onlineServices.pendingRemoval();
+    _hubRemovalPending = pending != null;
+    _hubRemovalUnconfirmed = await _onlineServices.removalUnconfirmed();
+    if (pending != null) {
+      final last = _lastRemovalAttempt;
+      if (last != null &&
+          DateTime.now().difference(last) < removalRetryCooldown) {
+        return;
+      }
+      await _removeFromHub(pending);
+      return;
+    }
+    try {
+      final onDevice = await _registrationOnDevice();
+      if (onDevice.nodeId == null && onDevice.mailboxUuid == null) return;
+    } catch (e) {
+      debugPrint('HubDirectory: local registration unreadable: $e');
+      return;
+    }
+    await _removeFromHub((nodeId: null, mailboxUuid: null));
   }
 
   // ── Custom follow display names ──────────────────────────────────────────
@@ -1122,6 +1461,10 @@ class HubDirectoryProvider extends ChangeNotifier {
         return;
       }
       if (decision == OnlineServicesDecision.refused) {
+        if (await _onlineServices.choice() == OnlineServicesChoice.withdrawn) {
+          await _settleWithdrawal();
+          return;
+        }
         debugPrint('HubDirectory: online services not chosen, hub left alone');
         await _goSilent();
         return;
@@ -2012,7 +2355,9 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (!remoteEnabled) return false;
     if (!await onlineServicesAllowed()) return false;
     try {
-      final res = await api.setupRelay(relayUrl: ApiService.hubUrl);
+      final res = await trackHubWrite(
+        api.setupRelay(relayUrl: ApiService.hubUrl),
+      );
       final ok =
           res.statusCode == 200 &&
           res.data is Map &&
@@ -2185,6 +2530,12 @@ class HubDirectoryProvider extends ChangeNotifier {
     // turning it off must still let the installation fall silent.
     final ownerSetting =
         isListed != null || requiresApproval != null || allowBorrowing != null;
+    // After a withdrawal there is no profile left to set anything on, and
+    // such a call would register the library again.
+    if (await _onlineServices.choice() == OnlineServicesChoice.withdrawn) {
+      debugPrint('HubDirectory: registration withdrawn, profile not sent');
+      return false;
+    }
     if (!ownerSetting && !await onlineServicesAllowed()) {
       debugPrint('HubDirectory: online services not chosen, profile not sent');
       return false;
@@ -2235,8 +2586,8 @@ class HubDirectoryProvider extends ChangeNotifier {
 
     try {
       final result = ownerSetting
-          ? await _sendOwnerSetting(() => _ffi.hubDirectoryRegister(params))
-          : await _ffi.hubDirectoryRegister(params);
+          ? await _sendOwnerSetting(() => _registerOnHub(params))
+          : await _registerOnHub(params);
       if (result != null) {
         _config = DirectoryConfig.fromFrb(result);
         // Registration succeeded: reset 401 back-off and recovery state.
@@ -2256,8 +2607,14 @@ class HubDirectoryProvider extends ChangeNotifier {
       if (e.toString().contains('Hub error 401:')) {
         // Allow immediate retry on first 401, or when the token was
         // recovered from Keychain (likely stale after a config purge).
+        // Not once the registration is withdrawn: the row purged below
+        // holds the token and the recovery code the deletion is asked
+        // with, and nothing is to be registered afresh.
+        final withdrawn =
+            await _onlineServices.choice() == OnlineServicesChoice.withdrawn;
         final shouldRetry =
-            _consecutive401Count == 0 || _tokenRecoveredFromKeychain;
+            !withdrawn &&
+            (_consecutive401Count == 0 || _tokenRecoveredFromKeychain);
         if (shouldRetry) {
           // Before purging, try to reclaim the profile with the stored
           // recovery_code. This preserves the node_id and profile on the hub,
@@ -2276,11 +2633,20 @@ class HubDirectoryProvider extends ChangeNotifier {
               // request only: the recovery it triggers needs the same, or
               // it fails without reaching the hub and the purge below
               // throws a registration away for nothing.
-              Future<frb.FrbDirectoryConfig?> recover() =>
+              // Followed like a registration: it changes the token and
+              // the recovery code on the hub, the very ones a withdrawal
+              // deletes with.
+              Future<frb.FrbDirectoryConfig?> recover() async {
+                if (await _withdrawing()) {
+                  throw StateError('hub registration withdrawn');
+                }
+                return trackHubWrite(
                   _ffi.hubDirectoryRecover(
                     nodeId: nodeId,
                     recoveryCode: recoveryCode,
-                  );
+                  ),
+                );
+              }
               final recovered = ownerSetting
                   ? await _sendOwnerSetting(recover)
                   : await recover();
@@ -2310,6 +2676,12 @@ class HubDirectoryProvider extends ChangeNotifier {
             'and retrying fresh registration'
             '${_tokenRecoveredFromKeychain ? ' (Keychain recovery)' : ''}',
           );
+          // The user may have withdrawn while the recovery above was on
+          // its way: the row then belongs to the deletion.
+          if (await _withdrawing()) {
+            _configError = e.toString();
+            return false;
+          }
           await _ffi.hubDirectoryPurgeConfig();
           await _authService.deleteHubWriteToken();
           _config = null;
@@ -2320,9 +2692,9 @@ class HubDirectoryProvider extends ChangeNotifier {
           try {
             final retryResult = ownerSetting
               ? await _sendOwnerSetting(
-                  () => _ffi.hubDirectoryRegister(params),
+                  () => _registerOnHub(params),
                 )
-              : await _ffi.hubDirectoryRegister(params);
+              : await _registerOnHub(params);
             if (retryResult != null) {
               _config = DirectoryConfig.fromFrb(retryResult);
               _consecutive401Count = 0;
@@ -3004,7 +3376,16 @@ class HubDirectoryProvider extends ChangeNotifier {
         // Welcoming a reader leaves no trace on the device: without this
         // record, an owner who later leaves the directory would be judged
         // silent and the reader's copy of the catalog would freeze.
-        if (ownerGesture && resolution == 'approve') {
+        // Not when the owner withdrew while the approval was on its way:
+        // the yes would undo the withdrawal behind their back.
+        final stillRegistered =
+            await _onlineServices.choice() != OnlineServicesChoice.withdrawn;
+        // Read last, with no gap before the call: a withdrawal that just
+        // started has not written its choice yet.
+        if (ownerGesture &&
+            resolution == 'approve' &&
+            stillRegistered &&
+            _withdrawalRun == null) {
           await recordOnlineServicesGrant();
         }
         // Refresh pending list and followers after resolution.
@@ -3209,6 +3590,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     // isListed controls discoverability by strangers; catalog push enables
     // browsing by known peers who have the nodeId (via invite link).
     if (_startupUndecided) return initAndSyncCatalog();
+    if (_hubRemovalPending) return _settleWithdrawal();
     if (!isRegistered) return;
     if (!await onlineServicesAllowed()) return;
 

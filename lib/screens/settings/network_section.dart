@@ -15,6 +15,7 @@ import '../../services/auth_service.dart';
 import '../../services/ffi_service.dart';
 import 'settings_scope.dart';
 import 'settings_widgets.dart';
+import '../../widgets/hub_registration_card.dart';
 import '../../widgets/online_services_consent_dialog.dart';
 
 /// Network section (local + remote reachability + public directory)
@@ -27,6 +28,8 @@ class NetworkSettingsSection extends StatelessWidget {
       'settings_network_title',
       'settings_remote_reachable',
       'settings_remote_reachable_desc',
+      'hub_unreg_title',
+      'hub_unreg_action',
       'hub_coming_soon_toggle',
       'directory_settings_title',
       'directory_listed_title',
@@ -132,6 +135,9 @@ class _NetworkSettingsState extends State<_NetworkSettings> {
             ],
           ),
         ),
+
+        // Registered on the hub or not, and the way out (ADR-073 D4).
+        const HubRegistrationCard(),
 
         // --- Local network sub-group ---
         const SizedBox(height: 12),

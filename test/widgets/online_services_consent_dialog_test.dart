@@ -20,16 +20,14 @@ class _MockFfiService extends FfiService {
 
 class _MockDeviceService extends DeviceService {}
 
-/// Every line of the list the hub receives. The dialog must name each of
-/// them (ADR-073 D2), the device fingerprint included.
+/// What the dialog shows before any detail is opened: three lines, then
+/// one sentence that names everything else the hub receives (ADR-073 D2),
+/// the device identifier included.
 const _items = [
   'online_reg_item_books',
   'online_reg_item_covers',
   'online_reg_item_library',
-  'online_reg_item_device_id',
-  'online_reg_item_device_model',
-  'online_reg_item_messages',
-  'online_reg_item_last_seen',
+  'online_reg_more',
 ];
 
 HubDirectoryProvider _hub({NetworkUseSignals signals = const NetworkUseSignals()}) {
@@ -321,8 +319,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('online_reg_d_device_id_body'), findsOneWidget);
     expect(find.text('online_reg_d_three_body'), findsOneWidget);
-    // No withdrawal in the app yet: the details say so and point to the
-    // page that tells who runs the server and how to ask for a deletion.
+    // The details say where to unregister (the settings) and point to the
+    // page that tells who runs the server.
     expect(find.text('online_reg_d_who_body'), findsOneWidget);
     expect(
       find.ancestor(
@@ -436,13 +434,42 @@ void main() {
     test('carry every key of the dialog, none empty', () {
       final reference = read('en');
       expect(reference.keys, containsAll(_items));
-      expect(reference.length, 40);
+      expect(reference.length, 37);
       for (final language in languages) {
         final entries = read(language);
         expect(entries.keys.toSet(), reference.keys.toSet(), reason: language);
         for (final e in entries.entries) {
           expect(e.value.trim(), isNotEmpty, reason: '$language ${e.key}');
         }
+      }
+    });
+
+    test('the sentence that stands for the rest of the list names the '
+        'device identifier, the model, the version, the messages and the '
+        'last connection', () {
+      // The first level no longer lists them one per line: the sentence
+      // must still name each (ADR-073 D2). Checked on the two catalogues
+      // read by the maintainer.
+      const named = {
+        'fr': ['identifiant', 'modèle', 'version', 'messages', 'dernière connexion'],
+        'en': ['identifier', 'model', 'version', 'messages', 'last connection'],
+      };
+      for (final language in named.keys) {
+        final sentence = read(language)['online_reg_more']!;
+        for (final word in named[language]!) {
+          expect(sentence, contains(word), reason: '$language: $word');
+        }
+      }
+    });
+
+    test('say where to unregister through the name of the settings '
+        'section', () {
+      for (final language in languages) {
+        expect(
+          read(language)['online_reg_d_who_body'],
+          contains('{section}'),
+          reason: language,
+        );
       }
     });
 

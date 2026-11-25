@@ -64,7 +64,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 175491797;
+  int get rustContentHash => 706786606;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -882,6 +882,11 @@ abstract class RustLibApi extends BaseApi {
     required String uuid,
     required String name,
     String? parentId,
+  });
+
+  Future<String> crateApiFrbWithdrawHubRegistration({
+    String? nodeId,
+    String? mailboxUuid,
   });
 
   Future<FrbBackupSummary> crateApiFrbWriteBackupFfi({
@@ -8697,6 +8702,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<String> crateApiFrbWithdrawHubRegistration({
+    String? nodeId,
+    String? mailboxUuid,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_opt_String(nodeId, serializer);
+          sse_encode_opt_String(mailboxUuid, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 245,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData: sse_decode_String,
+        ),
+        constMeta: kCrateApiFrbWithdrawHubRegistrationConstMeta,
+        argValues: [nodeId, mailboxUuid],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFrbWithdrawHubRegistrationConstMeta =>
+      const TaskConstMeta(
+        debugName: "withdraw_hub_registration",
+        argNames: ["nodeId", "mailboxUuid"],
+      );
+
+  @override
   Future<FrbBackupSummary> crateApiFrbWriteBackupFfi({
     required String outputPath,
     required List<int> secretBytes,
@@ -8720,7 +8760,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 245,
+            funcId: 246,
             port: port_,
           );
         },

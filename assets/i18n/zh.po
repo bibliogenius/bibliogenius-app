@@ -12930,7 +12930,7 @@ msgstr "此设备向服务器发送的内容"
 
 #. Online registration dialog - intro
 msgid "online_reg_intro"
-msgstr "此操作需要 BiblioGenius 服务器。仅注册不会在公开名录中发布任何内容。"
+msgstr "此操作需要 BiblioGenius 服务器。仅注册不会公开您的书库。"
 
 #. Online registration - heading of the list of data
 msgid "online_reg_received"
@@ -12946,27 +12946,11 @@ msgstr "您共享书籍的列表；由于您在不要求批准的情况下发布
 
 #. Online registration - cover photos
 msgid "online_reg_item_covers"
-msgstr "这些书籍的封面照片，服务器可读取"
+msgstr "您拍摄的封面照片，以便您的联系人在远离您家时也能看到（服务器可读取）"
 
 #. Online registration - library name, count, location
 msgid "online_reg_item_library"
 msgstr "您的图书馆名称和头像、书籍数量，以及您填写过的国家和城市"
-
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr "此设备的标识符（设备指纹），用于发现重新安装后遗留的重复注册"
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr "设备型号和应用版本"
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr "接收联系人消息（端到端加密）所需的信息"
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr "您上次连接的日期"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
@@ -13066,7 +13050,7 @@ msgstr "服务器由谁运营，以及如何取消注册"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "应用目前还不能撤回此注册。网站的“数据删除”页面（英文）说明了服务器由谁运营，以及如何申请删除。"
+msgstr "您可以随时在设置的“{section}”部分取消注册：服务器随后会删除其保存的内容。网站的“数据删除”页面（英文）说明了服务器由谁运营。"
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13079,3 +13063,67 @@ msgstr "不使用服务器继续"
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
 msgstr "不注册时，连接仅在您的本地网络中有效。"
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr "此外：此设备的标识符和型号、应用版本、接收联系人消息所需的信息，以及您上次连接的日期。每一项都在“详情”中说明。"
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr "在 BiblioGenius 服务器上的注册"
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr "此设备已注册"
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr "此设备未注册"
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr "正在取消注册：服务器未确认删除，下次启动时将重试"
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr "从服务器取消注册"
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr "要从服务器取消注册此设备吗？"
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr "服务器会删除其保存的内容：您的注册信息、共享书籍列表、封面照片、您关注的书库和您的关注者、进行中的借阅请求以及您的消息箱。技术记录会在 30 天内清除。\n\n当您不在同一 Wi-Fi 下时，您的联系人将无法再查看您的书库或向您借书。他们不会收到通知：您的书库对他们显示为无法连接。\n\n在同一 Wi-Fi 下，与联系人的共享照常运行。\n\n您以后可以重新注册，但您关注的书库和您的关注者不会恢复。"
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr "取消注册"
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr "此设备已登录一个经由服务器的加密账户。请先退出账户，再取消注册。"
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr "打开账户"
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr "此设备已不再在服务器上注册。"
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr "此设备已不再注册。服务器未确认删除您的数据：下次启动时将再次请求。"
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr "无法开始取消注册。请稍后重试。"
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr "已在此设备上取消注册。服务器未能确认删除：如果您的注册仍在服务器上，请通过下方页面申请删除。"
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
+msgstr "此设备已不再注册。服务器未能确认删除您的数据。"

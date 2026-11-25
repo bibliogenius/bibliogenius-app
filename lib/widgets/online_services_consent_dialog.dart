@@ -100,9 +100,10 @@ Future<bool?> _askOnlineServices(
 }
 
 /// The page of the public site that says who runs the hub and how to have
-/// a registration deleted. The app cannot withdraw a consent yet, so the
-/// dialog points there. The page exists in French (at the root), English,
-/// Spanish and German; any other language gets the English one.
+/// a registration deleted by asking. The registration is withdrawn from
+/// the settings (ADR-073 D4); the dialog still points there for who runs
+/// the server. The page exists in French (at the root), English, Spanish
+/// and German; any other language gets the English one.
 Uri dataDeletionPageUri(String languageCode) {
   const translated = {'en', 'es', 'de'};
   final folder = languageCode == 'fr'
@@ -344,25 +345,29 @@ class _OnlineServicesSummary extends StatelessWidget {
     String t(String key) => TranslationService.translate(
       context,
       key,
-      // The switch is named as the settings name it, in every language.
+      // The switch and the settings section are named as the settings name
+      // them, in every language.
       params: {
         'toggle': TranslationService.translate(
           context,
           'hub_coming_soon_toggle',
         ),
+        'section': TranslationService.translate(
+          context,
+          'settings_network_title',
+        ),
       },
     );
 
+    // Three lines a reader takes in at a glance; the rest of what the hub
+    // receives is named in one sentence below them ([_more]) and explained
+    // one by one in the details. A list of seven filled the screen.
     final items = [
       publishingWithoutApproval
           ? 'online_reg_item_books_public'
           : 'online_reg_item_books',
       'online_reg_item_covers',
       'online_reg_item_library',
-      'online_reg_item_device_id',
-      'online_reg_item_device_model',
-      'online_reg_item_messages',
-      'online_reg_item_last_seen',
     ];
 
     return Column(
@@ -379,6 +384,10 @@ class _OnlineServicesSummary extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         for (final key in items) _Bullet(text: t(key), style: body),
+        const SizedBox(height: 8),
+        // Everything else the hub receives, by name: the device identifier
+        // (its fingerprint) included (ADR-073 D2).
+        Text(t('online_reg_more'), style: body),
         if (asksForConsent) ...[
           const SizedBox(height: 12),
           Text(

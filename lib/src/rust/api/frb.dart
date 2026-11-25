@@ -1315,6 +1315,28 @@ Future<FrbDirectoryConfig> hubDirectoryRegister({
   required FrbRegisterParams params,
 }) => RustLib.instance.api.crateApiFrbHubDirectoryRegister(params: params);
 
+/// Withdraw this installation's registration on the hub (ADR-073 D4).
+///
+/// The core goes silent first, then asks the hub to delete the profile
+/// `node_id` and the relay mailbox `mailbox_uuid`, the two the app read on
+/// this device before calling. A registration found here under another id
+/// is dropped without a request. Returns `"done"` when the hub holds
+/// nothing any more, `"pending"` when it could not be asked (the device is
+/// silent all the same: call again later with the same ids), and
+/// `"unconfirmed"` when the hub refused every credential of this device
+/// (nothing is left here and nothing more can be tried: whether the hub
+/// still holds the profile cannot be told). Fails with
+/// `"account_signed_in"` while an encrypted account is on this device, and
+/// changes nothing then.
+///
+/// FFI only, on purpose: an HTTP route would let any device of the local
+/// network delete this library's registration.
+Future<String> withdrawHubRegistration({String? nodeId, String? mailboxUuid}) =>
+    RustLib.instance.api.crateApiFrbWithdrawHubRegistration(
+      nodeId: nodeId,
+      mailboxUuid: mailboxUuid,
+    );
+
 /// Reads all owned books from the local database, collects title, author,
 /// and cover data, and pushes the enriched catalog to the hub in clear.
 /// Every entry carries its local `book_id` so the hub-side cover GC

@@ -12921,7 +12921,7 @@ msgstr "Какво изпраща това устройство на сървъ�
 
 #. Online registration dialog - intro
 msgid "online_reg_intro"
-msgstr "Това действие изисква сървъра на BiblioGenius. Самата регистрация не публикува нищо в публичния указател."
+msgstr "Това действие изисква сървъра на BiblioGenius. Самата регистрация не публикува вашата библиотека."
 
 #. Online registration - heading of the list of data
 msgid "online_reg_received"
@@ -12937,27 +12937,11 @@ msgstr "списъка на споделените ви книги, четим �
 
 #. Online registration - cover photos
 msgid "online_reg_item_covers"
-msgstr "снимките на кориците на тези книги, четими за сървъра"
+msgstr "снимките на корици, които сте направили, за да ги виждат контактите ви дори далеч от дома ви (четими за сървъра)"
 
 #. Online registration - library name, count, location
 msgid "online_reg_item_library"
 msgstr "името и аватара на библиотеката ви, броя на книгите, държавата и града ви, ако сте ги посочили"
-
-#. Online registration - device identifier (fingerprint)
-msgid "online_reg_item_device_id"
-msgstr "идентификатор на това устройство (неговия отпечатък), за да се открие предишна регистрация, останала като дубликат след преинсталиране"
-
-#. Online registration - device model and app version
-msgid "online_reg_item_device_model"
-msgstr "модела на устройството и версията на приложението"
-
-#. Online registration - relay mailbox
-msgid "online_reg_item_messages"
-msgstr "необходимото за получаване на съобщенията от вашите контакти, криптирани от край до край"
-
-#. Online registration - last access date
-msgid "online_reg_item_last_seen"
-msgstr "датата на последното ви свързване"
 
 #. Online registration dialog - what refusing does
 msgid "online_reg_refusal"
@@ -13057,7 +13041,7 @@ msgstr "Кой управлява сървъра и как да се отпиш�
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Приложението все още не позволява оттегляне на тази регистрация. Страницата „Изтриване на данни“ на сайта (на английски) посочва кой управлява сървъра и как да поискате изтриване."
+msgstr "Можете да се отпишете по всяко време в настройките, раздел „{section}“: тогава сървърът изтрива това, което съхранява. Страницата „Изтриване на данни“ на сайта (на английски) посочва кой управлява сървъра."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13070,3 +13054,67 @@ msgstr "Продължаване без сървъра"
 #. Online registration dialog - what declining does when the pairing can go on locally
 msgid "online_reg_refusal_local"
 msgstr "Без регистрация връзката работи само в локалната ви мрежа."
+
+#. Online registration - the rest of what the server receives, in one sentence
+msgid "online_reg_more"
+msgstr "Също: идентификатор и модел на това устройство, версията на приложението, необходимото за получаване на съобщенията от контактите ви и датата на последното ви свързване. Всеки елемент е обяснен в „Подробности“."
+
+#. Settings, network - registration on the server, row title
+msgid "hub_unreg_title"
+msgstr "Регистрация на сървъра на BiblioGenius"
+
+#. Settings, network - this device is registered on the server
+msgid "hub_unreg_state_registered"
+msgstr "Това устройство е регистрирано"
+
+#. Settings, network - this device is not registered on the server
+msgid "hub_unreg_state_not_registered"
+msgstr "Това устройство не е регистрирано"
+
+#. Settings, network - unregistered here, deletion on the server still to be asked
+msgid "hub_unreg_state_pending"
+msgstr "Отписване в ход: сървърът не потвърди изтриването, нов опит при следващото стартиране"
+
+#. Settings, network - button that unregisters this device from the server
+msgid "hub_unreg_action"
+msgstr "Отписване от сървъра"
+
+#. Unregister confirmation - title
+msgid "hub_unreg_confirm_title"
+msgstr "Да се отпише ли това устройство от сървъра?"
+
+#. Unregister confirmation - what is deleted, what contacts lose, what keeps working, what does not come back
+msgid "hub_unreg_confirm_body"
+msgstr "Сървърът изтрива това, което съхранява: вашата регистрация, списъка на споделените ви книги, снимките на кориците ви, библиотеките, които следвате, и вашите последователи, текущите ви заявки за заемане и кутията ви за съобщения. Техническа следа се изтрива в рамките на 30 дни.\n\nКонтактите ви вече няма да могат да виждат библиотеката ви, нито да ви поискат книга, когато не сте в същата Wi-Fi мрежа. Те не се уведомяват: библиотеката ви им се показва като недостъпна.\n\nВ същата Wi-Fi мрежа обменът с контактите ви продължава да работи.\n\nМожете да се регистрирате отново по-късно, но библиотеките, които следвате, и последователите ви няма да се върнат."
+
+#. Unregister confirmation - confirm button
+msgid "hub_unreg_confirm_action"
+msgstr "Отписване"
+
+#. Unregister refused while signed in to an encrypted account
+msgid "hub_unreg_account_body"
+msgstr "Това устройство е влязло в шифрован акаунт, който минава през сървъра. Излезте от акаунта, преди да се отпишете."
+
+#. Unregister refused - button opening the encrypted account screen
+msgid "hub_unreg_account_action"
+msgstr "Отваряне на акаунта"
+
+#. Unregister - done
+msgid "hub_unreg_done"
+msgstr "Това устройство вече не е регистрирано на сървъра."
+
+#. Unregister - device unregistered, server did not answer
+msgid "hub_unreg_pending"
+msgstr "Това устройство вече не е регистрирано. Сървърът не потвърди изтриването на данните ви: то ще бъде поискано отново при следващото стартиране."
+
+#. Unregister - could not start
+msgid "hub_unreg_failed"
+msgstr "Отписването не можа да започне. Опитайте отново след малко."
+
+#. Settings, network - unregistered here, the server refused to confirm the deletion, nothing more to try
+msgid "hub_unreg_state_unconfirmed"
+msgstr "Отписано на това устройство. Сървърът не успя да потвърди изтриването: ако регистрацията ви все още е там, поискайте го от страницата по-долу."
+
+#. Unregister - device unregistered, the server could not confirm the deletion
+msgid "hub_unreg_unconfirmed"
+msgstr "Това устройство вече не е регистрирано. Сървърът не успя да потвърди изтриването на данните ви."
