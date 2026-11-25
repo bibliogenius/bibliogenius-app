@@ -13041,7 +13041,7 @@ msgstr "Кой управлява сървъра и как да се отпиш�
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Можете да се отпишете по всяко време в настройките, раздел „{section}“: тогава сървърът изтрива това, което съхранява. Страницата „Изтриване на данни“ на сайта (на английски) посочва кой управлява сървъра."
+msgstr "Можете да се отпишете по всяко време в настройките, раздел „{section}“: тогава сървърът изтрива това, което съхранява. Техническа следа се изтрива в рамките на 30 дни. Страницата „Изтриване на данни“ на сайта (на английски) посочва кой управлява сървъра."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13074,6 +13074,10 @@ msgstr "Това устройство не е регистрирано"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Отписване в ход: сървърът не потвърди изтриването, нов опит при следващото стартиране"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Отписване…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

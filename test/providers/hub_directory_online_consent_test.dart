@@ -4,12 +4,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 import 'package:bibliogenius/providers/hub_directory_provider.dart';
 import 'package:bibliogenius/services/api_service.dart';
 import 'package:bibliogenius/services/auth_service.dart';
 import 'package:bibliogenius/services/device_service.dart';
 import 'package:bibliogenius/services/ffi_service.dart';
+import 'package:bibliogenius/services/network_use_signals_reader.dart';
 import 'package:bibliogenius/services/online_services_consent.dart';
 import 'package:bibliogenius/src/rust/api/frb.dart' as frb;
 
@@ -307,6 +309,7 @@ const _relay = frb.FrbRelayConfig(
 (HubDirectoryProvider, _MockFfiService, _MockApiService) _build({
   Map<String, Object> prefs = const {},
   bool registeredBefore = false,
+  OnlineServicesConsent Function(_MockFfiService, _MockApiService)? consent,
 }) {
   SharedPreferences.setMockInitialValues({
     'libraryName': 'Test Library',
@@ -327,9 +330,70 @@ const _relay = frb.FrbRelayConfig(
     ffi: ffi,
     deviceService: _MockDeviceService(),
     apiService: api,
+    onlineServices: consent?.call(ffi, api),
   )..relayRetryDelay = Duration.zero;
   return (provider, ffi, api);
 }
+
+/// A consent that can no longer read the choice once the withdrawal is
+/// written: a step of the app that fails after the write.
+class _UnreadableAfterWithdrawal extends OnlineServicesConsent {
+  _UnreadableAfterWithdrawal(_MockFfiService ffi, _MockApiService api)
+    : super(
+        readSignals: deviceNetworkUseReader(
+          getPeers: api.getPeersStrict,
+          ffi: ffi,
+        ),
+      );
+
+  bool unreadable = false;
+
+  @override
+  Future<void> withdraw() async {
+    await super.withdraw();
+    unreadable = true;
+  }
+
+  @override
+  Future<OnlineServicesDecision> decide() async {
+    if (unreadable) throw StateError('preferences unreadable');
+    return super.decide();
+  }
+}
+
+/// A preference storage that refuses some writes, the way a full storage
+/// does on Android: the write answers false, nothing is thrown, and the
+/// in-memory copy of the preferences already holds the new value.
+class _FullStorage extends InMemorySharedPreferencesStore {
+  _FullStorage(super.data, this.refused) : super.withData();
+
+  /// Keys, without the `flutter.` prefix, whose writes are refused. Can be
+  /// changed at any moment of a test.
+  final Set<String> refused;
+
+  bool _refuses(String key) => refused.contains(key.replaceFirst('flutter.', ''));
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async =>
+      _refuses(key) ? false : super.setValue(valueType, key, value);
+
+  @override
+  Future<bool> remove(String key) async =>
+      _refuses(key) ? false : super.remove(key);
+}
+
+/// Puts a storage that can refuse writes in place of the current one, with
+/// the same content; nothing else may write meanwhile.
+Future<_FullStorage> _storageRefuses(Set<String> keys) async {
+  final data = await SharedPreferencesStorePlatform.instance.getAll();
+  final storage = _FullStorage(data, {...keys});
+  SharedPreferencesStorePlatform.instance = storage;
+  return storage;
+}
+
+/// What the storage itself holds, under [key].
+Future<Object?> _stored(String key) async =>
+    (await SharedPreferencesStorePlatform.instance.getAll())['flutter.$key'];
 
 /// The same device at its next launch: a new provider over the same
 /// preferences, local rows and Keychain.
@@ -1017,10 +1081,15 @@ void main() {
     /// An installation that uses the hub: registered, with a mailbox and a
     /// peer, never asked (its consent is inferred).
     Future<(HubDirectoryProvider, _MockFfiService, _MockApiService)>
-    consenting({Map<String, Object> prefs = const {}}) async {
+    consenting({
+      Map<String, Object> prefs = const {},
+      OnlineServicesConsent Function(_MockFfiService, _MockApiService)?
+      consent,
+    }) async {
       final (provider, ffi, api) = _build(
         registeredBefore: true,
         prefs: prefs,
+        consent: consent,
       );
       api.peers = _aPeer;
       await provider.initAndSyncCatalog();
@@ -1549,6 +1618,140 @@ void main() {
       // A yes given later clears it.
       await next.recordOnlineServicesGrant();
       expect(next.hubRemovalUnconfirmed, isFalse);
+    });
+
+    test('an unconfirmed deletion read at launch reaches a settings row '
+        'already on screen', () async {
+      final (provider, ffi, api) = await consenting();
+      ffi.withdrawalAnswer = 'unconfirmed';
+      await provider.withdrawOnlineServices();
+      ffi.directoryConfig = null;
+      ffi.relayConfig = null;
+
+      final next = _relaunch(ffi, api);
+      var told = 0;
+      next.addListener(() => told++);
+      await next.initAndSyncCatalog();
+
+      expect(next.hubRemovalUnconfirmed, isTrue);
+      expect(told, greaterThan(0), reason: 'the row is told');
+    });
+
+    test('a step of the app that fails once the withdrawal is written does '
+        'not stop the deletion, and the gate is closed before it', () async {
+      late _UnreadableAfterWithdrawal consent;
+      final (provider, ffi, api) = await consenting(
+        consent: (ffi, api) => consent = _UnreadableAfterWithdrawal(ffi, api),
+      );
+
+      final result = await provider.withdrawOnlineServices();
+
+      expect(result, HubWithdrawal.done);
+      expect(ffi.withdrawals, hasLength(1));
+      expect(ffi.withdrawals.single.gate, isFalse);
+      expect(
+        provider.onlineServicesKnownAllowed,
+        isFalse,
+        reason: 'the settings row reads it as withdrawn',
+      );
+      consent.unreadable = false;
+      expect(await provider.onlineServicesAllowed(), isFalse);
+    });
+
+    test('a storage that refuses the withdrawal: nothing changes, and it '
+        'says it did not start', () async {
+      final (provider, ffi, api) = await consenting();
+      await _storageRefuses({OnlineServicesConsent.prefKey});
+
+      final result = await provider.withdrawOnlineServices();
+
+      expect(result, HubWithdrawal.failed);
+      expect(ffi.withdrawals, isEmpty);
+      expect(ffi.hubContact.last, isTrue, reason: 'the gate is left open');
+      expect(provider.hubRemovalPending, isFalse);
+      expect(
+        await _stored(OnlineServicesConsent.removalPendingPrefKey),
+        isNull,
+        reason: 'no deletion is left behind',
+      );
+      expect(await provider.onlineServicesAllowed(), isTrue);
+    });
+
+    test('a storage that refuses to record "not confirmed": still said, '
+        'never "pending"', () async {
+      final (provider, ffi, api) = await consenting();
+      ffi.withdrawalAnswer = 'unconfirmed';
+      await _storageRefuses({OnlineServicesConsent.removalUnconfirmedPrefKey});
+
+      final result = await provider.withdrawOnlineServices();
+
+      expect(result, HubWithdrawal.unconfirmed);
+      expect(provider.hubRemovalUnconfirmed, isTrue);
+      expect(provider.hubRemovalPending, isFalse);
+      expect(
+        await _stored(OnlineServicesConsent.removalPendingPrefKey),
+        isNotNull,
+        reason: 'with the state not written, the marker stays: the next '
+            'launch still has something to say and to ask',
+      );
+    });
+
+    test('at launch too, a storage that refuses to record "not confirmed" '
+        'leaves it said, not "pending"', () async {
+      final (provider, ffi, api) = await consenting();
+      ffi.withdrawalAnswer = 'pending';
+      await provider.withdrawOnlineServices();
+      expect(provider.hubRemovalPending, isTrue);
+
+      ffi.withdrawalAnswer = 'unconfirmed';
+      await _storageRefuses({OnlineServicesConsent.removalUnconfirmedPrefKey});
+      final next = _relaunch(ffi, api);
+      await next.initAndSyncCatalog();
+
+      expect(ffi.withdrawals, hasLength(2));
+      expect(next.hubRemovalUnconfirmed, isTrue);
+      expect(next.hubRemovalPending, isFalse);
+    });
+
+    test('an account the core finds, with a storage that refuses to put the '
+        'choice back: the row does not say a deletion is pending', () async {
+      final (provider, ffi, api) = await consenting();
+      ffi
+        ..withdrawalAnswer = 'account_signed_in'
+        ..withdrawalGate = Completer<void>();
+      final storage = await _storageRefuses({});
+      final result = provider.withdrawOnlineServices();
+      // The withdrawal is written and the core is being asked: from now
+      // on, putting back the choice the user had is refused.
+      while (ffi.withdrawals.isEmpty) {
+        await Future<void>.delayed(Duration.zero);
+      }
+      storage.refused.add(OnlineServicesConsent.prefKey);
+      ffi.withdrawalGate!.complete();
+
+      expect(await result, HubWithdrawal.accountSignedIn);
+      expect(
+        await _stored(OnlineServicesConsent.prefKey),
+        'withdrawn',
+        reason: 'the storage did refuse to put the choice back',
+      );
+      expect(provider.hubRemovalPending, isFalse);
+    });
+
+    test('the settings row can read an unconfirmed deletion without the '
+        'launch run', () async {
+      final (provider, ffi, api) = await consenting();
+      ffi.withdrawalAnswer = 'unconfirmed';
+      await provider.withdrawOnlineServices();
+
+      // A launch that could not read the device never gets to it.
+      final next = _relaunch(ffi, api);
+      var told = 0;
+      next.addListener(() => told++);
+      await next.loadHubRemovalState();
+
+      expect(next.hubRemovalUnconfirmed, isTrue);
+      expect(told, 1);
     });
   });
 }

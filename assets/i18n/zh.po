@@ -13050,7 +13050,7 @@ msgstr "服务器由谁运营，以及如何取消注册"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "您可以随时在设置的“{section}”部分取消注册：服务器随后会删除其保存的内容。网站的“数据删除”页面（英文）说明了服务器由谁运营。"
+msgstr "您可以随时在设置的“{section}”部分取消注册：服务器随后会删除其保存的内容。技术记录会在 30 天内清除。网站的“数据删除”页面（英文）说明了服务器由谁运营。"
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13083,6 +13083,10 @@ msgstr "此设备未注册"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "正在取消注册：服务器未确认删除，下次启动时将重试"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "正在取消注册…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

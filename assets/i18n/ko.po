@@ -13050,7 +13050,7 @@ msgstr "서버 운영자와 등록 해지"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "설정의 \"{section}\" 섹션에서 언제든지 등록을 해제할 수 있습니다. 그러면 서버가 보관 중인 내용을 삭제합니다. 사이트의 \"데이터 삭제\" 페이지(영어)에 서버 운영자가 나와 있습니다."
+msgstr "설정의 \"{section}\" 섹션에서 언제든지 등록을 해제할 수 있습니다. 그러면 서버가 보관 중인 내용을 삭제합니다. 기술적 기록은 30일 이내에 삭제됩니다. 사이트의 \"데이터 삭제\" 페이지(영어)에 서버 운영자가 나와 있습니다."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13083,6 +13083,10 @@ msgstr "이 기기는 등록되어 있지 않습니다"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "등록 해제 중: 서버가 삭제를 확인하지 않았습니다. 다음 실행 시 다시 시도합니다"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "등록 해제 중…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

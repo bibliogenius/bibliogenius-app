@@ -13016,6 +13016,10 @@ msgstr ""
 msgid "hub_unreg_state_pending"
 msgstr ""
 
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr ""
+
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"
 msgstr ""

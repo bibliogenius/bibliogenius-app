@@ -13050,7 +13050,7 @@ msgstr "サーバーの運営者と登録の解除"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "登録は、設定の「{section}」セクションからいつでも解除できます。解除すると、サーバーは保持しているものを削除します。サイトの「データの削除」ページ（英語）に、サーバーの運営者が記載されています。"
+msgstr "登録は、設定の「{section}」セクションからいつでも解除できます。解除すると、サーバーは保持しているものを削除します。技術的な記録は30日以内に消去されます。サイトの「データの削除」ページ（英語）に、サーバーの運営者が記載されています。"
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13083,6 +13083,10 @@ msgstr "このデバイスは登録されていません"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "登録解除中：サーバーが削除を確認しませんでした。次回起動時に再試行します"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "登録解除中…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

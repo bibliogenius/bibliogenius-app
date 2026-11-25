@@ -13034,7 +13034,7 @@ msgstr "Chi gestisce il server, e come annullare la registrazione"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Puoi annullare la registrazione in qualsiasi momento nelle impostazioni, sezione «{section}»: il server elimina allora ciò che conserva. La pagina «Eliminazione dei dati» del sito (in inglese) indica chi gestisce il server."
+msgstr "Puoi annullare la registrazione in qualsiasi momento nelle impostazioni, sezione «{section}»: il server elimina allora ciò che conserva. Una traccia tecnica viene cancellata entro 30 giorni. La pagina «Eliminazione dei dati» del sito (in inglese) indica chi gestisce il server."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13067,6 +13067,10 @@ msgstr "Questo dispositivo non è registrato"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Annullamento in corso: il server non ha confermato l'eliminazione, nuovo tentativo al prossimo avvio"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Annullamento della registrazione in corso…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

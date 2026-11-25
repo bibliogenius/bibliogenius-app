@@ -12910,7 +12910,7 @@ msgstr "Wer den Server betreibt, und Abmeldung"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Sie können die Registrierung jederzeit in den Einstellungen im Bereich „{section}“ aufheben: Der Server löscht dann, was er gespeichert hat. Auf der Seite „Datenlöschung“ der Website steht, wer den Server betreibt."
+msgstr "Sie können die Registrierung jederzeit in den Einstellungen im Bereich „{section}“ aufheben: Der Server löscht dann, was er gespeichert hat. Eine technische Spur wird innerhalb von 30 Tagen gelöscht. Auf der Seite „Datenlöschung“ der Website steht, wer den Server betreibt."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -12943,6 +12943,10 @@ msgstr "Dieses Gerät ist nicht registriert"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Registrierung wird aufgehoben: Der Server hat die Löschung nicht bestätigt, neuer Versuch beim nächsten Start"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Registrierung wird aufgehoben…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

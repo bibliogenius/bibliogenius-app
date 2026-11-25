@@ -13041,7 +13041,7 @@ msgstr "Sunucuyu kim yönetiyor ve kayıt nasıl silinir"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Kaydı istediğiniz zaman ayarlardaki “{section}” bölümünden silebilirsiniz: sunucu o zaman tuttuklarını siler. Sitedeki “Verilerin silinmesi” sayfası (İngilizce), sunucuyu kimin yönettiğini belirtir."
+msgstr "Kaydı istediğiniz zaman ayarlardaki “{section}” bölümünden silebilirsiniz: sunucu o zaman tuttuklarını siler. Teknik bir iz 30 gün içinde silinir. Sitedeki “Verilerin silinmesi” sayfası (İngilizce), sunucuyu kimin yönettiğini belirtir."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13074,6 +13074,10 @@ msgstr "Bu cihaz kayıtlı değil"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Kayıt siliniyor: sunucu silmeyi onaylamadı, bir sonraki açılışta yeniden denenecek"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Kayıt siliniyor…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

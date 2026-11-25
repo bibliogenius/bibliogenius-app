@@ -28,16 +28,27 @@ class _HubRegistrationCardState extends State<HubRegistrationCard> {
     super.initState();
     // The row may be the first thing to ask on this screen.
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) context.read<HubDirectoryProvider>().onlineServicesAllowed();
+      if (!mounted) return;
+      final hub = context.read<HubDirectoryProvider>();
+      hub.onlineServicesAllowed();
+      // Not left to the launch run, which may not have got there.
+      hub.loadHubRemovalState();
     });
   }
 
+  Uri _dataDeletionPage(BuildContext context) =>
+      dataDeletionPageUri(context.read<ThemeProvider>().locale.languageCode);
+
+  /// The page's address as a reader types it: host and path.
+  String _dataDeletionAddress(BuildContext context) {
+    final page = _dataDeletionPage(context);
+    return '${page.host}${page.path}';
+  }
+
   Future<void> _openDataDeletionPage() async {
-    final page = dataDeletionPageUri(
-      context.read<ThemeProvider>().locale.languageCode,
-    );
+    final page = _dataDeletionPage(context);
     // No browser, or a platform that refuses the link: the row stays
-    // usable, the page is named in its text.
+    // usable, the address is written under the button.
     try {
       await launchUrl(page, mode: LaunchMode.externalApplication);
     } catch (e) {
@@ -63,9 +74,14 @@ class _HubRegistrationCardState extends State<HubRegistrationCard> {
     if (confirmed != true || !mounted) return;
 
     setState(() => _working = true);
-    final HubWithdrawal result;
+    HubWithdrawal result;
     try {
       result = await hub.withdrawOnlineServices();
+    } catch (e) {
+      // The provider answers every case it knows; anything else is said
+      // as a withdrawal that did not start, never left silent.
+      debugPrint('Registration row: withdrawal failed: $e');
+      result = HubWithdrawal.failed;
     } finally {
       if (mounted) setState(() => _working = false);
     }
@@ -83,15 +99,21 @@ class _HubRegistrationCardState extends State<HubRegistrationCard> {
   @override
   Widget build(BuildContext context) {
     String t(String key) => TranslationService.translate(context, key);
-    final (registered, pending, unconfirmed) = context
-        .select<HubDirectoryProvider, (bool, bool, bool)>(
+    final (registered, pending, unconfirmed, running) = context
+        .select<HubDirectoryProvider, (bool, bool, bool, bool)>(
           (hub) => (
             hub.onlineServicesKnownAllowed,
             hub.hubRemovalPending,
             hub.hubRemovalUnconfirmed,
+            hub.userWithdrawalRunning,
           ),
         );
-    final state = pending
+    final working = _working || running;
+    // While the withdrawal runs, the deletion is not pending yet: the hub
+    // has not answered. Saying it failed would be wrong, and read aloud.
+    final state = working
+        ? 'hub_unreg_state_working'
+        : pending
         ? 'hub_unreg_state_pending'
         : unconfirmed && !registered
         ? 'hub_unreg_state_unconfirmed'
@@ -115,23 +137,45 @@ class _HubRegistrationCardState extends State<HubRegistrationCard> {
           ),
           if (unconfirmed && !registered) ...[
             const Divider(height: 1),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                // The page of the site that says how to ask for a deletion.
-                child: TextButton.icon(
-                  onPressed: _openDataDeletionPage,
-                  icon: const Icon(Icons.open_in_new, size: 18),
-                  label: Text(t('online_reg_d_who_link')),
-                ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // The page of the site that says how to ask for a
+                  // deletion: the user's one remedy in this state.
+                  TextButton.icon(
+                    onPressed: _openDataDeletionPage,
+                    icon: const Icon(Icons.open_in_new, size: 18),
+                    // Inside the button, which merges it into its own node.
+                    // Android ignores the flag and reads the address.
+                    label: Semantics(
+                      link: true,
+                      linkUrl: _dataDeletionPage(context),
+                      child: Text(t('online_reg_d_who_link')),
+                    ),
+                  ),
+                  // Written out, to copy when the link cannot be opened.
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                    // A node of its own: merged into the row, it would be
+                    // read in place of the state (Android reads a text
+                    // field's value first).
+                    child: Semantics(
+                      container: true,
+                      child: SelectableText(
+                        _dataDeletionAddress(context),
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
-          if (registered) ...[
+          // Kept, with its spinner, until the withdrawal is over: the
+          // focus of a screen reader stays on it.
+          if (registered || working) ...[
             const Divider(height: 1),
             Align(
               alignment: AlignmentDirectional.centerStart,
@@ -141,8 +185,8 @@ class _HubRegistrationCardState extends State<HubRegistrationCard> {
                   vertical: 4,
                 ),
                 child: TextButton.icon(
-                  onPressed: _working ? null : _unregister,
-                  icon: _working
+                  onPressed: working ? null : _unregister,
+                  icon: working
                       ? const SizedBox(
                           width: 18,
                           height: 18,

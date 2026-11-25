@@ -13044,7 +13044,7 @@ msgstr "Quem administra o servidor, e como cancelar o registro"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Você pode cancelar o registro a qualquer momento nas configurações, seção “{section}”: o servidor exclui então o que guarda. A página “Exclusão de dados” do site (em inglês) informa quem administra o servidor."
+msgstr "Você pode cancelar o registro a qualquer momento nas configurações, seção “{section}”: o servidor exclui então o que guarda. Um rastro técnico é apagado em até 30 dias. A página “Exclusão de dados” do site (em inglês) informa quem administra o servidor."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13077,6 +13077,10 @@ msgstr "Este dispositivo não está registrado"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Cancelamento em andamento: o servidor não confirmou a exclusão, nova tentativa na próxima abertura"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Cancelando o registro…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

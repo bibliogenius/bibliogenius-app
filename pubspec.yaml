@@ -77,6 +77,8 @@ dev_dependencies:
   # Used by tests to stub path_provider for CacheManager construction.
   path_provider_platform_interface: ^2.1.2
   plugin_platform_interface: ^2.1.8
+  # Used by tests to make a preference write fail as a full storage does.
+  shared_preferences_platform_interface: ^2.4.1
   integration_test:
     sdk: flutter
   freezed: ^3.2.3

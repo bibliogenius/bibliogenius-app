@@ -471,15 +471,23 @@ class HubDirectoryProvider extends ChangeNotifier {
         return await _withdrawOnlineServices();
       } finally {
         _userWithdrawal = null;
+        notifyListeners();
       }
     });
     _userWithdrawal = run;
+    notifyListeners();
     return run;
   }
 
   /// The withdrawal the user asked for, while it runs: a second tap joins
   /// it.
   Future<HubWithdrawal>? _userWithdrawal;
+
+  /// True while the user's withdrawal runs: the hub has not answered yet,
+  /// so the deletion is not "pending" in the sense of [hubRemovalPending].
+  /// Held here rather than by a widget, so a settings row built again
+  /// meanwhile still says so.
+  bool get userWithdrawalRunning => _userWithdrawal != null;
 
   /// Whatever is asking the hub for a deletion right now: the user's
   /// withdrawal, or the retry of a pending one at launch. One at a time,
@@ -525,14 +533,44 @@ class HubDirectoryProvider extends ChangeNotifier {
 
     // Written before anything else: an app killed from here on still
     // knows, at its next launch, that it withdrew and what is left to
-    // delete.
-    await _onlineServices.rememberPendingRemoval(named);
-    await _onlineServices.withdraw();
+    // delete. When that write fails, nothing has changed: put back what
+    // may have been written, and say the withdrawal did not start.
+    try {
+      await _onlineServices.rememberPendingRemoval(named);
+      await _onlineServices.withdraw();
+    } catch (e) {
+      debugPrint('HubDirectory: withdrawal not written: $e');
+      try {
+        await _onlineServices.restore(previous);
+      } catch (e) {
+        debugPrint('HubDirectory: previous choice not restored: $e');
+      }
+      return HubWithdrawal.failed;
+    }
     _hubRemovalPending = true;
-    // Closes the core's gate and tells the widgets. From here on, every
-    // path of the app that reaches the hub returns at once.
-    await onlineServicesAllowed();
-    await setHubEnabled(false);
+    // Silent at once, whatever fails next: the core's gate, and what the
+    // provider reads to open it again (a visibility setting holds it open
+    // only for a consenting user).
+    _withdrawn = true;
+    _hubContactDecided = false;
+    _ffi.setHubContactAllowed(false);
+    // Tells the widgets. From here on, every path of the app that reaches
+    // the hub returns at once. A step that fails here does not stop the
+    // deletion.
+    try {
+      await onlineServicesAllowed();
+    } catch (e) {
+      debugPrint('HubDirectory: consent not read again after withdrawal: $e');
+      // What the widgets read is known all the same: withdrawn.
+      _onlineServicesKnownAllowed = false;
+      _onlineServicesInferred = false;
+      notifyListeners();
+    }
+    try {
+      await setHubEnabled(false);
+    } catch (e) {
+      debugPrint('HubDirectory: directory switch not turned off: $e');
+    }
 
     await _hubCallsInFlight();
     try {
@@ -546,14 +584,34 @@ class HubDirectoryProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('HubDirectory: registration not re-read before removal: $e');
     }
-    final result = await _removeFromHub(named);
+    final HubWithdrawal result;
+    try {
+      result = await _removeFromHub(named);
+    } catch (e) {
+      // The core answered, or was never reached, and a write of the app
+      // failed after it: the marker is still there, so the deletion is
+      // asked again at the next launch, which is what "pending" says.
+      debugPrint('HubDirectory: removal not recorded: $e');
+      // "Not confirmed" is final: never said as a deletion still to come.
+      final unconfirmed = _hubRemovalUnconfirmed;
+      _hubRemovalPending = !unconfirmed;
+      notifyListeners();
+      return unconfirmed ? HubWithdrawal.unconfirmed : HubWithdrawal.pending;
+    }
     if (result == HubWithdrawal.accountSignedIn) {
       // The core found an account the app had not seen. It changed
       // nothing: neither does the app, back to the choice it had.
-      await _onlineServices.restore(previous);
-      _hubRemovalPending = false;
-      final allowedAgain = await onlineServicesAllowed();
-      if (directorySwitch && allowedAgain) await setHubEnabled(true);
+      try {
+        await _onlineServices.restore(previous);
+        _hubRemovalPending = false;
+        final allowedAgain = await onlineServicesAllowed();
+        if (directorySwitch && allowedAgain) await setHubEnabled(true);
+      } catch (e) {
+        // Nothing was deleted: no deletion is said to be pending.
+        debugPrint('HubDirectory: previous choice not restored: $e');
+        _hubRemovalPending = false;
+        notifyListeners();
+      }
     }
     return result;
   }
@@ -669,9 +727,11 @@ class HubDirectoryProvider extends ChangeNotifier {
         await _onlineServices.clearPendingRemoval();
         result = HubWithdrawal.done;
       case 'unconfirmed':
-        // Final: the hub would refuse the same credentials again.
-        await _onlineServices.rememberUnconfirmedRemoval();
+        // Final: the hub would refuse the same credentials again. Known
+        // before it is written, so a write that fails cannot turn it into
+        // a deletion still to come.
         _hubRemovalUnconfirmed = true;
+        await _onlineServices.rememberUnconfirmedRemoval();
         result = HubWithdrawal.unconfirmed;
       default:
         result = HubWithdrawal.pending;
@@ -692,7 +752,47 @@ class HubDirectoryProvider extends ChangeNotifier {
     return _exclusively(_settleWithdrawalNow);
   }
 
+  /// Reads from the preferences alone, without the launch run, whether a
+  /// withdrawal ended unconfirmed: the settings row asks when it shows,
+  /// since a launch that could not read the device never gets there.
+  Future<void> loadHubRemovalState() async {
+    // A removal or a yes in progress sets the flag itself: a read that
+    // started before its write would put the old value back.
+    if (_withdrawalRun != null) return;
+    final bool unconfirmed;
+    try {
+      unconfirmed =
+          await _onlineServices.choice() == OnlineServicesChoice.withdrawn &&
+          await _onlineServices.removalUnconfirmed();
+    } catch (e) {
+      debugPrint('HubDirectory: removal state unreadable: $e');
+      return;
+    }
+    if (_withdrawalRun != null || unconfirmed == _hubRemovalUnconfirmed) {
+      return;
+    }
+    _hubRemovalUnconfirmed = unconfirmed;
+    notifyListeners();
+  }
+
   Future<void> _settleWithdrawalNow() async {
+    final before = (_hubRemovalPending, _hubRemovalUnconfirmed);
+    try {
+      await _settleWithdrawalSteps();
+    } catch (e) {
+      // A write after the core's answer failed, as on the user's own path:
+      // "not confirmed" is final, never said as a deletion still to come.
+      debugPrint('HubDirectory: removal at launch not recorded: $e');
+      _hubRemovalPending = !_hubRemovalUnconfirmed;
+    } finally {
+      // A settings row may already be on screen, launch or foreground.
+      if (before != (_hubRemovalPending, _hubRemovalUnconfirmed)) {
+        notifyListeners();
+      }
+    }
+  }
+
+  Future<void> _settleWithdrawalSteps() async {
     // A yes given since lifts everything (see [recordOnlineServicesGrant]).
     if (await _onlineServices.choice() != OnlineServicesChoice.withdrawn) {
       _hubRemovalPending = false;

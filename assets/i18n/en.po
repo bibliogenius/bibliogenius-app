@@ -13056,7 +13056,7 @@ msgstr "Who runs the server, and unregistering"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "You can unregister at any time in the settings, section \"{section}\": the server then deletes what it holds. The \"Data deletion\" page of the website says who runs the server."
+msgstr "You can unregister at any time in the settings, section \"{section}\": the server then deletes what it holds. A technical trace is erased within 30 days. The \"Data deletion\" page of the website says who runs the server."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13089,6 +13089,10 @@ msgstr "This device is not registered"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Unregistering: the server did not confirm the deletion, it will be asked again at the next launch"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Unregistering…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

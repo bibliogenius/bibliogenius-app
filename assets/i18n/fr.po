@@ -13051,7 +13051,7 @@ msgstr "Qui gère le serveur, et se désinscrire"
 
 #. Online registration details - who runs the server and how to unregister, body
 msgid "online_reg_d_who_body"
-msgstr "Vous pouvez vous désinscrire à tout moment dans les réglages, section « {section} » : le serveur supprime alors ce qu'il détient. La page « Suppression des données » du site indique qui gère le serveur."
+msgstr "Vous pouvez vous désinscrire à tout moment dans les réglages, section « {section} » : le serveur supprime alors ce qu'il détient. Une trace technique est effacée sous 30 jours. La page « Suppression des données » du site indique qui gère le serveur."
 
 #. Online registration details - link to the data deletion page of the website
 msgid "online_reg_d_who_link"
@@ -13084,6 +13084,10 @@ msgstr "Cet appareil n'est pas inscrit"
 #. Settings, network - unregistered here, deletion on the server still to be asked
 msgid "hub_unreg_state_pending"
 msgstr "Désinscription en cours : le serveur n'a pas confirmé la suppression, nouvel essai au prochain lancement"
+
+#. Settings, network - while the withdrawal runs, before the server answered
+msgid "hub_unreg_state_working"
+msgstr "Désinscription en cours…"
 
 #. Settings, network - button that unregisters this device from the server
 msgid "hub_unreg_action"

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -20,12 +21,25 @@ import 'package:bibliogenius/widgets/hub_registration_card.dart';
 
 class _MockDeviceService extends DeviceService {}
 
+/// A provider whose withdrawal throws, whatever the reason.
+class _ThrowingHub extends HubDirectoryProvider {
+  _ThrowingHub({required super.ffi, required super.onlineServices})
+    : super(deviceService: _MockDeviceService());
+
+  @override
+  Future<HubWithdrawal> withdrawOnlineServices() =>
+      Future.error(StateError('unexpected'));
+}
+
 class _MockFfiService extends FfiService {
   _MockFfiService() : super.forTest();
 
   bool signedIn = false;
   String withdrawalAnswer = 'done';
   int withdrawals = 0;
+
+  /// Holds the core's answer until completed, when set.
+  Completer<String>? held;
 
   @override
   void setHubContactAllowed(bool allowed) {}
@@ -45,6 +59,8 @@ class _MockFfiService extends FfiService {
     String? mailboxUuid,
   }) async {
     withdrawals++;
+    final held = this.held;
+    if (held != null) return held.future;
     return withdrawalAnswer;
   }
 }
@@ -166,6 +182,46 @@ void main() {
     expect(find.text('hub_unreg_action'), findsNothing);
   });
 
+  testWidgets('while the withdrawal runs, the row says it is in progress, '
+      'not that the server failed, and the button keeps its place', (
+    tester,
+  ) async {
+    final (hub, ffi) = _hub(registered: true);
+    ffi.held = Completer<String>();
+    await tester.pumpWidget(_harness(hub));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('hub_unreg_action'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('hub_unreg_confirm_action'));
+    // The spinner never settles: a few frames, until the core is asked.
+    for (var i = 0; i < 20 && ffi.withdrawals == 0; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    expect(ffi.withdrawals, 1, reason: 'the core is being asked');
+
+    expect(find.text('hub_unreg_state_working'), findsOneWidget);
+    expect(find.text('hub_unreg_state_pending'), findsNothing);
+    expect(find.text('hub_unreg_action'), findsOneWidget);
+    final button = find.ancestor(
+      of: find.text('hub_unreg_action'),
+      matching: find.bySubtype<TextButton>(),
+    );
+    expect(tester.widget<TextButton>(button).onPressed, isNull);
+
+    // The user leaves the settings and comes back: a new row, same state.
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpWidget(_harness(hub));
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(find.text('hub_unreg_state_working'), findsOneWidget);
+    expect(find.text('hub_unreg_state_pending'), findsNothing);
+
+    ffi.held!.complete('done');
+    await tester.pumpAndSettle();
+    expect(find.text('hub_unreg_state_not_registered'), findsOneWidget);
+    expect(find.text('hub_unreg_action'), findsNothing);
+  });
+
   testWidgets('a server that does not answer: the row says the deletion '
       'will be asked again', (tester) async {
     final (hub, ffi) = _hub(registered: true);
@@ -205,6 +261,78 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('opened on a device whose deletion was not confirmed: the row '
+      'says so at once, with the page', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      OnlineServicesConsent.prefKey: 'withdrawn',
+      OnlineServicesConsent.removalUnconfirmedPrefKey: true,
+    });
+    final (hub, _) = _hub(registered: false);
+    await tester.pumpWidget(_harness(hub));
+    await tester.pumpAndSettle();
+
+    expect(find.text('hub_unreg_state_unconfirmed'), findsOneWidget);
+    expect(find.text('online_reg_d_who_link'), findsOneWidget);
+  });
+
+  testWidgets('the page of the site is written out, for a device that cannot '
+      'open it, and the button is announced as a link', (tester) async {
+    final handle = tester.ensureSemantics();
+    SharedPreferences.setMockInitialValues({
+      OnlineServicesConsent.prefKey: 'withdrawn',
+      OnlineServicesConsent.removalUnconfirmedPrefKey: true,
+    });
+    final (hub, _) = _hub(registered: false);
+    await tester.pumpWidget(_harness(hub));
+    await tester.pumpAndSettle();
+
+    final address = find.byWidgetPredicate(
+      (w) =>
+          w is SelectableText &&
+          (w.data ?? '').startsWith('bibliogenius.org/') &&
+          (w.data ?? '').endsWith('data-deletion.html'),
+    );
+    expect(address, findsOneWidget);
+
+    // A link on every platform: Android reads the address, not the flag.
+    final link = tester
+        .getSemantics(find.text('online_reg_d_who_link'))
+        .getSemanticsData();
+    expect(link.flagsCollection.isLink, isTrue);
+    expect(link.linkUrl?.path, endsWith('data-deletion.html'));
+
+    // The address is a node of its own: merged into the state, it would be
+    // read in place of the message (Android reads a text field's value).
+    final state = tester
+        .getSemantics(find.text('hub_unreg_state_unconfirmed'))
+        .getSemanticsData();
+    expect(state.value, isEmpty);
+    expect(state.flagsCollection.isTextField, isFalse);
+    handle.dispose();
+  });
+
+  testWidgets('a withdrawal that throws: the row says it did not start, and '
+      'the button is back', (tester) async {
+    AuthService.storage = MockSecureStorage();
+    final hub = _ThrowingHub(
+      ffi: _MockFfiService(),
+      onlineServices: OnlineServicesConsent(
+        readSignals: () async => const NetworkUseSignals(hasPeer: true),
+      ),
+    );
+    await tester.pumpWidget(_harness(hub));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('hub_unreg_action'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('hub_unreg_confirm_action'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('hub_unreg_failed'), findsOneWidget);
+    expect(find.text('hub_unreg_action'), findsOneWidget);
   });
 
   testWidgets('signed in to an encrypted account: refused, with the way to '

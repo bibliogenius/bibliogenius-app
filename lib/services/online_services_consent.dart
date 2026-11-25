@@ -233,7 +233,14 @@ class OnlineServicesConsent {
   Future<void> withdraw() async {
     _inferredAllowed = false;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(prefKey, _withdrawn);
+    _written(await prefs.setString(prefKey, _withdrawn), prefKey);
+  }
+
+  /// A refused write (a full storage, on Android) answers false and throws
+  /// nothing, while the in-memory copy already holds the new value: the
+  /// withdrawal must not go on as if it would hold at the next launch.
+  static void _written(bool ok, String key) {
+    if (!ok) throw StateError('preference not written: $key');
   }
 
   /// Puts back the choice [previous] a withdrawal replaced, when that
@@ -241,16 +248,18 @@ class OnlineServicesConsent {
   /// is left pending either.
   Future<void> restore(OnlineServicesChoice previous) async {
     final prefs = await SharedPreferences.getInstance();
-    switch (previous) {
-      case OnlineServicesChoice.granted:
-        await prefs.setString(prefKey, _granted);
-      case OnlineServicesChoice.withdrawn:
-        await prefs.setString(prefKey, _withdrawn);
-      case OnlineServicesChoice.unset:
-        await prefs.remove(prefKey);
-    }
+    // The marker first: a choice that cannot be put back must not leave a
+    // deletion behind it.
     if (previous != OnlineServicesChoice.withdrawn) {
       await prefs.remove(removalPendingPrefKey);
+    }
+    switch (previous) {
+      case OnlineServicesChoice.granted:
+        _written(await prefs.setString(prefKey, _granted), prefKey);
+      case OnlineServicesChoice.withdrawn:
+        _written(await prefs.setString(prefKey, _withdrawn), prefKey);
+      case OnlineServicesChoice.unset:
+        _written(await prefs.remove(prefKey), prefKey);
     }
   }
 
@@ -263,9 +272,12 @@ class OnlineServicesConsent {
   /// be used for this deletion.
   Future<void> rememberPendingRemoval(HubRegistrationIds ids) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
+    _written(
+      await prefs.setString(
+        removalPendingPrefKey,
+        jsonEncode({'node_id': ids.nodeId, 'mailbox_uuid': ids.mailboxUuid}),
+      ),
       removalPendingPrefKey,
-      jsonEncode({'node_id': ids.nodeId, 'mailbox_uuid': ids.mailboxUuid}),
     );
   }
 
@@ -292,8 +304,13 @@ class OnlineServicesConsent {
   /// saying so, with the page where a deletion can be asked for.
   Future<void> rememberUnconfirmedRemoval() async {
     final prefs = await SharedPreferences.getInstance();
+    // The state first: with the marker gone and the state not written,
+    // nothing would say it any more, nor retry.
+    _written(
+      await prefs.setBool(removalUnconfirmedPrefKey, true),
+      removalUnconfirmedPrefKey,
+    );
     await prefs.remove(removalPendingPrefKey);
-    await prefs.setBool(removalUnconfirmedPrefKey, true);
   }
 
   Future<bool> removalUnconfirmed() async {
