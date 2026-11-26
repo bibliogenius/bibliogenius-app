@@ -12,6 +12,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../widgets/achievement_pop_animation.dart' show AchievementPopAnimation;
 import '../widgets/app_snack_bar.dart';
+import '../widgets/hangman_hint_button.dart';
 import '../widgets/hangman_keyboard.dart';
 import '../widgets/hangman_painter.dart';
 import '../widgets/hangman_word_display.dart';
@@ -528,33 +529,17 @@ class _HangmanScreenState extends State<HangmanScreen> {
                 }),
                 const Spacer(),
                 if (provider.hintsAvailable > 0)
-                  GestureDetector(
-                    onTap:
+                  HangmanHintButton(
+                    remaining: provider.hintsAvailable - provider.hintsUsed,
+                    label: TranslationService.translate(
+                      context,
+                      'hangman_hints',
+                    ),
+                    onPressed:
                         provider.authorHintAvailable ||
                             provider.coverHintAvailable
                         ? provider.useHint
                         : null,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.lightbulb_outline,
-                          size: 16,
-                          color:
-                              (provider.authorHintAvailable ||
-                                  provider.coverHintAvailable)
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.outline,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${provider.hintsAvailable - provider.hintsUsed}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
               ],
             ),
@@ -570,7 +555,8 @@ class _HangmanScreenState extends State<HangmanScreen> {
                 ),
               ),
             ),
-          if (provider.coverRevealed && provider.coverUrl != null)
+          if (provider.coverRevealed &&
+              HangmanProvider.hasCoverHint(provider.coverUrl))
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
               child: ClipRRect(

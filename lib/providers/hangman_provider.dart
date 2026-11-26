@@ -104,11 +104,24 @@ class HangmanProvider extends ChangeNotifier {
 
   /// Whether the cover hint is available (book has a cover and hint not yet used)
   bool get coverHintAvailable =>
-      _coverUrl != null && !_coverRevealed && _hintsUsed < _hintsAvailable;
+      hasCoverHint(_coverUrl) &&
+      !_coverRevealed &&
+      _hintsUsed < _hintsAvailable;
 
-  /// Whether the author hint is available
+  /// Whether the author hint is available (book has an author and hint not
+  /// yet used)
   bool get authorHintAvailable =>
-      !_authorRevealed && _hintsUsed < _hintsAvailable;
+      hasAuthorHint(_author) &&
+      !_authorRevealed &&
+      _hintsUsed < _hintsAvailable;
+
+  /// A book with no linked author gets an empty author from the backend.
+  /// Revealing it would spend a hint and show nothing.
+  static bool hasAuthorHint(String author) => author.trim().isNotEmpty;
+
+  /// A book with no cover may carry an empty string instead of null.
+  static bool hasCoverHint(String? coverUrl) =>
+      coverUrl != null && coverUrl.trim().isNotEmpty;
 
   // --- Setup ---
 
@@ -252,10 +265,10 @@ class HangmanProvider extends ChangeNotifier {
     if (_phase != HangmanPhase.playing) return;
     if (_hintsUsed >= _hintsAvailable) return;
 
-    if (!_authorRevealed) {
+    if (authorHintAvailable) {
       _authorRevealed = true;
       _hintsUsed++;
-    } else if (_coverUrl != null && !_coverRevealed) {
+    } else if (coverHintAvailable) {
       _coverRevealed = true;
       _hintsUsed++;
     }
