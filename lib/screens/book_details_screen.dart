@@ -2856,6 +2856,13 @@ class _BookDetailsScreenState extends State<BookDetailsScreen> {
         'private': value,
       });
       _hasChanges = true;
+      // The book enters or leaves the hub catalog: push now, so a book made
+      // private does not stay listed there until the next keep-alive.
+      if (mounted) {
+        context.read<HubDirectoryProvider>()
+          ..markCatalogDirty()
+          ..syncCatalogIfDirty();
+      }
       await _fetchBookDetails(forceRefresh: true);
     } catch (e) {
       debugPrint('Error toggling private: $e');
