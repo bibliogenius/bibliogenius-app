@@ -434,9 +434,10 @@ class _BookListScreenState extends State<BookListScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // Refresh books when app comes back to foreground
+    // Refresh books when app comes back to foreground. Silently: a spinner
+    // would tear the list out of the tree and drop the reader's position.
     if (state == AppLifecycleState.resumed) {
-      _fetchBooks();
+      _fetchBooks(silent: true);
     }
   }
 
