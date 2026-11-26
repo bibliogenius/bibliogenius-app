@@ -103,6 +103,9 @@ class _MockFfiService extends FfiService {
   /// When set, a token recovery waits here.
   Completer<void>? recoverGate;
   int recoveries = 0;
+  /// When set, the hub accepts the recovery code and the core writes the
+  /// registration row again.
+  bool recoveryAccepted = false;
 
   @override
   Future<frb.FrbDirectoryConfig?> hubDirectoryRecover({
@@ -111,6 +114,7 @@ class _MockFfiService extends FfiService {
   }) async {
     recoveries++;
     await recoverGate?.future;
+    if (recoveryAccepted) return directoryConfig = _registered;
     throw Exception('Hub error 401: Invalid recovery code.');
   }
 
@@ -198,6 +202,13 @@ class _MockFfiService extends FfiService {
 
   @override
   Future<String?> hubDirectoryGetRecoveryCode() async => storedRecoveryCode;
+
+  /// The write token of the local registration row, when the test needs
+  /// one to be there for a Keychain copy.
+  String? storedWriteToken;
+
+  @override
+  Future<String?> hubDirectoryExportWriteToken() async => storedWriteToken;
 
   @override
   Future<frb.FrbDirectoryConfig?> hubDirectoryRegister(
@@ -1262,6 +1273,213 @@ void main() {
         reason: 'the registration that just finished is the one deleted',
       );
       expect(ffi.registerCalls, 1, reason: 'the run stopped there');
+    });
+
+    test('a registration that ends after the bounded wait is named, kept '
+        'out of the Keychain, and deleted at the next launch', () async {
+      // The hub read it after the deletion, as a new registration: the
+      // profile is back, with a fresh token in the local row.
+      final (provider, ffi, api) = await consenting();
+      provider.hubCallsInFlightMaxWait = const Duration(milliseconds: 20);
+      ffi
+        ..registrationGate = Completer<void>()
+        ..storedWriteToken = 'wt-1'
+        ..storedRecoveryCode = 'rc-1';
+      final setting = provider.register(
+        nodeId: 'node-1',
+        displayName: 'Test Library',
+        bookCount: 7,
+        acceptFrom: 'everyone',
+        isListed: true,
+      );
+      await Future<void>.delayed(Duration.zero);
+
+      expect(await provider.withdrawOnlineServices(), HubWithdrawal.done);
+      expect(ffi.withdrawals, hasLength(1));
+      expect(await _stored('online_services_removal_pending'), isNull);
+
+      ffi
+        ..storedWriteToken = 'wt-recreated'
+        ..storedRecoveryCode = 'rc-recreated'
+        ..registrationGate!.complete();
+      expect(await setting, isFalse);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(ffi.directoryConfig?.nodeId, 'node-1', reason: 'the row is back');
+      expect(
+        await _stored('online_services_removal_pending'),
+        contains('node-1'),
+        reason: 'the recreated profile is named for the deletion',
+      );
+      expect(provider.hubRemovalPending, isTrue);
+      expect(provider.isRegistered, isFalse);
+      expect(await AuthService().getHubWriteToken(), isNull);
+      expect(await AuthService().getHubRecoveryCode(), isNull);
+      expect(ffi.withdrawals, hasLength(1), reason: 'left to the next launch');
+      final callsBefore = _hubCalls(ffi, api);
+
+      final next = _relaunch(ffi, api);
+      await next.initAndSyncCatalog();
+      await next.loadConfig();
+
+      expect(ffi.withdrawals, hasLength(2));
+      expect(ffi.withdrawals.last.nodeId, 'node-1');
+      expect(ffi.withdrawals.last.gate, isFalse);
+      expect(ffi.directoryConfig, isNull);
+      expect(next.hubRemovalPending, isFalse);
+      expect(await _stored('online_services_removal_pending'), isNull);
+      expect(await AuthService().getHubWriteToken(), isNull);
+      expect(await AuthService().getHubRecoveryCode(), isNull);
+      expect(_hubCalls(ffi, api), callsBefore);
+    });
+
+    test('a registration that ends within the wait is deleted by the '
+        'withdrawal itself, and leaves nothing named', () async {
+      final (provider, ffi, api) = await consenting();
+      ffi
+        ..registrationGate = Completer<void>()
+        ..storedWriteToken = 'wt-1'
+        ..storedRecoveryCode = 'rc-1';
+      final setting = provider.register(
+        nodeId: 'node-1',
+        displayName: 'Test Library',
+        bookCount: 7,
+        acceptFrom: 'everyone',
+        isListed: true,
+      );
+      await Future<void>.delayed(Duration.zero);
+      final withdrawing = provider.withdrawOnlineServices();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      ffi.registrationGate!.complete();
+
+      expect(await withdrawing, HubWithdrawal.done);
+      expect(await setting, isFalse);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(ffi.withdrawals.single.nodeId, 'node-1');
+      expect(await _stored('online_services_removal_pending'), isNull);
+      expect(provider.hubRemovalPending, isFalse);
+      expect(await AuthService().getHubWriteToken(), isNull);
+      expect(await AuthService().getHubRecoveryCode(), isNull);
+    });
+
+    test('a token recovery that ends after the bounded wait: the deletion '
+        'the hub refused is asked again with the credentials it brings '
+        'back', () async {
+      // The recovery got to the hub first and changed the token and the
+      // code: the deletion, asked with the former ones, is refused.
+      final (provider, ffi, api) = await consenting();
+      provider.hubCallsInFlightMaxWait = const Duration(milliseconds: 20);
+      ffi
+        ..storedRecoveryCode = 'rc-1'
+        ..storedWriteToken = 'wt-1'
+        ..registrationError = 'Hub error 401: unauthorized'
+        ..recoverGate = Completer<void>()
+        ..recoveryAccepted = true
+        ..withdrawalAnswer = 'unconfirmed';
+      final renaming = provider.register(
+        nodeId: 'node-1',
+        displayName: 'Test Library',
+        bookCount: 7,
+        acceptFrom: 'everyone',
+      );
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(ffi.recoveries, 1, reason: 'the recovery is on its way');
+      final registrations = ffi.registerCalls;
+
+      expect(
+        await provider.withdrawOnlineServices(),
+        HubWithdrawal.unconfirmed,
+      );
+      expect(provider.hubRemovalUnconfirmed, isTrue);
+      ffi
+        ..storedWriteToken = 'wt-recovered'
+        ..recoverGate!.complete();
+      expect(await renaming, isFalse);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(
+        await _stored('online_services_removal_pending'),
+        contains('node-1'),
+      );
+      expect(provider.hubRemovalPending, isTrue);
+      expect(provider.hubRemovalUnconfirmed, isFalse);
+      expect(provider.isRegistered, isFalse);
+      expect(await AuthService().getHubWriteToken(), isNull);
+      expect(await AuthService().getHubRecoveryCode(), isNull);
+      expect(ffi.purges, 0);
+      expect(ffi.registerCalls, registrations, reason: 'no fresh registration');
+
+      ffi.withdrawalAnswer = 'done';
+      final next = _relaunch(ffi, api);
+      await next.initAndSyncCatalog();
+      expect(ffi.withdrawals, hasLength(2));
+      expect(ffi.withdrawals.last.nodeId, 'node-1');
+      expect(ffi.directoryConfig, isNull);
+      expect(next.hubRemovalPending, isFalse);
+      expect(next.hubRemovalUnconfirmed, isFalse);
+      expect(await _stored('online_services_removal_unconfirmed'), isNull);
+    });
+
+    test('the late answer of an update the hub served before the deletion '
+        'names nothing: that profile is gone', () async {
+      // The row comes back as it was, with the token the deletion used.
+      final (provider, ffi, api) = await consenting();
+      provider.hubCallsInFlightMaxWait = const Duration(milliseconds: 20);
+      ffi
+        ..registrationGate = Completer<void>()
+        ..storedWriteToken = 'wt-1';
+      final setting = provider.register(
+        nodeId: 'node-1',
+        displayName: 'Test Library',
+        bookCount: 7,
+        acceptFrom: 'everyone',
+        isListed: true,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(await provider.withdrawOnlineServices(), HubWithdrawal.done);
+
+      ffi.registrationGate!.complete();
+      expect(await setting, isFalse);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(await _stored('online_services_removal_pending'), isNull);
+      expect(provider.hubRemovalPending, isFalse);
+      expect(await AuthService().getHubWriteToken(), isNull);
+
+      // The row is dropped at the next launch, without a request.
+      final next = _relaunch(ffi, api);
+      await next.initAndSyncCatalog();
+      expect(ffi.withdrawals.last.nodeId, isNull);
+      expect(ffi.directoryConfig, isNull);
+      expect(next.hubRemovalUnconfirmed, isFalse);
+    });
+
+    test('a yes given before the late registration ends keeps it', () async {
+      final (provider, ffi, api) = await consenting();
+      provider.hubCallsInFlightMaxWait = const Duration(milliseconds: 20);
+      ffi
+        ..registrationGate = Completer<void>()
+        ..storedWriteToken = 'wt-recreated';
+      final setting = provider.register(
+        nodeId: 'node-1',
+        displayName: 'Test Library',
+        bookCount: 7,
+        acceptFrom: 'everyone',
+        isListed: true,
+      );
+      await Future<void>.delayed(Duration.zero);
+      expect(await provider.withdrawOnlineServices(), HubWithdrawal.done);
+      await provider.recordOnlineServicesGrant();
+
+      ffi.registrationGate!.complete();
+      expect(await setting, isTrue);
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+
+      expect(await _stored('online_services_removal_pending'), isNull);
+      expect(provider.hubRemovalPending, isFalse);
+      expect(provider.isRegistered, isTrue);
+      expect(await AuthService().getHubWriteToken(), 'wt-recreated');
     });
 
     test('a visibility setting no longer goes through once withdrawn', () async {

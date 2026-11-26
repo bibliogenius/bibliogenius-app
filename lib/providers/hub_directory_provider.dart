@@ -398,6 +398,7 @@ class HubDirectoryProvider extends ChangeNotifier {
     await _onlineServices.grant();
     _hubRemovalPending = false;
     _hubRemovalUnconfirmed = false;
+    _tokenRemovalAskedWith = null;
     // What the next registration pushes: everything, at once.
     _catalogDirty = true;
     // Refreshes what the widgets read ([onlineServicesKnownAllowed]).
@@ -676,13 +677,87 @@ class HubDirectoryProvider extends ChangeNotifier {
     if (await _withdrawing()) {
       throw StateError('hub registration withdrawn');
     }
-    return trackHubWrite(_ffi.hubDirectoryRegister(params));
+    return _unlessWithdrawn(
+      await trackHubWrite(_ffi.hubDirectoryRegister(params)),
+    );
   }
+
+  /// What a registration, or the recovery of a refused token, answered,
+  /// unless the user withdrew while the call was on its way: nothing of it
+  /// is kept then, and the profile it may have brought back is named for
+  /// the deletion.
+  Future<frb.FrbDirectoryConfig?> _unlessWithdrawn(
+    frb.FrbDirectoryConfig? answered,
+  ) async {
+    if (answered == null || !await _withdrawing()) return answered;
+    unawaited(_exclusively(() => _nameRecreatedProfile(answered.nodeId)));
+    return null;
+  }
+
+  /// Names for the deletion a profile that a call brought back after the
+  /// user withdrew: it was still on its way when the bounded wait of the
+  /// withdrawal ended ([hubCallsInFlightMaxWait]). The hub read such a
+  /// registration, after the deletion, as a new one; a token recovery that
+  /// got there first changed the credentials the deletion was asked with,
+  /// and its answer brings the working ones back on the device. The
+  /// deletion is then asked like any pending one, at the next launch or
+  /// when the app comes back to the foreground.
+  ///
+  /// Runs in turn with the removals ([_exclusively]), so once the
+  /// withdrawal in progress is over: that one names and deletes by itself
+  /// a registration that ended within its wait, and would clear a marker
+  /// written in the middle of it.
+  Future<void> _nameRecreatedProfile(String nodeId) async {
+    try {
+      // A yes given since keeps the registration.
+      if (await _onlineServices.choice() != OnlineServicesChoice.withdrawn) {
+        return;
+      }
+      // Only the row this registration wrote: once the withdrawal dropped
+      // it, the profile went with it and nothing is left to name.
+      final onDevice = await _ffi.hubDirectoryGetConfigStrict();
+      if (onDevice?.nodeId != nodeId) return;
+      // A call the hub served before the deletion brings the row back as
+      // it was, with the token the deletion was asked with: that profile
+      // is gone or out of reach already, and nothing new can be tried.
+      final token = await _ffi.hubDirectoryExportWriteToken();
+      if (token != null && token == _tokenRemovalAskedWith) return;
+      final pending = await _onlineServices.pendingRemoval();
+      if (pending?.nodeId != nodeId) {
+        // The mailbox a deletion still pending names stays named.
+        await _onlineServices.rememberPendingRemoval((
+          nodeId: nodeId,
+          mailboxUuid: pending?.mailboxUuid,
+        ));
+        // "Not confirmed" meant nothing was left to try: there is now.
+        if (_hubRemovalUnconfirmed) {
+          await _onlineServices.forgetUnconfirmedRemoval();
+          _hubRemovalUnconfirmed = false;
+          _hubRemovalPending = false;
+        }
+      }
+      if (!_hubRemovalPending) {
+        _hubRemovalPending = true;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('HubDirectory: recreated profile not named for removal: $e');
+    }
+  }
+
+  /// The write token of the local row when the last deletion was asked,
+  /// for this session only: tells a profile the hub created again (a fresh
+  /// token) from the late answer of a call served before the deletion (the
+  /// same one). See [_nameRecreatedProfile].
+  String? _tokenRemovalAskedWith;
 
   /// Asks the core to delete [named] on the hub and to drop the local rows,
   /// then forgets the copies this device keeps for a reinstall.
   Future<HubWithdrawal> _removeFromHub(HubRegistrationIds named) async {
     _lastRemovalAttempt = DateTime.now();
+    if (named.nodeId != null) {
+      _tokenRemovalAskedWith = await _ffi.hubDirectoryExportWriteToken();
+    }
     final String answer;
     try {
       answer = await _ffi.withdrawHubRegistration(
@@ -1225,6 +1300,8 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Returns true on success, false on failure (logged, never throws).
   Future<bool> _tryBackupWriteToken() async {
     try {
+      // Nothing is kept for a reinstall once the registration is withdrawn.
+      if (await _withdrawing()) return false;
       final token = await _ffi.hubDirectoryExportWriteToken();
       if (token == null) return false;
       await _authService.saveHubWriteToken(token);
@@ -1243,6 +1320,7 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// write_token is invalidated, so we must not lose it on config purges.
   Future<void> _tryBackupRecoveryCode() async {
     try {
+      if (await _withdrawing()) return;
       final code = await _ffi.hubDirectoryGetRecoveryCode();
       if (code != null && code.isNotEmpty) {
         await _authService.saveHubRecoveryCode(code);
@@ -2740,10 +2818,12 @@ class HubDirectoryProvider extends ChangeNotifier {
                 if (await _withdrawing()) {
                   throw StateError('hub registration withdrawn');
                 }
-                return trackHubWrite(
-                  _ffi.hubDirectoryRecover(
-                    nodeId: nodeId,
-                    recoveryCode: recoveryCode,
+                return _unlessWithdrawn(
+                  await trackHubWrite(
+                    _ffi.hubDirectoryRecover(
+                      nodeId: nodeId,
+                      recoveryCode: recoveryCode,
+                    ),
                   ),
                 );
               }

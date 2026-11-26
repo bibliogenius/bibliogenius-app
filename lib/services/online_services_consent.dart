@@ -313,6 +313,14 @@ class OnlineServicesConsent {
     await prefs.remove(removalPendingPrefKey);
   }
 
+  /// Lifts [rememberUnconfirmedRemoval] once there is something to try
+  /// again: working credentials came back on this device, and the deletion
+  /// they allow is named.
+  Future<void> forgetUnconfirmedRemoval() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(removalUnconfirmedPrefKey);
+  }
+
   Future<bool> removalUnconfirmed() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(removalUnconfirmedPrefKey) == true;
