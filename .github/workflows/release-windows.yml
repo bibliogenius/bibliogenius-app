@@ -163,11 +163,33 @@ jobs:
           name: bibliogenius-windows
           path: windows/installer/Output/BiblioGenius-Setup.exe
 
+      # msix:create copies the VC++ runtime next to the app at the bundle root only.
+      # The backend (the MCP helper, plus the crsqlite.dll it loads) resolves DLLs
+      # in its own backend\ folder, so it needs its own copy or it does not start
+      # on a PC without the VC++ Redistributable. Taken from the same source msix
+      # uses (newest VS redistributable). Runs after the Inno Setup step on
+      # purpose: it changes the Store package only.
+      - name: Bundle the VC++ runtime next to the backend (Store package)
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vs = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vs) { throw "No Visual Studio with the x64 VC tools found" }
+          $crt = Get-ChildItem "$vs\VC\Redist\MSVC" -Directory |
+            Where-Object { $_.Name -match '^\d+(\.\d+)+$' } |
+            Sort-Object { [version]$_.Name } -Descending |
+            ForEach-Object { Get-ChildItem "$($_.FullName)\x64" -Directory -Filter 'Microsoft.VC*.CRT' -ErrorAction SilentlyContinue } |
+            Select-Object -First 1
+          if (-not $crt) { throw "No x64 VC++ CRT redistributable folder found under $vs" }
+          foreach ($dll in 'vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll') {
+            Copy-Item "$($crt.FullName)\$dll" build\windows\x64\runner\Release\backend\ -ErrorAction Stop
+          }
+
       # Microsoft Store package, built from the same bundle as the installer (Rust
       # backend and crsqlite.dll already injected; msix_config sets
       # build_windows: false so the tool does not rebuild and drop them). Left
-      # unsigned on purpose: Microsoft signs it at Store ingestion. Skipped, with a
-      # warning, until the Store identity is filled in msix_config (pubspec.yaml).
+      # unsigned on purpose: Microsoft signs it at Store ingestion. The guard
+      # skips the step, with a warning, if the Store identity is ever removed
+      # from msix_config (pubspec.yaml).
       - name: Build Microsoft Store package (MSIX)
         id: msix
         run: |
