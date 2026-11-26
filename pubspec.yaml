@@ -83,6 +83,7 @@ dev_dependencies:
     sdk: flutter
   freezed: ^3.2.3
   build_runner: ^2.10.4
+  msix: ^3.18.0
 
 flutter:
   uses-material-design: true
@@ -103,3 +104,33 @@ flutter:
     - assets/curated_lists/jeunesse/
     - assets/curated_lists/rentree/
     - assets/i18n/
+# Microsoft Store package (MSIX), built in CI by .github/workflows/release-windows.yml
+# after the Rust backend and crsqlite.dll are injected into the release bundle,
+# hence build_windows: false. In store mode the package is left unsigned:
+# Microsoft signs it at ingestion. The version is derived from `version` above
+# as major.minor.patch.0 (the Store requires the fourth part to be 0).
+#
+# Store identity: the three values below come from Partner Center > the product
+# > Product identity (Package/Identity/Name, Package/Identity/Publisher,
+# Package/Properties/PublisherDisplayName) and must match it exactly, or the
+# package is rejected at upload. They are public: every Store package carries
+# them. Store ID 9NFZ8GLKD3HH, package family name
+# BiblioGenius.BiblioGenius_nm2csspra1fk4.
+msix_config:
+  display_name: BiblioGenius
+  identity_name: BiblioGenius.BiblioGenius
+  publisher: CN=1D8C3C94-3FB2-4E58-985B-F449DB5A04BE
+  publisher_display_name: BiblioGenius
+  logo_path: assets/icon_fixed.png
+  # Same floor as Flutter and the msvc Rust toolchain: Windows 10 1809.
+  os_min_version: 10.0.17763.0
+  architecture: x64
+  languages: en-us, fr-fr, es-es, de-de, pt-br, it-it, tr-tr, bg-bg
+  # runFullTrust is added by the tool. Client and server on the internet and on
+  # the LAN: hub sync, local HTTP server, peer discovery. Microphone: note
+  # dictation (speech_to_text has a Windows implementation).
+  capabilities: internetClient, internetClientServer, privateNetworkClientServer, microphone
+  store: true
+  build_windows: false
+  output_path: build\windows\msix
+  output_name: BiblioGenius

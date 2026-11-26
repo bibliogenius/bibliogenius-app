@@ -162,3 +162,28 @@ jobs:
         with:
           name: bibliogenius-windows
           path: windows/installer/Output/BiblioGenius-Setup.exe
+
+      # Microsoft Store package, built from the same bundle as the installer (Rust
+      # backend and crsqlite.dll already injected; msix_config sets
+      # build_windows: false so the tool does not rebuild and drop them). Left
+      # unsigned on purpose: Microsoft signs it at Store ingestion. Skipped, with a
+      # warning, until the Store identity is filled in msix_config (pubspec.yaml).
+      - name: Build Microsoft Store package (MSIX)
+        id: msix
+        run: |
+          if (-not (Select-String -Path pubspec.yaml -Pattern '^\s+identity_name:' -Quiet)) {
+            Write-Output "::warning::msix_config has no identity_name yet, MSIX package skipped (see pubspec.yaml)"
+            exit 0
+          }
+          dart run msix:create
+          if ($LASTEXITCODE -ne 0) { throw "msix:create failed with exit code $LASTEXITCODE" }
+          "built=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      # Download it from this run's Artifacts section, then upload it in Partner
+      # Center (product > submission > Packages).
+      - name: Upload Store package
+        if: steps.msix.outputs.built == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: bibliogenius-msix
+          path: build/windows/msix/BiblioGenius.msix
