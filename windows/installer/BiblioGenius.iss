@@ -17,7 +17,9 @@
 #endif
 #define MyAppPublisher "BiblioGenius"
 #define MyAppURL "https://bibliogenius.org"
-#define MyAppExeName "bibliogenius.exe"
+; The Flutter runner's file name comes from BINARY_NAME in windows/CMakeLists.txt
+; ("app"). bibliogenius.exe is the Rust backend, and it lives in backend\ only.
+#define MyAppExeName "app.exe"
 
 [Setup]
 ; Stable AppId so upgrades and uninstall are tracked across versions. Do not change.
@@ -49,7 +51,7 @@ Name: "french"; MessagesFile: "compiler:Languages\French.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-; The whole Flutter release bundle: bibliogenius.exe + DLLs + data\ + backend\.
+; The whole Flutter release bundle: app.exe + DLLs + data\ + backend\.
 ; The recursive copy deliberately carries crsqlite.dll TWICE (app root AND
 ; backend\): the Flutter runner and the bundled backend each resolve the
 ; cr-sqlite extension next to their own executable at runtime (ADR-044 dynamic
