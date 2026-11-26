@@ -16,6 +16,7 @@ import 'package:bibliogenius/src/rust/api/frb.dart' as frb;
 const _selfNode = 'self-node-uuid';
 const _pairedNode = 'paired-peer-uuid';
 const _strangerNode = 'stranger-node-uuid';
+const _hubUrl = 'https://hub.example';
 
 class _MockDeviceService extends DeviceService {
   @override
@@ -42,7 +43,21 @@ class _MockFfiService extends FfiService {
   /// Pending incoming follow requests.
   List<frb.FrbHubFollow> pending = [];
 
+  /// Libraries holding an active follow of the local one.
+  List<frb.FrbHubFollow> followers = [];
+
+  /// When set, the hub answers a follow with this error (the core's
+  /// rendering of it).
+  String? followError;
+
+  /// When true, the hub cannot be read for the followers.
+  bool followersUnreadable = false;
+
+  @override
+  String? hubEffectiveUrl() => _hubUrl;
+
   int listFollowingCalls = 0;
+  int listFollowersCalls = 0;
   int pendingRequestsCalls = 0;
 
   @override
@@ -62,7 +77,11 @@ class _MockFfiService extends FfiService {
   }
 
   @override
-  Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async => [];
+  Future<List<frb.FrbHubFollow>> hubDirectoryListFollowers() async {
+    listFollowersCalls++;
+    if (followersUnreadable) throw Exception('Network error: unreachable');
+    return followers;
+  }
 
   @override
   Future<List<frb.FrbHubFollow>> hubDirectoryPendingRequests() async {
@@ -73,6 +92,8 @@ class _MockFfiService extends FfiService {
   @override
   Future<frb.FrbHubFollow?> hubDirectoryFollow(String nodeId) async {
     followedNodes.add(nodeId);
+    final error = followError;
+    if (error != null) throw Exception(error);
     return frb.FrbHubFollow(
       id: 99,
       followerNodeId: _selfNode,
@@ -181,15 +202,34 @@ frb.FrbHubFollow _activeFollowOf(String nodeId) => frb.FrbHubFollow(
   createdAt: '2026-07-01T00:00:00Z',
 );
 
+frb.FrbHubFollow _followFrom(
+  String nodeId, {
+  required int id,
+  required String status,
+}) => frb.FrbHubFollow(
+  id: id,
+  followerNodeId: nodeId,
+  followedNodeId: _selfNode,
+  status: status,
+  createdAt: '2026-07-16T00:00:00Z',
+);
+
+/// A local peers row. [onHub] false is a peer paired over the local network
+/// that never registered on the hub: its row carries no relay credentials
+/// (ADR-073).
 Map<String, dynamic> _peer({
   required String uuid,
   String status = 'accepted',
+  bool onHub = true,
 }) => {
   'id': 1,
   'name': 'Peer $uuid',
   'url': 'http://192.168.1.99:8000',
   'library_uuid': uuid,
   'connection_status': status,
+  'relay_url': onHub ? '$_hubUrl/' : null,
+  'mailbox_id': onHub ? 'mailbox-$uuid' : null,
+  'relay_write_token': onHub ? 'token-$uuid' : null,
 };
 
 // ---------------------------------------------------------------------------
@@ -340,6 +380,229 @@ void main() {
       await provider.reconcilePairedPeerFollows();
 
       expect(ffi.followedNodes, [_pairedNode]);
+    });
+  });
+
+  // ADR-073: a device may decline the hub and pair over the local network
+  // only. Its library id must never reach the hub through the follow of a
+  // registered peer.
+  group('reconcilePairedPeerFollows toward a peer off the hub (ADR-073)', () {
+    test('sends no follow toward a paired peer that shows no sign of being '
+        'registered', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+
+      await provider.reconcilePairedPeerFollows();
+      // Every later trigger (launch, pairing, nudge) stays silent too.
+      await provider.reconcilePairedPeerFollows();
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+
+      expect(ffi.followedNodes, isEmpty);
+    });
+
+    test('incomplete relay credentials are not a sign of registration',
+        () async {
+      final (provider, ffi) = await _createProvider([
+        {
+          ..._peer(uuid: _pairedNode, onHub: false),
+          'mailbox_id': 'mailbox-without-token',
+          'relay_write_token': '',
+        },
+      ]);
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, isEmpty);
+    });
+
+    test('a relay mailbox on another hub is not a sign of registration on '
+        'ours', () async {
+      final (provider, ffi) = await _createProvider([
+        {
+          ..._peer(uuid: _pairedNode),
+          'relay_url': 'https://self-hosted.example',
+        },
+      ]);
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, isEmpty);
+    });
+
+    test('stops asking for the session once the hub says the peer is not '
+        'registered (credentials outliving a withdrawal)', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode),
+      ]);
+      ffi.followError = 'Hub error 404: {"error":"Library not found."}';
+
+      await provider.reconcilePairedPeerFollows();
+      await provider.reconcilePairedPeerFollows();
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+
+      expect(ffi.followedNodes, [_pairedNode]);
+    });
+
+    test('asks again after a "not found" when the peer then follows us',
+        () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode),
+      ]);
+      ffi.followError = 'Hub error 404: {"error":"Library not found."}';
+      await provider.reconcilePairedPeerFollows();
+
+      // The peer registered again and its request reached us.
+      ffi.followError = null;
+      ffi.pending = [_followFrom(_pairedNode, id: 57, status: 'pending')];
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode, _pairedNode]);
+    });
+
+    test('a transient failure is still retried by the next trigger', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode),
+      ]);
+      ffi.followError = 'Network error: connection refused';
+      await provider.reconcilePairedPeerFollows();
+
+      ffi.followError = null;
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode, _pairedNode]);
+    });
+
+    test('a follower that left the hub since the last read is not asked for '
+        'on every nudge', () async {
+      // It followed us, then withdrew: the hub dropped its profile and our
+      // follow of it, but the followers list loaded at launch still has it.
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode),
+      ]);
+      ffi.followers = [_followFrom(_pairedNode, id: 57, status: 'active')];
+      await provider.loadFollowers();
+      ffi.followError = 'Hub error 404: {"error":"Library not found."}';
+
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+
+      expect(ffi.followedNodes, [_pairedNode]);
+    });
+
+    test('followers that could not be re-read prove nothing', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+      ffi.followers = [_followFrom(_pairedNode, id: 57, status: 'active')];
+      await provider.loadFollowers();
+      ffi.followersUnreadable = true;
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, isEmpty);
+    });
+
+    test('a nudge does not re-read the followers for a peer off the hub',
+        () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+      await provider.reconcilePairedPeerFollows();
+      final before = ffi.listFollowersCalls;
+
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+      await provider.reconcilePairedPeerFollows(refreshLists: false);
+
+      expect(ffi.listFollowersCalls, before);
+      expect(ffi.followedNodes, isEmpty);
+    });
+
+    test('follows only the registered one of two paired peers', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode),
+        {..._peer(uuid: 'lan-only-node', onHub: false), 'id': 2},
+      ]);
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode]);
+    });
+
+    test('follows once the peer registered later and its relay credentials '
+        'reached its row', () async {
+      final (provider, ffi, api) = await _createProviderWithApi([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+      await provider.reconcilePairedPeerFollows();
+      expect(ffi.followedNodes, isEmpty);
+
+      // The peer accepted the hub; a local sync refreshed its row.
+      api.peers
+        ..clear()
+        ..add(_peer(uuid: _pairedNode));
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode]);
+    });
+
+    test('follows back a peer that registered later and asked to follow us, '
+        'before any relay credentials arrive', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+      await provider.reconcilePairedPeerFollows();
+      expect(ffi.followedNodes, isEmpty);
+
+      // Its request can only come through the hub: the peer is registered.
+      ffi.pending = [_followFrom(_pairedNode, id: 57, status: 'pending')];
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode]);
+      expect(ffi.resolvedFollows, [(57, 'approve')]);
+    });
+
+    test('follows a peer off the relay that is already one of our followers',
+        () async {
+      // The request was approved earlier but our own follow never went out
+      // (failure, restart): the active follow still proves the registration.
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+      ffi.followers = [_followFrom(_pairedNode, id: 57, status: 'active')];
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, [_pairedNode]);
+    });
+
+    test('a follow request from a stranger proves nothing about a paired '
+        'peer', () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode, onHub: false),
+      ]);
+      ffi.pending = [_followFrom(_strangerNode, id: 58, status: 'pending')];
+      ffi.followers = [_followFrom('other-stranger', id: 59, status: 'active')];
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.followedNodes, isEmpty);
+      expect(ffi.resolvedFollows, isEmpty);
+    });
+
+    test('reads the followers only when a paired peer is left without a sign',
+        () async {
+      final (provider, ffi) = await _createProvider([
+        _peer(uuid: _pairedNode),
+      ]);
+      // The first pass of a launch reads them for the contact card.
+      await provider.reconcilePairedPeerFollows();
+      final before = ffi.listFollowersCalls;
+
+      await provider.reconcilePairedPeerFollows();
+
+      expect(ffi.listFollowersCalls, before);
     });
   });
 

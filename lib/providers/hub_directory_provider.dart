@@ -3118,7 +3118,16 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// question first, and without a consent this sends nothing and returns
   /// false. The automatic follow of a paired peer passes [userGesture]
   /// false: it only runs once the consent exists.
-  Future<bool> follow(String nodeId, {bool userGesture = true}) async {
+  Future<bool> follow(String nodeId, {bool userGesture = true}) async =>
+      (await _follow(nodeId, userGesture: userGesture)).ok;
+
+  /// [follow], with the error of this very call next to its outcome:
+  /// [_actionError] is shared with the other actions and may have been
+  /// rewritten by the time a caller reads it.
+  Future<({bool ok, String? error})> _follow(
+    String nodeId, {
+    required bool userGesture,
+  }) async {
     _busyNodes.add(nodeId);
     _actionError = null;
     notifyListeners();
@@ -3127,7 +3136,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       // The consent, then what startup would have done (relay mailbox,
       // catalog), not the bare registration below.
       if (userGesture) {
-        if (!await onlineServicesAllowed()) return false;
+        if (!await onlineServicesAllowed()) return (ok: false, error: null);
         await startOnlineServices(maxWait: kInvitationConsentMaxWait);
       }
       // Auto-register silently if not yet registered
@@ -3135,22 +3144,23 @@ class HubDirectoryProvider extends ChangeNotifier {
         final ok = await _ensureSilentRegistration();
         if (!ok) {
           _actionError = 'Registration failed';
-          return false;
+          return (ok: false, error: _actionError);
         }
       }
 
       final result = await _ffi.hubDirectoryFollow(nodeId);
       if (result != null) {
         await loadFollowing();
-        return true;
+        return (ok: true, error: null);
       }
       _actionError = 'Follow request failed';
       debugPrint('HubDirectoryProvider follow: result was null for $nodeId');
-      return false;
+      return (ok: false, error: 'Follow request failed');
     } catch (e) {
-      _actionError = e.toString();
+      final error = e.toString();
+      _actionError = error;
       debugPrint('HubDirectoryProvider follow error: $e');
-      return false;
+      return (ok: false, error: error);
     } finally {
       _busyNodes.remove(nodeId);
       notifyListeners();
@@ -3247,6 +3257,12 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// that has not approved yet is not re-requested on every nudge.
   final Set<String> _autoFollowRequested = {};
 
+  /// nodeIds the hub answered "not found" to in this session: paired peers
+  /// whose row still carries the relay credentials of a registration they
+  /// have since withdrawn. Not asked again, so the hub is not handed the id
+  /// of a library that left it on every trigger.
+  final Set<String> _autoFollowUnknownToHub = {};
+
   /// ADR-053: materialize P2P pairings as mutual hub follows.
   ///
   /// A paired peer already holds far stronger privileges than a follower
@@ -3254,9 +3270,18 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// endpoint only understands follows: when either side publishes in the
   /// public directory with requires_approval, the other side's offline
   /// hub-catalog fallback dies with a 403. This reconciliation:
-  ///   1. follows every accepted paired peer not already followed,
+  ///   1. follows every accepted paired peer not already followed, as long
+  ///      as something shows that peer is registered on the hub,
   ///   2. approves pending incoming follow requests from accepted paired
   ///      peers, attaching the sealed contact blob like a manual approval.
+  ///
+  /// A peer may have declined the hub and paired over the local network
+  /// only (ADR-073). A follow names its target, so sending one would hand
+  /// the hub the library id of a device that never agreed to talk to it.
+  /// Step 1 therefore needs a sign obtained without naming the peer: relay
+  /// credentials on its local row (a registered peer hands them over at
+  /// the handshake, and a local sync refreshes them), or a follow of ours
+  /// coming from it, which can only exist through the hub.
   /// Runs at startup, after accepting a pairing, and on relay nudges;
   /// no-ops quickly when there is nothing to do.
   ///
@@ -3273,8 +3298,9 @@ class HubDirectoryProvider extends ChangeNotifier {
 
     _reconcilingFollows = true;
     try {
-      final knownPaired = await _tryAcceptedPairedPeerUuids(api);
-      if (knownPaired == null) return;
+      final paired = await _tryAcceptedPairedPeers(api);
+      if (paired == null) return;
+      final knownPaired = paired.uuids;
       // The contact card is sealed per audience, and "paired peers" is one of
       // them: when the set of pairings moves (or on the first pass of this
       // launch), the projection on the hub must follow.
@@ -3290,22 +3316,46 @@ class HubDirectoryProvider extends ChangeNotifier {
         await Future.wait([loadFollowing(), loadPendingRequests()]);
       }
 
-      // 1. Outgoing: follow paired peers we do not follow yet.
+      // 1. Outgoing: follow paired peers we do not follow yet, and only
+      // those known to be on the hub (ADR-073).
       final followed = _following.map((f) => f.followedNodeId).toSet();
-      for (final uuid in pairedUuids) {
-        if (followed.contains(uuid)) continue;
+      final unfollowed = pairedUuids.difference(followed);
+      // Peers the relay sign does not settle: none on their row, or one the
+      // hub contradicted.
+      final unsettled = unfollowed
+          .where(
+            (uuid) =>
+                !paired.advertisingRelay.contains(uuid) ||
+                _autoFollowUnknownToHub.contains(uuid),
+          )
+          .toSet();
+      final followingUs = await _pairedPeersFollowingUs(
+        unsettled,
+        readFollowers: refreshLists,
+      );
+      for (final uuid in unfollowed) {
+        final asksThroughHub = followingUs.contains(uuid);
+        if (!asksThroughHub && !paired.advertisingRelay.contains(uuid)) {
+          continue;
+        }
+        // The hub answered that this library is not registered: its relay
+        // credentials are stale. Only a follow coming from it says otherwise.
+        if (!asksThroughHub && _autoFollowUnknownToHub.contains(uuid)) continue;
         if (!_autoFollowRequested.add(uuid)) continue;
         debugPrint('[ADR-053] auto-follow paired peer $uuid');
-        final ok = await follow(uuid, userGesture: false);
-        if (!ok) {
-          // Transient failure (hub down, network): allow the next trigger
-          // (nudge or startup) to retry instead of blocking until restart.
-          _autoFollowRequested.remove(uuid);
-          debugPrint(
-            '[ADR-053] auto-follow failed for $uuid '
-            '(${_actionError ?? "unknown"})',
-          );
+        final outcome = await _follow(uuid, userGesture: false);
+        if (outcome.ok) {
+          _autoFollowUnknownToHub.remove(uuid);
+          continue;
         }
+        // Transient failure (hub down, network): allow the next trigger
+        // (nudge or startup) to retry instead of blocking until restart.
+        _autoFollowRequested.remove(uuid);
+        if (_isHubNotFound(outcome.error)) _autoFollowUnknownToHub.add(uuid);
+        debugPrint(
+          '[ADR-053] auto-follow failed for $uuid '
+          '(${outcome.error ?? "unknown"})',
+        );
       }
 
       // 2. Incoming: approve pending requests from paired peers. The pending
@@ -3337,6 +3387,38 @@ class HubDirectoryProvider extends ChangeNotifier {
     }
   }
 
+  /// Among [candidates] (paired peers not followed yet that the relay sign
+  /// does not settle), those holding or requesting a follow of this
+  /// library. See [reconcilePairedPeerFollows].
+  ///
+  /// A pending request counts as it stands: both callers just read that
+  /// list. An active follow only counts when the followers were re-read
+  /// here ([readFollowers], a read that names nobody but ourselves): a
+  /// list kept from an earlier read may still hold a library that has
+  /// left the hub since, and would send its id there on every nudge.
+  Future<Set<String>> _pairedPeersFollowingUs(
+    Set<String> candidates, {
+    required bool readFollowers,
+  }) async {
+    if (candidates.isEmpty) return const {};
+    final found = _pendingRequests
+        .map((f) => f.followerNodeId)
+        .where(candidates.contains)
+        .toSet();
+    if (found.length == candidates.length) return found;
+    // A failed read proves nothing: the follow waits for the next trigger.
+    if (!readFollowers || !await loadFollowers()) return found;
+    found.addAll(
+      _followers.map((f) => f.followerNodeId).where(candidates.contains),
+    );
+    return found;
+  }
+
+  /// Whether [error] is the hub answering that a library does not exist.
+  /// The text is the core's rendering of a hub status ("Hub error 404: ...").
+  static bool _isHubNotFound(String? error) =>
+      error != null && error.contains('Hub error 404');
+
   /// Ends a pairing (ADR-053 follow-up).
   ///
   /// The Rust side deletes the local peers row and revokes, fire-and-forget,
@@ -3363,6 +3445,7 @@ class HubDirectoryProvider extends ChangeNotifier {
       return false;
     }
     _autoFollowRequested.remove(nodeId);
+    _autoFollowUnknownToHub.remove(nodeId);
     _following.removeWhere((f) => f.followedNodeId == nodeId);
     notifyListeners();
     // The Rust side took the ex-peer off the catalog readers list and
@@ -3404,8 +3487,22 @@ class HubDirectoryProvider extends ChangeNotifier {
   /// Same as [_acceptedPairedPeerUuids], but null when the peers could not be
   /// read. Callers that withdraw something from non-members (the contact
   /// projection) must not mistake a failed read for "no pairing at all".
-  Future<Set<String>?> _tryAcceptedPairedPeerUuids(ApiService api) async {
+  Future<Set<String>?> _tryAcceptedPairedPeerUuids(ApiService api) async =>
+      (await _tryAcceptedPairedPeers(api))?.uuids;
+
+  /// The accepted paired peers, and among them those whose local row
+  /// carries relay credentials. Null when the peers could not be read.
+  ///
+  /// A relay mailbox only exists on a device that chose the online services
+  /// (ADR-073), so credentials for a mailbox on our hub show, without
+  /// asking the hub anything, that this peer agreed to talk to it. They may
+  /// outlive a registration withdrawn since: the hub's "not found" then
+  /// stops the follow for the session.
+  Future<({Set<String> uuids, Set<String> advertisingRelay})?>
+  _tryAcceptedPairedPeers(ApiService api) async {
     final uuids = <String>{};
+    final advertisingRelay = <String>{};
+    final ourHub = _normalizedHubUrl(_ffi.hubEffectiveUrl());
     try {
       final res = await api.getPeers();
       final data = res.data;
@@ -3419,12 +3516,31 @@ class HubDirectoryProvider extends ChangeNotifier {
         if (FfiService.isPlaceholderNodeId(uuid)) continue;
         if (uuid == _config?.nodeId) continue;
         uuids.add(uuid);
+        // A mailbox on another hub says nothing about ours.
+        final theirHub = _normalizedHubUrl(raw['relay_url']);
+        if (ourHub != null &&
+            theirHub == ourHub &&
+            _isNonEmptyString(raw['mailbox_id']) &&
+            _isNonEmptyString(raw['relay_write_token'])) {
+          advertisingRelay.add(uuid);
+        }
       }
     } catch (e) {
       debugPrint('[ADR-053] getPeers failed during reconcile: $e');
       return null;
     }
-    return uuids;
+    return (uuids: uuids, advertisingRelay: advertisingRelay);
+  }
+
+  static bool _isNonEmptyString(Object? value) =>
+      value is String && value.isNotEmpty;
+
+  /// A hub address in the form two of them compare in: no trailing slash,
+  /// lower case. Null when there is none.
+  static String? _normalizedHubUrl(Object? url) {
+    if (url is! String) return null;
+    final trimmed = url.trim().replaceFirst(RegExp(r'/+$'), '').toLowerCase();
+    return trimmed.isEmpty ? null : trimmed;
   }
 
   // ---------------------------------------------------------------------------
