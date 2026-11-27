@@ -854,6 +854,7 @@ class _ScanScreenState extends State<ScanScreen> {
                         if (isEditable) ...[
                           TextField(
                             controller: titleCtrl,
+                            textCapitalization: TextCapitalization.sentences,
                             decoration: InputDecoration(
                               labelText: TranslationService.translate(
                                 context,
@@ -865,6 +866,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           const SizedBox(height: 12),
                           TextField(
                             controller: authorCtrl,
+                            textCapitalization: TextCapitalization.words,
                             decoration: InputDecoration(
                               labelText: TranslationService.translate(
                                 context,
@@ -876,6 +878,7 @@ class _ScanScreenState extends State<ScanScreen> {
                           const SizedBox(height: 12),
                           TextField(
                             controller: publisherCtrl,
+                            textCapitalization: TextCapitalization.words,
                             decoration: InputDecoration(
                               labelText: TranslationService.translate(
                                 context,

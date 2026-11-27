@@ -860,6 +860,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               TextFormField(
                 controller: _titleController,
                 focusNode: _titleFocusNode,
+                textCapitalization: TextCapitalization.sentences,
                 textInputAction: TextInputAction.next,
                 decoration: _buildInputDecoration(
                   hint: TranslationService.translate(
@@ -909,6 +910,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         key: const Key('authorField'),
                         controller: textEditingController,
                         focusNode: focusNode,
+                        textCapitalization: TextCapitalization.words,
                         decoration: _buildInputDecoration(
                           hint: _authors.isNotEmpty
                               ? TranslationService.translate(
@@ -1010,6 +1012,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
                         TextFormField(
                           controller: _publisherController,
                           textInputAction: TextInputAction.next,
+                          textCapitalization: TextCapitalization.words,
                           decoration: _buildInputDecoration(
                             hint: TranslationService.translate(
                               context,
@@ -1056,6 +1059,7 @@ class _EditBookScreenState extends State<EditBookScreen> {
               ),
               TextFormField(
                 controller: _summaryController,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: _buildInputDecoration(
                   hint: TranslationService.translate(context, 'summary_hint'),
                   fieldKey: 'summary',

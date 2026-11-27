@@ -1054,6 +1054,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                             controller: textEditingController,
                             key: const Key('titleField'),
                             focusNode: focusNode,
+                            textCapitalization: TextCapitalization.sentences,
                             decoration: _buildInputDecoration(
                               hint: TranslationService.translate(
                                 context,
@@ -1304,6 +1305,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         key: const Key('authorField'),
                         controller: textEditingController,
                         focusNode: focusNode,
+                        textCapitalization: TextCapitalization.words,
                         decoration: _buildInputDecoration(
                           hint: TranslationService.translate(
                             context,
@@ -1510,6 +1512,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                         TextFormField(
                           controller: _publisherController,
                           key: const Key('publisherField'),
+                          textCapitalization: TextCapitalization.words,
                           decoration: _buildInputDecoration(
                             hint: TranslationService.translate(
                               context,
@@ -1555,6 +1558,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
               TextFormField(
                 key: const Key('summaryField'),
                 controller: _summaryController,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: _buildInputDecoration(
                   hint: TranslationService.translate(context, 'summary_hint'),
                 ),
