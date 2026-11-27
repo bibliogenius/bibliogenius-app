@@ -16,6 +16,7 @@ import '../models/collection.dart'; // Collection module
 import '../utils/import_columns.dart';
 import '../utils/import_sources.dart';
 import '../utils/publication_year.dart';
+import '../utils/publisher_suggestions.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../src/rust/api/frb.dart' as frb;
 import '../src/rust/frb_generated.dart';
@@ -4851,6 +4852,18 @@ class ApiService {
       return list;
     } catch (e) {
       debugPrint('Error fetching all authors: $e');
+      return [];
+    }
+  }
+
+  /// The publishers of the existing books, one per name
+  /// ([distinctPublishers]).
+  Future<List<String>> getAllPublishers() async {
+    try {
+      final books = await getBooks();
+      return distinctPublishers(books.map((book) => book.publisher));
+    } catch (e) {
+      debugPrint('Error fetching all publishers: $e');
       return [];
     }
   }

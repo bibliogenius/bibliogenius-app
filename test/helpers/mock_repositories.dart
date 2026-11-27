@@ -14,6 +14,7 @@ import 'package:bibliogenius/models/collection_book.dart';
 import 'package:bibliogenius/models/collection_deletion_preview.dart';
 import 'package:bibliogenius/models/copy.dart';
 import 'package:bibliogenius/models/loan.dart';
+import 'package:bibliogenius/utils/publisher_suggestions.dart';
 
 class MockBookRepository implements BookRepository {
   List<Book> mockBooks = [];
@@ -76,6 +77,12 @@ class MockBookRepository implements BookRepository {
       .map((b) => b.author!)
       .toSet()
       .toList();
+
+  @override
+  Future<List<String>> getAllPublishers() async {
+    calls.add('getAllPublishers');
+    return distinctPublishers(mockBooks.map((b) => b.publisher));
+  }
 }
 
 class MockTagRepository implements TagRepository {

@@ -32,6 +32,7 @@ import '../models/collection.dart';
 
 import '../widgets/app_snack_bar.dart';
 import '../widgets/book_complete_animation.dart';
+import '../widgets/publisher_field.dart';
 import '../utils/isbn_validator.dart';
 
 class EditBookScreen extends StatefulWidget {
@@ -1009,8 +1010,11 @@ class _EditBookScreenState extends State<EditBookScreen> {
                           ),
                           icon: Icons.business,
                         ),
-                        TextFormField(
+                        PublisherField(
                           controller: _publisherController,
+                          loadPublishers: () =>
+                              context.read<BookRepository>().getAllPublishers(),
+                          textFieldKey: const Key('publisherField'),
                           textInputAction: TextInputAction.next,
                           textCapitalization: TextCapitalization.words,
                           decoration: _buildInputDecoration(

@@ -122,4 +122,9 @@ class BookRepositoryImpl implements BookRepository {
   Future<List<String>> getAllAuthors() {
     return _apiService.getAllAuthors();
   }
+
+  @override
+  Future<List<String>> getAllPublishers() {
+    return _apiService.getAllPublishers();
+  }
 }

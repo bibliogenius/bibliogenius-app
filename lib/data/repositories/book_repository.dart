@@ -24,4 +24,8 @@ abstract class BookRepository {
   Future<Book?> findBookByIsbn(String isbn);
 
   Future<List<String>> getAllAuthors();
+
+  /// The library's publishers, one per name, for the publisher field's
+  /// suggestions.
+  Future<List<String>> getAllPublishers();
 }
