@@ -3850,6 +3850,97 @@ void main() {
       });
     });
 
+    // The count of the books shown sits in the status pill, and each line of
+    // its menu says how many books it opens: no separate badge in the bar.
+    group('its status pill', () {
+      final books = [
+        Book(
+          id: 'c1',
+          title: 'Being read',
+          author: 'Ann Able',
+          subjects: const ['Living room'],
+          readingStatus: 'reading',
+        ),
+        Book(
+          id: 'c2',
+          title: 'Waiting',
+          author: 'Ann Able',
+          subjects: const ['Living room'],
+          readingStatus: 'to_read',
+        ),
+        Book(
+          id: 'c3',
+          title: 'Elsewhere',
+          author: 'Ann Able',
+          subjects: const ['Study'],
+          readingStatus: 'reading',
+        ),
+      ];
+
+      /// The last text on the menu line labelled [line]: its count, or the
+      /// label itself when the line carries none.
+      String? trailingTextOf(WidgetTester tester, String line) {
+        final row = find
+            .ancestor(of: find.text(line).last, matching: find.byType(Row))
+            .first;
+        return tester
+            .widgetList<Text>(
+              find.descendant(of: row, matching: find.byType(Text)),
+            )
+            .last
+            .data;
+      }
+
+      testWidgets('carries the count of the books on the page, announced '
+          'with its noun', (tester) async {
+        final handle = tester.ensureSemantics();
+        await _render(tester, page('Living room'), books: books);
+
+        expect(find.text('All (2)'), findsOneWidget);
+        expect(find.text('2 books'), findsNothing);
+        expect(find.bySemanticsLabel(RegExp('All, 2 books')), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('each line of its menu counts the books it opens', (
+        tester,
+      ) async {
+        final handle = tester.ensureSemantics();
+        await _render(tester, page('Living room'), books: books);
+
+        await _tap(tester, find.text('All (2)'));
+        expect(trailingTextOf(tester, 'All my books'), '2');
+        expect(trailingTextOf(tester, 'Reading'), '1');
+        expect(trailingTextOf(tester, 'To Read'), '1');
+        expect(trailingTextOf(tester, 'Read'), '0');
+        expect(find.bySemanticsLabel('Reading\n1 book'), findsOneWidget);
+
+        await _tap(tester, find.text('Reading').last);
+        expect(find.text('Reading (1)'), findsOneWidget);
+        handle.dispose();
+      });
+
+      testWidgets('under a search its lines carry no count: the search sets '
+          'the status aside', (tester) async {
+        final harness = await _render(
+          tester,
+          _Probe(
+            'searched',
+            '/searched-shelf?tag=Living+room',
+            size: _tallPhone,
+            tags: tags,
+          ),
+          books: books,
+        );
+        harness.headerQuery.value = 'Being';
+        await tester.pumpAndSettle();
+
+        await _tap(tester, find.text('All (1)'));
+        expect(trailingTextOf(tester, 'Reading'), 'Reading');
+        expect(trailingTextOf(tester, 'To Read'), 'To Read');
+      });
+    });
+
     group('its reset pill', () {
       final reset = find.text('Reset');
       final mixed = [
@@ -3877,7 +3968,8 @@ void main() {
       ];
 
       Future<void> filterOnReading(WidgetTester tester) async {
-        await _tap(tester, find.text('All'));
+        // The pill reads "All (2)": the count of the books it shows.
+        await _tap(tester, find.textContaining(RegExp(r'^All \(\d+\)$')));
         await _tap(tester, find.text('Reading').last);
       }
 

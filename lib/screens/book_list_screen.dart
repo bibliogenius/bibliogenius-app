@@ -1663,6 +1663,42 @@ class _BookListScreenState extends State<BookListScreen>
     setState(() => _wishlistAvailability = byIsbn);
   }
 
+  /// The shelf the list is scoped to, as a predicate on books; null when it
+  /// lists no shelf. A parent shelf on the Books tab includes its children.
+  bool Function(Book book)? _shelfPredicate() {
+    // A shelf reached by name (the shelves grid links to
+    // `/shelves?tag=Genre`) has to filter like one picked from the sheet:
+    // with its sub-shelves. On the bare name a parent whose books all sit
+    // in its sub-shelves opened as an empty list.
+    final shelf = _openShelf;
+    if (shelf != null && _isPlacePage) {
+      // The page of a shelf: its sub-shelves are cards above, the grid holds
+      // what is filed right here. The tree of a shelf stays the filter of
+      // the books tab. Whatever the case, as the core counts it.
+      final spelling = ShelfSpelling(_allTags.map((tag) => tag.name));
+      return (book) =>
+          book.subjects?.any((s) => spelling.shelfOf(s) == shelf.name) ?? false;
+    } else if (shelf != null && _allTags.isNotEmpty) {
+      // Get all matching tag names (this tag + descendants)
+      final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);
+      return (book) {
+        final bookTags =
+            book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
+        // Book matches if any of its tags match any of the filter tags
+        return bookTags.any((tag) => matchingNames.contains(tag));
+      };
+    } else if (_tagFilter != null) {
+      // Fallback to simple string match for legacy compatibility
+      final filterLower = _tagFilter!.toLowerCase();
+      return (book) {
+        final bookTags =
+            book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
+        return bookTags.contains(filterLower);
+      };
+    }
+    return null;
+  }
+
   // Triggered when filters change or search query changes
   void _filterBooks() {
     // Lazily query wishlist availability the first time the wanting
@@ -1691,92 +1727,40 @@ class _BookListScreenState extends State<BookListScreen>
         '🔍 _filterBooks: After global search: ${tempBooks.length} books',
       );
     } else {
-      // Browsing: ownership axis first (explicit choice, or the historical
-      // automatic scope), then the status axis. Predicates live in
-      // utils/book_filters.dart, where they are unit-tested.
-      final ownership = resolveOwnershipScope(
-        explicit: _selectedOwnership,
-        status: _selectedStatus,
-      );
-      tempBooks = tempBooks
-          .where(
-            (b) => matchesOwnershipFilter(
-              b,
-              ownership,
-              showBorrowed: _showBorrowedConfig,
-            ),
-          )
-          .toList();
-      debugPrint(
-        '🔍 _filterBooks: After ownership=$ownership: ${tempBooks.length} books',
-      );
-      if (_selectedStatus != null) {
-        debugPrint('🔍 _filterBooks: Filtering by status=$_selectedStatus');
-        tempBooks = tempBooks
-            .where((book) => matchesStatusFilter(book, _selectedStatus!))
-            .toList();
-      }
+      // Browsing: ownership axis (explicit choice, or the historical
+      // automatic scope), status axis, then the shelf. Same pipeline as the
+      // counts of the status menu, in utils/book_filters.dart where it is
+      // unit-tested.
       // The person filter belongs to the wishlist alone.
       if (_selectedStatus != 'wanting') _wisherFilter = null;
-      if (_wisherFilter != null) {
-        tempBooks = tempBooks
-            .where((book) => matchesWisherFilter(book, _wisherFilter))
-            .toList();
-        debugPrint(
-          '🔍 _filterBooks: After status filter: ${tempBooks.length} books',
-        );
-      }
-
-      // Apply tag filter with hierarchy support
-      // When filtering by a parent tag, include books from all child tags
-      bool Function(Book book)? shelfPredicate;
-      // A shelf reached by name (the shelves grid links to
-      // `/shelves?tag=Genre`) has to filter like one picked from the sheet:
-      // with its sub-shelves. On the bare name a parent whose books all sit
-      // in its sub-shelves opened as an empty list.
-      final shelf = _openShelf;
-      if (shelf != null && _isPlacePage) {
-        // The page of a shelf: its sub-shelves are cards above, the grid holds
-        // what is filed right here. The tree of a shelf stays the filter of
-        // the books tab. Whatever the case, as the core counts it.
-        final spelling = ShelfSpelling(_allTags.map((tag) => tag.name));
-        shelfPredicate = (book) =>
-            book.subjects?.any((s) => spelling.shelfOf(s) == shelf.name) ??
-            false;
-      } else if (shelf != null && _allTags.isNotEmpty) {
-        // Get all matching tag names (this tag + descendants)
-        final matchingNames = Tag.getTagNamesWithDescendants(shelf, _allTags);
-        shelfPredicate = (book) {
-          final bookTags =
-              book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
-          // Book matches if any of its tags match any of the filter tags
-          return bookTags.any((tag) => matchingNames.contains(tag));
-        };
-      } else if (_tagFilter != null) {
-        // Fallback to simple string match for legacy compatibility
-        final filterLower = _tagFilter!.toLowerCase();
-        shelfPredicate = (book) {
-          final bookTags =
-              book.subjects?.map((s) => s.toLowerCase()).toSet() ?? {};
-          return bookTags.contains(filterLower);
-        };
-      }
+      final shelfPredicate = _shelfPredicate();
       if (shelfPredicate != null) {
-        // Counted BEFORE the shelf filter narrows the list and against the
-        // whole library, because the ownership axis already ran above: a
-        // shelf holding nothing but wishlist books would otherwise render
-        // as "this shelf is empty" with no way to learn otherwise.
+        // Counted against the whole library, before the ownership axis
+        // narrows it: a shelf holding nothing but wishlist books would
+        // otherwise render as "this shelf is empty" with no way to learn
+        // otherwise.
         _shelfHiddenByOwnership = shelfBooksHiddenByOwnership(
           books: _books,
           matchesShelf: shelfPredicate,
-          scope: ownership,
+          scope: resolveOwnershipScope(
+            explicit: _selectedOwnership,
+            status: _selectedStatus,
+          ),
           showBorrowed: _showBorrowedConfig,
         );
-        tempBooks = tempBooks.where(shelfPredicate).toList();
       }
-      if (widget.unshelvedOnly) {
-        tempBooks = tempBooks.where(isUnshelved).toList();
-      }
+      tempBooks = browseBooks(
+        tempBooks,
+        status: _selectedStatus,
+        explicitOwnership: _selectedOwnership,
+        showBorrowed: _showBorrowedConfig,
+        wisher: _wisherFilter,
+        matchesShelf: shelfPredicate,
+        unshelvedOnly: widget.unshelvedOnly,
+      );
+      debugPrint(
+        '🔍 _filterBooks: After browsing filters: ${tempBooks.length} books',
+      );
     }
 
     // Apply the user's persisted sort preference (field + direction).
@@ -2235,6 +2219,29 @@ class _BookListScreenState extends State<BookListScreen>
               ),
               itemBuilder: (context) {
                 final theme = Theme.of(context);
+                // Computed when the menu opens, within the scope being
+                // browsed. None while searching: the search sets the status
+                // filter aside (ADR-063), every line would show one number.
+                final counts = _searchQuery.isNotEmpty
+                    ? null
+                    : statusMenuCounts(
+                        _books,
+                        statuses: const [
+                          null,
+                          'reading',
+                          'to_read',
+                          'read',
+                          'uncategorized',
+                          'wanting',
+                          'borrowed',
+                          'lent',
+                        ],
+                        explicitOwnership: _selectedOwnership,
+                        showBorrowed: _showBorrowedConfig,
+                        wisher: _wisherFilter,
+                        matchesShelf: _shelfPredicate(),
+                        unshelvedOnly: widget.unshelvedOnly,
+                      );
                 return [
                   // HEADER: Statut
                   PopupMenuItem<String>(
@@ -2280,8 +2287,12 @@ class _BookListScreenState extends State<BookListScreen>
                                 : null,
                           ),
                         ),
+                        ..._menuCount(counts, null),
                         if (_selectedStatus == null) ...[
-                          const Spacer(),
+                          if (counts == null)
+                            const Spacer()
+                          else
+                            const SizedBox(width: 8),
                           Icon(
                             Icons.check,
                             size: 18,
@@ -2319,6 +2330,7 @@ class _BookListScreenState extends State<BookListScreen>
                                 : null,
                           ),
                         ),
+                        ..._menuCount(counts, 'reading'),
                       ],
                     ),
                   ),
@@ -2350,6 +2362,7 @@ class _BookListScreenState extends State<BookListScreen>
                                 : null,
                           ),
                         ),
+                        ..._menuCount(counts, 'to_read'),
                       ],
                     ),
                   ),
@@ -2381,6 +2394,7 @@ class _BookListScreenState extends State<BookListScreen>
                                 : null,
                           ),
                         ),
+                        ..._menuCount(counts, 'read'),
                       ],
                     ),
                   ),
@@ -2412,6 +2426,7 @@ class _BookListScreenState extends State<BookListScreen>
                                 : null,
                           ),
                         ),
+                        ..._menuCount(counts, 'uncategorized'),
                       ],
                     ),
                   ),
@@ -2443,6 +2458,7 @@ class _BookListScreenState extends State<BookListScreen>
                                 : null,
                           ),
                         ),
+                        ..._menuCount(counts, 'wanting'),
                       ],
                     ),
                   ),
@@ -2478,6 +2494,7 @@ class _BookListScreenState extends State<BookListScreen>
                                   : null,
                             ),
                           ),
+                          ..._menuCount(counts, 'borrowed'),
                         ],
                       ),
                     ),
@@ -2513,6 +2530,7 @@ class _BookListScreenState extends State<BookListScreen>
                                   : null,
                             ),
                           ),
+                          ..._menuCount(counts, 'lent'),
                         ],
                       ),
                     ),
@@ -2561,8 +2579,16 @@ class _BookListScreenState extends State<BookListScreen>
                           : theme.iconTheme.color,
                     ),
                     const SizedBox(width: 8),
+                    // The books on screen, every filter included: the number
+                    // stays readable with the menu closed.
                     Text(
-                      filterLabel,
+                      _isLoading
+                          ? filterLabel
+                          : '$filterLabel (${_filteredBooks.length})',
+                      semanticsLabel: _isLoading
+                          ? null
+                          : '$filterLabel, '
+                                '${_booksCount(_filteredBooks.length)}',
                       style: TextStyle(
                         color: isFilterActive
                             ? theme.primaryColor
@@ -2633,49 +2659,10 @@ class _BookListScreenState extends State<BookListScreen>
             ),
           ],
 
-          // 5. Books Count Badge - always visible when books are displayed
-          if (_filteredBooks.isNotEmpty) ...[
-            const SizedBox(width: 8),
-            Container(
-              height: 36,
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: theme.primaryColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppDesign.radiusSmall),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.menu_book, size: 16, color: theme.primaryColor),
-                  const SizedBox(width: 6),
-                  Text(
-                    _filteredBooks.length == 1
-                        ? (TranslationService.translate(
-                                    context,
-                                    'displayed_books_count',
-                                  ) ??
-                                  '%d book')
-                              .replaceAll('%d', '${_filteredBooks.length}')
-                        : (TranslationService.translate(
-                                    context,
-                                    'displayed_books_count_plural',
-                                  ) ??
-                                  '%d books')
-                              .replaceAll('%d', '${_filteredBooks.length}'),
-                    style: TextStyle(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          // 6. View Mode Selector - trailing edge, to the right of the count.
+          // 5. View Mode Selector - trailing edge.
           const SizedBox(width: 8),
           _buildViewModeSelector(),
-          // 7. Selection mode entry: the long press on a book is not
+          // 6. Selection mode entry: the long press on a book is not
           // discoverable (nor reachable without a pointer), so the bar
           // carries a plain button for it.
           if (_filteredBooks.isNotEmpty && !_isReordering) ...[
@@ -2688,6 +2675,31 @@ class _BookListScreenState extends State<BookListScreen>
   }
 
   bool get _isSelecting => _selectedIds != null;
+
+  /// "1 book", "12 books", in the reader's language.
+  String _booksCount(int count) => TranslationService.translate(
+    context,
+    count == 1 ? 'displayed_books_count' : 'displayed_books_count_plural',
+  ).replaceAll('%d', '$count');
+
+  /// The trailing count of a line of the status menu, spoken with its noun.
+  /// Nothing when [counts] is null (searching).
+  List<Widget> _menuCount(Map<String?, int>? counts, String? status) {
+    final count = counts?[status];
+    if (count == null) return const [];
+    final theme = Theme.of(context);
+    return [
+      const SizedBox(width: 16),
+      const Spacer(),
+      Text(
+        '$count',
+        semanticsLabel: _booksCount(count),
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
+    ];
+  }
 
   /// The selected books that the current filters still show: the count and
   /// the action only ever cover what is on screen.

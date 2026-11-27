@@ -102,6 +102,61 @@ int statusFilterCount(
       .length;
 }
 
+/// The books the library list shows while browsing (no search): ownership
+/// axis (an explicit choice, or the automatic scope of [status]), status axis,
+/// the person filter of the wishlist, then the shelf and the books to shelve.
+///
+/// [wisher] only applies under 'wanting', the one list it belongs to.
+List<Book> browseBooks(
+  Iterable<Book> books, {
+  String? status,
+  String? explicitOwnership,
+  required bool showBorrowed,
+  String? wisher,
+  bool Function(Book book)? matchesShelf,
+  bool unshelvedOnly = false,
+}) {
+  final scope = resolveOwnershipScope(
+    explicit: explicitOwnership,
+    status: status,
+  );
+  final person = status == 'wanting' ? wisher : null;
+  return books
+      .where(
+        (b) =>
+            matchesOwnershipFilter(b, scope, showBorrowed: showBorrowed) &&
+            (status == null || matchesStatusFilter(b, status)) &&
+            matchesWisherFilter(b, person) &&
+            (matchesShelf == null || matchesShelf(b)) &&
+            (!unshelvedOnly || isUnshelved(b)),
+      )
+      .toList();
+}
+
+/// What each line of the status menu would show, keyed by its status (null
+/// for "All my books"), within the scope the reader is browsing: same shelf,
+/// same ownership choice. One pass per line, over a list held in memory.
+Map<String?, int> statusMenuCounts(
+  Iterable<Book> books, {
+  required Iterable<String?> statuses,
+  String? explicitOwnership,
+  required bool showBorrowed,
+  String? wisher,
+  bool Function(Book book)? matchesShelf,
+  bool unshelvedOnly = false,
+}) => {
+  for (final status in statuses)
+    status: browseBooks(
+      books,
+      status: status,
+      explicitOwnership: explicitOwnership,
+      showBorrowed: showBorrowed,
+      wisher: wisher,
+      matchesShelf: matchesShelf,
+      unshelvedOnly: unshelvedOnly,
+    ).length,
+};
+
 /// Books a shelf holds that the current ownership scope is hiding.
 ///
 /// The library list applies the ownership axis BEFORE the shelf axis, so a

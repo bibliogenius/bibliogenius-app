@@ -618,4 +618,152 @@ void main() {
       expect(isUnshelved(withSubjects(const ['  ', 'Genre'])), isFalse);
     });
   });
+
+  // The browsing pipeline of the list, and the counts its status menu shows
+  // on each line: a line announces the list it opens.
+  group('browseBooks', () {
+    Book onShelf(String shelf, {bool owned = true, String? status}) => Book(
+      title: shelf,
+      owned: owned,
+      readingStatus: status,
+      subjects: [shelf],
+    );
+
+    test('no status shows the physical library, a status every ownership', () {
+      final books = [
+        book(owned: true, status: 'read'),
+        book(owned: false, status: 'read'),
+        book(owned: false, status: 'wanting'),
+      ];
+      expect(browseBooks(books, showBorrowed: true), hasLength(1));
+      expect(
+        browseBooks(books, status: 'read', showBorrowed: true),
+        hasLength(2),
+      );
+    });
+
+    test('an explicit ownership choice wins over the automatic scope', () {
+      final books = [
+        book(owned: true, status: 'read'),
+        book(owned: false, status: 'read'),
+      ];
+      expect(
+        browseBooks(
+          books,
+          status: 'read',
+          explicitOwnership: OwnershipScope.library,
+          showBorrowed: true,
+        ),
+        hasLength(1),
+      );
+    });
+
+    test('the shelf and the books to shelve narrow the list', () {
+      final books = [
+        onShelf('Polar'),
+        onShelf('SF'),
+        Book(title: 'Nowhere', owned: true),
+      ];
+      expect(
+        browseBooks(
+          books,
+          showBorrowed: true,
+          matchesShelf: (b) => b.subjects?.contains('Polar') ?? false,
+        ).single.title,
+        'Polar',
+      );
+      expect(
+        browseBooks(
+          books,
+          showBorrowed: true,
+          unshelvedOnly: true,
+        ).single.title,
+        'Nowhere',
+      );
+    });
+
+    test('the person filter applies to the wishlist alone', () {
+      final books = [
+        Book(
+          title: 'Dune',
+          owned: false,
+          readingStatus: 'wanting',
+          wishedBy: ['Alice'],
+        ),
+        Book(title: 'Solaris', owned: false, readingStatus: 'wanting'),
+        Book(title: 'Read', owned: false, readingStatus: 'read'),
+      ];
+      expect(
+        browseBooks(
+          books,
+          status: 'wanting',
+          wisher: 'Alice',
+          showBorrowed: true,
+        ).single.title,
+        'Dune',
+      );
+      expect(
+        browseBooks(books, status: 'read', wisher: 'Alice', showBorrowed: true),
+        hasLength(1),
+      );
+    });
+  });
+
+  group('statusMenuCounts', () {
+    final books = [
+      book(owned: true, status: 'read'),
+      book(owned: false, status: 'read'),
+      book(owned: true, status: 'reading'),
+      book(owned: true),
+      book(owned: false, status: 'wanting'),
+      book(owned: true, isLent: true, status: 'read'),
+    ];
+    const statuses = <String?>[
+      null,
+      'reading',
+      'to_read',
+      'read',
+      'uncategorized',
+      'wanting',
+      'lent',
+    ];
+
+    test('each line counts the list it opens', () {
+      final counts = statusMenuCounts(
+        books,
+        statuses: statuses,
+        showBorrowed: true,
+      );
+      for (final status in statuses) {
+        expect(
+          counts[status],
+          browseBooks(books, status: status, showBorrowed: true).length,
+          reason: 'line $status',
+        );
+      }
+      expect(counts, {
+        null: 4,
+        'reading': 1,
+        'to_read': 0,
+        'read': 3,
+        'uncategorized': 1,
+        'wanting': 1,
+        'lent': 1,
+      });
+    });
+
+    test('the current scope applies to every line', () {
+      final counts = statusMenuCounts(
+        books,
+        statuses: statuses,
+        explicitOwnership: OwnershipScope.library,
+        showBorrowed: false,
+      );
+      // Lent books hidden by the setting, books not owned by the choice.
+      expect(counts[null], 3);
+      expect(counts['read'], 1);
+      expect(counts['wanting'], 0);
+      expect(counts['lent'], 0);
+    });
+  });
 }
