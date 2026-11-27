@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:provider/provider.dart';
 import '../models/book.dart';
 import '../providers/theme_provider.dart';
@@ -6,6 +5,7 @@ import '../services/translation_service.dart';
 import '../theme/app_design.dart';
 import '../utils/book_status.dart';
 import '../utils/ownership_mark.dart';
+import 'cached_book_cover.dart';
 import 'favorite_ribbon.dart';
 import 'not_owned_treatment.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +21,9 @@ bool _usesPointer(BuildContext context) => switch (Theme.of(context).platform) {
   TargetPlatform.linux => true,
   _ => false,
 };
+
+/// Width of the cover on the list card, also the size it is decoded at.
+const double _heroCoverWidth = 120;
 
 /// Whether the card should mark this book as borrowed or lent.
 bool showsLoanStateBadge(Book book) => book.isOnLoan;
@@ -451,7 +454,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                         children: [
                           // Book cover thumbnail
                           Container(
-                            width: 120,
+                            width: _heroCoverWidth,
                             height: 180,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
@@ -484,17 +487,21 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                         // Image on top
                                         if (widget.book.coverUrl != null &&
                                             widget.book.coverUrl!.isNotEmpty)
-                                          // The card's own Semantics names the book.
-                                          ExcludeSemantics(
-                                            child: CachedNetworkImage(
-                                              imageUrl: widget.book.coverUrl!,
-                                              fit: BoxFit.cover,
-                                              placeholder: (context, url) =>
-                                                  const SizedBox.shrink(),
-                                              errorWidget:
-                                                  (context, url, error) =>
-                                                      const SizedBox.shrink(),
-                                            ),
+                                          // The card's own Semantics names
+                                          // the book; without a
+                                          // semanticLabel the cover stays
+                                          // out of the tree.
+                                          CachedBookCover(
+                                            imageUrl: widget.book.coverUrl!,
+                                            semanticLabel: null,
+                                            width: _heroCoverWidth,
+                                            fit: BoxFit.cover,
+                                            // The fallback underneath shows
+                                            // while loading and on error.
+                                            placeholder:
+                                                const SizedBox.shrink(),
+                                            errorWidget:
+                                                const SizedBox.shrink(),
                                           ),
                                       ],
                                     ),
@@ -681,16 +688,18 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                               ),
                               if (widget.book.coverUrl != null &&
                                   widget.book.coverUrl!.isNotEmpty)
-                                // The card's own Semantics names the book.
-                                ExcludeSemantics(
-                                  child: CachedNetworkImage(
-                                    imageUrl: widget.book.coverUrl!,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) =>
-                                        const SizedBox.shrink(),
-                                    errorWidget: (context, url, error) =>
-                                        const SizedBox.shrink(),
-                                  ),
+                                // The card's own Semantics names the book;
+                                // without a semanticLabel the cover stays
+                                // out of the tree.
+                                CachedBookCover(
+                                  imageUrl: widget.book.coverUrl!,
+                                  semanticLabel: null,
+                                  width: widget.width,
+                                  fit: BoxFit.cover,
+                                  // The fallback underneath shows while
+                                  // loading and on error.
+                                  placeholder: const SizedBox.shrink(),
+                                  errorWidget: const SizedBox.shrink(),
                                 ),
                             ],
                           ),

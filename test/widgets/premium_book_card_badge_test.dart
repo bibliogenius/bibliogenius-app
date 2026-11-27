@@ -1,6 +1,7 @@
 import 'package:bibliogenius/models/book.dart';
 import 'package:bibliogenius/providers/theme_provider.dart';
 import 'package:bibliogenius/services/translation_service.dart';
+import 'package:bibliogenius/widgets/cached_book_cover.dart';
 import 'package:bibliogenius/widgets/not_owned_treatment.dart';
 import 'package:bibliogenius/widgets/premium_book_card.dart';
 import 'package:flutter/material.dart';
@@ -161,5 +162,26 @@ void main() {
       expect(desaturation(), findsNothing);
       expect(find.text('BORROWED'), findsOneWidget);
     });
+
+    // A cover fetched from the web is stored as a local file, not an http
+    // URL. A bare CachedNetworkImage cannot read it and left the card on its
+    // fallback; the shared cover widget reads files, API paths and URLs alike.
+    for (final isHero in [true, false]) {
+      testWidgets('draws a stored cover file (isHero: $isHero)', (
+        tester,
+      ) async {
+        final stored = Book(
+          title: 'Python',
+          owned: true,
+          coverUrl: '/tmp/covers/42.jpg',
+        );
+        await pump(tester, stored, isHero: isHero);
+        expect(find.byType(CachedBookCover), findsOneWidget);
+        // Decoded at the drawn size, not the photo's full resolution: a list
+        // of full-size local covers is what memory cannot afford.
+        final image = tester.widget<Image>(find.byType(Image));
+        expect(image.image, isA<ResizeImage>());
+      });
+    }
   });
 }
