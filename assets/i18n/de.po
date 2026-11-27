@@ -6053,6 +6053,10 @@ msgstr "Regale"
 msgid "tap_to_view"
 msgstr "Tippen zum Anzeigen"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Klicken zum Anzeigen"
+
 #. Text Size
 msgid "text_size"
 msgstr "Textgröße"

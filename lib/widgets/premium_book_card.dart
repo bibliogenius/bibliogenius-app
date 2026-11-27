@@ -11,6 +11,17 @@ import 'not_owned_treatment.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+/// Whether the reader opens the card with a mouse click rather than a tap.
+///
+/// Read from the theme's platform, not the window width: a wide tablet is
+/// still touched, and on the web the platform follows the browser's system.
+bool _usesPointer(BuildContext context) => switch (Theme.of(context).platform) {
+  TargetPlatform.macOS ||
+  TargetPlatform.windows ||
+  TargetPlatform.linux => true,
+  _ => false,
+};
+
 /// Whether the card should mark this book as borrowed or lent.
 bool showsLoanStateBadge(Book book) => book.isOnLoan;
 
@@ -222,9 +233,154 @@ class _PremiumBookCardState extends State<PremiumBookCard>
     );
   }
 
+  /// The reading-status pill (tappable to edit) and the loan pill, stacked
+  /// right after the list card's title; empty when the book wears neither.
+  List<Widget> _buildHeroPills(BuildContext context) {
+    final theme = Theme.of(context);
+    final book = widget.book;
+    final pills = <Widget>[
+      if (hasReadingStatus(book.readingStatus))
+        Semantics(
+          label: TranslationService.translate(
+            context,
+            'reading_status_${book.readingStatus}',
+          ),
+          button: widget.onStatusChanged != null,
+          child: GestureDetector(
+            onTap: widget.onStatusChanged != null
+                ? () async {
+                    final useInventoryStatuses = context
+                        .read<ThemeProvider>()
+                        .inventoryStatusesEnabled;
+                    final picked = await showReadingStatusPicker(
+                      context,
+                      currentStatus: book.readingStatus,
+                      useInventoryStatuses: useInventoryStatuses,
+                    );
+                    if (picked != null && picked != book.readingStatus) {
+                      widget.onStatusChanged!(picked);
+                    }
+                  }
+                : null,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [theme.primaryColor, theme.colorScheme.secondary],
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              // The wrapper above names the pill in its own case; the capitals
+              // are only for the eye.
+              child: ExcludeSemantics(
+                child: Text(
+                  TranslationService.translate(
+                    context,
+                    'reading_status_${book.readingStatus}',
+                  ).toUpperCase(),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      // Possession marker, independent of the status pill: a borrowed book
+      // carries its own reading status like any other.
+      if (showsLoanStateBadge(book))
+        _CardPill.loanState(borrowed: book.isBorrowed ?? false),
+    ];
+    if (pills.isEmpty) return const [];
+    return [
+      const SizedBox(width: 12),
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final (index, pill) in pills.indexed) ...[
+            if (index > 0) const SizedBox(height: 6),
+            pill,
+          ],
+        ],
+      ),
+    ];
+  }
+
+  /// "Author · Gallimard · 1998 · 320 p." on the list card, the facts in a
+  /// smaller type than the author; it may wrap to a second line on a narrow
+  /// card rather than drop the facts. Null when there is neither.
+  Widget? _authorAndFacts(BuildContext context) {
+    final theme = Theme.of(context);
+    final muted = theme.textTheme.bodySmall?.color;
+    final author = widget.book.author;
+    final facts = _bookFacts().isEmpty ? null : _bookFactsLine(context);
+    if (author == null && facts == null) return null;
+    return Text.rich(
+      key: const Key('premiumBookCardAuthorFacts'),
+      TextSpan(
+        children: [
+          if (author != null)
+            TextSpan(
+              text: author,
+              style: theme.textTheme.bodyLarge?.copyWith(color: muted),
+            ),
+          if (facts != null)
+            TextSpan(
+              text: author == null ? facts : ' · $facts',
+              style: theme.textTheme.bodyMedium?.copyWith(color: muted),
+            ),
+        ],
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  /// The book facts the list card shows after the author, as (label key,
+  /// value) pairs, leaving out what the record does not hold.
+  List<(String, String)> _bookFacts() {
+    final book = widget.book;
+    final publisher = book.publisher?.trim();
+    final year = book.publicationYear;
+    final pages = book.pageCount;
+    return [
+      if (publisher != null && publisher.isNotEmpty)
+        ('publisher_label', publisher),
+      if (year != null && year > 0) ('year_label', '$year'),
+      if (pages != null && pages > 0) ('page_count_label', '$pages'),
+    ];
+  }
+
+  /// One line for the eye: "Gallimard · 1998 · 320 p.".
+  String _bookFactsLine(BuildContext context) => _bookFacts()
+      .map(
+        (fact) => fact.$1 == 'page_count_label'
+            ? '${fact.$2} ${TranslationService.translate(context, 'pages_suffix')}'
+            : fact.$2,
+      )
+      .join(' · ');
+
+  /// The summary folded to a single paragraph, so that its two visible lines
+  /// are not spent on line breaks; null when there is nothing to show.
+  String? _foldedSummary() {
+    final folded = widget.book.summary?.replaceAll(RegExp(r'\s+'), ' ').trim();
+    return folded == null || folded.isEmpty ? null : folded;
+  }
+
   String _semanticLabel(BuildContext context) {
     final parts = [widget.book.title];
     if (widget.book.author != null) parts.add(widget.book.author!);
+    if (widget.isHero) {
+      // The facts shown on the list card, spelled out: "320 p." is for the
+      // eye. The summary is too long for a label and stays on the book page.
+      for (final (labelKey, value) in _bookFacts()) {
+        parts.add('${TranslationService.translate(context, labelKey)}: $value');
+      }
+    }
     if (widget.isFavorite) {
       // Rule A1: the ribbon is shape-only, the state must still reach
       // screen readers through the composed card label.
@@ -370,124 +526,66 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Continue Reading badge (tappable to edit)
-                                if (hasReadingStatus(
-                                  widget.book.readingStatus,
-                                )) ...[
-                                  Semantics(
-                                    label: TranslationService.translate(
-                                      context,
-                                      'reading_status_${widget.book.readingStatus}',
-                                    ),
-                                    button: widget.onStatusChanged != null,
-                                    child: GestureDetector(
-                                      onTap: widget.onStatusChanged != null
-                                          ? () async {
-                                              final useInventoryStatuses =
-                                                  context
-                                                      .read<ThemeProvider>()
-                                                      .inventoryStatusesEnabled;
-                                              final picked =
-                                                  await showReadingStatusPicker(
-                                                    context,
-                                                    currentStatus: widget
-                                                        .book
-                                                        .readingStatus,
-                                                    useInventoryStatuses:
-                                                        useInventoryStatuses,
-                                                  );
-                                              if (picked != null &&
-                                                  picked !=
-                                                      widget
-                                                          .book
-                                                          .readingStatus) {
-                                                widget.onStatusChanged!(picked);
-                                              }
-                                            }
-                                          : null,
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 5,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              theme.primaryColor,
-                                              theme.colorScheme.secondary,
-                                            ],
+                                // Title, the status and loan pills right
+                                // after it (Flexible, not Expanded: a short
+                                // title must not push them to the far edge).
+                                // Title and author are in the card's label
+                                // already.
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Flexible(
+                                      child: ExcludeSemantics(
+                                        child: Text(
+                                          widget.book.title,
+                                          key: const Key(
+                                            'premiumBookCardTitle',
                                           ),
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        // The wrapper above names the pill in
-                                        // its own case; the capitals are only
-                                        // for the eye.
-                                        child: ExcludeSemantics(
-                                          child: Text(
-                                            TranslationService.translate(
-                                              context,
-                                              'reading_status_${widget.book.readingStatus}',
-                                            ).toUpperCase(),
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: 0.5,
-                                            ),
-                                          ),
+                                          style: theme.textTheme.headlineSmall
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                ],
-                                // Possession marker, independent of the status
-                                // pill above: a borrowed book carries its own
-                                // reading status like any other.
-                                if (showsLoanStateBadge(widget.book)) ...[
-                                  _CardPill.loanState(
-                                    borrowed: widget.book.isBorrowed ?? false,
-                                  ),
-                                  const SizedBox(height: 12),
-                                ],
-                                // Title
-                                // Title and author are in the card's label already.
-                                ExcludeSemantics(
-                                  child: Text(
-                                    widget.book.title,
-                                    style: theme.textTheme.headlineSmall
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
+                                    ..._buildHeroPills(context),
+                                  ],
                                 ),
-                                const SizedBox(height: 8),
-                                // Author
-                                if (widget.book.author != null)
+                                // Author, then publisher, year and pages,
+                                // spelled out in the card's label.
+                                if (_authorAndFacts(context)
+                                    case final line?) ...[
+                                  const SizedBox(height: 8),
+                                  ExcludeSemantics(child: line),
+                                ],
+                                // The summary's opening, a foretaste: the
+                                // book page reads it in full.
+                                if (_foldedSummary() case final summary?) ...[
+                                  const SizedBox(height: 8),
                                   ExcludeSemantics(
                                     child: Text(
-                                      widget.book.author!,
-                                      style: theme.textTheme.bodyLarge
-                                          ?.copyWith(
-                                            color: theme
-                                                .textTheme
-                                                .bodySmall
-                                                ?.color,
-                                          ),
-                                      maxLines: 1,
+                                      summary,
+                                      key: const Key('premiumBookCardSummary'),
+                                      style: theme.textTheme.bodyMedium,
+                                      maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
+                                ],
+                                const SizedBox(height: 12),
                                 const Spacer(),
                                 // Action hint
                                 // "Tap to view" is advice for the eye; the button role says it.
+                                // A desktop reader clicks rather than taps.
                                 ExcludeSemantics(
                                   child: Row(
                                     children: [
                                       Icon(
-                                        Icons.touch_app,
+                                        _usesPointer(context)
+                                            ? Icons.mouse
+                                            : Icons.touch_app,
                                         size: 16,
                                         color: theme.primaryColor,
                                       ),
@@ -495,7 +593,9 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                       Text(
                                         TranslationService.translate(
                                           context,
-                                          'tap_to_view',
+                                          _usesPointer(context)
+                                              ? 'click_to_view'
+                                              : 'tap_to_view',
                                         ),
                                         style: TextStyle(
                                           color: theme.primaryColor,

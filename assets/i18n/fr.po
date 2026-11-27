@@ -6843,6 +6843,10 @@ msgstr "Étagères"
 msgid "tap_to_view"
 msgstr "Appuyer pour voir les détails"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Cliquer pour voir les détails"
+
 #. Text Size
 msgid "text_size"
 msgstr "Taille du texte"

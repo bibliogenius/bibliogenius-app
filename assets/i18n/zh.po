@@ -5334,6 +5334,10 @@ msgstr "书架"
 msgid "tap_to_view"
 msgstr "点按查看详情"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "点击查看详情"
+
 #. Text Size
 msgid "text_size"
 msgstr "文字大小"

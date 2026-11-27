@@ -6273,6 +6273,10 @@ msgstr ""
 msgid "tap_to_view"
 msgstr ""
 
+#. Click to view details
+msgid "click_to_view"
+msgstr ""
+
 #. Text Size
 msgid "text_size"
 msgstr ""

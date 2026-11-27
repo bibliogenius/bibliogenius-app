@@ -6843,6 +6843,10 @@ msgstr "Shelves"
 msgid "tap_to_view"
 msgstr "Tap to view details"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Click to view details"
+
 #. Text Size
 msgid "text_size"
 msgstr "Text Size"

@@ -5669,6 +5669,10 @@ msgstr "Raflar"
 msgid "tap_to_view"
 msgstr "Detayları görmek için dokunun"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Detayları görmek için tıklayın"
+
 #. Text Size
 msgid "text_size"
 msgstr "Metin Boyutu"

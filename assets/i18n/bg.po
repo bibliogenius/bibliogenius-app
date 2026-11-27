@@ -5616,6 +5616,10 @@ msgstr "Полици"
 msgid "tap_to_view"
 msgstr "Натиснете за преглед на детайли"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Кликнете за преглед на детайли"
+
 #. Text Size
 msgid "text_size"
 msgstr "Размер на текст"

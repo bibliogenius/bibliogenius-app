@@ -6918,6 +6918,10 @@ msgstr "Scaffali"
 msgid "tap_to_view"
 msgstr "Tocca per visualizzare i dettagli"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Clicca per visualizzare i dettagli"
+
 #. Text Size
 msgid "text_size"
 msgstr "Dimensione testo"

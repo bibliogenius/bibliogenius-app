@@ -5334,6 +5334,10 @@ msgstr "本棚"
 msgid "tap_to_view"
 msgstr "タップして詳細を表示"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "クリックして詳細を表示"
+
 #. Text Size
 msgid "text_size"
 msgstr "文字サイズ"

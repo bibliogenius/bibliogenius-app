@@ -7685,6 +7685,10 @@ msgstr "Prateleiras"
 msgid "tap_to_view"
 msgstr "Toque para visualizar detalhes"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Clique para visualizar detalhes"
+
 #. Text Size
 msgid "text_size"
 msgstr "Tamanho da Fonte"

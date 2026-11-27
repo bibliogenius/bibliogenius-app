@@ -6053,6 +6053,10 @@ msgstr "Estanterías"
 msgid "tap_to_view"
 msgstr "Toca para ver"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "Haz clic para ver"
+
 #. Text Size
 msgid "text_size"
 msgstr "Tamaño del texto"

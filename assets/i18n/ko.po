@@ -5334,6 +5334,10 @@ msgstr "책장"
 msgid "tap_to_view"
 msgstr "탭하여 상세 정보 보기"
 
+#. Click to view details
+msgid "click_to_view"
+msgstr "클릭하여 상세 정보 보기"
+
 #. Text Size
 msgid "text_size"
 msgstr "글자 크기"
