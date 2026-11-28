@@ -5186,6 +5186,10 @@ msgstr ""
 msgid "scan_isbn_title"
 msgstr ""
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr ""
+
 #. Or scan a QR Code
 msgid "scan_qr_code"
 msgstr ""

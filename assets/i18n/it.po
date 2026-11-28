@@ -5805,6 +5805,10 @@ msgstr "Scansiona il codice a barre ISBN"
 msgid "scan_isbn_title"
 msgstr "Scansiona ISBN"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "Scansiona un altro libro"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "Scansiona un codice QR"

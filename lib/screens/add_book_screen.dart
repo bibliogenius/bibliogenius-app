@@ -219,9 +219,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
     if (currentText == _prevIsbnText) return;
     _prevIsbnText = currentText;
 
-    final isbn = IsbnValidator.clean(
-      currentText,
-    ).replaceAll(RegExp(r'[^0-9X]'), '');
+    final isbn = _normalizedIsbn(currentText);
 
     // Reset last lookup if ISBN changed significantly (not just adding digits)
     if (_lastLookedUpIsbn != null && !isbn.startsWith(_lastLookedUpIsbn!)) {
@@ -238,9 +236,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
       _isbnDebounce?.cancel();
       _isbnDebounce = Timer(const Duration(milliseconds: 800), () {
         if (!mounted || _isSaving) return;
-        final current = IsbnValidator.clean(
-          _isbnController.text,
-        ).replaceAll(RegExp(r'[^0-9X]'), '');
+        final current = _normalizedIsbn(_isbnController.text);
         // Re-check: user may have kept typing during the debounce
         if (current != isbn) return;
         if (!IsbnValidator.isValid(isbn) && isbn != _lastChecksumWarningIsbn) {
@@ -253,6 +249,28 @@ class _AddBookScreenState extends State<AddBookScreen> {
         _fetchBookDetails(isbn);
       });
     }
+  }
+
+  /// The ISBN field's text as the lookup sees it: no dashes, no spaces.
+  static String _normalizedIsbn(String text) =>
+      IsbnValidator.clean(text).replaceAll(RegExp(r'[^0-9X]'), '');
+
+  /// Opens the scanner and puts the ISBN it hands back in the ISBN field.
+  /// The field's listener then looks it up, as for a typed ISBN.
+  Future<void> _scanIsbn() async {
+    final result = await context.push<String>('/scan');
+    if (!mounted || result == null || result.isEmpty) return;
+    // Compared as the lookup sees them: the same ISBN typed with dashes is
+    // not looked up again, so its duplicate warning must stay.
+    if (_normalizedIsbn(result) != _normalizedIsbn(_isbnController.text)) {
+      // The lookup waits for the field's debounce: drop the previous book's
+      // duplicate warning now rather than show it next to the new ISBN.
+      setState(() {
+        _duplicateBook = null;
+        _isDuplicate = false;
+      });
+    }
+    _isbnController.text = result;
   }
 
   Future<void> _fetchBookDetails(String isbn) async {
@@ -900,6 +918,21 @@ class _AddBookScreenState extends State<AddBookScreen> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton.icon(
+                          key: const Key('duplicateScanAnotherButton'),
+                          onPressed: _scanIsbn,
+                          icon: const Icon(Icons.qr_code_scanner),
+                          label: Text(
+                            TranslationService.translate(
+                              context,
+                              'scan_another_book',
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -1456,15 +1489,7 @@ class _AddBookScreenState extends State<AddBookScreen> {
                       context,
                       'scan_isbn_title',
                     ),
-                    onPressed: () async {
-                      final result = await context.push<String>('/scan');
-                      if (!mounted) return;
-                      if (result != null && result.isNotEmpty) {
-                        _isbnController.text = result;
-                        // _onIsbnChanged listener already triggers _fetchBookDetails,
-                        // so no need to call it again here.
-                      }
-                    },
+                    onPressed: _scanIsbn,
                   ),
                   suffixIcon: _isFetchingDetails
                       ? const Padding(

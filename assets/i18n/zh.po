@@ -4575,6 +4575,10 @@ msgstr "扫描 ISBN 条形码"
 msgid "scan_isbn_title"
 msgstr "扫描 ISBN"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "扫描另一本书"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "扫描二维码"

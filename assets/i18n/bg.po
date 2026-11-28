@@ -4821,6 +4821,10 @@ msgstr "Сканиране на ISBN баркод"
 msgid "scan_isbn_title"
 msgstr "Сканиране на ISBN"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "Сканирай друга книга"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "Сканирайте QR код"

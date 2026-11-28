@@ -4575,6 +4575,10 @@ msgstr "ISBN 바코드 스캔"
 msgid "scan_isbn_title"
 msgstr "ISBN 스캔"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "다른 책 스캔"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "QR 코드 스캔"

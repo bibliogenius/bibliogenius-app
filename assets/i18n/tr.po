@@ -4874,6 +4874,10 @@ msgstr "ISBN barkodu tara"
 msgid "scan_isbn_title"
 msgstr "ISBN Tara"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "Başka bir kitap tara"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "Bir QR Kodu tara"

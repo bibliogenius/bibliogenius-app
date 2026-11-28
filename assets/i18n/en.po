@@ -5730,6 +5730,10 @@ msgstr "Scan ISBN barcode"
 msgid "scan_isbn_title"
 msgstr "Scan ISBN"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "Scan another book"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "Scan a QR Code"

@@ -4575,6 +4575,10 @@ msgstr "ISBNバーコードをスキャン"
 msgid "scan_isbn_title"
 msgstr "ISBNをスキャン"
 
+#. Scan another book
+msgid "scan_another_book"
+msgstr "別の本をスキャン"
+
 #. Scan a QR Code
 msgid "scan_qr_code"
 msgstr "QR コードをスキャン"
