@@ -239,10 +239,21 @@ class _PremiumBookCardState extends State<PremiumBookCard>
   /// The reading-status pill (tappable to edit) and the loan pill, stacked
   /// right after the list card's title; empty when the book wears neither.
   List<Widget> _buildHeroPills(BuildContext context) {
-    final theme = Theme.of(context);
     final book = widget.book;
+    final useInventoryStatuses = context
+        .read<ThemeProvider>()
+        .inventoryStatusesEnabled;
+    final statusColors = hasReadingStatus(book.readingStatus)
+        ? statusBadgeColors(
+            getStatusFromValue(
+              context,
+              book.readingStatus!,
+              useInventoryStatuses,
+            ),
+          )
+        : null;
     final pills = <Widget>[
-      if (hasReadingStatus(book.readingStatus))
+      if (statusColors != null)
         Semantics(
           label: TranslationService.translate(
             context,
@@ -252,9 +263,6 @@ class _PremiumBookCardState extends State<PremiumBookCard>
           child: GestureDetector(
             onTap: widget.onStatusChanged != null
                 ? () async {
-                    final useInventoryStatuses = context
-                        .read<ThemeProvider>()
-                        .inventoryStatusesEnabled;
                     final picked = await showReadingStatusPicker(
                       context,
                       currentStatus: book.readingStatus,
@@ -268,9 +276,7 @@ class _PremiumBookCardState extends State<PremiumBookCard>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [theme.primaryColor, theme.colorScheme.secondary],
-                ),
+                color: statusColors.background,
                 borderRadius: BorderRadius.circular(20),
               ),
               // The wrapper above names the pill in its own case; the capitals
@@ -281,8 +287,8 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                     context,
                     'reading_status_${book.readingStatus}',
                   ).toUpperCase(),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: statusColors.foreground,
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.5,
@@ -772,8 +778,9 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                 widget.book.readingStatus!,
                                 useInventoryStatuses,
                               );
-                              final badgeColor =
-                                  statusInfo?.color ?? Colors.blueAccent;
+                              final badgeColors = statusBadgeColors(
+                                statusInfo,
+                              );
                               // The pill prints the status in capitals; the
                               // reader hears it in its own case, as a button
                               // when it opens the status picker.
@@ -807,10 +814,9 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                       vertical: 4,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: badgeColor.withValues(
-                                        alpha: 0.85,
-                                      ),
+                                      color: badgeColors.background,
                                       borderRadius: BorderRadius.circular(12),
+                                      border: statusPillCoverBorder,
                                     ),
                                     child: ExcludeSemantics(
                                       child: Text(
@@ -818,8 +824,8 @@ class _PremiumBookCardState extends State<PremiumBookCard>
                                           context,
                                           'reading_status_${widget.book.readingStatus}',
                                         ).toUpperCase(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
+                                        style: TextStyle(
+                                          color: badgeColors.foreground,
                                           fontSize: 10,
                                           fontWeight: FontWeight.bold,
                                         ),

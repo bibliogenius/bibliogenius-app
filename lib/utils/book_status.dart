@@ -15,6 +15,64 @@ class BookStatus {
   });
 }
 
+/// WCAG 2.1 AA (RGAA 3.2) contrast ratio between [a] and [b], from 1 to 21.
+double textContrastRatio(Color a, Color b) {
+  final la = a.computeLuminance();
+  final lb = b.computeLuminance();
+  final (lighter, darker) = la > lb ? (la, lb) : (lb, la);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+/// Floor for a status pill's text: it is 10 px bold, which WCAG 2.1 AA
+/// (RGAA 3.2) holds to 4.5:1.
+const double _minPillTextContrast = 4.5;
+
+/// Ratio the tinted dark text aims for, a margin above the floor so rounding
+/// and screen differences cannot push it under.
+const double _tintedTextContrast = 5.0;
+
+/// Pill colours by fill, worked out once: every card of a grid asks for them.
+/// Bounded by the status palettes below, a dozen colours at most.
+final Map<int, ({Color background, Color foreground})> _pillColorsCache = {};
+
+/// White outline of a status pill drawn over a cover, so it stands out on
+/// artwork of any colour. The list card's pill sits on the card surface,
+/// where a white line would vanish in the light theme, and goes without.
+const Border statusPillCoverBorder = Border.fromBorderSide(
+  BorderSide(color: Colors.white, width: 1.5),
+);
+
+/// The fill and the text colour of a status pill, shared by every card that
+/// draws one (library grid, library list, dashboard) so a status wears the
+/// same colours on all of them.
+///
+/// The fill is the status colour itself, kept bright so the pill stands out
+/// on a cover, and opaque: a translucent one lets the cover underneath decide
+/// the contrast. Contrast is measured on luminance alone, so a bright blue,
+/// green or orange cannot carry white text (blue 500 stops at 3.1:1). Deep
+/// hues that can, such as brown, keep white; the others take a dark shade of
+/// their own hue (navy on blue, forest on green) rather than black, darkened
+/// until it reaches 5:1. A fill too dark for any tint to get there falls back
+/// on black, which always reaches at least 4.58:1 where white does not. A
+/// [status] outside the active vocabulary (null) gets the neutral blue-grey of
+/// "no status".
+({Color background, Color foreground}) statusBadgeColors(BookStatus? status) {
+  final fill = (status?.color ?? Colors.blueGrey).withValues(alpha: 1);
+  return _pillColorsCache.putIfAbsent(fill.toARGB32(), () {
+    if (textContrastRatio(fill, Colors.white) >= _minPillTextContrast) {
+      return (background: fill, foreground: Colors.white);
+    }
+    final hsl = HSLColor.fromColor(fill);
+    for (var lightness = hsl.lightness; lightness > 0; lightness -= 0.01) {
+      final tint = hsl.withLightness(lightness).toColor();
+      if (textContrastRatio(tint, fill) >= _tintedTextContrast) {
+        return (background: fill, foreground: tint);
+      }
+    }
+    return (background: fill, foreground: Colors.black);
+  });
+}
+
 /// The value a book carries when the reader recorded no reading intent: they
 /// own it, have not read it, are not reading it, and have not planned to.
 ///

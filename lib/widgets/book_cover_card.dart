@@ -188,7 +188,7 @@ class BookCoverCard extends StatelessWidget {
                           book.readingStatus!,
                           useInventoryStatuses,
                         );
-                        final badgeColor = statusInfo?.color ?? Colors.black;
+                        final badgeColors = statusBadgeColors(statusInfo);
                         final label = TranslationService.translate(
                           context,
                           'reading_status_${book.readingStatus}',
@@ -221,13 +221,14 @@ class BookCoverCard extends StatelessWidget {
                                 child: Container(
                                   padding: const EdgeInsets.all(4),
                                   decoration: BoxDecoration(
-                                    color: badgeColor.withValues(alpha: 0.85),
+                                    color: badgeColors.background,
                                     shape: BoxShape.circle,
+                                    border: statusPillCoverBorder,
                                   ),
                                   child: Icon(
                                     statusInfo?.icon ?? Icons.menu_book,
                                     size: 12,
-                                    color: Colors.white,
+                                    color: badgeColors.foreground,
                                   ),
                                 ),
                               ),
@@ -255,15 +256,16 @@ class BookCoverCard extends StatelessWidget {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: badgeColor.withValues(alpha: 0.85),
+                                  color: badgeColors.background,
                                   borderRadius: BorderRadius.circular(4),
+                                  border: statusPillCoverBorder,
                                 ),
                                 child: Text(
                                   label.toUpperCase(),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: badgeColors.foreground,
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,
                                   ),

@@ -1,4 +1,5 @@
 import 'package:bibliogenius/utils/book_status.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 // The absence of a reading status is a value the reader picks, not a gap in
@@ -138,6 +139,75 @@ void main() {
       )) {
         expect(hasReadingStatus(s.value), isTrue, reason: s.label);
       }
+    });
+  });
+
+  // A status pill is white or black text in 10 px bold, which WCAG 2.1 AA
+  // (RGAA 3.2) holds to 4.5:1. The grid, the list and the dashboard all draw
+  // their pill from this one rule, so it is checked here once for every status.
+  group('statusBadgeColors', () {
+    for (final status in [...individualStatuses, ...librarianStatuses]) {
+      test('the ${status.value} pill text reaches 4.5:1', () {
+        final colors = statusBadgeColors(status);
+        expect(
+          colors.background.a,
+          1.0,
+          reason:
+              'a translucent fill lets '
+              'the cover underneath change the contrast',
+        );
+        expect(
+          textContrastRatio(colors.foreground, colors.background),
+          greaterThanOrEqualTo(4.5),
+        );
+      });
+    }
+
+    // The pill keeps the bright status colour, the one the grid always wore,
+    // so it stands out on a cover. Contrast is luminance alone and white on
+    // bright blue stops at 3.1:1, so the text turns dark rather than the fill:
+    // a dark shade of the pill's own hue, softer than black, with a margin
+    // above the floor.
+    for (final (value, hue) in [
+      ('reading', Colors.blue),
+      ('to_read', Colors.orange),
+      ('read', Colors.green),
+    ]) {
+      test('the $value pill stays bright, with dark text of its hue', () {
+        final colors = statusBadgeColors(
+          individualStatuses.firstWhere((s) => s.value == value),
+        );
+        expect(colors.background.toARGB32(), hue.toARGB32());
+        expect(colors.foreground, isNot(Colors.black));
+        expect(
+          HSLColor.fromColor(colors.foreground).hue,
+          closeTo(HSLColor.fromColor(hue).hue, 1),
+        );
+        expect(
+          textContrastRatio(colors.foreground, colors.background),
+          greaterThanOrEqualTo(5.0),
+        );
+      });
+    }
+
+    // A deep hue keeps the white text it reads best in.
+    test('the brown abandoned pill keeps white text', () {
+      final colors = statusBadgeColors(
+        individualStatuses.firstWhere((s) => s.value == 'abandoned'),
+      );
+      expect(colors.background.toARGB32(), Colors.brown.toARGB32());
+      expect(colors.foreground, Colors.white);
+    });
+
+    // A value outside the active vocabulary (a reading status while the
+    // cataloguing statuses are on) still gets a compliant, neutral pill.
+    test('an unknown status falls back on a neutral pill', () {
+      final colors = statusBadgeColors(null);
+      expect(colors.background.toARGB32(), Colors.blueGrey.toARGB32());
+      expect(
+        textContrastRatio(colors.foreground, colors.background),
+        greaterThanOrEqualTo(4.5),
+      );
     });
   });
 }
