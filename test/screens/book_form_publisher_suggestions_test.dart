@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -158,6 +159,79 @@ void main() {
       await saveAdd(tester);
 
       expect(bookRepo.lastCreate?['publisher'], 'Gallimard Loisirs');
+    });
+  });
+
+  group('Enter key', () {
+    setUp(() {
+      bookRepo.mockBooks = [
+        ...bookRepo.mockBooks,
+        Book(title: 'Le Royaume de Kensuké', publisher: 'Seuil Jeunesse'),
+      ];
+    });
+
+    testWidgets('keeps the typed name over the first suggestion', (
+      tester,
+    ) async {
+      await pumpAdd(tester);
+      await typePublisher(tester, 'Seuil');
+      expect(suggestion('Seuil Jeunesse'), findsOneWidget);
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await saveAdd(tester);
+
+      expect(bookRepo.lastCreate?['publisher'], 'Seuil');
+    });
+
+    testWidgets('takes the suggestion highlighted with the arrow keys', (
+      tester,
+    ) async {
+      await pumpAdd(tester);
+      await typePublisher(tester, 'gall');
+      // "Gallimard" is highlighted first; one step down is the next one.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await saveAdd(tester);
+
+      expect(bookRepo.lastCreate?['publisher'], 'Gallimard Jeunesse');
+    });
+
+    testWidgets('Shift and an arrow key select text, not a suggestion', (
+      tester,
+    ) async {
+      await pumpAdd(tester);
+      await typePublisher(tester, 'Seuil');
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pumpAndSettle();
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await saveAdd(tester);
+
+      expect(bookRepo.lastCreate?['publisher'], 'Seuil');
+    });
+
+    testWidgets('typing after the arrow keys keeps the typed name again', (
+      tester,
+    ) async {
+      await pumpAdd(tester);
+      await typePublisher(tester, 'Seui');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      await tester.enterText(publisherField(), 'Seuil');
+      await tester.pumpAndSettle();
+
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      await saveAdd(tester);
+
+      expect(bookRepo.lastCreate?['publisher'], 'Seuil');
     });
   });
 
